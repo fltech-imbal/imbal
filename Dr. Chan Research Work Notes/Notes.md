@@ -55,15 +55,34 @@ Ways to sum / count up elements in list:
 - Pairwise sums: In parallel, add all pairs of numbers in the list (Ex: \[1, 2, 3, 4, 5, 6, 7, 8, 9, 10\] $\rightarrow$ \[3, 7, 11, 15, 19\]). Then, continue this process until there is only one element left, and return that element.
 ## Meeting Notes
 ## Tasks
-- Use Pos - TP = FP in arithmetic approach for parallel
-- Try a data split of 2% TP, 1% FN, 2% FP, 95% TN
-- Use TensorFlow AUROC and compare (maybe with table?)
-- Generalize F1 to allow for a threshold parameter
-	- Then, implement in a way that is consistent with TensorFlow implementation
-- Stratified sampling
-	- Pass split percent, number of classes (but could be default, so calculate), and data
-- Look into specifying weights for each same in loss function (TensorFlow)
+- Use Pos - TP = FP in arithmetic approach for parallel ($\checkmark$)
+- Try a data split of 2% TP, 1% FN, 2% FP, 95% TN ($\checkmark$)
+- Use TensorFlow AUROC and compare (maybe with table?) (**$\checkmark$**)
+- Generalize F1 to allow for a threshold parameter ($\checkmark$)
+	- Then, implement in a way that is consistent with TensorFlow implementation ($\checkmark$, but my implementation is currently less versatile)
+- Stratified sampling ($\checkmark$)
+	- Pass split percent, number of classes (but could be default, so calculate), and data ($\checkmark$)
+- Look into specifying weights for each sample in loss function (TensorFlow) ($\checkmark$)
 - Stratified sampling for weight (when batch > samples, oversample, but compensate with weight)
-- Find out how minibatches are created in TensorFlow (is there a way to modify it?)
+- Find out how minibatches are created in TensorFlow (is there a way to modify it?) ($\checkmark$)
 	- Build a similar version that evenly distributes weights over minibatches, weights should sum to one across ALL samples
 
+> In addition to the same interface (parameters) as tf's F1, use the same vocabulary in terms of parameter names.  ($\checkmark$)
+> Add checks on division by zero.  If so, add epsilon (e.g. 1e-10) to denominator. ($\checkmark$)
+
+# 8/25/25
+ 
+## Prep
+- Update: Fastest way to compute confusion matrix thus far, using TP + FP = PPos and TP + FN = Pos
+- Opted for 3% TP, 1% FN, 2% FP, 94% TN
+- Generalized both F1 and AUROC
+	- Note: TensorFlow has a lot of additional "pre-processing" they do for their metric implementations, so while my custom implementations seem faster on the surface, they are also currently less versatile than the TensorFlow equivalent
+> Look into specifying weights for each sample in loss function (TensorFlow)
+ ![[sample_weights tensorflow.png]]
+> ![[better_stratified_weight_sampling.png]]
+
+> Find out how minibatches are created in TensorFlow (is there a way to modify it?)
+
+![[dataset-manual-batching.png]]
+
+TensorFlow implementation always add epsilon for divisions in metrics, presumably because for most cases, adding epsilon will have little effect on the final result.
