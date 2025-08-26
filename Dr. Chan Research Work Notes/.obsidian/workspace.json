@@ -20,6 +20,18 @@
               "icon": "lucide-file",
               "title": "Notes"
             }
+          },
+          {
+            "id": "a062a0cf4d6c8b8d",
+            "type": "leaf",
+            "state": {
+              "type": "pdf",
+              "state": {
+                "file": "Original PDF.pdf"
+              },
+              "icon": "lucide-file-text",
+              "title": "Original PDF"
+            }
           }
         ]
       }
@@ -171,11 +183,11 @@
   },
   "active": "7eb4d2536c875b69",
   "lastOpenFiles": [
-    "Images/dataset-manual-batching.png",
+    "Original PDF.pdf",
     "Notes.md",
+    "Images/dataset-manual-batching.png",
     "Images/better_stratified_weight_sampling.png",
     "Images/sample_weights tensorflow.png",
-    "Original PDF.pdf",
     "Images",
     "Notes (Old)/Dr. Chan Meeting 8-18-25.md",
     "Notes (Old)/Dr. Chan Meeting 8-20-25.md",

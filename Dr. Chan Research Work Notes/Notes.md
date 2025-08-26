@@ -63,9 +63,9 @@ Ways to sum / count up elements in list:
 - Stratified sampling ($\checkmark$)
 	- Pass split percent, number of classes (but could be default, so calculate), and data ($\checkmark$)
 - Look into specifying weights for each sample in loss function (TensorFlow) ($\checkmark$)
-- Stratified sampling for weight (when batch > samples, oversample, but compensate with weight)
+- Stratified sampling for weight (when batch > samples, oversample, but compensate with weight) ($\checkmark$, but yet to compensate)
 - Find out how minibatches are created in TensorFlow (is there a way to modify it?) ($\checkmark$)
-	- Build a similar version that evenly distributes weights over minibatches, weights should sum to one across ALL samples
+	- Build a similar version that evenly distributes weights over minibatches, weights should sum to one across ALL samples ($\checkmark$, but all samples per batch, or all samples *globally?*)
 
 > In addition to the same interface (parameters) as tf's F1, use the same vocabulary in terms of parameter names.  ($\checkmark$)
 > Add checks on division by zero.  If so, add epsilon (e.g. 1e-10) to denominator. ($\checkmark$)
@@ -86,3 +86,31 @@ Ways to sum / count up elements in list:
 ![[dataset-manual-batching.png]]
 
 TensorFlow implementation always add epsilon for divisions in metrics, presumably because for most cases, adding epsilon will have little effect on the final result.
+
+
+
+## Tasks:
+
+Use TensorFlow `Metric` parent class for our metric implementation
+
+Highest priority: ***SEAMLESS TensorFlow integration for metrics***
+- Demo of model running with additional metrics a la Table 3
+	- Passing in strings to `model.compile`... does it look up based on subclasses of `Metric` or similar? Or is it harder to make "seamless"
+
+Extension (don't write something already written) and seamless (exact same as TensorFlow)
+
+> For mini-batching: Should weights sum up to 1 per minibatch, or sum up to 1 *globally*?
+- YES, 1 GLOBALLY, not per batch
+- **All other metrics**... TensorFlow-like interface
+	- "Mimic" implementations do not have to go deeper than "interface level"
+	- Goal: interface similar to `model.compile`, but for our metrics (list of name strings)
+- Faster stratified sampling:
+	- "Collect" indices, work exclusively in index space. Is there a function to extract indices from a "bit vector"?
+		- Parallelization to get totals of each class, then generate list of random indices, and fill P/N Train/Test "bins" until full
+- (!!!) Make sure to leave in debugging prints for stratified samples with weights. Dr. Chan would like to see this.
+- Update stratified sampling: Samples \* individual weight should equal desired total weight
+	- User will specify the weight *per class*, which we will use that to compute individual weight
+- Stratified sampling: Don't duplicate samples, weight per batch can be "relaxed", close but not perfect, as long as total still sums to 1
+
+
+
