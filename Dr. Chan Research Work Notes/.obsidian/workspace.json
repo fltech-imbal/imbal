@@ -22,18 +22,21 @@
             }
           },
           {
-            "id": "a062a0cf4d6c8b8d",
+            "id": "27c980bb244f2d29",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "pdf",
               "state": {
                 "file": "Original PDF.pdf"
               },
+              "pinned": true,
               "icon": "lucide-file-text",
               "title": "Original PDF"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -181,10 +184,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "7eb4d2536c875b69",
+  "active": "27c980bb244f2d29",
   "lastOpenFiles": [
-    "Original PDF.pdf",
     "Notes.md",
+    "Original PDF.pdf",
     "Images/dataset-manual-batching.png",
     "Images/better_stratified_weight_sampling.png",
     "Images/sample_weights tensorflow.png",

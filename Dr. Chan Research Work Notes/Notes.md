@@ -112,5 +112,10 @@ Extension (don't write something already written) and seamless (exact same as Te
 	- User will specify the weight *per class*, which we will use that to compute individual weight
 - Stratified sampling: Don't duplicate samples, weight per batch can be "relaxed", close but not perfect, as long as total still sums to 1
 
+# 8/27/25
+
+## Prep:
+- 
+
 
 
