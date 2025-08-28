@@ -20,7 +20,7 @@ class TSS(tf.keras.Metric):
                      y_true : List | NDArray,
                      y_pred : List | NDArray,
                      sample_weight = None) -> None:
-        y_pred = tf.cast(y_pred > self._threshold, tf.int32)
+        y_pred = tf.cast(y_pred > self._threshold, tf.float32)
         y_true = tf.reshape(tf.cast(y_true, tf.float32), (-1, 1))
 
         neg = tf.reduce_sum(1 - y_true)

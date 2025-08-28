@@ -35,8 +35,7 @@
               "title": "Original PDF"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,10 +183,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "27c980bb244f2d29",
+  "active": "7eb4d2536c875b69",
   "lastOpenFiles": [
-    "Notes.md",
+    "Pasted image 20250827113318.png",
     "Original PDF.pdf",
+    "Notes.md",
     "Images/dataset-manual-batching.png",
     "Images/better_stratified_weight_sampling.png",
     "Images/sample_weights tensorflow.png",

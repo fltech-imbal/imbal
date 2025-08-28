@@ -115,7 +115,18 @@ Extension (don't write something already written) and seamless (exact same as Te
 # 8/27/25
 
 ## Prep:
-- 
+- So many issues... but seamless TensorFlow integration
+## Meeting Notes:
 
+- **Goal:** ***SEAMLESS TensorFlow integration for metrics***
+## Tasks:
+- Work on call by strings (want option for both) (!!!)
+	- For seamless extensions, model after F1
+- Seamless extension of AUC for lower maximum FPR (do not normalize) (!!)
+	- Capping FPR leads to knowing you will have less "false alarms", also possibly minimum Precision (but not need to implement now)
+	- AUROC, then AUPR
+- Can we resolve conflicts with ConfusionMatrix class with Metrics? (add_weight conflicts and such) (!)
+- In precision source code: (can we use this?)
 
+![[Pasted image 20250827113318.png]]
 
