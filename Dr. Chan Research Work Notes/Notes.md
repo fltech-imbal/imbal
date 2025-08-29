@@ -128,5 +128,22 @@ Extension (don't write something already written) and seamless (exact same as Te
 - Can we resolve conflicts with ConfusionMatrix class with Metrics? (add_weight conflicts and such) (!)
 - In precision source code: (can we use this?)
 
-![[Pasted image 20250827113318.png]]
+![[confusion_matrix.png]]
+
+
+# 8/29/25
+
+## Prep:
+- Work on calling by strings
+	- **IT WORKS**, class names and aliases
+> Notes on findings:
+	- When passing a list of metrics to `model.compile()`, the list gets sent to some `CompileMetrics` class constructor
+	- That class constructor, located in `keras/src/trainers/compile_utils`, saves the metrics to `self._user_metrics`, which is later accessed in a `build` function, which then calls a `_build_metrics_set` function, which passes each metrics to a `get_metric` functions, which calls a `get` function directly from the `keras/src/metrics` module
+	- This `get` function checks a `dict[str, Metric]` object, which contains mappings for all metrics and their corresponding strings
+> In short, updating this dictionary manually (it is importable) allows metrics to be referenced by string.
+
+- Thought: On the topic of not computing the confusion matrix entries multiple times, there is a chance we could have a static class, similar to the metric class, that can accumulate the confusion matrix entries, which our other metrics can then access without having to compute them multiple times. It would have to involve some flag to show that user wants to use it, on top of being included as one of the metrics in `model.compile()`
+- AUC source code seems to make use of the built-in confusion matrix features in a way that is much more digestible... might try to make use of it later on:
+![[auc_confusion_matrix_usage.png]]
+- 
 

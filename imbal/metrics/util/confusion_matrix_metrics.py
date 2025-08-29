@@ -1,22 +1,21 @@
-from imbal.metrics import ConfusionMatrix
+from numpy.typing import NDArray
+from tensorflow import Tensor
+from keras.src import ops
 
-def true_positive_rate(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.tp() / confusion_matrix.pos()
+def tp(y_true : NDArray | Tensor, y_pred : NDArray | Tensor) -> NDArray | Tensor:
+    return y_true * y_pred
+def fp(y_true : NDArray | Tensor, y_pred : NDArray | Tensor) ->  NDArray | Tensor:
+    return (1 - y_true) * y_pred
+def tn(y_true : NDArray | Tensor, y_pred : NDArray | Tensor) ->  NDArray | Tensor:
+    return (1 - y_true) * (1 - y_pred)
+def fn(y_true : NDArray | Tensor, y_pred : NDArray | Tensor) ->  NDArray | Tensor:
+    return y_true * (1 - y_pred)
 
-def false_positive_rate(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.fp() / confusion_matrix.neg()
+def weighted_sum(
+    val: Tensor,
+    weights: NDArray
+) -> Tensor:
+    if weights is not None:
+        val = ops.multiply(val, ops.expand_dims(weights, 1))
+    return ops.sum(val, axis=0)
 
-def true_negative_rate(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.tn() /confusion_matrix.neg()
-
-def precision(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.tp() / confusion_matrix.ppos()
-
-def expected_tp(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.pos() * confusion_matrix.ppos() / confusion_matrix.sample_size()
-
-def expected_tn(confusion_matrix : ConfusionMatrix) -> float:
-    return confusion_matrix.neg() * confusion_matrix.pneg() / confusion_matrix.sample_size()
-
-def expected_correct(confusion_matrix : ConfusionMatrix) -> float:
-    return expected_tp(confusion_matrix) + expected_tn(confusion_matrix)

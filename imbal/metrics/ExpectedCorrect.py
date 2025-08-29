@@ -1,46 +1,56 @@
-import tensorflow as tf
-from typing import List
 from numpy.typing import NDArray
+from typing import Tuple
+from tensorflow import Tensor
+from imbal.metrics.ConfusionMatrixMetric import ConfusionMatrixMetric
+from imbal.metrics.util import weighted_sum
+import tensorflow as tf
 
-class ExpectedCorrect(tf.keras.Metric):
-    def __init__(self,
-                 threshold : float = 0.5,
-                 name='expected_correct',
-                 **kwargs) -> None:
-        super(ExpectedCorrect, self).__init__(name=name, **kwargs)
-        self._threshold = threshold
+class ExpectedCorrect(ConfusionMatrixMetric):
+    def __init__(
+        self,
+        threshold : None | float = 0.5,
+        name : str = 'expected_correct',
+        dtype : type | None = None
+    ) -> None:
 
-        self.pos = self.add_weight(name="pos", initializer="zeros", dtype=tf.float32)
-        self.ppos = self.add_weight(name="ppos", initializer="zeros", dtype=tf.float32)
-        self.neg = self.add_weight(name="neg", initializer="zeros", dtype=tf.float32)
-        self.pneg = self.add_weight(name="pneg", initializer="zeros", dtype=tf.float32)
-        self.sample_size = self.add_weight(name="sample_size", initializer="zeros", dtype=tf.float32)
+        super().__init__(
+            name=name,
+            dtype=dtype,
+            threshold=threshold
+        )
 
-    def update_state(self,
-                     y_true : List | NDArray,
-                     y_pred : List | NDArray,
-                     sample_weight = None) -> None:
-        y_pred = tf.cast(y_pred > self._threshold, tf.int32)
-        y_true = tf.reshape(tf.cast(y_true, tf.float32), (-1, 1))
+        self._positive = None
+        self._predicted_positive = None
+        self._negative = None
+        self._predicted_negative = None
+        self._sample_size = None
 
-        pneg = tf.reduce_sum(1 - y_pred)
-        neg = tf.reduce_sum(1 - y_true)
-        ppos = tf.reduce_sum(y_pred)
-        pos = tf.reduce_sum(y_true)
-        sample_size = tf.size(y_true)
+    def build(
+        self,
+        y_true_shape : Tuple,
+        y_pred_shape : Tuple
+    ) -> None:
+        super().build(y_true_shape, y_pred_shape)
 
-        self.pos.assign_add(pos)
-        self.ppos.assign_add(ppos)
-        self.neg.assign_add(neg)
-        self.pneg.assign_add(pneg)
-        self.sample_size.assign_add(sample_size)
+        self._negative = super().add_zeros_variable("negative")
+        self._predicted_negative = super().add_zeros_variable("predicted_negative")
+        self._positive = super().add_zeros_variable("positive")
+        self._predicted_positive = super().add_zeros_variable("predicted_positive")
+        self._sample_size = super().add_zeros_variable("sample_size")
+        self._built = True
 
-    def result(self) -> float:
-        return tf.math.divide_no_nan(self.pos * self.ppos, self.sample_size) + tf.math.divide_no_nan(self.neg * self.pneg, self.sample_size)
+    def complete_update(
+            self,
+            y_true: NDArray | Tensor,
+            y_pred: NDArray | Tensor,
+            sample_weight: NDArray | Tensor | None = None
+    ):
+        self._negative.assign_add(weighted_sum(1 - y_true, sample_weight))
+        self._predicted_negative.assign_add(weighted_sum(1 - y_pred, sample_weight))
+        self._positive.assign_add(weighted_sum(y_true, sample_weight))
+        self._predicted_positive.assign_add(weighted_sum(y_pred, sample_weight))
+        self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
 
-    def reset_states(self) -> None:
-        self.neg.assign(0.0)
-        self.pneg.assign(0.0)
-        self.ppos.assign(0.0)
-        self.pos.assign(0.0)
-        self.sample_size.assign(0.0)
+    def result(self) -> Tensor:
+        return (self._negative * self._predicted_negative /  self._sample_size +
+                self._positive * self._predicted_positive /  self._sample_size)
