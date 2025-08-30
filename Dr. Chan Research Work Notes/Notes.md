@@ -145,5 +145,13 @@ Extension (don't write something already written) and seamless (exact same as Te
 - Thought: On the topic of not computing the confusion matrix entries multiple times, there is a chance we could have a static class, similar to the metric class, that can accumulate the confusion matrix entries, which our other metrics can then access without having to compute them multiple times. It would have to involve some flag to show that user wants to use it, on top of being included as one of the metrics in `model.compile()`
 - AUC source code seems to make use of the built-in confusion matrix features in a way that is much more digestible... might try to make use of it later on:
 ![[auc_confusion_matrix_usage.png]]
-- 
+- What I have dubbed the "LimitedAUC" class has been implemented by extending TensorFlow's pre-existing AUC, but adjusting the `__init__()` and `result()` functions to account for any specified bounds.
 
+## Meeting Notes:
+- Temp
+
+## Tasks:
+- Minimize memory usage for metric import dictionary by updating TF dictionary directly
+- Can we resolve conflicts with ConfusionMatrix class with Metrics? (add_weight conflicts and such) (!) 
+- Stratified sampling tasks from 8/25/25 (!)
+- LimitedAUC, decision threshold high to low, simply stop FPR/TPR calculation when max FPR is reached
