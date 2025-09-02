@@ -1,14 +1,16 @@
-from .TruePositiveRate import TruePositiveRate
-from .FalsePositiveRate import FalsePositiveRate
-from .TrueNegativeRate import TrueNegativeRate
-from .ExpectedTruePositive import ExpectedTruePositive
-from .ExpectedTrueNegative import ExpectedTrueNegative
-from .ExpectedCorrect import ExpectedCorrect
-from .TrueSkillStatistic import TrueSkillStatistic
-from .HeikdeSkillScore import HeikdeSkillScore
-from .GilbertSkillScore import GilbertSkillScore
-from .CriticalSuccessIndex import CriticalSuccessIndex
-from .LimitedAUC import LimitedAUC
+from .true_positive_rate import TruePositiveRate
+from .false_positive_rate import FalsePositiveRate
+from .true_negative_rate import TrueNegativeRate
+from .expected_true_positive import ExpectedTruePositive
+from .expected_true_negative import ExpectedTrueNegative
+from .expected_correct import ExpectedCorrect
+from .true_skill_statistic import TrueSkillStatistic
+from .heikde_skill_score import HeikdeSkillScore
+from .gilbert_skill_score import GilbertSkillScore
+from .critical_success_index import CriticalSuccessIndex
+from .bounded_auc import BoundedAUC
+from .confusion_matrix import ConfusionMatrix, ConfusionMatrixData
+from .optimize_confusion_metric_callback import OptimizeConfusionMetricCallback
 
 from keras.src.metrics import ALL_OBJECTS_DICT
 from keras.src.utils.naming import to_snake_case
@@ -24,14 +26,14 @@ IMBAL_OBJECTS = {
     HeikdeSkillScore,
     GilbertSkillScore,
     CriticalSuccessIndex,
-    LimitedAUC
+    BoundedAUC
 }
 
-IMBAL_OBJECTS_DICT = {cls.__name__: cls for cls in IMBAL_OBJECTS}
-IMBAL_OBJECTS_DICT.update(
+ALL_OBJECTS_DICT.update({cls.__name__: cls for cls in IMBAL_OBJECTS})
+ALL_OBJECTS_DICT.update(
     {to_snake_case(cls.__name__): cls for cls in IMBAL_OBJECTS}
 )
-IMBAL_OBJECTS_DICT.update(
+ALL_OBJECTS_DICT.update(
     {
         'tpr' : TruePositiveRate,
         'TPR' : TruePositiveRate,
@@ -48,14 +50,16 @@ IMBAL_OBJECTS_DICT.update(
         'EC' : ExpectedCorrect,
         'tss' : TrueSkillStatistic,
         'TSS' : TrueSkillStatistic,
+        'j_statistic' : TrueSkillStatistic,
+        'youdens_index' : TrueSkillStatistic,
         'hss' : HeikdeSkillScore,
         'HSS' : HeikdeSkillScore,
         'gss' : GilbertSkillScore,
         'GSS' : GilbertSkillScore,
         'gs' : GilbertSkillScore,
         'GS' : GilbertSkillScore,
+        'threat_score' : CriticalSuccessIndex,
         'csi' : CriticalSuccessIndex,
         'CSI' : CriticalSuccessIndex,
     }
 )
-ALL_OBJECTS_DICT.update(IMBAL_OBJECTS_DICT)
