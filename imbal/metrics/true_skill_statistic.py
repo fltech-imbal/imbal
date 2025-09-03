@@ -4,6 +4,7 @@ from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
 from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
+from keras.src.metrics import metrics_utils
 
 class TrueSkillStatistic(ConfusionMatrixMetric):
     """
@@ -71,6 +72,11 @@ class TrueSkillStatistic(ConfusionMatrixMetric):
         self._false_positives = None
         self._negatives = None
 
+
+        self._true_negatives = None
+        self._false_negatives = None
+
+
     def _build(
         self,
         y_true_shape : Tuple,
@@ -82,6 +88,10 @@ class TrueSkillStatistic(ConfusionMatrixMetric):
         self._positives = super()._add_zeros_variable("positives")
         self._false_positives = super()._add_zeros_variable("false_positives")
         self._negatives = super()._add_zeros_variable("negatives")
+
+
+        self._false_negatives = super()._add_zeros_variable('false_negatives')
+        self._true_negatives = super()._add_zeros_variable('true_negatives')
         self._built = True
 
     def _complete_update(
@@ -101,10 +111,25 @@ class TrueSkillStatistic(ConfusionMatrixMetric):
             self._false_positives.assign(ocmc.fp())
             self._negatives.assign(ocmc.neg())
         def manual_update() -> None:
-            self._true_positives.assign_add(weighted_sum(y_true * y_pred, sample_weight))
-            self._positives.assign_add(weighted_sum(y_true, sample_weight))
-            self._false_positives.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
+            # self._true_positives.assign_add(weighted_sum(y_true * y_pred, sample_weight))
+            # self._positives.assign_add(weighted_sum(y_true, sample_weight))
+            # self._false_positives.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
+            # self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
+            metrics_utils.update_confusion_matrix_variables(
+                {
+                    metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positives,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.TRUE_NEGATIVES: self._true_negatives,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_POSITIVES: self._false_positives,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_NEGATIVES: self._false_negatives,  # noqa: E501
+                },
+                y_true,
+                y_pred,
+                metrics_utils.parse_init_thresholds(None, self._threshold),
+                sample_weight=sample_weight
+            )
+
+            self._positives.assign(self._true_positives + self._false_negatives)
+            self._negatives.assign(self._true_negatives + self._false_positives)
 
         tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 

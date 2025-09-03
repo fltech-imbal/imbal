@@ -22,7 +22,7 @@ class FalsePositiveRate(ConfusionMatrixMetric):
         self._false_positives = None
         self._negatives = None
 
-    def build(
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple
@@ -47,7 +47,7 @@ class FalsePositiveRate(ConfusionMatrixMetric):
             self._false_positives.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
             self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
 
-        _
+        tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 
     def result(self) -> Tensor:
         return self._false_positives / self._negatives

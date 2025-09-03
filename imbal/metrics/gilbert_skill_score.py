@@ -4,6 +4,7 @@ from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
 from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 import tensorflow as tf
+from keras.src.metrics import metrics_utils
 
 class GilbertSkillScore(ConfusionMatrixMetric):
     """
@@ -74,7 +75,9 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         self._false_negative = None
         self._sample_size = None
 
-    def build(
+        self._true_negative = None
+
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple
@@ -86,6 +89,8 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         self._false_positive = super()._add_zeros_variable("false_positive")
         self._false_negative = super()._add_zeros_variable("false_negative")
         self._sample_size = super()._add_zeros_variable("sample_size")
+
+        self._true_negative = super()._add_zeros_variable("true_negative")
         self._built = True
 
     def _complete_update(
@@ -106,11 +111,27 @@ class GilbertSkillScore(ConfusionMatrixMetric):
             self._false_negative.assign(ocmc.fn())
             self._sample_size.assign(ocmc.ss())
         def manual_update() -> None:
-            self._positive.assign_add(weighted_sum(y_true, sample_weight))
-            self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
-            self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
-            self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
+            # self._positive.assign_add(weighted_sum(y_true, sample_weight))
+            # self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
+            # self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
+            # self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
+            # self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
+
+            metrics_utils.update_confusion_matrix_variables(
+                {
+                    metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positive,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.TRUE_NEGATIVES: self._true_negative,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_POSITIVES: self._false_positive,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_NEGATIVES: self._false_negative,  # noqa: E501
+                },
+                y_true,
+                y_pred,
+                metrics_utils.parse_init_thresholds(None, self._threshold),
+                sample_weight=sample_weight
+            )
+
+            self._positive.assign(self._true_positive + self._false_negative)
+            self._sample_size.assign(self._positive + self._false_positive + self._true_negative)
 
         tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 

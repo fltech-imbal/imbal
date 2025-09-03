@@ -4,6 +4,7 @@ from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
 from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
+from keras.src.metrics import metrics_utils
 
 class CriticalSuccessIndex(ConfusionMatrixMetric):
     """
@@ -69,7 +70,7 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
         self._false_positive = None
         self._false_negative = None
 
-    def build(
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple
@@ -93,9 +94,21 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
             self._false_positive.assign(ocmc.fp())
             self._false_negative.assign(ocmc.fn())
         def manual_update() -> None:
-            self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
-            self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
+            # self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
+            # self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
+            # self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
+
+            metrics_utils.update_confusion_matrix_variables(
+                {
+                    metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positive,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_POSITIVES: self._false_positive,  # noqa: E501
+                    metrics_utils.ConfusionMatrix.FALSE_NEGATIVES: self._false_negative,  # noqa: E501
+                },
+                y_true,
+                y_pred,
+                metrics_utils.parse_init_thresholds(None, self._threshold),
+                sample_weight=sample_weight
+            )
 
         tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 

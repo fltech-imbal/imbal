@@ -32,9 +32,9 @@ class BoundedAUC(AUC):
             x value at which AUC should be computed.
         min_y: Optional. A float between :code:`0` and :code:`1`, specifying the minimum
             y value at which AUC should be computed.
-        min_y: Optional. A float between :code:`0` and :code:`1`, specifying the maximum
+        max_y: Optional. A float between :code:`0` and :code:`1`, specifying the maximum
             y value at which AUC should be computed. Setting this value should be used for debugging
-            purposes only, as ignoring low x values of AUC is generally undesireable.
+            purposes only, as ignoring high y values of AUC is generally undesireable.
         curve: Optional, default :code:`'PR'` Specifies the name of the curve to be computed,
             `'ROC'` (default) or `'PR'` for the Precision-Recall-curve.
         summation_method: Optional. Specifies the `Riemann summation method

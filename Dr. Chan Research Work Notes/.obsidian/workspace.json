@@ -49,8 +49,7 @@
               "title": "Original PDF"
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -198,10 +197,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "10b9777023201082",
+  "active": "6e3885e06346b909",
   "lastOpenFiles": [
-    "Notes - 9-25.md",
     "Notes - 8-25.md",
+    "Notes - 9-25.md",
     "Original PDF.pdf",
     "Images/auc_confusion_matrix_usage.png",
     "Images/confusion_matrix.png",

@@ -22,7 +22,7 @@ class TrueNegativeRate(ConfusionMatrixMetric):
         self._true_negatives = None
         self._negatives = None
 
-    def build(
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple

@@ -23,7 +23,7 @@ class ExpectedTruePositive(ConfusionMatrixMetric):
         self._predicted_positive = None
         self._sample_size = None
 
-    def build(
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple

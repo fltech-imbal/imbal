@@ -23,7 +23,7 @@ class ExpectedTrueNegative(ConfusionMatrixMetric):
         self._predicted_negative = None
         self._sample_size = None
 
-    def build(
+    def _build(
         self,
         y_true_shape : Tuple,
         y_pred_shape : Tuple
@@ -52,7 +52,7 @@ class ExpectedTrueNegative(ConfusionMatrixMetric):
             self._predicted_negative.assign_add(weighted_sum(1 - y_pred, sample_weight))
             self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
 
-        t_f.cond(ocmc.is_enabled(), optimized_update, manual_update)
+        tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 
     def result(self) -> Tensor:
         return self._negative * self._predicted_negative /  self._sample_size
