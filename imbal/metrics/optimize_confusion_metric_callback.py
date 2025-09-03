@@ -64,9 +64,9 @@ class OptimizeConfusionMetricCallback(tf.keras.callbacks.Callback):
     @classmethod
     def ensure_updated_metrics(
             cls,
-            y_true: NDArray | Tensor,
-            y_pred: NDArray | Tensor,
-            sample_weight: NDArray | Tensor | None = None,
+            y_true,
+            y_pred,
+            sample_weight = None,
             dtype: type = tf.float32,
     ):
 

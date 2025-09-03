@@ -13,4 +13,20 @@
 
 * Documentation for metric classes using Sphinx $\checkmark$
 * Refactored metrics to use `keras.src.metrics.metric_utils` $\checkmark$
-* 
+
+## Meeting Notes:
+- Stepping away from "single confusion matrix metrics"
+	- We could maybe do it more seamlessly, but accuracy could suffer. Accuracy is paramount, followed by seamlessness.
+## Tasks:
+-  "this class can be passed as a metric, along with any of the following string type aliases: "in docs replace with "class instance OR string"
+- J statistic and Youden's index are subclasses that directly inherit every function of TSS
+	- **Show why formulas are equal, and point to TSS page**
+	- J1?
+- Convert "in code" formulas to $LaTeX$
+	- Make sure to be using first/'definition" equation
+	- Include intermediate values, with separate pages explaining them
+- Override nondescriptive docstrings from TF
+	- Mention "Overridden methods have been documented for additional clarity. for any undocumented methods, refer to the TF metric class"
+- Add code examples for `model.compile()`
+- Stratified Sampling by inheriting some TF class? (!!)
+- "Hybrid" TF confusion matrix / custom computation where appropriate
