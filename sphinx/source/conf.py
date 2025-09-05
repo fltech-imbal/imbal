@@ -21,7 +21,12 @@ release = ''
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'myst_parser'
+    'myst_parser',
+    'sphinx.ext.mathjax'
+]
+
+myst_enable_extensions = [
+    "dollarmath"
 ]
 
 templates_path = ['_templates']

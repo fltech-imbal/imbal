@@ -7,15 +7,17 @@ import tensorflow as tf
 from keras.src.metrics import metrics_utils
 
 class GilbertSkillScore(ConfusionMatrixMetric):
-    """
+    r"""
     Computes the Gilbert Skill Score.
 
     Formula:
 
-    .. code-block:: python
+    .. math::
 
-       gilbert_skill_score = (true_positive - expected_true_positive) / (true_positive + false_positive +
-                              false_negative - expected_true_positive)
+       \text{gilbert_skill_score} = \frac{true\_positive - chance\_hit}{true\_positive + false\_positive +
+                              false\_negative - chance\_hit}
+
+    Note that :math:`chance\_hit` is equal to :doc:`this sub-metric </imbal/metrics/submetrics/expected_true_positive>`.
 
     This quotient the "skill" of a system. Assuming a system
     will not perform worse than random, the output range is :code:`[0, 1]`.
@@ -23,8 +25,18 @@ class GilbertSkillScore(ConfusionMatrixMetric):
     randomly), while an output of :code:`1` means the system is entirely
     skilled (guessing perfectly).
 
+    Example usage:
+
+    .. code-block:: python
+
+        metric = imbal.metrics.GilbertSkillScore(threshold=0.5)
+        y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
+        y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
+        metric.update_state(y_true, y_pred)
+        result = metric.result()
+
     For use in TensorFlow's :code:`model.compile` function, this class
-    can be passed as a metric, along with any of the following string type
+    can be passed as a class instance or as any of the following string type
     aliases:
 
     * :code:`"GilbertSkillScore"`
@@ -33,6 +45,16 @@ class GilbertSkillScore(ConfusionMatrixMetric):
     * :code:`"GS"`
     * :code:`"gss"`
     * :code:`"GSS"`
+
+    Example:
+
+    .. code-block:: python
+
+       model.compile(
+           optimizer="adam",
+           loss="binary_crossentropy",
+           metrics=["gilbert_skill_score"]
+       )
 
     Args:
         threshold : Optional, default :code:`0.5`. The value which a given
@@ -45,16 +67,6 @@ class GilbertSkillScore(ConfusionMatrixMetric):
 
     Returns:
         float: Gilbert skill score.
-
-    Example:
-
-    .. code-block:: python
-
-        metric = imbal.metrics.GilbertSkillScore(threshold=0.5)
-        y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
-        y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
-        metric.update_state(y_true, y_pred)
-        result = metric.result()
     """
     def __init__(
         self,
@@ -74,7 +86,6 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         self._false_positive = None
         self._false_negative = None
         self._sample_size = None
-
         self._true_negative = None
 
     def _build(
@@ -89,7 +100,6 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         self._false_positive = super()._add_zeros_variable("false_positive")
         self._false_negative = super()._add_zeros_variable("false_negative")
         self._sample_size = super()._add_zeros_variable("sample_size")
-
         self._true_negative = super()._add_zeros_variable("true_negative")
         self._built = True
 
@@ -111,12 +121,6 @@ class GilbertSkillScore(ConfusionMatrixMetric):
             self._false_negative.assign(ocmc.fn())
             self._sample_size.assign(ocmc.ss())
         def manual_update() -> None:
-            # self._positive.assign_add(weighted_sum(y_true, sample_weight))
-            # self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
-            # self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            # self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
-            # self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
-
             metrics_utils.update_confusion_matrix_variables(
                 {
                     metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positive,  # noqa: E501
@@ -136,5 +140,11 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 
     def result(self) -> Tensor:
+        """
+        Computes the current value of the metric based on the accumulated data.
+
+        Returns:
+            The Gilbert skill score of the accumulated data.
+        """
         tpr = self._positive * (self._true_positive + self._false_positive) / self._sample_size
         return (self._true_positive - tpr) / (self._true_positive + self._false_positive + self._false_negative - tpr)

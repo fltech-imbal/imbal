@@ -11,6 +11,14 @@ class ConfusionMatrixMetric(Metric):
         confusion matrix, such as true positive, false positive, false
         negative, and true negative.
 
+        Extends `TensorFlow's tf.keras.Metric class <https://www.tensorflow.org/api_docs/python/tf/keras/Metric>`_
+
+        The :code:`ConfusionMatrixMetric` class itself should not be instanced,
+        only used as a superclass for other python classes, as it does not fully
+        implement the :code:`build()` and :code:`update_state()` methods required
+        by the Keras :code:`Metric` superclass in order to integrate properly with
+        typical :code:`Metric` usage.
+
         Args:
             threshold : Optional, default :code:`0.5`. The value which a given
                 prediction must be above in order to be considered a positive
@@ -20,11 +28,10 @@ class ConfusionMatrixMetric(Metric):
                 of the metric instance.
             dtype : Optional, default :code:`None`. Data type of the metric result.
 
-        **Note:** The :code:`ConfusionMatrixMetric` class itself should not be instanced,
-        only used as a superclass for other python classes, as it does not fully
-        implement the :code:`build()` and :code:`update_state()` methods required
-        by the Keras :code:`Metric` superclass in order to integrate properly with
-        typical :code:`Metric` usage.
+        **Note:** Where appropriate, documentation for functions from :code:`tf.keras.Metric` has been
+        overridden to be more descriptive. Any other non-descriptive documentation of individual functions
+        on this page is due to a lack of documentation in TensorFlow's original source code. Still, TensorFlow's
+        documentation and source code for the :code:`Metric` class can be found `here <https://www.tensorflow.org/api_docs/python/tf/keras/Metric>`_.
 
     """
     def __init__(
@@ -76,6 +83,16 @@ class ConfusionMatrixMetric(Metric):
          y_pred,
          sample_weight = None
     ) -> None:
+        """
+        Updates the state of the metric by accumulating all relevant statistics used to calculate the metric.
+
+        Args:
+            y_true: The ground truth labels.
+            y_pred: The predicted labels.
+            sample_weight: The weight of each sample in the provided batch.
+        Returns:
+            None
+        """
         y_true = ops.convert_to_tensor(y_true, dtype=self.dtype)
         y_pred = ops.convert_to_tensor(y_pred, dtype=self.dtype)
         if not self._built:

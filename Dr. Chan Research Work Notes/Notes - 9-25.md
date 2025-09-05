@@ -21,7 +21,6 @@
 -  "this class can be passed as a metric, along with any of the following string type aliases: "in docs replace with "class instance OR string"
 - J statistic and Youden's index are subclasses that directly inherit every function of TSS
 	- **Show why formulas are equal, and point to TSS page**
-	- J1?
 - Convert "in code" formulas to $LaTeX$
 	- Make sure to be using first/'definition" equation
 	- Include intermediate values, with separate pages explaining them
@@ -30,3 +29,15 @@
 - Add code examples for `model.compile()`
 - Stratified Sampling by inheriting some TF class? (!!)
 - "Hybrid" TF confusion matrix / custom computation where appropriate
+
+# 9/5/25
+
+## Prep
+- "this class can be passed as a metric, along with any of the following string type aliases: "in docs replace with "class instance OR string" $\checkmark$
+- J statistic and Youden's index are subclasses that directly inherit every function of TSS $\checkmark$
+- Convert "in code" formulas to $LaTeX$ $\checkmark$
+	- Include intermediate values, with separate pages explaining them $\checkmark$
+- Override nondescriptive docstrings from TF $\checkmark$
+	- Mention "Overridden methods have been documented for additional clarity. for any undocumented methods, refer to the TF metric class" $\checkmark$
+- Add code examples for `model.compile()` $\checkmark$
+-  "Hybrid" TF confusion matrix / custom computation where appropriate $\checkmark$

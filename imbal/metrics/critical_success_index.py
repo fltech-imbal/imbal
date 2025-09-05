@@ -7,22 +7,32 @@ from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMe
 from keras.src.metrics import metrics_utils
 
 class CriticalSuccessIndex(ConfusionMatrixMetric):
-    """
+    r"""
     Computes the Critical Success Index.
 
     Formula:
 
-    .. code-block:: python
+    .. math::
 
-       critical_success_index = true_positive / (true_positive + false_positive + false_negative)
+       \text{Critical Success Index} = \frac{true_positive}{true_positive + false_positive + false_negative}
 
     This quotient the "skill" of a system. The output range is :code:`[0, 1]`.
     An output of :code:`0` means the system is entirely unskilled (guessing
     randomly), while an output of :code:`1` means the system is entirely
     skilled (guessing perfectly).
 
+    Example usage:
+
+    .. code-block:: python
+
+        metric = imbal.metrics.CriticalSuccessIndex(threshold=0.5)
+        y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
+        y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
+        metric.update_state(y_true, y_pred)
+        result = metric.result()
+
     For use in TensorFlow's :code:`model.compile` function, this class
-    can be passed as a metric, along with any of the following string type
+    can be passed as a class instance or as any of the following string type
     aliases:
 
     * :code:`"CriticalSuccessIndex"`
@@ -30,6 +40,16 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
     * :code:`"csi"`
     * :code:`"CSI"`
     * :code:`"threat_score"`
+
+    Example:
+
+    .. code-block:: python
+
+       model.compile(
+           optimizer="adam",
+           loss="binary_crossentropy",
+           metrics=["CSI"]
+       )
 
     Args:
         threshold : Optional, default :code:`0.5`. The value which a given
@@ -42,16 +62,6 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
 
     Returns:
         float: Critical success index.
-
-    Example:
-
-    .. code-block:: python
-
-        metric = imbal.metrics.CriticalSuccessIndex(threshold=0.5)
-        y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
-        y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
-        metric.update_state(y_true, y_pred)
-        result = metric.result()
     """
     def __init__(
         self,
@@ -94,9 +104,6 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
             self._false_positive.assign(ocmc.fp())
             self._false_negative.assign(ocmc.fn())
         def manual_update() -> None:
-            # self._true_positive.assign_add(weighted_sum(y_true * y_pred, sample_weight))
-            # self._false_positive.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            # self._false_negative.assign_add(weighted_sum(y_true * (1 - y_pred), sample_weight))
 
             metrics_utils.update_confusion_matrix_variables(
                 {
@@ -113,4 +120,10 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
         tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 
     def result(self) -> Tensor:
+        """
+        Computes the current value of the metric based on the accumulated data.
+
+        Returns:
+            The Critical success index of the accumulated data.
+        """
         return self._true_positive / (self._true_positive + self._false_positive + self._false_negative)

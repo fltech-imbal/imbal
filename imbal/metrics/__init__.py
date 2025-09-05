@@ -5,6 +5,8 @@ from .expected_true_positive import ExpectedTruePositive
 from .expected_true_negative import ExpectedTrueNegative
 from .expected_correct import ExpectedCorrect
 from .true_skill_statistic import TrueSkillStatistic
+from .j_statistic import JStatistic
+from .youdens_index import YoudensIndex
 from .heikde_skill_score import HeikdeSkillScore
 from .gilbert_skill_score import GilbertSkillScore
 from .critical_success_index import CriticalSuccessIndex

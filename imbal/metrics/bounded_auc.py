@@ -22,6 +22,13 @@ class BoundedAUC(AUC):
     If `sample_weight` is `None`, weights default to 1.
     Use `sample_weight` of 0 to mask values.
 
+    For use in TensorFlow's :code:`model.compile` function, this class
+    can be passed as a class instance or as any of the following string type
+    aliases:
+
+    * :code:`"BoundedAUC"`
+    * :code:`"bounded_auc"`
+
     Args:
         num_thresholds: Optional, default :code:`200`. The number of thresholds to
             use when discretizing the roc curve. Values must be > 1.
