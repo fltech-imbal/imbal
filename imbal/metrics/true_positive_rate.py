@@ -3,9 +3,9 @@ from typing import Tuple
 from tensorflow import Tensor
 import tensorflow as tf
 
-from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
+from imbal.metrics.util import ConfusionMatrixMetric
 from imbal.metrics.confusion_matrix import ConfusionMatrix, ConfusionMatrixData
-from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
+from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 from keras.src import ops
 
 class TruePositiveRate(ConfusionMatrixMetric):

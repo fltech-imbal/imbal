@@ -1,14 +1,9 @@
 from numpy.typing import NDArray
-from typing import Tuple
 from tensorflow import Tensor, Variable
 import tensorflow as tf
 from enum import Enum
-from typing import Literal
 
-from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
-from keras.src import ops
-
+from imbal.metrics.util import weighted_sum
 
 
 class ConfusionMatrixData(Enum):

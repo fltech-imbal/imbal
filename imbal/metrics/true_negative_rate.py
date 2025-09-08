@@ -3,7 +3,7 @@ from typing import Tuple
 from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
+from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 
 class TrueNegativeRate(ConfusionMatrixMetric):
     def __init__(

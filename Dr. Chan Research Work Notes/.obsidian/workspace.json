@@ -183,11 +183,12 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "2663b670b17f8292",
+  "active": "9cc31fa7d4918164",
   "lastOpenFiles": [
-    "Original PDF.pdf",
-    "Notes - 9-25.md",
     "Notes - 8-25.md",
+    "Notes - 9-25.md",
+    "Original PDF.pdf",
+    "Images/notes-screenshot-8-25-25.png",
     "Images/auc_confusion_matrix_usage.png",
     "Images/confusion_matrix.png",
     "Images/dataset-manual-batching.png",

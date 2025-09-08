@@ -12,7 +12,6 @@ from .gilbert_skill_score import GilbertSkillScore
 from .critical_success_index import CriticalSuccessIndex
 from .bounded_auc import BoundedAUC
 from .confusion_matrix import ConfusionMatrix, ConfusionMatrixData
-from .optimize_confusion_metric_callback import OptimizeConfusionMetricCallback
 
 from keras.src.metrics import ALL_OBJECTS_DICT
 from keras.src.utils.naming import to_snake_case

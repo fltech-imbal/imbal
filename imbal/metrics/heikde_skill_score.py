@@ -1,8 +1,8 @@
 from numpy.typing import NDArray
 from typing import Tuple
 from tensorflow import Tensor
-from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.metrics.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
+from imbal.metrics.util import ConfusionMatrixMetric
+from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 import tensorflow as tf
 from keras.src.metrics import metrics_utils
 

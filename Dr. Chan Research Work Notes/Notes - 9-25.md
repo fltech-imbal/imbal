@@ -27,7 +27,7 @@
 - Override nondescriptive docstrings from TF
 	- Mention "Overridden methods have been documented for additional clarity. for any undocumented methods, refer to the TF metric class"
 - Add code examples for `model.compile()`
-- Stratified Sampling by inheriting some TF class? (!!)
+- **Stratified Sampling by inheriting some TF class? (!!)**
 - "Hybrid" TF confusion matrix / custom computation where appropriate
 
 # 9/5/25
@@ -41,3 +41,15 @@
 	- Mention "Overridden methods have been documented for additional clarity. for any undocumented methods, refer to the TF metric class" $\checkmark$
 - Add code examples for `model.compile()` $\checkmark$
 -  "Hybrid" TF confusion matrix / custom computation where appropriate $\checkmark$
+
+**Notes from 8/25/25**:
+![[notes-screenshot-8-25-25.png|600]]
+
+- Stratified sampling $\checkmark$
+	- Implemented as extension of `tf.keras.utils.PyDataset`, which allows for multiple batches to be run in parallel if
+		- Without stratified class sampling, TPR on 10% sparse data was 75-80%. With stratified class sampling, TPR jumped to 90-95%
+		- Other metrics suffer, but that is more likely due to the fact that the model I am testing with is very simple ($28\times28\rightarrow32\rightarrow1$ feed-forward network).
+	- Two options:
+		- `sample_weights` - Specifies the weights of each sample in a class. By default, each sample has equal weighting.
+		- `class_weights` - Specifies the portion of the total weight of the data each class should take up. For example `{ 0 : 1.0, 1: 1.0 }`, means that the final weights for the data will be one part class 0, and one part class 1. In other words, 50/50, regardless of the number of samples in each class.
+	- May have some areas that can still be optimized, but seems to work well for large batch sizes (smaller batch sizes take longer because of more array operations)
