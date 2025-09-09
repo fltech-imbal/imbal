@@ -36,7 +36,7 @@ class YoudensIndex(TrueSkillStatistic):
        \begin{align}
        & \text{Youden's Index} = true\_positive\_rate + true\_negative\_rate - 1 \\
        & = true\_positive\_rate - (1 - true\_negative\_rate) \\
-       & = true\_positive\_rate + false\_positive\_rate \\
+       & = true\_positive\_rate - false\_positive\_rate \\
        & = \text{True Skill Statistic}
        \end{align}
 

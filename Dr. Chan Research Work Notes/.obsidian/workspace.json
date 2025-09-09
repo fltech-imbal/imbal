@@ -35,7 +35,8 @@
               "title": "Original PDF"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -183,7 +184,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9cc31fa7d4918164",
+  "active": "10b9777023201082",
   "lastOpenFiles": [
     "Notes - 8-25.md",
     "Notes - 9-25.md",

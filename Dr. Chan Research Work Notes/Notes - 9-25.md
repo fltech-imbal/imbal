@@ -49,7 +49,18 @@
 	- Implemented as extension of `tf.keras.utils.PyDataset`, which allows for multiple batches to be run in parallel if
 		- Without stratified class sampling, TPR on 10% sparse data was 75-80%. With stratified class sampling, TPR jumped to 90-95%
 		- Other metrics suffer, but that is more likely due to the fact that the model I am testing with is very simple ($28\times28\rightarrow32\rightarrow1$ feed-forward network).
+	- Implemented even batching by class using stride (something I am quite happy with)
 	- Two options:
 		- `sample_weights` - Specifies the weights of each sample in a class. By default, each sample has equal weighting.
 		- `class_weights` - Specifies the portion of the total weight of the data each class should take up. For example `{ 0 : 1.0, 1: 1.0 }`, means that the final weights for the data will be one part class 0, and one part class 1. In other words, 50/50, regardless of the number of samples in each class.
 	- May have some areas that can still be optimized, but seems to work well for large batch sizes (smaller batch sizes take longer because of more array operations)
+	- **ONE ISSUE:** Because of how the `tf.keras.util.PyDataset` class is handled by `model.fit` one single instance cannot handle performing the train/test split, it would have to be handled by the user or we can provide a means to do so as a separate function
+
+## Tasks:
+- Copy link to TF Metric class in all Metric classes
+- Confirm functionality on much smaller (countable) data and batch size
+	- Don't use MNIST, handpicked dataset
+	- 2 instances per class, start with 2 classes and work up to 10 classes
+	- Via `print` statements, make sure batch contents are as expected (distributed as expected, randomized each epoch)
+- Randomize batch "membership" every epoch using `on_epoch_end()`
+- Change default behavior to be each *CLASS* is weighted evenly, not data point

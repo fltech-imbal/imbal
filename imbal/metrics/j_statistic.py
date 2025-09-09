@@ -23,7 +23,7 @@ class JStatistic(TrueSkillStatistic):
 
     .. code-block:: python
 
-        metric = imbal.metrics.YoudensIndex(threshold=0.5)
+        metric = imbal.metrics.JStatistic(threshold=0.5)
         y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
         y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
         metric.update_state(y_true, y_pred)
@@ -36,7 +36,7 @@ class JStatistic(TrueSkillStatistic):
        \begin{align}
        & \text{J Statistic} = true\_positive\_rate + true\_negative\_rate - 1 \\
        & = true\_positive\_rate - (1 - true\_negative\_rate) \\
-       & = true\_positive\_rate + false\_positive\_rate \\
+       & = true\_positive\_rate - false\_positive\_rate \\
        & = \text{True Skill Statistic}
        \end{align}
 
@@ -69,15 +69,6 @@ class JStatistic(TrueSkillStatistic):
     Returns:
         float: J statistic.
 
-    Example:
-
-    .. code-block:: python
-
-        metric = imbal.metrics.JStatistic(threshold=0.5)
-        y_true = np.array([[1,1,1], [1,0,0], [1,1,0]], np.int32)
-        y_pred = np.array([[0.2,0.6,0.7],[0.2,0.6,0.6],[0.6,0.8,0.0]], np.float32)
-        metric.update_state(y_true, y_pred)
-        result = metric.result()
     """
     def __init__(
         self,

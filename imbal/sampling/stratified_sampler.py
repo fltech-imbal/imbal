@@ -20,16 +20,13 @@ class StratifiedSampler(tf.keras.utils.PyDataset):
         self._seed = seed
         self._built = False
 
-        self._stratified_data = None
-        self._stratified_labels = None
-        self._stratified_weights = None
+        self._batches = None
 
         if num_batches is None:
             self._num_batches = int(np.ceil(x_set.shape[0] / batch_size))
         else:
             self._num_batches = num_batches
 
-    def build(self) -> None:
         unique_classes, _, count = tf.unique_with_counts(self._y_set)
         unique_classes = unique_classes.numpy()
         count = count.numpy()
@@ -70,9 +67,23 @@ class StratifiedSampler(tf.keras.utils.PyDataset):
             labels.append(tf.tile(tf.fill([count[idx]], label), tf.constant([duplicate_factor])))
             weights.append(tf.tile(tf.fill([count[idx]], self._class_weights[label] / count[idx]), tf.constant([duplicate_factor])))
 
-        self._stratified_data = tf.concat(data_by_class, 0)
-        self._stratified_labels = tf.concat(labels, 0)
-        self._stratified_weights = tf.concat(weights, 0) / weight_sum
+        stratified_data = tf.concat(data_by_class, 0)
+        stratified_labels = tf.concat(labels, 0)
+        stratified_weights = tf.concat(weights, 0) / weight_sum
+
+        self._batches = []
+
+        for idx in range(self._num_batches):
+            batch_data = stratified_data[idx::self._num_batches]
+            batch_labels = stratified_labels[idx::self._num_batches]
+            batch_weights = stratified_weights[idx::self._num_batches]
+
+            indices = tf.random.experimental.stateless_shuffle(tf.range(batch_data.shape[0]),
+                                                               seed=[self._seed + idx, self._seed + idx])
+
+            self._batches.append((tf.gather(batch_data, indices),
+                    tf.reshape(tf.gather(batch_labels, indices), (-1, 1)),
+                    tf.reshape(tf.gather(batch_weights, indices), (-1, 1))))
 
         self._built = True
 
@@ -85,13 +96,91 @@ class StratifiedSampler(tf.keras.utils.PyDataset):
             raise RuntimeError('StratifiedSampler must be built before batches can be retrieved')
         if idx < 0 or idx >= self._num_batches:
             raise IndexError('Index out of range')
+        return self._batches[idx]
+    
+    @classmethod
+    def split_stratify(cls, x_set, y_set,
+                 batch_size=64,
+                 num_batches=None,
+                 dtype=None,
+                 sample_weights=None,
+                 class_weights=None,
+                 training_split = 0.8,
+                 test_split = None,
+                 seed=0,
+                 **kwargs):
 
-        batch_data = self._stratified_data[idx::self._num_batches]
-        batch_labels = self._stratified_labels[idx::self._num_batches]
-        batch_weights = self._stratified_weights[idx::self._num_batches]
+        _x_set: Tensor = tf.constant(x_set, dtype=dtype)
+        _y_set: Tensor = tf.reshape(tf.constant(y_set, dtype=dtype), (-1,))
 
-        indices = tf.random.experimental.stateless_shuffle(tf.range(batch_data.shape[0]), seed=[self._seed + idx, self._seed + idx])
+        unique_classes, _, count = tf.unique_with_counts(_y_set)
+        
+        if sample_weights is not None:
+            class_weights = {}
+            for label, label_count in zip(unique_classes, count):
+                if label in sample_weights:
+                    class_weights.update({ label: label_count * sample_weights[label] })
+                else:
+                    class_weights.update({ label: label_count })
 
-        return (tf.gather(batch_data, indices),
-                tf.reshape(tf.gather(batch_labels, indices), (-1, 1)),
-                tf.reshape(tf.gather(batch_weights, indices), (-1, 1)))
+        if class_weights is None:
+            class_weights = { label: label_count for label, label_count in zip(unique_classes, count) }
+        else:
+            for label in unique_classes:
+                if label not in class_weights:
+                    class_weights[label] = 1
+
+        if test_split is not None:
+            training_split = 1 - test_split
+            
+        train_data = []
+        train_labels = []
+        train_weights = []
+        test_data = []
+        test_labels = []
+        test_weights = []
+        
+        for idx, label in enumerate(unique_classes):
+            data_for_class = tf.boolean_mask(
+                                    _x_set,
+                                    _y_set == label,
+                                    axis=0
+                                )
+            labels_for_class = tf.fill([count[idx]], label)
+            weights_for_class = tf.fill([count[idx]], class_weights[label] / count[idx])
+
+            split_point = round(len(data_for_class) * training_split)
+
+            train_data.append(data_for_class[:split_point])
+            train_labels.append(labels_for_class[:split_point])
+            train_weights.append(weights_for_class[:split_point])
+
+            test_data.append(data_for_class[split_point:])
+            test_labels.append(labels_for_class[split_point:])
+            test_weights.append(weights_for_class[split_point:])
+
+            return (
+                StratifiedSampler(
+                    train_data,
+                    train_labels,
+                    sample_weights=train_weights,
+                    class_weights=class_weights,
+                    seed=seed,
+                    dtype=dtype,
+                    num_batches=num_batches,
+                    batch_size=batch_size,
+                    **kwargs
+                ),
+                StratifiedSampler(
+                    test_data,
+                    test_labels,
+                    sample_weights=test_weights,
+                    class_weights=class_weights,
+                    seed=seed,
+                    dtype=dtype,
+                    num_batches=num_batches,
+                    batch_size=batch_size,
+                    **kwargs
+                )
+            )
+
