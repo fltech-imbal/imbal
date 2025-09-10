@@ -1,1 +1,1 @@
-from .stratified_sampler import StratifiedSampler
+from .weight_balanced_sampler import WeightBalancedSampler

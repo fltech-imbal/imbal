@@ -30,7 +30,7 @@
 - **Stratified Sampling by inheriting some TF class? (!!)**
 - "Hybrid" TF confusion matrix / custom computation where appropriate
 
-# 9/5/25
+# 9/8/25
 
 ## Prep
 - "this class can be passed as a metric, along with any of the following string type aliases: "in docs replace with "class instance OR string" $\checkmark$
@@ -64,3 +64,11 @@
 	- Via `print` statements, make sure batch contents are as expected (distributed as expected, randomized each epoch)
 - Randomize batch "membership" every epoch using `on_epoch_end()`
 - Change default behavior to be each *CLASS* is weighted evenly, not data point
+
+# 9/10/25
+
+## Prep:
+- Copy link to TF Metric class in all Metric classes $\checkmark$
+- Randomize batch "membership" every epoch using `on_epoch_end()` $\checkmark$
+- Change default behavior to be each *CLASS* is weighted evenly, not data point $\checkmark$
+- Confirm functionality on much smaller (countable) data and batch size $\checkmark$

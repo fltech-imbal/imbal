@@ -53,6 +53,11 @@ class HeikdeSkillScore(ConfusionMatrixMetric):
            metrics=["hss"]
        )
 
+    **Note:** Where appropriate, documentation for functions from :code:`tf.keras.Metric` has been
+    overridden to be more descriptive. Any other non-descriptive documentation of individual functions
+    on this page is due to a lack of documentation in TensorFlow's original source code. Still, TensorFlow's
+    documentation and source code for the :code:`Metric` class can be found `here <https://www.tensorflow.org/api_docs/python/tf/keras/Metric>`_.
+
     Args:
         threshold : Optional, default :code:`0.5`. The value which a given
             prediction must be above in order to be considered a positive

@@ -29,6 +29,11 @@ class BoundedAUC(AUC):
     * :code:`"BoundedAUC"`
     * :code:`"bounded_auc"`
 
+    **Note:** Where appropriate, documentation for functions from :code:`tf.keras.Metric` has been
+    overridden to be more descriptive. Any other non-descriptive documentation of individual functions
+    on this page is due to a lack of documentation in TensorFlow's original source code. Still, TensorFlow's
+    documentation and source code for the :code:`Metric` class can be found `here <https://www.tensorflow.org/api_docs/python/tf/keras/Metric>`_.
+
     Args:
         num_thresholds: Optional, default :code:`200`. The number of thresholds to
             use when discretizing the roc curve. Values must be > 1.
@@ -114,12 +119,12 @@ class BoundedAUC(AUC):
         # Reports the AUC of a model outputting a probability.
         model.compile(optimizer='sgd',
                       loss=keras.losses.BinaryCrossentropy(),
-                      metrics=[keras.metrics.AUC()])
+                      metrics=[BoundedAUC()])
 
         # Reports the AUC of a model outputting a logit.
         model.compile(optimizer='sgd',
                       loss=keras.losses.BinaryCrossentropy(from_logits=True),
-                      metrics=[keras.metrics.AUC(from_logits=True)])
+                      metrics=[BoundedAUC(from_logits=True)])
     """
     def __init__(self,
         *args,
