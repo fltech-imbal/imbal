@@ -102,8 +102,16 @@
 - **Priority:**
 	1. batching for classes $\checkmark$
 	2. train/test split for classes $\checkmark$
-	3. batching for continuous (regression)
+	3. batching for continuous (regression) $\checkmark$
 	4. train/test split for continuous $\checkmark$
+- Had spare time, looked at reweighting
 
 ## Tasks:
-- Need to handle edge case
+- Double check weights are preserved across all types of stratified sampling
+	- For multiple copies of a sample, the sum of all copies is the same as before splitting
+- Have a test procedure to compare the before and after weights for the same samples
+	- Can be commented out later, but good for testing on large data amounts
+	- Basically a unit test
+- Remove weight normalization
+- Use `PyDataset` to convert currently implemented stratify functions as a class
+	- Classification and regression can be handled by same class (similar to batching) if convenient (classification or regression is a parameter)

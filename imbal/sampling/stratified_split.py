@@ -1,18 +1,30 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
 
-def stratified_split(*arrays, test_size=None, train_size=None, random_state=None, shuffle=True) -> list:
+def stratified_split(
+         x_set,
+         y_set,
+         sample_weights,
+         test_size=None,
+         train_size=None,
+         random_state=None,
+         shuffle=True
+     ) -> list:
     return train_test_split(
-        *arrays,
+        x_set,
+        y_set,
+        sample_weights,
         test_size=test_size,
         train_size=train_size,
         random_state=random_state,
         shuffle=shuffle,
-        stratify=arrays[1]
+        stratify=y_set
     )
 
 def stratified_regression_split(
-        *arrays,
+        x_set,
+        y_set,
+        sample_weights,
         test_size=None,
         train_size=None,
         random_state=None,
@@ -21,10 +33,9 @@ def stratified_regression_split(
     if train_size is None:
         train_size = 1 - test_size
 
-    array_length = len(arrays[0])
-    for i in range(len(arrays)):
-        if array_length != len(arrays[i]):
-            raise ValueError('Length of all passed arrays must be equal')
+    array_length = len(x_set[0])
+    # if array_length != len():
+    #     raise ValueError('Length of all passed arrays must be equal')
 
     train_size = round(train_size, 2)
     train_per_batch = round(100*train_size)
@@ -38,7 +49,7 @@ def stratified_regression_split(
     train_split_arrays = []
     test_split_arrays = []
 
-    combined_arrays = np.array(arrays)
+    combined_arrays = np.array([x_set, y_set, sample_weights])
 
     for i in range(array_length // batch_size):
         batch = combined_arrays[:, i*batch_size:(i+1)*batch_size]

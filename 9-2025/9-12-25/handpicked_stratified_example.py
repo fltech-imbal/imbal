@@ -137,3 +137,11 @@ print(np.reshape(y_test, (-1,)))
 print(np.reshape(w_test, (-1,)))
 print()
 
+# reg batching, balanced weighting (also handles scenario where sum(weights) != 1)
+data = np.arange(20).reshape(-1,1)
+labels = np.arange(20).reshape(-1,1)
+weights = np.arange(20).reshape(-1,1)
+
+sampler_4 = StratifiedBatcher(data, labels, num_batches=3, mode='reg', sample_weights=weights)
+test_sampler(sampler_4, 'REG TEST 1')
+

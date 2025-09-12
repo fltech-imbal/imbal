@@ -22,6 +22,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         self._data_labels = []
         self._data_weights = []
         self._weight_sum = None
+        self._mode = mode
 
         # Make sure num_batches is set (num_batches is easier to work with than batch_size)
         if num_batches is None:
@@ -38,22 +39,29 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         if not (self._x_set.shape[0] == self._y_set.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
             raise ValueError("Number of entries in data, labels, and weights must be equal")
 
-        self._weight_sum = sum(self._sample_weights)
+        self._weight_sum = float(sum(self._sample_weights))
 
         unique_classes = None
         unique_counts = None
-        if mode == 'reg':
-            pass
+        if self._mode == 'reg':
+            unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
+            unique_classes = [1] * len(unique_counts)
         else:
             # Get a list of all labels in data, along with how many of each label
             unique_classes, _, unique_counts = tf.unique_with_counts(self._y_set)
             unique_classes, unique_counts = unique_classes.numpy(), unique_counts.numpy()
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
-            duplicate_factor = int(np.ceil(self._num_batches / count))
+            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == 'class' else 1
+            class_data = None
+            class_weights = None
 
-            class_data = tf.boolean_mask(self._x_set, self._y_set == label, axis=0)
-            class_weights = tf.boolean_mask(self._sample_weights, self._y_set == label, axis=0) / duplicate_factor
+            if self._mode == 'reg':
+                class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
+                class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
+            else:
+                class_data = tf.boolean_mask(self._x_set, self._y_set == label, axis=0)
+                class_weights = tf.boolean_mask(self._sample_weights, self._y_set == label, axis=0) / duplicate_factor
 
             indices = tf.random.experimental.stateless_shuffle(tf.range(class_data.shape[0]),
                                                                seed=[self._seed + idx, self._seed + idx])
@@ -61,8 +69,14 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             class_weights = tf.gather(class_weights, indices)
 
             self._data_by_class.append(tf.tile(class_data, tf.constant([duplicate_factor] + [1] * (self._x_set.ndim - 1), dtype=tf.int32)))
-            self._data_labels.append(tf.tile(tf.fill([count], label), tf.constant([duplicate_factor])))
-            self._data_weights.append(tf.tile(class_weights, tf.constant([duplicate_factor])) / self._weight_sum)
+            self._data_weights.append(tf.tile(class_weights, tf.constant([duplicate_factor])))
+
+            if self._mode == 'reg':
+                class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
+                class_labels = tf.gather(class_labels, indices)
+                self._data_labels.append(tf.tile(class_labels, tf.constant([duplicate_factor])))
+            else:
+                self._data_labels.append(tf.tile(tf.fill([count], label), tf.constant([duplicate_factor])))
 
         self._seed += self._num_batches
 
@@ -88,10 +102,15 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
 
     def on_epoch_end(self) -> None:
         for i in range(len(self._data_by_class)):
-            self._data_by_class[i] = tf.reshape(tf.random.shuffle(
-                tf.reshape(self._data_by_class[i], (-1,)),
-                seed=self._seed + i
-            ), (-1, 1))
+            indices = tf.random.experimental.stateless_shuffle(tf.range(len(self._data_by_class[i])),
+                                                     seed=[self._seed + i, self._seed + i])
+            self._data_by_class[i] = tf.gather(self._data_by_class[i], indices)
+            self._data_weights[i] = tf.gather(self._data_weights[i], indices)
+            if self._mode == 'reg':
+                self._data_labels[i] = tf.gather(self._data_labels[i], indices)
 
         self._batchable_data = tf.concat(self._data_by_class, 0)
+        self._batchable_weights = tf.concat(self._data_weights, 0)
+        if self._mode == 'reg':
+            self._batchable_labels = tf.concat(self._data_labels, 0)
         self._seed += self._num_batches
