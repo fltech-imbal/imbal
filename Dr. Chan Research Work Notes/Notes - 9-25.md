@@ -72,3 +72,18 @@
 - Randomize batch "membership" every epoch using `on_epoch_end()` $\checkmark$
 - Change default behavior to be each *CLASS* is weighted evenly, not data point $\checkmark$
 - Confirm functionality on much smaller (countable) data and batch size $\checkmark$
+
+## Task:
+- Does TF randomize batches per epoch with normal data passing? (x, y, weights)
+- Remove all class weight related code from `StratifiedSampling`. It only "knows" instance/sample weights
+	- Convert dictionary usage to list usage
+	- Create a separate "class weight to instance weight converter" 
+- Stratified sampling sub-package consists of `StratifiedBatcher` (class, `PyDataset`) and train/test split (wrapper for scikit-learn)
+	- ***ENSURE*** scikit-learn handles data and labels the same as TensorFlow
+- **Priority:**
+	1. batching for classes
+	2. train/test split for classes
+	3. batching for continuous (regression)
+	4. train/test split for continuous
+	...
+	5. reweighting
