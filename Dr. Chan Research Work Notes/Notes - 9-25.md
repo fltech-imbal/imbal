@@ -79,7 +79,7 @@
 	- Convert dictionary usage to list usage
 	- Create a separate "class weight to instance weight converter" 
 - Stratified sampling sub-package consists of `StratifiedBatcher` (class, `PyDataset`) and train/test split (wrapper for scikit-learn)
-	- ***ENSURE*** scikit-learn handles data and labels the same as TensorFlow
+	- ***ENSURE*** `scikit-learn` handles data and labels the same as TensorFlow
 - **Priority:**
 	1. batching for classes
 	2. train/test split for classes
@@ -87,3 +87,23 @@
 	4. train/test split for continuous
 	...
 	5. reweighting
+
+# 9/12/25
+## Prep
+- Does TF randomize batches per epoch with normal data passing? (x, y, weights) $\checkmark$
+![[Pasted image 20250911214214.png]]
+**Note:** Default: `shuffle=True`
+- Remove all class weight related code from `StratifiedSampling` $\checkmark$
+	- Convert dictionary usage to list usage $\checkmark$
+- **FROM EMAIL: Implement 6 larger demo cases** $\checkmark$
+- Ensure `scikit-learn` handles data and labels the same as TensorFlow
+![[Pasted image 20250911230001.png]]
+`train_test_split` expects data to either be a 1D vector, or a column vector of data points. A column vector tends to be what TF prefers, so `scikit-learn` is compatible in this case. Tests also prove this to be the case.
+- **Priority:**
+	1. batching for classes $\checkmark$
+	2. train/test split for classes $\checkmark$
+	3. batching for continuous (regression)
+	4. train/test split for continuous $\checkmark$
+
+## Tasks:
+- Need to handle edge case
