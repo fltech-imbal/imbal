@@ -112,7 +112,9 @@ sampler_4 = StratifiedBatcher(data, labels, num_batches=3, sample_weights=weight
 test_sampler(sampler_4, 'COMPLEX TEST 6')
 
 import imbal
-x_train, y_train, w_train, x_test, y_test, w_test = imbal.sampling.stratified_split(data, labels, weights, test_size=0.25)
+train_set, test_set = imbal.sampling.stratified_split(data, labels, weights, test_size=0.25)
+x_train, y_train, w_train = train_set
+x_test, y_test, w_test = test_set
 
 print(np.reshape(x_train, (-1,)))
 print(np.reshape(y_train, (-1,)))
@@ -127,7 +129,9 @@ data = np.arange(21).reshape(-1,1)
 labels = np.arange(21).reshape(-1,1)
 weights = (np.ones(21) / 21).reshape(-1, 1)
 
-x_train, y_train, w_train, x_test, y_test, w_test = imbal.sampling.stratified_regression_split(data, labels, weights, test_size=0.20)
+train_set, test_set = imbal.sampling.stratified_split(data, labels, weights, test_size=0.20, mode='reg')
+x_train, y_train, w_train = train_set
+x_test, y_test, w_test = test_set
 
 print(np.reshape(x_train, (-1,)))
 print(np.reshape(y_train, (-1,)))

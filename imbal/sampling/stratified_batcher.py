@@ -4,14 +4,18 @@ from tensorflow import Tensor
 from math import ceil
 
 class StratifiedBatcher(tf.keras.utils.PyDataset):
-    def __init__(self, x_set, y_set,
-                 batch_size=64,
-                 num_batches=None,
-                 dtype=None,
-                 sample_weights=None,
-                 seed=0,
-                 mode='class',
-                 **kwargs) -> None:
+    def __init__(self,
+        x_set,
+        y_set,
+        sample_weights=None,
+        batch_size=64,
+        num_batches=None,
+        dtype=None,
+        seed=0,
+        shuffle=True,
+        mode='class',
+        **kwargs
+    ) -> None:
         super(StratifiedBatcher, self).__init__(**kwargs)
         # Declare sampler attributes
         self._x_set : Tensor = tf.constant(x_set, dtype=dtype)
@@ -32,7 +36,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             self._num_batches = num_batches
 
         if sample_weights is None:
-            self._sample_weights = np.ones([x_set.shape[0]])
+            self._sample_weights = np.ones([x_set.shape[0]]) / x_set.shape[0]
         else:
             self._sample_weights = tf.reshape(tf.constant(sample_weights, dtype=dtype), (-1,))
 

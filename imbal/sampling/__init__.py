@@ -1,2 +1,2 @@
 from .stratified_batcher import StratifiedBatcher
-from .stratified_split import stratified_split, stratified_regression_split
+from .stratified_split import stratified_split

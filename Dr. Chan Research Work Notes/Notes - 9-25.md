@@ -105,7 +105,6 @@
 	3. batching for continuous (regression) $\checkmark$
 	4. train/test split for continuous $\checkmark$
 - Had spare time, looked at reweighting
-
 ## Tasks:
 - Double check weights are preserved across all types of stratified sampling
 	- For multiple copies of a sample, the sum of all copies is the same as before splitting
@@ -115,3 +114,20 @@
 - Remove weight normalization
 - Use `PyDataset` to convert currently implemented stratify functions as a class
 	- Classification and regression can be handled by same class (similar to batching) if convenient (classification or regression is a parameter)
+# 9/15/25
+## Prep:
+- Double check weights are preserved across all types of stratified sampling $\checkmark$
+	- Default weight per sample when no weights are specified is $\frac{1}{\text{num\_data}}$
+	- For multiple copies of a sample, the sum of all copies is the same as before splitting $\checkmark$
+- Have a test procedure to compare the before and after weights for the same samples $\checkmark$
+	- Tests for batching and test/train split
+- Remove weight normalization $\checkmark$
+ - Use `PyDataset` to convert currently implemented stratify functions as a class
+	- Classification and regression can be handled by same class (similar to batching) if convenient (classification or regression is a parameter)
+- For train/test split, used similar interface to TF/Keras
+	- The interface for TF/Keras is similar to sklearn, but with some notable differences
+		- TF/Keras takes in a tuple or arbitrary TF `Dataset`, but we want data, labels, weights to be separate fields so we know what to stratify by
+		- `left_size` and `right_size` instead of `test_size` and `train_size` (I feel like convention we already had is more clear)
+	- Found: `sklearn` does not shuffle *and* stratify. Not sure why, but I have compensated for that.
+
+![[Pasted image 20250915074038.png]]
