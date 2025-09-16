@@ -9,10 +9,10 @@ def stratified_split(
         train_size=None,
         seed=0,
         shuffle=True,
-        mode='class',
+        mode='classification',
     ) -> tuple:
 
-    if mode == 'reg':
+    if mode == 'regression':
         x_train, y_train, w_train, x_test, y_test, w_test = _stratified_regression_split(
             x_set,
             y_set,
@@ -43,7 +43,7 @@ def stratified_split(
             x_set = x_set[indices]
             y_set = y_set[indices]
             sample_weights = sample_weights[indices]
-        x_train, y_train, w_train, x_test, y_test, w_test = train_test_split(
+        x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
             x_set,
             y_set,
             sample_weights,
@@ -52,7 +52,6 @@ def stratified_split(
             random_state=seed,
             stratify=y_set
         )
-
 
     return (x_train, y_train, w_train), (x_test, y_test, w_test)
 
@@ -65,12 +64,19 @@ def _stratified_regression_split(
         seed=None,
         shuffle=True
 ) -> list:
+
+
     if train_size is None:
         train_size = 1 - test_size
 
     array_length = x_set.shape[0]
     if array_length != y_set.shape[0]:
         raise ValueError('Length of all passed arrays must be equal')
+
+    sort_order = np.argsort(y_set)
+    x_set = x_set[sort_order]
+    y_set = y_set[sort_order]
+    sample_weights = sample_weights[sort_order]
 
     train_size = round(train_size, 2)
     train_per_batch = round(100*train_size)

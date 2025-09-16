@@ -26,6 +26,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         self._data_labels = []
         self._data_weights = []
         self._weight_sum = None
+        self._shuffle = shuffle
         self._mode = mode
 
         # Make sure num_batches is set (num_batches is easier to work with than batch_size)
@@ -45,9 +46,13 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
 
         self._weight_sum = float(sum(self._sample_weights))
 
-        unique_classes = None
-        unique_counts = None
         if self._mode == 'reg':
+            sort_order = tf.argsort(self._y_set)
+
+            self._x_set = tf.gather(self._x_set, sort_order)
+            self._y_set = tf.gather(self._y_set, sort_order)
+            self._sample_weights = tf.gather(self._sample_weights, sort_order)
+
             unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
             unique_classes = [1] * len(unique_counts)
         else:
@@ -57,8 +62,6 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
             duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == 'class' else 1
-            class_data = None
-            class_weights = None
 
             if self._mode == 'reg':
                 class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
@@ -66,9 +69,12 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             else:
                 class_data = tf.boolean_mask(self._x_set, self._y_set == label, axis=0)
                 class_weights = tf.boolean_mask(self._sample_weights, self._y_set == label, axis=0) / duplicate_factor
+            if self._shuffle:
+                indices = tf.random.experimental.stateless_shuffle(tf.range(class_data.shape[0]),
+                                                                   seed=[self._seed + idx, self._seed + idx])
+            else:
+                indices = tf.range(class_data.shape[0])
 
-            indices = tf.random.experimental.stateless_shuffle(tf.range(class_data.shape[0]),
-                                                               seed=[self._seed + idx, self._seed + idx])
             class_data = tf.gather(class_data, indices)
             class_weights = tf.gather(class_weights, indices)
 
@@ -97,14 +103,20 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
 
         batch_size = ceil((self._batchable_data.shape[0] - idx) / self._num_batches)
 
-        indices = tf.random.experimental.stateless_shuffle(tf.range(batch_size),
-                                                           seed=[self._seed + idx, self._seed + idx])
+        if self._shuffle:
+            indices = tf.random.experimental.stateless_shuffle(tf.range(batch_size),
+                                                               seed=[self._seed + idx, self._seed + idx])
+        else:
+            indices = tf.range(batch_size)
+
 
         return (tf.gather(self._batchable_data[idx::self._num_batches], indices),
             tf.reshape(tf.gather(self._batchable_labels[idx::self._num_batches], indices), (-1, 1)),
             tf.reshape(tf.gather(self._batchable_weights[idx::self._num_batches], indices), (-1, 1)))
 
     def on_epoch_end(self) -> None:
+        if not self._shuffle:
+            return
         for i in range(len(self._data_by_class)):
             indices = tf.random.experimental.stateless_shuffle(tf.range(len(self._data_by_class[i])),
                                                      seed=[self._seed + i, self._seed + i])

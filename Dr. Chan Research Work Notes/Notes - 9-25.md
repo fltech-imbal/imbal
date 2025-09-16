@@ -131,3 +131,20 @@
 	- Found: `sklearn` does not shuffle *and* stratify. Not sure why, but I have compensated for that.
 
 ![[Pasted image 20250915074038.png]]
+
+## Tasks:
+- Currently, weights are actually not option during train/test split
+	- For train/test split: No weights in, no weights out
+- Assumption has been so far that regression data will be passed sorted
+	- An oversight on my part, a fix is already mostly in place. I want to modify my unit tests to ensure everything still works as expected.
+- 'classification' and 'regression' strings: store as constants that are referred to for future
+- predict and validate for TF `model` accepts tuple AND `PyDataset` or just one?
+- New "plain" `PyDataset` to be used as return values for train/test split
+	- Allow for user basic functionality for ease of use (add/remove column, it has x, y, w)
+- Double check: `PyDataset` is being accepted into `model.fit` and `model.predict`
+- Begin work on reweighting
+	- List in class order or dictionary
+	- Weight rebalancing for regression:
+		- Estimate PDF, density to weight conversion $w=\frac{1}{d}\rightarrow$ normalize 
+- Read up on **kernel density estimation** to estimate PDF
+	- scikit-learn has KDE
