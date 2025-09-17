@@ -1,1 +1,1 @@
-from .class_to_sample_weights import class_to_sample_weights
+from .generate_sample_weights import generate_sample_weights

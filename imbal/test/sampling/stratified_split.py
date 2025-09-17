@@ -27,8 +27,8 @@ class TestStratifiedSplit(unittest.TestCase):
         weights = np.random.rand(20).reshape(-1, 1)
 
         train_set, test_set = stratified_split(data, labels, weights, test_size=0.25)
-        x_train, y_train, w_train = train_set
-        x_test, y_test, w_test = test_set
+        x_train, y_train, w_train = train_set.get_unzipped()
+        x_test, y_test, w_test = test_set.get_unzipped()
 
         train_unique_counts = np.unique_counts(y_train)
         test_unique_counts = np.unique_counts(y_test)
@@ -59,26 +59,34 @@ class TestStratifiedSplit(unittest.TestCase):
         - By comparing with the original data before splitting, that
           data-label-weight associations are preserved.
         """
-        data = np.arange(20).reshape(-1, 1)
-        labels = np.arange(20).reshape(-1, 1)
-        weights = (np.ones(20) / 20).reshape(-1, 1)
+        data = np.arange(20)
+        labels = np.arange(20)
+        weights = (np.ones(20) / 20)
 
-        train_set, test_set = stratified_split(data, labels, weights, test_size=0.20, mode='reg')
-        x_train, y_train, w_train = train_set
-        x_test, y_test, w_test = test_set
+        indices = np.arange(20)
+        np.random.shuffle(indices)
+        data = data[indices].reshape(-1, 1)
+        labels = labels[indices].reshape(-1, 1)
+        weights = weights[indices].reshape(-1, 1)
 
-        train_unique_counts = np.unique_counts(y_train)
-        test_unique_counts = np.unique_counts(y_test)
+        train_set, test_set = stratified_split(data, labels, weights, test_size=0.20, mode='regression')
+        x_train, y_train, w_train = train_set.get_unzipped()
+        x_test, y_test, w_test = test_set.get_unzipped()
 
-        # self.assertTrue(np.array_equal(train_unique_counts.counts, (6, 6, 3)))
-        # self.assertTrue(np.array_equal(test_unique_counts.counts, (2, 2, 1)))
-        # self.assertTrue(np.array_equal(np.choose(x_train, labels), y_train))
-        # self.assertTrue(np.array_equal(np.choose(x_test, labels), y_test))
-        # self.assertTrue(np.array_equal(np.choose(x_train, weights), w_train))
-        # self.assertTrue(np.array_equal(np.choose(x_test, weights), w_test))
+        x_combined = np.concatenate((x_train, x_test))
+        y_combined = np.concatenate((y_train, y_test))
+        w_combined = np.concatenate((w_train, w_test))
 
+        combined_label_uniques = np.unique_counts(y_combined)
 
-
+        self.assertTrue(x_train.shape[0] == 16)
+        self.assertTrue(y_train.shape[0] == 16)
+        self.assertTrue(w_train.shape[0] == 16)
+        self.assertTrue(x_test.shape[0] == 4)
+        self.assertTrue(y_test.shape[0] == 4)
+        self.assertTrue(w_test.shape[0] == 4)
+        self.assertTrue(combined_label_uniques.values.shape[0] == 20)
+        self.assertTrue(np.allclose(combined_label_uniques.counts.reshape(-1,), np.ones(20)))
 
 if __name__ == '__main__':
     unittest.main()

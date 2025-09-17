@@ -1,6 +1,7 @@
 # Sampling
 
-- [Weight Balanced Sampler](weight_balanced_sampler.md)
+- [Stratified Batcher](stratified_batcher.md)
+- [Stratified Split](stratified_split.md)
 
 
 ```{eval-rst}
@@ -9,5 +10,6 @@
     :maxdepth: 2
     :caption: Contents:
 
-    Weight Balanced Sampler <weight_balanced_sampler>
+    Stratified Batcher <stratified_batcher>
+    Stratified Split <stratified_split>
 ```

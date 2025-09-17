@@ -2,24 +2,104 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import Tensor
 from math import ceil
+from imbal.sampling.sampling_constants import CLASSIFICATION_STRING, REGRESSION_STRING
 
 class StratifiedBatcher(tf.keras.utils.PyDataset):
+    """
+    An extension of `TensorFlow's PyDataset class <https://www.tensorflow.org/api_docs/python/tf/keras/utils/PyDataset>`_.
+    This class can be used to ensure that data remains stratified during the
+    batching process commonly used for training. This batch stratification
+    is achieved by a number of techniques.
+
+    Firstly, in the case of classification data, data-label pairs are checked to
+    ensure that there is a sufficient number of samples of each class such that
+    every batch contains at least one instance of each class. In the event
+    that a particular class does not contain enough samples for this to be true,
+    the samples in that class will be duplicated until a sufficient number of
+    samples is reached. Then, the samples weights of each sample in the class is
+    adjusted to account for the duplication, such that the sum of the weights of
+    all copies of a particular sample is equal to the weight of the original
+    singular sample.
+
+    Once all classes have the property above, a "round-robin" technique is
+    used to distribute classes across batches, such that every batch can
+    have as close to the same number of samples as possible (a maximum
+    difference of one sample) and the sum of the weights of the samples in
+    each batch is approximately equal (the difference in weights is minimized
+    the more samples there are in each batch).
+
+    **Note:** Where appropriate, documentation for functions from :code:`tf.keras.PyDataset` has been
+    overridden to be more descriptive. Any other non-descriptive documentation of individual functions
+    on this page is due to a lack of documentation in TensorFlow's original source code. Still, TensorFlow's
+    documentation and source code for the :code:`PyDataset` class can be found `here <https://www.tensorflow.org/api_docs/python/tf/keras/utils/PyDataset>`_.
+
+    Args:
+        x_set: A NumPy array of data points, arranged as a column vector
+        y_set: A NumPy array of labels, arranged as a column vector
+        sample_weights: Optional, default :code:`None`. A NumPy array of weights,
+            arranged as a column vector. When :code:`None`, all samples are assumed to be equally weighted.
+        batch_size: Optional, default :code:`64`. The approximate size of each batch.
+            This value is used as a guideline, actual batch size may vary since the stratification
+            process affects the number of data points to be batched.
+        num_batches: Optional, default :code:`None`. The number of batches to be generated after
+            stratification. If specified, overrides the value of :code:`batch_size`.
+        seed: Optional, default :code:`0`. The random seed for batch randomization.
+        shuffle: Optional, default :code:`True`. Whether data should be shuffled during batching and between epochs.
+        mode: Optional, default :code:`'classification'`. Should be set to :code:`'classification'` when working with
+            discrete labels (classes), and :code:`'regression'` when working with continuous labels, as the stratification
+            process differs depending on the label type.
+
+    Each batch in the :code:`StratifiedBatcher` is stored as a tuple of the form
+    :code:`(batch_x, batch_y, batch_weights)`. In this format, batches can be
+    retrieved then manually fed to TensorFlow's :code:`model.fit()` or :code:`model.predict()`,
+    but TensorFlow also allows for children of the :code:`PyDataset` class to be
+    passed to it's models as well.
+
+    After instansiation, the number of batches generated can be retrieved by
+    calling the :code:`len()` function on the :code:`StratifiedBatcher` object,
+    as shown in the example below. Additionally, batches can be retrieved manually
+    simply by indexing the object.
+
+    Example:
+
+     .. code-block:: python
+
+            >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
+            >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1,1)
+
+            >>> sampler = StratifiedBatcher(data, labels, num_batches=2)
+
+            >>> # Batched data
+            >>> print(sampler[0][0], sampler[1][0])
+            [6, 9, 7, 0, 5, 8] [9, 1, 2, 3, 4]
+
+            >>> # Batched labels (note: despite only one instance of class 1, each batch contains an instance)
+            >>> print(sampler[0][1], sampler[1][1])
+            [0, 1, 0, 0, 0, 0] [1, 0, 0, 0, 0]
+
+            >>> # Batched weights (note: as a result of duplication, the weight of the class 1 instance was halved)
+            >>> print(sampler[0][2], sampler[1][2])
+            [0.1, 0.05, 0.1, 0.1, 0.1, 0.1] [0.05, 0.1, 0.1, 0.1, 0.1]
+
+            >>> print(len(sampler))
+            2
+
+    """
     def __init__(self,
         x_set,
         y_set,
         sample_weights=None,
         batch_size=64,
         num_batches=None,
-        dtype=None,
         seed=0,
         shuffle=True,
-        mode='class',
+        mode=CLASSIFICATION_STRING,
         **kwargs
     ) -> None:
         super(StratifiedBatcher, self).__init__(**kwargs)
         # Declare sampler attributes
-        self._x_set : Tensor = tf.constant(x_set, dtype=dtype)
-        self._y_set : Tensor = tf.reshape(tf.constant(y_set, dtype=dtype), (-1,))
+        self._x_set : Tensor = tf.constant(x_set)
+        self._y_set : Tensor = tf.reshape(tf.constant(y_set), (-1,))
         self._sample_weights = None
         self._seed = seed
         self._data_by_class = []
@@ -39,14 +119,14 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         if sample_weights is None:
             self._sample_weights = np.ones([x_set.shape[0]]) / x_set.shape[0]
         else:
-            self._sample_weights = tf.reshape(tf.constant(sample_weights, dtype=dtype), (-1,))
+            self._sample_weights = tf.reshape(tf.constant(sample_weights), (-1,))
 
         if not (self._x_set.shape[0] == self._y_set.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
             raise ValueError("Number of entries in data, labels, and weights must be equal")
 
         self._weight_sum = float(sum(self._sample_weights))
 
-        if self._mode == 'reg':
+        if self._mode == REGRESSION_STRING:
             sort_order = tf.argsort(self._y_set)
 
             self._x_set = tf.gather(self._x_set, sort_order)
@@ -61,9 +141,9 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             unique_classes, unique_counts = unique_classes.numpy(), unique_counts.numpy()
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
-            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == 'class' else 1
+            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == CLASSIFICATION_STRING else 1
 
-            if self._mode == 'reg':
+            if self._mode == REGRESSION_STRING:
                 class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
                 class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
             else:
@@ -81,7 +161,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             self._data_by_class.append(tf.tile(class_data, tf.constant([duplicate_factor] + [1] * (self._x_set.ndim - 1), dtype=tf.int32)))
             self._data_weights.append(tf.tile(class_weights, tf.constant([duplicate_factor])))
 
-            if self._mode == 'reg':
+            if self._mode == REGRESSION_STRING:
                 class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
                 class_labels = tf.gather(class_labels, indices)
                 self._data_labels.append(tf.tile(class_labels, tf.constant([duplicate_factor])))
@@ -115,6 +195,12 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
             tf.reshape(tf.gather(self._batchable_weights[idx::self._num_batches], indices), (-1, 1)))
 
     def on_epoch_end(self) -> None:
+        """
+        If :code:`shuffle` is True, batches are shuffled. Otherwise, does nothing.
+
+        Returns:
+            None
+        """
         if not self._shuffle:
             return
         for i in range(len(self._data_by_class)):
@@ -122,11 +208,11 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
                                                      seed=[self._seed + i, self._seed + i])
             self._data_by_class[i] = tf.gather(self._data_by_class[i], indices)
             self._data_weights[i] = tf.gather(self._data_weights[i], indices)
-            if self._mode == 'reg':
+            if self._mode == REGRESSION_STRING:
                 self._data_labels[i] = tf.gather(self._data_labels[i], indices)
 
         self._batchable_data = tf.concat(self._data_by_class, 0)
         self._batchable_weights = tf.concat(self._data_weights, 0)
-        if self._mode == 'reg':
+        if self._mode == REGRESSION_STRING:
             self._batchable_labels = tf.concat(self._data_labels, 0)
         self._seed += self._num_batches

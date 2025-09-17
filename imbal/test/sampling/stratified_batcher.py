@@ -96,5 +96,45 @@ class TestStratifiedBatcher(unittest.TestCase):
         unique_weights = np.sort(unique_weights)
         self.assertTrue(np.allclose(unique_weights.reshape(-1, 1), weights))
 
+    def test_simple_case_1(self) -> None:
+        data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1)
+        labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1, 1)
+        sampler_1 = StratifiedBatcher(data, labels, num_batches=2)
+        self.assertTrue(len(sampler_1) == 2)
+        self.assertTrue(9 in sampler_1[0][0].numpy().reshape(-1,))
+        self.assertTrue(9 in sampler_1[1][0].numpy().reshape(-1,))
+        self.assertTrue(1 in sampler_1[0][1].numpy().reshape(-1,))
+        self.assertTrue(1 in sampler_1[1][1].numpy().reshape(-1,))
+
+    def test_simple_case_2(self) -> None:
+        data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1)
+        labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1, 1)
+        weights = np.choose(labels, [0.5 / 9, 0.5])
+        sampler_2 = StratifiedBatcher(data, labels, num_batches=2, sample_weights=weights)
+        self.assertTrue(0.25 in sampler_2[0][2].numpy().reshape(-1, ))
+        self.assertTrue(0.25 in sampler_2[1][2].numpy().reshape(-1, ))
+
+    def test_simple_case_3(self) -> None:
+        data = np.arange(20).reshape(-1, 1)
+        labels = np.arange(20).reshape(-1, 1)
+        weights = np.arange(20).reshape(-1, 1)
+        sampler_3 = StratifiedBatcher(data, labels, num_batches=3, mode='regression', sample_weights=weights)
+        self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][1]))
+        self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][2]))
+        self.assertTrue(np.count_nonzero(
+            [0 in sampler_3[0][0].numpy(), 1 in sampler_3[0][0].numpy(), 2 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [3 in sampler_3[0][0].numpy(), 4 in sampler_3[0][0].numpy(), 5 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [6 in sampler_3[0][0].numpy(), 7 in sampler_3[0][0].numpy(), 8 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [9 in sampler_3[0][0].numpy(), 10 in sampler_3[0][0].numpy(), 11 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [12 in sampler_3[0][0].numpy(), 13 in sampler_3[0][0].numpy(), 14 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [15 in sampler_3[0][0].numpy(), 16 in sampler_3[0][0].numpy(), 17 in sampler_3[0][0].numpy()]) == 1)
+        self.assertTrue(np.count_nonzero(
+            [18 in sampler_3[0][0].numpy(), 19 in sampler_3[0][0].numpy()]) == 1)
+
 if __name__ == '__main__':
     unittest.main()
