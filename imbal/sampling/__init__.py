@@ -1,6 +1,3 @@
 from .stratified_batcher import StratifiedBatcher
 from .stratified_split import stratified_split
 from .generic_dataset import GenericDataset
-
-CLASSIFICATION_STRING = 'classification'
-REGRESSION_STRING = 'regression'

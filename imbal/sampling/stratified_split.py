@@ -1,6 +1,6 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
-from imbal.sampling.sampling_constants import CLASSIFICATION_STRING, REGRESSION_STRING
+from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
 from imbal.sampling.generic_dataset import GenericDataset
 
 def stratified_split(

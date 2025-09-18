@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import Tensor
 from math import ceil
-from imbal.sampling.sampling_constants import CLASSIFICATION_STRING, REGRESSION_STRING
+from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
 
 class StratifiedBatcher(tf.keras.utils.PyDataset):
     """
@@ -16,7 +16,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
     every batch contains at least one instance of each class. In the event
     that a particular class does not contain enough samples for this to be true,
     the samples in that class will be duplicated until a sufficient number of
-    samples is reached. Then, the samples weights of each sample in the class is
+    samples is reached. Then, the sample weights of each sample in the class is
     adjusted to account for the duplication, such that the sum of the weights of
     all copies of a particular sample is equal to the weight of the original
     singular sample.

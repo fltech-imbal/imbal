@@ -149,15 +149,8 @@ weights = np.arange(20).reshape(-1,1)
 sampler_4 = StratifiedBatcher(data, labels, num_batches=3, mode='regression', sample_weights=weights)
 test_sampler(sampler_4, 'REG TEST 1')
 
-from imbal.reweighting import generate_sample_weights
-labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2])
-np.random.shuffle(labels)
-print(generate_sample_weights(labels, {
-    0: 1/6,
-    1: 1/3,
-    2: 1/2
-}).tolist())
 
-print(generate_sample_weights(labels, [1/6, 1/3, 1/2]).tolist())
+
+
 
 

@@ -147,6 +147,7 @@
 		- Estimate PDF, density to weight conversion $w=\frac{1}{d}\rightarrow$ normalize 
 - Read up on **kernel density estimation** to estimate PDF
 	- scikit-learn has KDE
+- Documentation for `sampling` sub-package
 # 9/17/25
 
 ## Prep:
@@ -165,3 +166,27 @@ From `model.predict`:
 	- Updated unit tests accordingly, very small changes required to make them work again.
 - Begin work on reweighting $\checkmark$
 	- List in class order or dictionary $\checkmark$
+- Documentation for `sampling` sub-package $\checkmark$
+
+
+## Tasks:
+- Stratified sampling documentation, comments before example describing scenario (data)
+- Hide `PyDataset` parameters that obscure main function
+	- Double check for `Metric`s as well
+- Provide example of duplication and weight balancing (2 batches, 1 "dragon", and 3 batches, 2 'dragons', 3 classes, 2 'dragons', 2 'unicorns')
+		- Code example should also have all examples 
+- 'rotation among the batches' instead of 'round robin'
+- update `sampling` sub-package to `stratified_sampling`
+- `StratifiedBatcher` $\rightarrow$ `DatasetWithBatching`
+- `stratified_split` to `split`
+- `GenericDataset` to `SimpleDataset`
+- Specify difference between regression and classification in documentation (both in plain words as well as in code)
+- Change `reweighting` sub-package to `sample_weighting`
+- `class_labels` to `labels` in `generate_sample_weights`
+- Separate `generate_sample_weights` into separate class and reg functions
+	- For regression case, weight mappings are not specified, but rather a desired distribution (where the default is uniform)
+- Reassess how batching is handled for regression...
+	- Sorting by ascending should likely be changed to descending, unless there is a way around that
+	- Am I properly reshuffling batches for regression case?
+- Provide example of weight balancing $\rightarrow$ sampling by batch pipeline for Dr. Chan
+- Provide option for bin-based bandwidth calculation
