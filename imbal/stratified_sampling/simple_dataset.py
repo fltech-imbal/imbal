@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-class GenericDataset(tf.keras.utils.PyDataset):
+class SimpleDataset(tf.keras.utils.PyDataset):
     """
     A simple extension of the `tf.keras.utils.PyDataset <https://www.tensorflow.org/api_docs/python/tf/keras/utils/PyDataset>`_
     class that allows for the storage of data, labels, and (optionally) weights.
@@ -11,7 +11,7 @@ class GenericDataset(tf.keras.utils.PyDataset):
         sample_weights=None,
         **kwargs
     ) -> None:
-        super(GenericDataset, self).__init__(**kwargs)
+        super(SimpleDataset, self).__init__(**kwargs)
 
         self._x_set = x_set
         self._y_set = y_set

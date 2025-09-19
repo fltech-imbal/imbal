@@ -1,6 +1,6 @@
 import numpy as np
 
-from imbal.stratified_sampling import StratifiedBatcher
+from imbal.stratified_sampling import DatasetWithBatching
 
 def test_sampler(s, text) -> None:
     print(f'{text}\n' + '=' * 80)
@@ -38,14 +38,14 @@ def test_sampler(s, text) -> None:
 data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1,1)
 
-sampler_1 = StratifiedBatcher(data, labels, num_batches=2)
+sampler_1 = DatasetWithBatching(data, labels, num_batches=2)
 test_sampler(sampler_1, 'TEST 1')
 
 # default weighting, 7 "cats", 3 "dragons"
 data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1]).reshape(-1,1)
 
-sampler_2 = StratifiedBatcher(data, labels, num_batches=2)
+sampler_2 = DatasetWithBatching(data, labels, num_batches=2)
 test_sampler(sampler_2, 'TEST 2')
 
 # instance weighting, 9 "cats", 1 "dragon"
@@ -53,7 +53,7 @@ data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1,1)
 weights = np.choose(labels, [0.5/9, 0.5])
 
-sampler_3 = StratifiedBatcher(data, labels, num_batches=2, sample_weights=weights)
+sampler_3 = DatasetWithBatching(data, labels, num_batches=2, sample_weights=weights)
 test_sampler(sampler_3, 'TEST 3')
 
 # instance weighting, 7 "cats", 3 "dragons"
@@ -61,7 +61,7 @@ data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1]).reshape(-1,1)
 weights = np.choose(labels, [0.5/7, 0.5/3])
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=2,sample_weights=weights)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=2,sample_weights=weights)
 test_sampler(sampler_4, 'TEST 4')
 
 ############################################################################
@@ -70,21 +70,21 @@ test_sampler(sampler_4, 'TEST 4')
 data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]).reshape(-1,1)
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3)
 test_sampler(sampler_4, 'COMPLEX TEST 1')
 
 # default weighting, 9 "cats", 9 "dogs", 2 "dragon"
 data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2]).reshape(-1,1)
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3)
 test_sampler(sampler_4, 'COMPLEX TEST 2')
 
 # default weighting, 8 "cats", 8 "dogs", 4 "dragon"
 data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]).reshape(-1,1)
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3)
 test_sampler(sampler_4, 'COMPLEX TEST 3')
 
 # balanced weighting, 10 "cats", 9 "dogs", 1 "dragon"
@@ -92,7 +92,7 @@ data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]).reshape(-1,1)
 weights = np.choose(labels, [0.33/10, 0.33/9, 0.34])
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3, sample_weights=weights)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3, sample_weights=weights)
 test_sampler(sampler_4, 'COMPLEX TEST 4')
 
 # balanced weighting, 9 "cats", 9 "dogs", 2 "dragon"
@@ -100,7 +100,7 @@ data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2]).reshape(-1,1)
 weights = np.choose(labels, [0.33/9, 0.33/9, 0.34/2])
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3, sample_weights=weights)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3, sample_weights=weights)
 test_sampler(sampler_4, 'COMPLEX TEST 5')
 
 # balanced weighting, 8 "cats", 8 "dogs", 4 "dragon"
@@ -108,13 +108,13 @@ data = np.arange(20).reshape(-1,1)
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]).reshape(-1,1)
 weights = np.choose(labels, [0.33/8, 0.33/8, 0.34/4])
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3, sample_weights=weights)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3, sample_weights=weights)
 test_sampler(sampler_4, 'COMPLEX TEST 6')
 
 import imbal
-train_set, test_set = imbal.sampling.stratified_split(data, labels, weights, test_size=0.25)
-x_train, y_train, w_train = train_set
-x_test, y_test, w_test = test_set
+train_set, test_set = imbal.stratified_sampling.split(data, labels, weights, test_size=0.25)
+x_train, y_train, w_train = train_set.get_unzipped()
+x_test, y_test, w_test = test_set.get_unzipped()
 
 print(np.reshape(x_train, (-1,)))
 print(np.reshape(y_train, (-1,)))
@@ -129,9 +129,9 @@ data = np.arange(21).reshape(-1,1)
 labels = np.arange(21).reshape(-1,1)
 weights = (np.ones(21) / 21).reshape(-1, 1)
 
-train_set, test_set = imbal.sampling.stratified_split(data, labels, weights, test_size=0.20, mode='reg')
-x_train, y_train, w_train = train_set
-x_test, y_test, w_test = test_set
+train_set, test_set = imbal.stratified_sampling.split(data, labels, weights, test_size=0.20, mode='regression')
+x_train, y_train, w_train = train_set.get_unzipped()
+x_test, y_test, w_test = test_set.get_unzipped()
 
 print(np.reshape(x_train, (-1,)))
 print(np.reshape(y_train, (-1,)))
@@ -146,6 +146,19 @@ data = np.arange(20).reshape(-1,1)
 labels = np.arange(20).reshape(-1,1)
 weights = np.arange(20).reshape(-1,1)
 
-sampler_4 = StratifiedBatcher(data, labels, num_batches=3, mode='reg', sample_weights=weights)
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3, mode='regression', sample_weights=weights)
 test_sampler(sampler_4, 'REG TEST 1')
+
+
+# instance weighting, 7 "cats", 3 "dragons"
+data = np.arange(20).reshape(-1,1)
+labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2]).reshape(-1,1)
+
+sampler_4 = DatasetWithBatching(data, labels, num_batches=3)
+test_sampler(sampler_4, 'TEST 4')
+
+
+
+
+
 

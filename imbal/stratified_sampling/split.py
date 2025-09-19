@@ -1,9 +1,9 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
 from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
-from imbal.sampling.generic_dataset import GenericDataset
+from imbal.stratified_sampling.simple_dataset import SimpleDataset
 
-def stratified_split(
+def split(
         x_set,
         y_set,
         sample_weights=None,
@@ -37,6 +37,14 @@ def stratified_split(
         not specified, and :code:`(train_x, train_y, train_weights), (test_x, test_y, test_weights)`
         when weights are specified
 
+    In :code:`classification` mode, data is stratified by class, ensuring that data is spread
+    as closely to the specified split percentage as possible across the train and test splits.
+    In :code:`regression` mode, there are no explict classes to stratify data on. Instead,
+    the data is sorted based on its label, then seperated into pseudo classes, which are then split based on
+    the specified split percentage. These psuedo-classes are of size 10 or 100 based on the
+    specified split percentage, therefore it is encouraged that the split percentage is a
+    multiple of 10% for smaller data sets, and a multiple of 1% for larger data sets.
+
     Example:
 
      .. code-block:: python
@@ -45,7 +53,7 @@ def stratified_split(
         >>> labels = np.arange(21).reshape(-1,1)
         >>> weights = (np.ones(21) / 21).reshape(-1, 1)
 
-        >>> train_set, test_set = imbal.sampling.stratified_split(data, labels, weights, test_size=0.20, mode='regression')
+        >>> train_set, test_set = imbal.stratified_sampling.split(data, labels, weights, test_size=0.20, mode='regression')
         >>> x_train, y_train, w_train = train_set
         >>> x_test, y_test, w_test = test_set
 
@@ -81,9 +89,9 @@ def stratified_split(
             if w_test is not None:
                 w_test = np.array(w_test)[test_indices]
         if w_train is not None:
-            return GenericDataset(x_train, y_train, w_train), GenericDataset(x_test, y_test, w_test)
+            return SimpleDataset(x_train, y_train, w_train), SimpleDataset(x_test, y_test, w_test)
         else:
-            return GenericDataset(x_train, y_train), GenericDataset(x_test, y_test)
+            return SimpleDataset(x_train, y_train), SimpleDataset(x_test, y_test)
     else:
         if shuffle:
             rng = np.random.default_rng(seed)
@@ -102,7 +110,7 @@ def stratified_split(
                 random_state=seed,
                 stratify=y_set
             )
-            return GenericDataset(x_train, y_train), GenericDataset(x_test, y_test)
+            return SimpleDataset(x_train, y_train), SimpleDataset(x_test, y_test)
         else:
             x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
                 x_set,
@@ -113,7 +121,7 @@ def stratified_split(
                 random_state=seed,
                 stratify=y_set
             )
-            return GenericDataset(x_train, y_train, w_train), GenericDataset(x_test, y_test, w_test)
+            return SimpleDataset(x_train, y_train, w_train), SimpleDataset(x_test, y_test, w_test)
 
 def _stratified_regression_split(
         x_set,

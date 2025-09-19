@@ -1,6 +1,6 @@
 import numpy as np
 
-from imbal.sampling import StratifiedBatcher
+from imbal.stratified_sampling import StratifiedBatcher
 
 def test_sampler(s, text) -> None:
     print(f'{text}\n' + '=' * 80)

@@ -1,4 +1,4 @@
-from imbal.sampling import WeightBalancedSampler
+from imbal.stratified_sampling import WeightBalancedSampler
 from keras.datasets import mnist
 import tensorflow as tf
 import numpy as np

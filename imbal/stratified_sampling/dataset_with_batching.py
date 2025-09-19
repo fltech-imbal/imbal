@@ -4,7 +4,7 @@ from tensorflow import Tensor
 from math import ceil
 from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
 
-class StratifiedBatcher(tf.keras.utils.PyDataset):
+class DatasetWithBatching(tf.keras.utils.PyDataset):
     """
     An extension of `TensorFlow's PyDataset class <https://www.tensorflow.org/api_docs/python/tf/keras/utils/PyDataset>`_.
     This class can be used to ensure that data remains stratified during the
@@ -21,8 +21,8 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
     all copies of a particular sample is equal to the weight of the original
     singular sample.
 
-    Once all classes have the property above, a "round-robin" technique is
-    used to distribute classes across batches, such that every batch can
+    Once all classes have the property above, samples are distributed across each by via
+    rotation among the batches, such that every batch can
     have as close to the same number of samples as possible (a maximum
     difference of one sample) and the sum of the weights of the samples in
     each batch is approximately equal (the difference in weights is minimized
@@ -48,41 +48,124 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         mode: Optional, default :code:`'classification'`. Should be set to :code:`'classification'` when working with
             discrete labels (classes), and :code:`'regression'` when working with continuous labels, as the stratification
             process differs depending on the label type.
+        sort: Optional, default :code:`'descending'`. Used only in :code:`'regression'` mode, determines how
+            the data will be sorted for stratification. In cases where larger data labels are rarer, this should
+            be left as :code:`'descending'`. In cases where smaller data labels are rarer, this should set to
+            :code:`'ascending'`.
+
+    In :code:`classification` mode, data is stratified by class, ensuring that data is spread
+    as evenly as possible across batches, such that at least 1 instance of a data point
+    from each class is in each batch (making copies of class samples when necessary).
+    In :code:`regression` mode, there are no explict classes to stratify data on. Instead,
+    the data is sorted based on its label, then seperated into
+    pseudo-classes of size equal to the number of batches. This means for each batch, the
+    elements of data that are of similar size or ordering are guarenteed to be split
+    across batches, leading to a more even data spread across batches.
 
     Each batch in the :code:`StratifiedBatcher` is stored as a tuple of the form
     :code:`(batch_x, batch_y, batch_weights)`. In this format, batches can be
     retrieved then manually fed to TensorFlow's :code:`model.fit()` or :code:`model.predict()`,
     but TensorFlow also allows for children of the :code:`PyDataset` class to be
-    passed to it's models as well.
+    passed to its models as well.
 
     After instansiation, the number of batches generated can be retrieved by
     calling the :code:`len()` function on the :code:`StratifiedBatcher` object,
     as shown in the example below. Additionally, batches can be retrieved manually
-    simply by indexing the object.
+    simply by indexing the object, such as :code:`sampler[i]`.
+
+    In the example that follows, we see a dataset of 10 unique data points, labels 0 to 9.
+    Majority of the instances are of class 0, as indicated by the labels, but data point 9
+    is of class 1, making it an instance of a much rarer class.
+
+    The example calls for the creation of two batches, however, there is only one instance
+    of a sample in class 1. Therefore, the members of class 1 will be duplicated, and the
+    weights of its members halved to account for the fact that there is now 2 instances of
+    class 1's members.
+
+    The results in the example show how the duplicated class 1 members results in a batch
+    of length 6 and a batch of length 5, each containing an instance of data point 9.
+    Additionally, each data point is weighted evenly, but copy of data point 9 has half
+    of the weight compared to the others, to compensate for the fact it has been duplicated.
 
     Example:
 
-     .. code-block:: python
+    .. code-block:: python
 
-            >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
-            >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1,1)
+        >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1,1)
 
-            >>> sampler = StratifiedBatcher(data, labels, num_batches=2)
+        >>> sampler = DatasetWithBatching(data, labels, num_batches=2)
 
-            >>> # Batched data
-            >>> print(sampler[0][0], sampler[1][0])
-            [6, 9, 7, 0, 5, 8] [9, 1, 2, 3, 4]
+        >>> # Batched data
+        >>> print(sampler[0][0], sampler[1][0])
+        [6, 9, 7, 0, 5, 8] [9, 1, 2, 3, 4]
 
-            >>> # Batched labels (note: despite only one instance of class 1, each batch contains an instance)
-            >>> print(sampler[0][1], sampler[1][1])
-            [0, 1, 0, 0, 0, 0] [1, 0, 0, 0, 0]
+        >>> # Batched labels (note: despite only one instance of class 1, each batch contains an instance)
+        >>> print(sampler[0][1], sampler[1][1])
+        [0, 1, 0, 0, 0, 0] [1, 0, 0, 0, 0]
 
-            >>> # Batched weights (note: as a result of duplication, the weight of the class 1 instance was halved)
-            >>> print(sampler[0][2], sampler[1][2])
-            [0.1, 0.05, 0.1, 0.1, 0.1, 0.1] [0.05, 0.1, 0.1, 0.1, 0.1]
+        >>> # Batched weights (note: as a result of duplication, the weight of the class 1 instance was halved)
+        >>> print(sampler[0][2], sampler[1][2])
+        [0.1, 0.05, 0.1, 0.1, 0.1, 0.1] [0.05, 0.1, 0.1, 0.1, 0.1]
 
-            >>> print(len(sampler))
-            2
+        >>> print(len(sampler))
+        2
+
+    Below is an example where a class with two members is copied to be distributed over 3 batches.
+    We expect the two members to be duplicated to ensure at least member can be distributed to each
+    batch. In this case, 2 batches will have 1 instance of the rare class, and 1 batch will have
+    2 instances of the rare class.
+
+    Example:
+
+    .. code-block:: python
+
+        >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1,1)
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1]).reshape(-1,1)
+
+        >>> sampler = DatasetWithBatching(data, labels, num_batches=3)
+
+        >>> # Batched data
+        >>> print(sampler[0][0], sampler[1][0], sampler[2][0])
+        [2, 6, 9, 0] [8, 1, 4, 7] [8, 5, 9, 3]
+
+        >>> # Batched labels (note: despite only two instance of class 1, the batches combined contain 4 instances)
+        >>> print(sampler[0][1], sampler[1][1], sampler[2][1])
+        [0, 0, 1, 0] [1, 0, 0, 0] [1, 0, 1, 0]
+
+        >>> # Batched weights (note: as a result of duplication, the weight of the class 1 instances was halved)
+        >>> print(sampler[0][2], sampler[1][2], sampler[2][2])
+        [0.1, 0.1, 0.05, 0.1] [0.05, 0.1, 0.1, 0.1] [0.05, 0.1, 0.05, 0.1]
+
+        >>> print(len(sampler))
+        3
+
+    Below is an example with 3 different classes, where two of the classes are rare, requiring
+    each of the rare classes to be duplicated.
+
+    Example:
+
+    .. code-block:: python
+
+        >>> data = np.arange(20).reshape(-1,1)
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2]).reshape(-1,1)
+
+        >>> sampler = DatasetWithBatching(data, labels, num_batches=3)
+
+        >>> # Batched data
+        >>> print(sampler[0][0], sampler[1][0], sampler[2][0])
+        [14, 7, 9, 18, 19, 4, 2, 3] [19, 17, 6, 0, 15, 5, 16, 10] [13, 12, 17, 8, 19, 18, 1, 11]
+
+        >>> # Batched labels (note: despite only two instance of class 1, the batches combined contain 4 instances)
+        >>> print(sampler[0][1], sampler[1][1], sampler[2][1])
+        [0, 0, 0, 1, 2, 0, 0, 0] [2, 1, 0, 0, 0, 0, 0, 0] [0, 0, 1, 0, 2, 1, 0, 0]
+
+        >>> # Batched weights (note: as a result of duplication, the weight of the class 1 instance was halved)
+        >>> print(sampler[0][2], sampler[1][2], sampler[2][2])
+        [0.05, 0.05, 0.05, 0.025, 0.017, 0.05, 0.05, 0.05] [0.017, 0.025, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05] [0.05, 0.05, 0.025, 0.05, 0.017, 0.025, 0.05, 0.05]
+
+        >>> print(len(sampler))
+        3
 
     """
     def __init__(self,
@@ -94,9 +177,10 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         seed=0,
         shuffle=True,
         mode=CLASSIFICATION_STRING,
+        sort='descending',
         **kwargs
     ) -> None:
-        super(StratifiedBatcher, self).__init__(**kwargs)
+        super(DatasetWithBatching, self).__init__(**kwargs)
         # Declare sampler attributes
         self._x_set : Tensor = tf.constant(x_set)
         self._y_set : Tensor = tf.reshape(tf.constant(y_set), (-1,))
@@ -108,6 +192,7 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         self._weight_sum = None
         self._shuffle = shuffle
         self._mode = mode
+        self._sort = sort
 
         # Make sure num_batches is set (num_batches is easier to work with than batch_size)
         if num_batches is None:
@@ -127,7 +212,10 @@ class StratifiedBatcher(tf.keras.utils.PyDataset):
         self._weight_sum = float(sum(self._sample_weights))
 
         if self._mode == REGRESSION_STRING:
-            sort_order = tf.argsort(self._y_set)
+            if self._sort == 'descending':
+                sort_order = tf.argsort(self._y_set, direction="DESCENDING")
+            else:
+                sort_order = tf.argsort(self._y_set)
 
             self._x_set = tf.gather(self._x_set, sort_order)
             self._y_set = tf.gather(self._y_set, sort_order)

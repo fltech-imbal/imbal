@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from imbal.sampling import StratifiedBatcher
+from imbal.stratified_sampling import DatasetWithBatching
 
 class TestStratifiedBatcher(unittest.TestCase):
     def test_preserve_weights_on_sparse_data(self) -> None:
@@ -29,7 +29,7 @@ class TestStratifiedBatcher(unittest.TestCase):
         labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3]).reshape(-1, 1)
         weights = np.ones(20).reshape(-1, 1)
 
-        batcher = StratifiedBatcher(data, labels, num_batches=4, sample_weights=weights)
+        batcher = DatasetWithBatching(data, labels, num_batches=4, sample_weights=weights)
         for i in range(len(batcher)):
             batch = batcher[i]
 
@@ -71,7 +71,7 @@ class TestStratifiedBatcher(unittest.TestCase):
         labels = np.random.rand(2000).reshape(-1, 1)
         weights = np.arange(2000).reshape(-1, 1)
 
-        batcher = StratifiedBatcher(data, labels, batch_size=64, mode='reg', sample_weights=weights)
+        batcher = DatasetWithBatching(data, labels, batch_size=64, mode='reg', sample_weights=weights)
 
         unique_data = np.array([])
         unique_labels = np.array([])
@@ -99,7 +99,7 @@ class TestStratifiedBatcher(unittest.TestCase):
     def test_simple_case_1(self) -> None:
         data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1)
         labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1, 1)
-        sampler_1 = StratifiedBatcher(data, labels, num_batches=2)
+        sampler_1 = DatasetWithBatching(data, labels, num_batches=2)
         self.assertTrue(len(sampler_1) == 2)
         self.assertTrue(9 in sampler_1[0][0].numpy().reshape(-1,))
         self.assertTrue(9 in sampler_1[1][0].numpy().reshape(-1,))
@@ -110,7 +110,7 @@ class TestStratifiedBatcher(unittest.TestCase):
         data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1)
         labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]).reshape(-1, 1)
         weights = np.choose(labels, [0.5 / 9, 0.5])
-        sampler_2 = StratifiedBatcher(data, labels, num_batches=2, sample_weights=weights)
+        sampler_2 = DatasetWithBatching(data, labels, num_batches=2, sample_weights=weights)
         self.assertTrue(0.25 in sampler_2[0][2].numpy().reshape(-1, ))
         self.assertTrue(0.25 in sampler_2[1][2].numpy().reshape(-1, ))
 
@@ -118,7 +118,7 @@ class TestStratifiedBatcher(unittest.TestCase):
         data = np.arange(20).reshape(-1, 1)
         labels = np.arange(20).reshape(-1, 1)
         weights = np.arange(20).reshape(-1, 1)
-        sampler_3 = StratifiedBatcher(data, labels, num_batches=3, mode='regression', sample_weights=weights)
+        sampler_3 = DatasetWithBatching(data, labels, num_batches=3, mode='regression', sample_weights=weights)
         self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][1]))
         self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][2]))
         self.assertTrue(np.count_nonzero(

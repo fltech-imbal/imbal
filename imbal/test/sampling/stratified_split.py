@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from imbal.sampling import stratified_split
+from imbal.stratified_sampling import split
 
 class TestStratifiedSplit(unittest.TestCase):
     def test_stratified_split_classification_sparse_data(self) -> None:
@@ -26,7 +26,7 @@ class TestStratifiedSplit(unittest.TestCase):
         labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]).reshape(-1, 1)
         weights = np.random.rand(20).reshape(-1, 1)
 
-        train_set, test_set = stratified_split(data, labels, weights, test_size=0.25)
+        train_set, test_set = split(data, labels, weights, test_size=0.25)
         x_train, y_train, w_train = train_set.get_unzipped()
         x_test, y_test, w_test = test_set.get_unzipped()
 
@@ -69,7 +69,7 @@ class TestStratifiedSplit(unittest.TestCase):
         labels = labels[indices].reshape(-1, 1)
         weights = weights[indices].reshape(-1, 1)
 
-        train_set, test_set = stratified_split(data, labels, weights, test_size=0.20, mode='regression')
+        train_set, test_set = split(data, labels, weights, test_size=0.20, mode='regression')
         x_train, y_train, w_train = train_set.get_unzipped()
         x_test, y_test, w_test = test_set.get_unzipped()
 

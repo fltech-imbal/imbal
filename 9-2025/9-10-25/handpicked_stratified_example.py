@@ -2,7 +2,7 @@ import numpy as np
 from keras.src.trainers.data_adapters.data_adapter_utils import class_weight_to_sample_weights
 # from sklearn.model_selection import train_test_split
 
-from imbal.sampling import WeightBalancedSampler
+from imbal.stratified_sampling import WeightBalancedSampler
 
 def test_sampler(s) -> None:
     labels = []

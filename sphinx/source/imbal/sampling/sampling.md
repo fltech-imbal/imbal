@@ -1,9 +1,11 @@
 # Stratified Sampling
 
-- [Stratified Batcher](stratified_batcher.md)
-- [Stratified Split](stratified_split.md)
-- [Generic Dataset](generic_dataset.md)
+## Classes
+- [DatasetWithBatching](dataset_with_batching.md)
+- [SimpleDataset](simple_dataset.md)
 
+## Functions
+- [split](split.md)
 
 ```{eval-rst}
 .. toctree::
@@ -11,7 +13,8 @@
     :maxdepth: 2
     :caption: Contents:
 
-    Stratified Batcher <stratified_batcher>
-    Stratified Split <stratified_split>
-    Generic Dataset <generic_dataset>
+    DatasetWithBatching <dataset_with_batching>
+    SimpleDataset <simple_dataset>
+    split <split>
+    
 ```

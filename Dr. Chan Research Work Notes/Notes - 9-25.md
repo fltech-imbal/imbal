@@ -180,13 +180,37 @@ From `model.predict`:
 - `StratifiedBatcher` $\rightarrow$ `DatasetWithBatching`
 - `stratified_split` to `split`
 - `GenericDataset` to `SimpleDataset`
-- Specify difference between regression and classification in documentation (both in plain words as well as in code)
 - Change `reweighting` sub-package to `sample_weighting`
 - `class_labels` to `labels` in `generate_sample_weights`
+- Specify difference between regression and classification in documentation (both in plain words as well as in code)
 - Separate `generate_sample_weights` into separate class and reg functions
 	- For regression case, weight mappings are not specified, but rather a desired distribution (where the default is uniform)
 - Reassess how batching is handled for regression...
 	- Sorting by ascending should likely be changed to descending, unless there is a way around that
 	- Am I properly reshuffling batches for regression case?
+- Provide example of weight balancing $\rightarrow$ sampling by batch pipeline for Dr. Chan
+- Provide option for bin-based bandwidth calculation
+
+# 9/19/25
+## Prep:
+- Stratified sampling documentation, comments before example describing scenario (data) $\checkmark$
+- - Provide example of duplication and weight balancing (2 batches, 1 "dragon", and 3 batches, 2 'dragons', 3 classes, 2 'dragons', 2 'unicorns') $\checkmark$
+		- Code example should also have all examples $\checkmark$ 
+- 'rotation among the batches' instead of 'round robin' $\checkmark$
+- Hide `PyDataset` parameters that obscure main function $\checkmark$
+	- Double check for `Metric`s as well $\checkmark$
+- `StratifiedBatcher` $\rightarrow$ `DatasetWithBatching` $\checkmark$
+- `stratified_split` to `split` $\checkmark$
+- `GenericDataset` to `SimpleDataset` $\checkmark$
+- Specify difference between regression and classification in documentation (both in plain words as well as in code) $\checkmark$
+- Change `reweighting` sub-package to `sample_weighting` $\checkmark$
+- `class_labels` to `labels` in `generate_sample_weights` $\checkmark$ 
+
+- Separate `generate_sample_weights` into separate class and reg functions $\checkmark$
+	- For regression case, weight mappings are not specified, but rather a desired distribution (where the default is uniform)
+		- *Note: Calculate uniform, multiply by pdf samples for each point, then re-normalize to 1*
+- Reassess how batching is handled for regression... $\checkmark$
+	- Sorting by ascending should likely be changed to descending, unless there is a way around that $\checkmark$
+	- Am I properly reshuffling batches for regression case? $\checkmark$
 - Provide example of weight balancing $\rightarrow$ sampling by batch pipeline for Dr. Chan
 - Provide option for bin-based bandwidth calculation

@@ -1,5 +1,6 @@
 # Metrics
 
+## Classes:
 - [True Skill Statistic](true_skill_statistic.md)
 - [J Statistic](j_statistic.md)
 - [Youden's Index](youdens_index.md)
@@ -8,7 +9,7 @@
 - [Critical Success Index](critical_success_index.md)
 - [Bounded AUC](bounded_auc.md)
 
-See also:
+## See also:
 - [Confusion Matrix Metric](confusion_matrix_metric.md)
 - [Expected Correct](submetrics/expected_correct.md)
 - [Expected True Positive](submetrics/expected_true_positive.md)

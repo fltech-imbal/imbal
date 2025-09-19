@@ -57,7 +57,7 @@ model.compile(optimizer='adam',
                        'critical_success_index',
                        metrics.BoundedAUC(num_thresholds=1000, x_max=0.01)])
 
-from imbal.sampling import StratifiedSampler
+from imbal.stratified_sampling import StratifiedSampler
 
 sampler = StratifiedSampler(
     x_train,

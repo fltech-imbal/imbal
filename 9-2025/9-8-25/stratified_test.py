@@ -1,4 +1,4 @@
-from imbal.sampling import StratifiedSampler
+from imbal.stratified_sampling import StratifiedSampler
 from keras.datasets import mnist
 import tensorflow as tf
 import numpy as np

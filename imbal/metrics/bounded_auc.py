@@ -12,15 +12,15 @@ class BoundedAUC(AUC):
     which allows for limiting the AUC graph with an optional x minimum, x maximum,
     y minimum, and y maximum.
 
-    For a best approximation of the real AUC, `predictions` should be
-    distributed approximately uniformly in the range `[0, 1]` (if
-    `from_logits=False`). The quality of the AUC approximation may be poor if
-    this is not the case. Setting `summation_method` to 'minoring' or 'majoring'
+    For a best approximation of the real AUC, :code:`predictions` should be
+    distributed approximately uniformly in the range :code:`[0, 1]` (if
+    :code:`from_logits=False`). The quality of the AUC approximation may be poor if
+    this is not the case. Setting :code:`summation_method` to 'minoring' or 'majoring'
     can help quantify the error in the approximation by providing lower or upper
     bound estimate of the AUC.
 
-    If `sample_weight` is `None`, weights default to 1.
-    Use `sample_weight` of 0 to mask values.
+    If :code:`sample_weight` is :code:`None`, weights default to 1.
+    Use :code:`sample_weight` of 0 to mask values.
 
     For use in TensorFlow's :code:`model.compile` function, this class
     can be passed as a class instance or as any of the following string type
@@ -48,11 +48,11 @@ class BoundedAUC(AUC):
             y value at which AUC should be computed. Setting this value should be used for debugging
             purposes only, as ignoring high y values of AUC is generally undesireable.
         curve: Optional, default :code:`'PR'` Specifies the name of the curve to be computed,
-            `'ROC'` (default) or `'PR'` for the Precision-Recall-curve.
+            :code:`'ROC'` (default) or :code:`'PR'` for the Precision-Recall-curve.
         summation_method: Optional. Specifies the `Riemann summation method
               <https://en.wikipedia.org/wiki/Riemann_sum>`_ used.
               'interpolation' (default) applies mid-point summation scheme for
-              `ROC`.  For PR-AUC, interpolates (true/false) positives but not
+              :code:`ROC`.  For PR-AUC, interpolates (true/false) positives but not
               the ratio that is precision (see Davis & Goadrich 2006 for
               details); 'minoring' applies left summation for increasing
               intervals and right summation for decreasing intervals; 'majoring'
@@ -60,35 +60,35 @@ class BoundedAUC(AUC):
         name: Optional. String name of the metric instance.
         dtype: Optional. Data type of the metric result.
         thresholds: Optional. A list of floating point values to use as the
-            thresholds for discretizing the curve. If set, the `num_thresholds`
-            parameter is ignored. Values should be in `[0, 1]`. Endpoint
-            thresholds equal to {`-epsilon`, `1+epsilon`} for a small positive
+            thresholds for discretizing the curve. If set, the :code:`num_thresholds`
+            parameter is ignored. Values should be in :code:`[0, 1]`. Endpoint
+            thresholds equal to {:code:`-epsilon`, :code:`1+epsilon`} for a small positive
             epsilon value will be automatically included with these to correctly
             handle predictions equal to exactly 0 or 1.
         multi_label: boolean indicating whether multilabel data should be
             treated as such, wherein AUC is computed separately for each label
-            and then averaged across labels, or (when `False`) if the data
+            and then averaged across labels, or (when :code:`False`) if the data
             should be flattened into a single label before AUC computation. In
             the latter case, when multilabel data is passed to AUC, each
             label-prediction pair is treated as an individual data point. Should
-            be set to `False` for multi-class data.
-        num_labels: Optional. The number of labels, used when `multi_label` is
+            be set to :code:`False` for multi-class data.
+        num_labels: Optional. The number of labels, used when :code:`multi_label` is
             True. If `num_labels` is not specified, then state variables get
-            created on the first call to `update_state`.
+            created on the first call to :code:`update_state`.
         label_weights: Optional. List, array, or tensor of non-negative weights
-            used to compute AUCs for multilabel data. When `multi_label` is
+            used to compute AUCs for multilabel data. When :code:`multi_label` is
             True, the weights are applied to the individual label AUCs when they
             are averaged to produce the multi-label AUC. When it's False, they
             are used to weight the individual label predictions in computing the
             confusion matrix on the flattened data. Note that this is unlike
-            `class_weights` in that `class_weights` weights the example
-            depending on the value of its label, whereas `label_weights` depends
+            :code:`class_weights` in that :code:`class_weights` weights the example
+            depending on the value of its label, whereas :code:`label_weights` depends
             only on the index of that label before flattening; therefore
-            `label_weights` should not be used for multi-class data.
-        from_logits: boolean indicating whether the predictions (`y_pred` in
-            `update_state`) are probabilities or sigmoid logits. As a rule of thumb,
-            when using a keras loss, the `from_logits` constructor argument of the
-            loss should match the AUC `from_logits` constructor argument.
+            :code:`label_weights` should not be used for multi-class data.
+        from_logits: boolean indicating whether the predictions (:code:`y_pred` in
+            :code:`update_state`) are probabilities or sigmoid logits. As a rule of thumb,
+            when using a keras loss, the :code:`from_logits` constructor argument of the
+            loss should match the AUC :code:`from_logits` constructor argument.
 
     Example:
 
