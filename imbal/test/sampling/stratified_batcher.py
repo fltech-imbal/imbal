@@ -122,19 +122,19 @@ class TestStratifiedBatcher(unittest.TestCase):
         self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][1]))
         self.assertTrue(np.allclose(sampler_3[0][0], sampler_3[0][2]))
         self.assertTrue(np.count_nonzero(
-            [0 in sampler_3[0][0].numpy(), 1 in sampler_3[0][0].numpy(), 2 in sampler_3[0][0].numpy()]) == 1)
+            [0 in sampler_3[0][0].numpy(), 1 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [3 in sampler_3[0][0].numpy(), 4 in sampler_3[0][0].numpy(), 5 in sampler_3[0][0].numpy()]) == 1)
+            [2 in sampler_3[0][0].numpy(), 3 in sampler_3[0][0].numpy(), 4 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [6 in sampler_3[0][0].numpy(), 7 in sampler_3[0][0].numpy(), 8 in sampler_3[0][0].numpy()]) == 1)
+            [5 in sampler_3[0][0].numpy(), 6 in sampler_3[0][0].numpy(), 7 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [9 in sampler_3[0][0].numpy(), 10 in sampler_3[0][0].numpy(), 11 in sampler_3[0][0].numpy()]) == 1)
+            [8 in sampler_3[0][0].numpy(), 9 in sampler_3[0][0].numpy(), 10 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [12 in sampler_3[0][0].numpy(), 13 in sampler_3[0][0].numpy(), 14 in sampler_3[0][0].numpy()]) == 1)
+            [11 in sampler_3[0][0].numpy(), 12 in sampler_3[0][0].numpy(), 13 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [15 in sampler_3[0][0].numpy(), 16 in sampler_3[0][0].numpy(), 17 in sampler_3[0][0].numpy()]) == 1)
+            [14 in sampler_3[0][0].numpy(), 15 in sampler_3[0][0].numpy(), 16 in sampler_3[0][0].numpy()]) == 1)
         self.assertTrue(np.count_nonzero(
-            [18 in sampler_3[0][0].numpy(), 19 in sampler_3[0][0].numpy()]) == 1)
+            [17 in sampler_3[0][0].numpy(), 18 in sampler_3[0][0].numpy(), 19 in sampler_3[0][0].numpy()]) == 1)
 
 if __name__ == '__main__':
     unittest.main()

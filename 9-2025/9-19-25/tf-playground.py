@@ -57,15 +57,15 @@ model.compile(optimizer='adam',
                        'critical_success_index',
                        metrics.BoundedAUC(num_thresholds=1000, x_max=0.01)])
 
-from imbal.stratified_sampling import StratifiedSampler
+from imbal.stratified_sampling import DatasetWithBatching
+from imbal.sample_weighting import generate_classification_weights
 
-sampler = StratifiedSampler(
+sampler = DatasetWithBatching(
     x_train,
     y_train,
     batch_size=512,
-    class_weights={}
+    sample_weights=generate_classification_weights(y_train),
 )
-sampler.build()
 
 history = model.fit(sampler, epochs=20,
                     callbacks=[OptimizeConfusionMetricCallback()]

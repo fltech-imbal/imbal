@@ -207,10 +207,21 @@ From `model.predict`:
 - `class_labels` to `labels` in `generate_sample_weights` $\checkmark$ 
 
 - Separate `generate_sample_weights` into separate class and reg functions $\checkmark$
-	- For regression case, weight mappings are not specified, but rather a desired distribution (where the default is uniform)
+	- For regression case, weight mappings are not specified, but rather a desired distribution (where the default is uniform) $\checkmark$
 		- *Note: Calculate uniform, multiply by pdf samples for each point, then re-normalize to 1*
 - Reassess how batching is handled for regression... $\checkmark$
 	- Sorting by ascending should likely be changed to descending, unless there is a way around that $\checkmark$
 	- Am I properly reshuffling batches for regression case? $\checkmark$
-- Provide example of weight balancing $\rightarrow$ sampling by batch pipeline for Dr. Chan
-- Provide option for bin-based bandwidth calculation
+- Provide example of weight balancing $\rightarrow$ sampling by batch pipeline for Dr. Chan $\checkmark$
+- Provide option for bin-based bandwidth calculation $\ldots$
+## Notes:
+- Bin-based regression weight calculations
+	- All combinations for comparing bin-bin pairs? so for 10 bins there is ${10\choose2}=45$ comparisons? 
+
+
+## Tasks
+- Split `classification` and `regression` creating aliases such that the user no longer has to specify `mode`
+- Approaches for bin-based KDE fitting
+	- AUC split at actuals, AUC split at evenly spaced trapezoids, average densities for samples in bin, average density for evenly spaced samples across bin
+- Should have plot function for KDE to see visually how "well it fits"
+- Bounds of $[0.01*std\_dev, 3*std\_dev]$ for KDE bandwidth
