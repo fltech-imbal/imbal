@@ -57,8 +57,8 @@ model.compile(optimizer='adam',
                        'critical_success_index',
                        metrics.BoundedAUC(num_thresholds=1000, x_max=0.01)])
 
-from imbal.stratified_sampling import DatasetWithBatching
-from imbal.sample_weighting import generate_classification_weights
+from imbal.util.stratified_sampling import DatasetWithBatching
+from imbal.util.sample_weighting import generate_classification_weights
 
 sampler = DatasetWithBatching(
     x_train,

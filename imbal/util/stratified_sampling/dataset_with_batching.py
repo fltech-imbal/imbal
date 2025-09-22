@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import Tensor
 from math import ceil
-from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
+from imbal.util.constants import ModelType
 
 class DatasetWithBatching(tf.keras.utils.PyDataset):
     """
@@ -176,7 +176,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         num_batches=None,
         seed=0,
         shuffle=True,
-        mode=CLASSIFICATION_STRING,
+        mode=ModelType.CLASSIFICATION,
         sort='descending',
         **kwargs
     ) -> None:
@@ -211,7 +211,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
 
         self._weight_sum = float(sum(self._sample_weights))
 
-        if self._mode == REGRESSION_STRING:
+        if self._mode == ModelType.REGRESSION:
             if self._sort == 'descending':
                 sort_order = tf.argsort(self._y_set, direction="DESCENDING")
             else:
@@ -229,9 +229,9 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             unique_classes, unique_counts = unique_classes.numpy(), unique_counts.numpy()
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
-            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == CLASSIFICATION_STRING else 1
+            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == ModelType.CLASSIFICATION else 1
 
-            if self._mode == REGRESSION_STRING:
+            if self._mode == ModelType.REGRESSION:
                 class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
                 class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
             else:
@@ -249,7 +249,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             self._data_by_class.append(tf.tile(class_data, tf.constant([duplicate_factor] + [1] * (self._x_set.ndim - 1), dtype=tf.int32)))
             self._data_weights.append(tf.tile(class_weights, tf.constant([duplicate_factor])))
 
-            if self._mode == REGRESSION_STRING:
+            if self._mode == ModelType.REGRESSION:
                 class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
                 class_labels = tf.gather(class_labels, indices)
                 self._data_labels.append(tf.tile(class_labels, tf.constant([duplicate_factor])))
@@ -296,11 +296,11 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
                                                      seed=[self._seed + i, self._seed + i])
             self._data_by_class[i] = tf.gather(self._data_by_class[i], indices)
             self._data_weights[i] = tf.gather(self._data_weights[i], indices)
-            if self._mode == REGRESSION_STRING:
+            if self._mode == ModelType.REGRESSION:
                 self._data_labels[i] = tf.gather(self._data_labels[i], indices)
 
         self._batchable_data = tf.concat(self._data_by_class, 0)
         self._batchable_weights = tf.concat(self._data_weights, 0)
-        if self._mode == REGRESSION_STRING:
+        if self._mode == ModelType.REGRESSION:
             self._batchable_labels = tf.concat(self._data_labels, 0)
         self._seed += self._num_batches

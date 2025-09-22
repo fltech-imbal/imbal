@@ -1,4 +1,4 @@
-from imbal.sample_weighting import generate_sample_weights
+from imbal.util.sample_weighting import generate_sample_weights
 import numpy as np
 
 labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2])

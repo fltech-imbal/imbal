@@ -1,4 +1,4 @@
-from imbal.stratified_sampling import StratifiedBatcher
+from imbal.util.stratified_sampling import StratifiedBatcher
 from keras.datasets import mnist
 import tensorflow as tf
 import numpy as np

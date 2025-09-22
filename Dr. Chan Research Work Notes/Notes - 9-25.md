@@ -225,3 +225,14 @@ From `model.predict`:
 	- AUC split at actuals, AUC split at evenly spaced trapezoids, average densities for samples in bin, average density for evenly spaced samples across bin
 - Should have plot function for KDE to see visually how "well it fits"
 - Bounds of $[0.01*std\_dev, 3*std\_dev]$ for KDE bandwidth
+# 9/22/25
+## Prep
+
+- Split `classification` and `regression` creating aliases such that the user no longer has to specify `mode` $\checkmark$
+	- Documentation needs an overhaul
+- Approaches for bin-based KDE fitting $\checkmark$
+	- AUC split at actuals, AUC split at evenly spaced trapezoids, average densities for samples in bin, average density for evenly spaced samples across bin
+	- Implemented average and AUC based on spaced samples $\checkmark$
+- Should have plot function for KDE to see visually how "well it fits"
+- Bounds of $[0.01*std\_dev, 3*std\_dev]$ for KDE bandwidth
+- Enum instead of string comparison $\checkmark$

@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
-from imbal.util.constants import CLASSIFICATION_STRING, REGRESSION_STRING
-from imbal.stratified_sampling.simple_dataset import SimpleDataset
+from imbal.util.constants import ModelType
+from imbal.util.simple_dataset import SimpleDataset
 
 def split(
         x_set,
@@ -11,7 +11,7 @@ def split(
         train_size=None,
         seed=None,
         shuffle=True,
-        mode=CLASSIFICATION_STRING,
+        mode=ModelType.CLASSIFICATION,
     ) -> tuple:
     """
 
@@ -64,7 +64,7 @@ def split(
 
     """
 
-    if mode == REGRESSION_STRING:
+    if mode == ModelType.REGRESSION:
         x_train, y_train, w_train, x_test, y_test, w_test = _stratified_regression_split(
             x_set,
             y_set,

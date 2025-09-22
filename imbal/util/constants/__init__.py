@@ -1,2 +1,5 @@
-CLASSIFICATION_STRING = 'classification'
-REGRESSION_STRING = 'regression'
+from enum import Enum
+
+class ModelType(Enum):
+    CLASSIFICATION = 1
+    REGRESSION = 2

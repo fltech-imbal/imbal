@@ -1,7 +1,8 @@
 from . import (
     metrics,
-    sample_weighting,
-    stratified_sampling,
     util,
-    experimental
+    experimental,
+    classification,
+    regression
 )
+from .util import stratified_sampling, sample_weighting
