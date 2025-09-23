@@ -229,10 +229,27 @@ From `model.predict`:
 ## Prep
 
 - Split `classification` and `regression` creating aliases such that the user no longer has to specify `mode` $\checkmark$
-	- Documentation needs an overhaul
+	- Documentation needs an overhaul (!!!)
 - Approaches for bin-based KDE fitting $\checkmark$
 	- AUC split at actuals, AUC split at evenly spaced trapezoids, average densities for samples in bin, average density for evenly spaced samples across bin
 	- Implemented average and AUC based on spaced samples $\checkmark$
-- Should have plot function for KDE to see visually how "well it fits"
-- Bounds of $[0.01*std\_dev, 3*std\_dev]$ for KDE bandwidth
+- Should have plot function for KDE to see visually how "well it fits" $\ldots$
+	- Working on it... need better data for better confirmation that everything is working
+- Bounds of $[0.01*std\_dev, 3*std\_dev]$ for KDE bandwidth $\checkmark$
 - Enum instead of string comparison $\checkmark$
+
+
+## Tasks:
+- Replace current AUC implementation with `(a/2 + b + c + d/2) * w`
+- Fix: Frequency ratio should be highest frequency/lowest, not first bin/last
+- Integrate plotting as parameter to KDE weight balancing
+- Document section 2.6 Visualization of latent space via t-SNE. Implement, using MNIST as example
+	- Latent space from second to last layer (how to get?)
+	- Different colors per classes, plot rarest classes last to prevent point overlap from obscuring rare samples
+	- For regression, color gradient from low values (ex. blue) to high values (ex. red), plotting frequent "bins" first, least frequent bin last
+	- Return plot form function, but have options for saving plot to `.png`
+- For KDE testing...
+	- `sep_event_1_filled_ie_trim.csv` from SEP-EC (last column is labels)
+	- `sep_10mev_training.csv` from SEP-C (last column is labels)
+- Double check unit tests
+- Documentation fix
