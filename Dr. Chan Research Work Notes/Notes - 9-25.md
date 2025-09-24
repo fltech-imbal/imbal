@@ -241,7 +241,7 @@ From `model.predict`:
 
 ## Tasks:
 - Replace current AUC implementation with `(a/2 + b + c + d/2) * w`
-- Fix: Frequency ratio should be highest frequency/lowest, not first bin/last
+- Fix: Frequency ratio should be highest frequency/lowest, not first bin/last 
 - Integrate plotting as parameter to KDE weight balancing
 - Document section 2.6 Visualization of latent space via t-SNE. Implement, using MNIST as example
 	- Latent space from second to last layer (how to get?)
@@ -253,3 +253,44 @@ From `model.predict`:
 	- `sep_10mev_training.csv` from SEP-C (last column is labels)
 - Double check unit tests
 - Documentation fix
+
+# 9/23/25
+
+## Prep: 
+- Replace current AUC implementation with `(a/2 + b + c + d/2) * w` $\checkmark$
+- Fix: Frequency ratio should be highest frequency/lowest, not first bin/last  $\checkmark$
+- Integrate plotting as parameter to KDE weight balancing $\checkmark$
+- Document section 2.6 Visualization of latent space via t-SNE. Implement, using MNIST as example $\checkmark$
+	- Latent space from second to last layer (how to get?) $\checkmark$
+		- **Answer:** `model.get_layer(index=-2)` $\checkmark$
+	- Different colors per classes, plot rarest classes last to prevent point overlap from obscuring rare samples $\checkmark$
+	- For regression, color gradient from low values (ex. blue) to high values (ex. red), plotting frequent "bins" first, least frequent bin last $\checkmark$
+	- Return plot form function, but have options for saving plot to `.png` $\checkmark$
+- For KDE testing...
+	- `sep_event_1_filled_ie_trim.csv` from SEP-EC (last column is labels) $\checkmark$
+	- `sep_10mev_training.csv` from SEP-C (last column is labels)
+- Double check unit tests $\checkmark$
+- Documentation fix 
+
+#### Observation:
+More bins does not necessarily mean better KDE. It seems to be related to whether or not there is a true "peak" and "trough" (if there are two bins of similar frequency next to each other that are the highest or lowest frequencies, it seems to cause issues)
+- (this is with the averaging method, AUC does better)
+![[Pasted image 20250923224301.png|500]]
+### Above if 2 bins with average mode, below is 2 bins with AUC
+
+![[Pasted image 20250923224946.png|500]]
+![[Pasted image 20250923224325.png|500]]
+![[Pasted image 20250923224341.png|500]]
+![[Pasted image 20250923224354.png|500]]
+### Above if 15 bins with average mode, below is 15 bins with AUC
+
+![[Pasted image 20250923224641.png|500]]
+![[Pasted image 20250923224408.png|500]]
+![[Pasted image 20250923224420.png|500]]
+#### MNIST t-SNE example
+![[Pasted image 20250924072208.png|500]]
+#### Example of rare plotted over common
+![[Pasted image 20250924071642.png|500]]
+
+#### KDE for SEP-EC training data
+![[Pasted image 20250924090335.png|500]]
