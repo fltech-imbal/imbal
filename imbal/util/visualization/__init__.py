@@ -16,7 +16,7 @@ def generate_tsne_visualization(
                                      outputs=model.get_layer(index=latent_layer_index).output)
     latents = intermediate_model.predict(data)
 
-    tsne = TSNE(n_components=2, random_state=0)
+    tsne = TSNE(n_components=2, random_state=None)
     tsne_fit = tsne.fit_transform(latents)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)

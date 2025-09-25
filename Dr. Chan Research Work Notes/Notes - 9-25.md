@@ -1,4 +1,4 @@
-# 9/3/25
+  # 9/3/25
 
 ## Prep:
 - Minimize memory usage for metric import dictionary by updating TF dictionary directly $\checkmark$ 
@@ -268,9 +268,10 @@ From `model.predict`:
 	- Return plot form function, but have options for saving plot to `.png` $\checkmark$
 - For KDE testing...
 	- `sep_event_1_filled_ie_trim.csv` from SEP-EC (last column is labels) $\checkmark$
-	- `sep_10mev_training.csv` from SEP-C (last column is labels)
+	- `sep_10mev_training.csv` from SEP-C (last column is labels) $\checkmark$
 - Double check unit tests $\checkmark$
-- Documentation fix 
+- SARCOS KDE $\checkmark$
+- Documentation fix $\ldots$ (started fixes, focused on functionality first in the meanwhile)
 
 #### Observation:
 More bins does not necessarily mean better KDE. It seems to be related to whether or not there is a true "peak" and "trough" (if there are two bins of similar frequency next to each other that are the highest or lowest frequencies, it seems to cause issues)
@@ -292,5 +293,26 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 #### Example of rare plotted over common
 ![[Pasted image 20250924071642.png|500]]
 
+#### KDE for SEP-C training data (seems off, but maybe not?)
+![[Pasted image 20250924101632.png|500]]
 #### KDE for SEP-EC training data
 ![[Pasted image 20250924090335.png|500]]
+
+#### SARCOS KDE
+![[Pasted image 20250924102247.png|500]]
+
+## Tasks:
+- Make sure user can specify manual bandwidth of `scott` method through our implementation
+- KDE uniform - user can specify density function
+- Clean up KDE code
+- Default number of KDE bins = 30
+- KDE `bin_sample_count` to `samples_per_bin`
+- Separate KDE functionality from regression weight generation
+- `generate_weights` for regression is "wrapper" for generating densities and converting to weights
+- TSNE `perplexity` passable parameter for our implementation
+	- TSNE *lower priority* than sample weighting KDE and such
+- Show Dr. Chan:
+	- KDE for 3 datasets (SEP-C, SEP-EC, SARCOS)
+	- Look back at bins for KDE vs histogram... do they line up (SEP-C data look into)
+		- Maybe manually pass bin splits to matplotlib instead of `(min, max, bin_count)`
+	- Add $f_{max}, f_{min}$ and ratio to plot

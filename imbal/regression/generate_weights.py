@@ -37,6 +37,9 @@ def generate_weights(
 
     desired_ratio = high_freq_bin.shape[0] / low_freq_bin.shape[0]
 
+    # print (high_freq_bin.shape[0], low_freq_bin.shape[0], desired_ratio)
+
+
     # Generate
     spaced_high_freq_bin = np.array([high_freq_bin[0] + i / bin_sample_count*step for i in range(bin_sample_count)]).reshape(-1, 1)
     spaced_low_freq_bin = np.array([low_freq_bin[0] + i / bin_sample_count*step for i in range(bin_sample_count)]).reshape(-1, 1)

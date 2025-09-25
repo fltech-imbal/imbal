@@ -32,21 +32,23 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
+# data = np.array(read_csv_to_list_of_lists('/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+# print(data.shape)
+# data = data[1:, -1].astype(float)
 
-
-# data = np.array(read_csv_to_list_of_lists('/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# data = np.array(read_csv_to_list_of_lists('/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
 # data = data[1:, 22].astype(float)
 
-data = np.array(read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+print(os.getcwd())
+data = np.array(read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
 for i in range(43):
-    if os.path.exists(f'/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-        data = np.concatenate([data, read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+    if os.path.exists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+        data = np.concatenate([data, read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
 print(data.shape)
 data = data[:, 182].astype(float)
 print(data.shape)
 
-bins = 10
-labels = np.array([0, 0.01, 0.02, 0.03, 0.05, 0.08, 0.1, 0.12, 0.13, 0.15, 0.9, 0.95, 1, 1.02, 1.04, 1.05, 1.1, 1.12, 2.1, 2.02])
+bins = 30
 weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True)
 # print(weights.tolist())

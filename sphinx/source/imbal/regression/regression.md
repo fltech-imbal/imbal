@@ -1,11 +1,11 @@
-# Stratified Sampling
+# Regression
 
-## Classes
+## Classes:
 - [DatasetWithBatching](dataset_with_batching.md)
-- [SimpleDataset](simple_dataset.md)
 
-## Functions
+## Functions:
 - [split](split.md)
+- [generate_weights](generate_weights.md)
 
 ```{eval-rst}
 .. toctree::
@@ -14,7 +14,6 @@
     :caption: Contents:
 
     DatasetWithBatching <dataset_with_batching>
-    SimpleDataset <simple_dataset>
     split <split>
-    
+    generate_weights <generate_weights>
 ```

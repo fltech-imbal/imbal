@@ -8,7 +8,8 @@ Welcome to the imbal documentation. This documentation was created by *Tommy Gal
 Subpackages:
 
 - :doc:`Metrics <imbal/metrics/metrics>`
-- :doc:`Sampling </imbal/sampling/sampling>`
+- :doc:`Classification </imbal/classification/classification>`
+- :doc:`Regression </imbal/regression/regression>`
 
 .. toctree::
     :hidden:
@@ -16,6 +17,7 @@ Subpackages:
     :caption: Contents:
 
     /imbal/metrics/metrics
-    /imbal/sampling/sampling
+    /imbal/classification/classification
+    /imbal/regression/regression
 
 
