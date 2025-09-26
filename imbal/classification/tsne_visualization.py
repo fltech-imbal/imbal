@@ -7,6 +7,7 @@ def tsne_visualization(
     labels,
     latent_layer_index=-2,
     gradient='plasma',
+    perplexity=30,
     save_figure=None
 ):
     unique_classes, counts = np.unique(labels, return_counts=True)
@@ -22,5 +23,6 @@ def tsne_visualization(
         sorted_labels,
         latent_layer_index=latent_layer_index,
         gradient=gradient,
-        save_figure=save_figure
+        save_figure=save_figure,
+        perplexity=perplexity
     )

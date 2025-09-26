@@ -302,13 +302,13 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 ![[Pasted image 20250924102247.png|500]]
 
 ## Tasks:
-- Make sure user can specify manual bandwidth of `scott` method through our implementation
+- Make sure user can specify manual bandwidth or `scott` method through our implementation
 - KDE uniform - user can specify density function
-- Clean up KDE code
+- Clean up KDE code 
 - Default number of KDE bins = 30
 - KDE `bin_sample_count` to `samples_per_bin`
 - Separate KDE functionality from regression weight generation
-- `generate_weights` for regression is "wrapper" for generating densities and converting to weights
+- `generate_weights` for regression is "wrapper" for generating densities and converting to weights 
 - TSNE `perplexity` passable parameter for our implementation
 	- TSNE *lower priority* than sample weighting KDE and such
 - Show Dr. Chan:
@@ -316,3 +316,31 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 	- Look back at bins for KDE vs histogram... do they line up (SEP-C data look into)
 		- Maybe manually pass bin splits to matplotlib instead of `(min, max, bin_count)`
 	- Add $f_{max}, f_{min}$ and ratio to plot
+
+# 9/26/25
+
+## Prep
+- Make sure user can specify manual bandwidth or `scott` method through our implementation $\checkmark$
+- KDE uniform - user can specify density function $\checkmark$
+- Default number of KDE bins = 30 $\checkmark$ (changed to 32)
+- KDE `bin_sample_count` to `samples_per_bin` $\checkmark$
+- Clean up KDE code $\checkmark$
+	- Separate KDE functionality from regression weight generation $\checkmark$
+- `generate_weights` for regression is "wrapper" for generating densities and converting to weights 
+- TSNE `perplexity` passable parameter for our implementation $\checkmark$
+	- TSNE *lower priority* than sample weighting KDE and such $\checkmark$
+- Show Dr. Chan:
+	- KDE for 3 datasets (SEP-C, SEP-EC, SARCOS)
+	- Look back at bins for KDE vs histogram... do they line up (SEP-C data look into)
+		- Maybe manually pass bin splits to matplotlib instead of `(min, max, bin_count)` $\checkmark$
+	- Add $f_{max}, f_{min}$ and ratio to plot $\checkmark$
+
+## Notes:
+- SEP-C data:
+	- 1476 instances of -1.6
+	- About a dozen $0-1$, a dozen $1-2$, all the way up to 4
+	- Two instances in 5 range, two in 6 range, 2 in 7 range, 1 in 8 range
+- Will be looking into ways to optimize, however, since the 'binned' method requires typically dozens of KDEs to be generated, not sure how much faster I can get it.
+
+![[Pasted image 20250926082118.png|500]]
+

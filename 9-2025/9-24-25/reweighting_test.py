@@ -1,10 +1,8 @@
 import os
 
-import imbal.regression.generate_weights
 from imbal.classification import generate_weights as generate_classification_weights
 from imbal.regression import generate_weights as generate_regression_weights
 import numpy as np
-import matplotlib.pyplot as plt
 import kagglehub
 import csv
 
@@ -32,23 +30,28 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-# data = np.array(read_csv_to_list_of_lists('/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-# print(data.shape)
-# data = data[1:, -1].astype(float)
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 
-# data = np.array(read_csv_to_list_of_lists('/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-C/sep_10mev_training.csv'))
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+print(data.shape)
+data = data[1:, -1].astype(float)
+
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
 # data = data[1:, 22].astype(float)
 
-print(os.getcwd())
-data = np.array(read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-for i in range(43):
-    if os.path.exists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-        data = np.concatenate([data, read_csv_to_list_of_lists(f'/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-print(data.shape)
-data = data[:, 182].astype(float)
-print(data.shape)
+# print(os.getcwd())
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+# for i in range(43):
+#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+# print(data.shape)
+# data = data[:, 182].astype(float)
+# print(data.shape)
 
-bins = 30
-weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True)
+bins = 32
+# f = lambda x: x**2
+weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True, bandwidth='binned')
 # print(weights.tolist())
+# weights = generate_regression_weights(data, density_mapping=f)
+# print(np.allclose(data**2 / np.sum(data**2), weights))

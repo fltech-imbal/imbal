@@ -10,13 +10,14 @@ def generate_tsne_visualization(
         labels,
         latent_layer_index,
         gradient,
-        save_figure=None
+        save_figure=None,
+        perplexity=30
 ):
     intermediate_model = keras.Model(inputs=model.input,
                                      outputs=model.get_layer(index=latent_layer_index).output)
     latents = intermediate_model.predict(data)
 
-    tsne = TSNE(n_components=2, random_state=None)
+    tsne = TSNE(n_components=2, random_state=None, perplexity=perplexity)
     tsne_fit = tsne.fit_transform(latents)
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
@@ -24,8 +25,6 @@ def generate_tsne_visualization(
     plt.colorbar(scatter)
 
     if save_figure is not None:
-        print('HELLLOOOO', save_figure)
-        print(os.getcwd())
         plt.savefig(save_figure)
 
     plt.show()
