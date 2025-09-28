@@ -1,5 +1,4 @@
-  # 9/3/25
-
+# 9/3/25
 ## Prep:
 - Minimize memory usage for metric import dictionary by updating TF dictionary directly $\checkmark$ 
 - Fix: Critical Success Index was not updated to match new, more "TF-like" implementation $\checkmark$
@@ -326,7 +325,7 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 - KDE `bin_sample_count` to `samples_per_bin` $\checkmark$
 - Clean up KDE code $\checkmark$
 	- Separate KDE functionality from regression weight generation $\checkmark$
-- `generate_weights` for regression is "wrapper" for generating densities and converting to weights 
+- `generate_weights` for regression is "wrapper" for generating densities and converting to weights $\checkmark$
 - TSNE `perplexity` passable parameter for our implementation $\checkmark$
 	- TSNE *lower priority* than sample weighting KDE and such $\checkmark$
 - Show Dr. Chan:
@@ -341,6 +340,18 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 	- About a dozen $0-1$, a dozen $1-2$, all the way up to 4
 	- Two instances in 5 range, two in 6 range, 2 in 7 range, 1 in 8 range
 - Will be looking into ways to optimize, however, since the 'binned' method requires typically dozens of KDEs to be generated, not sure how much faster I can get it.
+- Revising documentation to be done this weekend
+## Tasks
+- Revise documentation
+- Optimize bin-based KDE algorithms
+- Percentage based padding for min-max KDE bin range (handle cases where high frequency data is ***AT*** the extremes) 
+		- Add comment explaining reasoning
+	- 1% default, but parameter
+- Bin number in plot title
+- Linear interpolation for KDE approximation for speedup
+	- Compare error with actuals
+	- Use same `sample_per_bin` to determine spaced points
+	- Plot approximation KDE over true KDE (for debugging)
 
 ![[Pasted image 20250926082118.png|500]]
 

@@ -8,12 +8,13 @@ def generate_weights(
         bin_count=32,
         density_mapping=None,
         bandwidth=None,
-        samples_per_bin = 50,
+        samples_per_bin = 10,
         fine_search = 10,
         tolerance = 1e-3,
         return_kde=False,
         visualize_kde=False,
-        return_figure=False
+        return_figure=False,
+        verbose=False
     ):
 
     if density_mapping is None:
@@ -27,7 +28,8 @@ def generate_weights(
             tolerance=tolerance,
             visualize_kde=visualize_kde,
             return_kde=return_kde,
-            return_figure=return_figure
+            return_figure=return_figure,
+            verbose=verbose
         )
     else:
         if isinstance(density_mapping, list):
@@ -49,7 +51,8 @@ def _generate_density_mapping(
         tolerance = 1e-3,
         visualize_kde=False,
         return_kde=False,
-        return_figure=False
+        return_figure=False,
+        verbose=False
 ) -> list:
     """
     TODO
@@ -77,18 +80,23 @@ def _generate_density_mapping(
             samples_per_bin=samples_per_bin,
             fine_search=fine_search,
             tolerance=tolerance,
+            verbose=verbose
         )
     else:
         # Use literal or explicit bandwidth to approximate KDE
         kde = KernelDensity(bandwidth=bandwidth)
         kde.fit(labels.reshape(-1, 1))
 
+    if verbose:
+        print('Performing label to density to weight conversion...')
     reweights = 1 / np.exp(kde.score_samples(labels.reshape(-1,1)).reshape(-1,))
     reweights = reweights / np.sum(reweights)
+    if verbose:
+        print('Conversion done')
 
     fig = None
     if visualize_kde or return_figure:
-        fig = _plot_kde_graph(labels, bin_count, kde, visualize_kde=visualize_kde)
+        fig = _plot_kde_graph(labels, bin_count, kde, visualize_kde=visualize_kde, verbose=verbose)
 
     return_values = [reweights]
 
@@ -102,9 +110,12 @@ def _generate_density_mapping(
     else:
         return return_values
 
-def _plot_kde_graph(labels, bin_count, kde, visualize_kde) -> Figure:
+def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False) -> Figure:
     high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels,
                                                                                                          bin_count)
+
+    print('Plotting KDE...')
+
     labels = np.sort(labels.reshape(-1, ))
     label_min = float(labels[0])
     label_max = float(labels[-1] + 1e-6)
@@ -147,68 +158,84 @@ def _iterative_kde_approximation(
     bandwidth=None,
     samples_per_bin = 50,
     fine_search = 10,
-    tolerance = 1e-3
-) -> tuple:
+    tolerance = 1e-3,
+    verbose=False
+) -> KernelDensity | tuple:
+    if verbose:
+        print('Starting bin-based KDE approximation...')
+
     # Data formatting
     labels = np.sort(labels.reshape(-1,))
 
+    # Get bounds and bin width
     label_min, label_max, step = _get_label_bin_bounds(labels, bin_count)
+    # Get bins with the highest frequency and lowest frequency
     high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count)
-
     desired_ratio = high_freq_bin.shape[0] / low_freq_bin.shape[0]
 
-    # Generate
+    # Generate lists used for even-spaced sampling across lowest and highest frequency bins
     spaced_high_freq_bin = np.array([high_freq_bin[0] + i / samples_per_bin*step for i in range(samples_per_bin)]).reshape(-1, 1)
     spaced_low_freq_bin = np.array([low_freq_bin[0] + i / samples_per_bin*step for i in range(samples_per_bin)]).reshape(-1, 1)
 
-    starting_bandwidth = np.std(labels) * 1.49
+    # Starting test ranges for bandwidth should be between 0.01*stddev and 3*stddev
+    starting_bandwidth = float(np.std(labels)) * 1.49
     coarse_search = starting_bandwidth
 
     best_kde = None
     best_density_ratio = 0
     best_bandwidth = starting_bandwidth
 
-    average_mode = False
-    if bandwidth == 'binned_average':
-        average_mode = True
+    average_mode = bandwidth == 'binned_average'
+    labels = labels.reshape(-1, 1)
 
     while best_kde is None or abs(desired_ratio - best_density_ratio) > tolerance:
         search_steps = round(fine_search)
         kde_contender = None
         density_ratio_contender = None
         bandwidth_contender = None
-        for i in range(search_steps * 2 + 1):
-            if (best_bandwidth + (i - search_steps) * coarse_search/fine_search) <= 1e-6:
-                continue
-            current_bandwidth = best_bandwidth + (i - search_steps) * coarse_search/fine_search
-            kde = KernelDensity(bandwidth=current_bandwidth)
-            kde.fit(labels.reshape(-1, 1))
 
-            max_densities = np.exp(kde.score_samples(spaced_high_freq_bin))
-            min_densities = np.exp(kde.score_samples(spaced_low_freq_bin))
+        for i in range(search_steps * 2 + 1):
+            current_bandwidth = best_bandwidth + (i - search_steps) * coarse_search / fine_search
+
+            # Prevent negative and zero bandwidths
+            if current_bandwidth <= 1e-6:
+                continue
+
+            # Fit KDE with current bandwidth
+            kde = KernelDensity(bandwidth=current_bandwidth)
+            kde.fit(labels)
+
+            # Compute
+            high_densities = np.exp(kde.score_samples(spaced_high_freq_bin))
+            low_densities = np.exp(kde.score_samples(spaced_low_freq_bin))
+
             if average_mode:
-                if np.mean(min_densities) != 0:
-                    density_ratio = float(np.mean(max_densities)) / float(np.mean(min_densities))
-                else:
-                    continue
+                density_ratio = float(np.mean(high_densities)) / float(np.mean(low_densities))
             else:
-                max_area = (max_densities[0]/2 + max_densities[-1]/2 + np.sum(max_densities[1:-1])) * step/samples_per_bin
-                min_area = (min_densities[0]/2 + min_densities[-1]/2 + np.sum(min_densities[1:-1])) * step/samples_per_bin
+                max_area = (-high_densities[0]/2 - high_densities[-1]/2 + np.sum(high_densities)) * step/samples_per_bin
+                min_area = (-low_densities[0]/2 - low_densities[-1]/2 + np.sum(low_densities)) * step/samples_per_bin
                 density_ratio = max_area / min_area
             if bandwidth_contender is None or abs(density_ratio - desired_ratio) < abs(density_ratio_contender - desired_ratio):
                 kde_contender = kde
                 density_ratio_contender = density_ratio
                 bandwidth_contender = current_bandwidth
 
+
         if abs(density_ratio_contender - desired_ratio) < abs(best_density_ratio - desired_ratio):
+            # If the best contender in this search loop produces a
+            # better density ratio than the previous best, update best
+            if verbose:
+                print(f'Current bandwidth approximation: {bandwidth_contender:.4}, absolute ratio difference: {abs(density_ratio_contender - desired_ratio):.4}')
             best_kde = kde_contender
             best_density_ratio = density_ratio_contender
             best_bandwidth = bandwidth_contender
-
             coarse_search = coarse_search/fine_search
         else:
+            # Otherwise, current search window provided no better
+            # bandwidth values, break from search loop
             break
 
+    print(f'Final bandwidth approximation: {best_bandwidth:.4}, absolute ratio difference: {abs(best_density_ratio - desired_ratio):.4}')
     return best_kde
 
 

@@ -30,15 +30,15 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-print(data.shape)
-data = data[1:, -1].astype(float)
-
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
 # print(data.shape)
-# data = data[1:, 22].astype(float)
+# data = data[1:, -1].astype(float)
+
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+print(data.shape)
+data = data[1:, 22].astype(float)
 
 # print(os.getcwd())
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
@@ -49,9 +49,9 @@ data = data[1:, -1].astype(float)
 # data = data[:, 182].astype(float)
 # print(data.shape)
 
-bins = 32
+bins = 40
 # f = lambda x: x**2
-weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True, bandwidth='binned')
+weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True, bandwidth='binned', verbose=True)
 # print(weights.tolist())
 # weights = generate_regression_weights(data, density_mapping=f)
 # print(np.allclose(data**2 / np.sum(data**2), weights))
