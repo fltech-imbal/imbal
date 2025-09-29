@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib.figure import Figure
 from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
+from math import sqrt, pi, log
 
 def generate_weights(
         labels,
@@ -14,8 +15,35 @@ def generate_weights(
         return_kde=False,
         visualize_kde=False,
         return_figure=False,
-        verbose=False
+        verbose=False,
+        padding_factor=0.01,
+        optimization=None,
+
     ):
+    """
+
+    Args:
+        labels:
+        bin_count:
+        density_mapping:
+        bandwidth:
+        samples_per_bin:
+        fine_search:
+        tolerance:
+        return_kde:
+        visualize_kde:
+        return_figure:
+        verbose:
+        padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
+            the data range used for binning. This padding should be specified as a percentage
+            of the range of the data labels. This padding allows for a more graceful
+            handling of scenarios where the minimum or maximum of the labels is the most
+            frequent value in the labels.
+        optimization:
+
+    Returns:
+
+    """
 
     if density_mapping is None:
         # Use KDE estimation to generate weights
@@ -29,7 +57,9 @@ def generate_weights(
             visualize_kde=visualize_kde,
             return_kde=return_kde,
             return_figure=return_figure,
-            verbose=verbose
+            verbose=verbose,
+            padding_factor=padding_factor,
+            optimization=optimization
         )
     else:
         if isinstance(density_mapping, list):
@@ -46,31 +76,16 @@ def _generate_density_mapping(
         labels,
         bandwidth=None,
         bin_count=32,
-        samples_per_bin = 50,
+        samples_per_bin = 10,
         fine_search = 10,
         tolerance = 1e-3,
         visualize_kde=False,
         return_kde=False,
         return_figure=False,
-        verbose=False
+        verbose=False,
+        padding_factor=0.01,
+        optimization=None
 ) -> list:
-    """
-    TODO
-
-    Args:
-        labels:
-        bandwidth:
-        bin_count:
-        samples_per_bin:
-        fine_search:
-        tolerance:
-        visualize_kde:
-        return_kde:
-        return_figure:
-
-    Returns:
-
-    """
     if bandwidth is None or bandwidth == 'binned' or bandwidth == 'binned_average':
         # Use iterative, "binned-based" approach to approximate KDE
         kde = _iterative_kde_approximation(
@@ -80,7 +95,9 @@ def _generate_density_mapping(
             samples_per_bin=samples_per_bin,
             fine_search=fine_search,
             tolerance=tolerance,
-            verbose=verbose
+            verbose=verbose,
+            padding_factor=padding_factor,
+            optimization=optimization
         )
     else:
         # Use literal or explicit bandwidth to approximate KDE
@@ -89,14 +106,42 @@ def _generate_density_mapping(
 
     if verbose:
         print('Performing label to density to weight conversion...')
-    reweights = 1 / np.exp(kde.score_samples(labels.reshape(-1,1)).reshape(-1,))
+
+    approx = None
+    if optimization == 'linear_interpolation':
+        sample_points, sample_densities = _linearly_interpolate_kde(labels, kde, bin_count, samples_per_bin, padding_factor)
+        approx = (sample_points, sample_densities)
+
+        sample_densities = 1 / sample_densities
+        reweights = np.interp(labels, sample_points, sample_densities)
+    elif optimization == 'local':
+        points, densities = _local_kde_optimization(labels, kde)
+        approx = (points, densities)
+        reweights = 1 / densities
+
+        # print('here')
+        # print(points.shape)
+        # print(densities.shape)
+        # print(densities[-50:])
+        # print(np.exp(kde.score_samples(labels.reshape(-1,1)).reshape(-1,))[-50:])
+
+    else:
+        reweights = 1 / np.exp(kde.score_samples(labels.reshape(-1,1)).reshape(-1,))
     reweights = reweights / np.sum(reweights)
     if verbose:
         print('Conversion done')
 
     fig = None
     if visualize_kde or return_figure:
-        fig = _plot_kde_graph(labels, bin_count, kde, visualize_kde=visualize_kde, verbose=verbose)
+        fig = _plot_kde_graph(
+            labels,
+            bin_count,
+            kde,
+            visualize_kde=visualize_kde,
+            verbose=verbose,
+            padding_factor=padding_factor,
+            kde_approximation=approx,
+        )
 
     return_values = [reweights]
 
@@ -110,16 +155,53 @@ def _generate_density_mapping(
     else:
         return return_values
 
-def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False) -> Figure:
-    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels,
-                                                                                                         bin_count)
+def _local_kde_optimization(
+        labels,
+        kde
+):
+    labels = np.sort(labels.reshape(-1, ))
+    bandwidth = kde.bandwidth_
+    inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
+    delta = inverse_gaussian(1e-4 / labels.shape[0])
+    print('bandwidth', bandwidth)
+    print('delta', delta)
 
-    print('Plotting KDE...')
+    sample_densities = []
+    labels = labels.reshape(-1,)
+    low_index = 0
+    high_index = 0
+    for label in labels:
+        while labels[low_index] < label - delta:
+            low_index += 1
+        while high_index < labels.shape[0] and labels[high_index] < label + delta:
+            high_index += 1
+
+        current_kde = KernelDensity(bandwidth=bandwidth)
+        current_kde.fit(labels[low_index:high_index].reshape(-1,1))
+        sample_densities.append(np.exp(current_kde.score_samples(np.array([[label]]))) * (high_index - low_index) / labels.shape[0])
+
+    sample_densities = np.array(sample_densities).reshape(-1,)
+    return labels, sample_densities
+
+
+
+def _linearly_interpolate_kde(labels, kde, bin_count, samples_per_bin, padding_factor):
+    total_samples = bin_count * samples_per_bin
+    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count, padding_factor)
+    step /= samples_per_bin
+    sample_points = np.array([label_min + i*step for i in range(total_samples + 1)])
+    sample_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))
+    return sample_points, sample_densities
+
+def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False, padding_factor=0.01, kde_approximation=None) -> Figure:
+    if verbose:
+        print('Plotting KDE...')
 
     labels = np.sort(labels.reshape(-1, ))
-    label_min = float(labels[0])
-    label_max = float(labels[-1] + 1e-6)
-    step = float((label_max - label_min) / bin_count)
+    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels,
+                                                                                                         bin_count,
+                                                                                                         padding_factor)
+    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count, padding_factor)
     min_count = low_freq_bin.shape[0]
     max_count = high_freq_bin.shape[0]
 
@@ -127,6 +209,8 @@ def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False) -> Fig
     log_dens = kde.score_samples(x_plot)
     fig = plt.figure(figsize=(8, 6))
     plt.plot(x_plot, np.exp(log_dens), label='KDE Curve')
+    if kde_approximation is not None:
+        plt.plot(kde_approximation[0], kde_approximation[1], label='Approximation', color='orange')
     plt.hist(labels, bins=[label_min + i * step for i in range(bin_count)], density=True, alpha=0.6, label='Histogram')
 
     f_min_bar = label_min + (low_freq_bin_index + .5) * step
@@ -142,7 +226,7 @@ def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False) -> Fig
              verticalalignment='bottom', horizontalalignment='right')
 
     plt.title(
-        f'Kernel Density Estimation (f_max/f_min = {max_count / min_count:.1f}, bandwidth = {kde.bandwidth_:.3f})')
+        f'KDE (f_max/f_min = {max_count / min_count:.1f}, bandwidth = {kde.bandwidth_:.3f}, bins = {bin_count})')
     plt.xlabel('Value')
     plt.ylabel('Density')
     plt.legend()
@@ -159,7 +243,9 @@ def _iterative_kde_approximation(
     samples_per_bin = 50,
     fine_search = 10,
     tolerance = 1e-3,
-    verbose=False
+    verbose=False,
+    padding_factor=0.01,
+    optimization=None
 ) -> KernelDensity | tuple:
     if verbose:
         print('Starting bin-based KDE approximation...')
@@ -168,9 +254,9 @@ def _iterative_kde_approximation(
     labels = np.sort(labels.reshape(-1,))
 
     # Get bounds and bin width
-    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count)
+    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count, padding_factor)
     # Get bins with the highest frequency and lowest frequency
-    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count)
+    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count, padding_factor)
     desired_ratio = high_freq_bin.shape[0] / low_freq_bin.shape[0]
 
     # Generate lists used for even-spaced sampling across lowest and highest frequency bins
@@ -181,6 +267,7 @@ def _iterative_kde_approximation(
     starting_bandwidth = float(np.std(labels)) * 1.49
     coarse_search = starting_bandwidth
 
+    # Track best results during iteration
     best_kde = None
     best_density_ratio = 0
     best_bandwidth = starting_bandwidth
@@ -188,7 +275,9 @@ def _iterative_kde_approximation(
     average_mode = bandwidth == 'binned_average'
     labels = labels.reshape(-1, 1)
 
-    while best_kde is None or abs(desired_ratio - best_density_ratio) > tolerance:
+    # Ensure at least one loop, and loop until ratio is within tolerance,
+    # or search becomes too fine grain (perhaps ideal ratio is impossible)
+    while best_kde is None or (abs(desired_ratio - best_density_ratio) > tolerance and coarse_search / fine_search > 1e-6):
         search_steps = round(fine_search)
         kde_contender = None
         density_ratio_contender = None
@@ -196,7 +285,6 @@ def _iterative_kde_approximation(
 
         for i in range(search_steps * 2 + 1):
             current_bandwidth = best_bandwidth + (i - search_steps) * coarse_search / fine_search
-
             # Prevent negative and zero bandwidths
             if current_bandwidth <= 1e-6:
                 continue
@@ -215,13 +303,14 @@ def _iterative_kde_approximation(
                 max_area = (-high_densities[0]/2 - high_densities[-1]/2 + np.sum(high_densities)) * step/samples_per_bin
                 min_area = (-low_densities[0]/2 - low_densities[-1]/2 + np.sum(low_densities)) * step/samples_per_bin
                 density_ratio = max_area / min_area
+
             if bandwidth_contender is None or abs(density_ratio - desired_ratio) < abs(density_ratio_contender - desired_ratio):
                 kde_contender = kde
                 density_ratio_contender = density_ratio
                 bandwidth_contender = current_bandwidth
 
 
-        if abs(density_ratio_contender - desired_ratio) < abs(best_density_ratio - desired_ratio):
+        if abs(density_ratio_contender - desired_ratio) <= abs(best_density_ratio - desired_ratio):
             # If the best contender in this search loop produces a
             # better density ratio than the previous best, update best
             if verbose:
@@ -235,11 +324,12 @@ def _iterative_kde_approximation(
             # bandwidth values, break from search loop
             break
 
-    print(f'Final bandwidth approximation: {best_bandwidth:.4}, absolute ratio difference: {abs(best_density_ratio - desired_ratio):.4}')
+    if verbose:
+          print(f'Final bandwidth approximation: {best_bandwidth:.4}, absolute ratio difference: {abs(best_density_ratio - desired_ratio):.4}')
     return best_kde
 
 
-def _determine_high_low_freq_bins(labels, bin_count) -> tuple:
+def _determine_high_low_freq_bins(labels, bin_count, padding_factor) -> tuple:
     """
     Calculate the contents of the highest and lowest frequency bins, as
     well as their index.
@@ -250,7 +340,7 @@ def _determine_high_low_freq_bins(labels, bin_count) -> tuple:
     Returns:
 
     """
-    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count)
+    label_min, label_max, step = _get_label_bin_bounds(labels, bin_count, padding_factor)
 
     bins = [labels[(labels < label_min + step * (i+1)) & (labels >= label_min + step * i)] for i in range(bin_count)]
     low_freq = (bins[0], 0)
@@ -263,8 +353,11 @@ def _determine_high_low_freq_bins(labels, bin_count) -> tuple:
 
     return high_freq[0], high_freq[1], low_freq[0], low_freq[1]
 
-def _get_label_bin_bounds(labels, bin_count) -> tuple:
+def _get_label_bin_bounds(labels, bin_count, padding_factor) -> tuple:
     label_min = labels[0]
     label_max = labels[-1] + 1e-6
+    label_range = label_max - label_min
+    label_min = label_min - label_range*padding_factor
+    label_max = label_max + label_range*padding_factor
     step = float((label_max - label_min) / bin_count)
     return label_min, label_max, step

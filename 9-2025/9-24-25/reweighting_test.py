@@ -1,5 +1,4 @@
 import os
-
 from imbal.classification import generate_weights as generate_classification_weights
 from imbal.regression import generate_weights as generate_regression_weights
 import numpy as np
@@ -30,17 +29,17 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+print(os.getcwd())
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-# print(data.shape)
-# data = data[1:, -1].astype(float)
-
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
 print(data.shape)
-data = data[1:, 22].astype(float)
+data = data[1:, -1].astype(float)
 
-# print(os.getcwd())
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# print(data.shape)
+# data = data[1:, 22].astype(float)
+
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
 # for i in range(43):
 #     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
@@ -49,9 +48,23 @@ data = data[1:, 22].astype(float)
 # data = data[:, 182].astype(float)
 # print(data.shape)
 
-bins = 40
 # f = lambda x: x**2
-weights, kde = generate_regression_weights(data, return_kde=True, bin_count=bins, visualize_kde=True, bandwidth='binned', verbose=True)
-# print(weights.tolist())
-# weights = generate_regression_weights(data, density_mapping=f)
-# print(np.allclose(data**2 / np.sum(data**2), weights))
+
+BINS=32
+
+weights, kde = generate_regression_weights(
+    data,
+    return_kde=True,
+    visualize_kde=True,
+    bandwidth='binned',
+    # verbose=True,
+    optimization='linear_interpolation',
+    bin_count=BINS
+)
+
+# exact_weights, kde = generate_regression_weights(
+#     data,
+#     return_kde=True,
+#     bandwidth='binned',
+#     bin_count=BINS
+# )
