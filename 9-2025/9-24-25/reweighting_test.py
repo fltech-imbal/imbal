@@ -29,78 +29,82 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-# print(data.shape)
-# data = data[1:, -1].astype(float)
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+print(data.shape)
+data = data[1:, -1].astype(float)
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
 # data = data[1:, 22].astype(float)
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-for i in range(43):
-    if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-print(data.shape)
-data = data[:, 182].astype(float)
-print(data.shape)
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+# for i in range(43):
+#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+# print(data.shape)
+# data = data[:, 182].astype(float)
+# print(data.shape)
 
 
 BINS=1
 from matplotlib import pyplot as plt
 
-# fig, axes = plt.subplots(nrows=bandwidth_steps, ncols=bin_max - bin_min + 1)
+bin_min = 8
+bin_max = 16
+fig, axes = plt.subplots(
+    ncols=bin_max - bin_min + 1,
+    figsize=(7*(bin_max - bin_min + 1), 5)
+)
+
+for j in range(bin_max - bin_min + 1):
+    current_bins = 2**(bin_min + j)
+    print(current_bins)
+    weights, kde = generate_regression_weights(
+        data,
+        return_kde=True,
+        bandwidth='binned',
+        # verbose=True,
+        optimization='linear_interpolation',
+        bin_count=current_bins,
+        save_figure=axes[j]
+    )
+
+# plt.savefig('silverman-sarcos.png')
+plt.show()
+
+
+# bandwidth_min = 0.02
+# bandwidth_max = 0.2
+# bandwidth_steps = 10
+# bin_min = 3
+# bin_max = 7
 #
+# fig, axes = plt.subplots(
+#     nrows=bandwidth_steps,
+#     ncols=bin_max - bin_min + 1,
+#     figsize=(7*(bin_max - bin_min + 1), bandwidth_steps*5)
+# )
 # for i in range(bandwidth_steps):
 #     for j in range(bin_max - bin_min + 1):
+#         current_bins = 2 ** (bin_min + j)
 #         current_bandwidth = bandwidth_min + i * (bandwidth_max - bandwidth_min) / (bandwidth_steps - 1)
-#         current_bins = 2**(bin_min + j)
+#         print(current_bandwidth, current_bins)
 #         weights, kde = generate_regression_weights(
 #             data,
 #             return_kde=True,
+#             # visualize_kde=True,
 #             bandwidth=current_bandwidth,
 #             # verbose=True,
 #             optimization='linear_interpolation',
 #             bin_count=current_bins,
 #             save_figure=axes[i, j]
 #         )
-#         axes[i, j].plot(weights, label=f'bandwidth = {current_bandwidth}')
 #
+# plt.savefig('3.png')
 # plt.show()
-
-
-bandwidth_min = 0.02
-bandwidth_max = 0.2
-bandwidth_steps = 10
-bin_min = 3
-bin_max = 7
-
-fig, axes = plt.subplots(
-    nrows=bandwidth_steps,
-    ncols=bin_max - bin_min + 1,
-    figsize=(7*(bin_max - bin_min + 1), bandwidth_steps*5)
-)
-for i in range(bandwidth_steps):
-    for j in range(bin_max - bin_min + 1):
-        current_bins = 2 ** (bin_min + j)
-        current_bandwidth = bandwidth_min + i * (bandwidth_max - bandwidth_min) / (bandwidth_steps - 1)
-        print(current_bandwidth, current_bins)
-        weights, kde = generate_regression_weights(
-            data,
-            return_kde=True,
-            # visualize_kde=True,
-            bandwidth=current_bandwidth,
-            # verbose=True,
-            optimization='linear_interpolation',
-            bin_count=current_bins,
-            save_figure=axes[i, j]
-        )
-
-plt.savefig('3.png')
-plt.show()
 
 
 # print(weights[:100])
