@@ -29,31 +29,31 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-print(data.shape)
-data = data[1:, -1].astype(float)
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+# print(data.shape)
+# data = data[1:, -1].astype(float)
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
 # data = data[1:, 22].astype(float)
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-# for i in range(43):
-#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-# print(data.shape)
-# data = data[:, 182].astype(float)
-# print(data.shape)
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+for i in range(43):
+    if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+print(data.shape)
+data = data[:, 182].astype(float)
+print(data.shape)
 
 
 BINS=1
 from matplotlib import pyplot as plt
 
 bin_min = 8
-bin_max = 16
+bin_max = 13
 fig, axes = plt.subplots(
     ncols=bin_max - bin_min + 1,
     figsize=(7*(bin_max - bin_min + 1), 5)
@@ -72,7 +72,7 @@ for j in range(bin_max - bin_min + 1):
         save_figure=axes[j]
     )
 
-# plt.savefig('silverman-sarcos.png')
+plt.savefig('sep-ec-extended.png')
 plt.show()
 
 
