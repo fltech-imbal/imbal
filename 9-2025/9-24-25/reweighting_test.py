@@ -29,7 +29,7 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
@@ -48,22 +48,62 @@ print(data.shape)
 data = data[:, 182].astype(float)
 print(data.shape)
 
-# f = lambda x: x**2
 
 BINS=1
+from matplotlib import pyplot as plt
 
-weights, kde = generate_regression_weights(
-    data,
-    return_kde=True,
-    visualize_kde=True,
-    bandwidth='binned',
-    # verbose=True,
-    # optimization='local',
-    bin_count=BINS
+# fig, axes = plt.subplots(nrows=bandwidth_steps, ncols=bin_max - bin_min + 1)
+#
+# for i in range(bandwidth_steps):
+#     for j in range(bin_max - bin_min + 1):
+#         current_bandwidth = bandwidth_min + i * (bandwidth_max - bandwidth_min) / (bandwidth_steps - 1)
+#         current_bins = 2**(bin_min + j)
+#         weights, kde = generate_regression_weights(
+#             data,
+#             return_kde=True,
+#             bandwidth=current_bandwidth,
+#             # verbose=True,
+#             optimization='linear_interpolation',
+#             bin_count=current_bins,
+#             save_figure=axes[i, j]
+#         )
+#         axes[i, j].plot(weights, label=f'bandwidth = {current_bandwidth}')
+#
+# plt.show()
+
+
+bandwidth_min = 0.02
+bandwidth_max = 0.2
+bandwidth_steps = 10
+bin_min = 3
+bin_max = 7
+
+fig, axes = plt.subplots(
+    nrows=bandwidth_steps,
+    ncols=bin_max - bin_min + 1,
+    figsize=(7*(bin_max - bin_min + 1), bandwidth_steps*5)
 )
+for i in range(bandwidth_steps):
+    for j in range(bin_max - bin_min + 1):
+        current_bins = 2 ** (bin_min + j)
+        current_bandwidth = bandwidth_min + i * (bandwidth_max - bandwidth_min) / (bandwidth_steps - 1)
+        print(current_bandwidth, current_bins)
+        weights, kde = generate_regression_weights(
+            data,
+            return_kde=True,
+            # visualize_kde=True,
+            bandwidth=current_bandwidth,
+            # verbose=True,
+            optimization='linear_interpolation',
+            bin_count=current_bins,
+            save_figure=axes[i, j]
+        )
 
-print(weights[:100])
+plt.savefig('3.png')
+plt.show()
 
+
+# print(weights[:100])
 # exact_weights, kde = generate_regression_weights(
 #     data,
 #     return_kde=True,

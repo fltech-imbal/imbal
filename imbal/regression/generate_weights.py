@@ -14,7 +14,7 @@ def generate_weights(
         tolerance = 1e-3,
         return_kde=False,
         visualize_kde=False,
-        return_figure=False,
+        save_figure=None,
         verbose=False,
         padding_factor=0.01,
         optimization=None,
@@ -56,7 +56,7 @@ def generate_weights(
             tolerance=tolerance,
             visualize_kde=visualize_kde,
             return_kde=return_kde,
-            return_figure=return_figure,
+            save_figure=save_figure,
             verbose=verbose,
             padding_factor=padding_factor,
             optimization=optimization
@@ -81,7 +81,7 @@ def _generate_density_mapping(
         tolerance = 1e-3,
         visualize_kde=False,
         return_kde=False,
-        return_figure=False,
+        save_figure=None,
         verbose=False,
         padding_factor=0.01,
         optimization=None
@@ -132,8 +132,8 @@ def _generate_density_mapping(
         print('Conversion done')
 
     fig = None
-    if visualize_kde or return_figure:
-        fig = _plot_kde_graph(
+    if visualize_kde or save_figure is not None:
+        _plot_kde_graph(
             labels,
             bin_count,
             kde,
@@ -141,14 +141,13 @@ def _generate_density_mapping(
             verbose=verbose,
             padding_factor=padding_factor,
             kde_approximation=approx,
+            save_figure=save_figure
         )
 
     return_values = [reweights]
 
     if return_kde:
         return_values.append(kde)
-    if return_figure:
-        return_values.append(fig)
 
     if len(return_values) == 1:
         return return_values[0]
@@ -201,7 +200,16 @@ def _linearly_interpolate_kde(labels, kde, bin_count, samples_per_bin, padding_f
     sample_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))
     return sample_points, sample_densities
 
-def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False, padding_factor=0.01, kde_approximation=None) -> Figure:
+def _plot_kde_graph(
+        labels,
+        bin_count,
+        kde,
+        visualize_kde,
+        verbose=False,
+        padding_factor=0.01,
+        kde_approximation=None,
+        save_figure=None
+) -> None:
     if verbose:
         print('Plotting KDE...')
 
@@ -215,34 +223,38 @@ def _plot_kde_graph(labels, bin_count, kde, visualize_kde, verbose=False, paddin
 
     x_plot = np.linspace(label_min - 1, label_max + 1, 1000).reshape(-1, 1)
     log_dens = kde.score_samples(x_plot)
-    fig = plt.figure(figsize=(8, 6))
-    plt.plot(x_plot, np.exp(log_dens), label='KDE Curve')
-    if kde_approximation is not None:
-        plt.plot(kde_approximation[0], kde_approximation[1], label='Approximation', color='orange')
-    plt.hist(labels, bins=[label_min + i * step for i in range(bin_count)], density=True, alpha=0.6, label='Histogram')
+    if save_figure is not None:
+        ax = save_figure
+    else:
+        fig, ax = plt.figure(figsize=(8, 6))
+    ax.plot(x_plot, np.exp(log_dens), label='KDE Curve')
+    # if kde_approximation is not None:
+    #     plt.plot(kde_approximation[0], kde_approximation[1], label='Approximation', color='orange')
 
+    ax.hist(labels, bins=[label_min + i * step for i in range(bin_count)], density=True, alpha=0.6, label='Histogram')
     f_min_bar = label_min + (low_freq_bin_index + .5) * step
-    plt.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
-    plt.text(f_min_bar, plt.ylim()[1] * 0.02, f'f_min = {min_count}',
+    ax.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
+    ax.text(f_min_bar, ax.get_ylim()[1] * 0.02, f'f_min = {min_count}',
              rotation=90, color='red',
              verticalalignment='bottom', horizontalalignment='right')
 
     f_max_bar = label_min + (high_freq_bin_index + .5) * step
-    plt.axvline(x=f_max_bar, color='red', linestyle='--', linewidth=2)
-    plt.text(f_max_bar, plt.ylim()[1] * 0.02, f'f_max = {max_count}',
+    ax.axvline(x=f_max_bar, color='red', linestyle='--', linewidth=2)
+    ax.text(f_max_bar, ax.get_ylim()[1] * 0.02, f'f_max = {max_count}',
              rotation=90, color='red',
              verticalalignment='bottom', horizontalalignment='right')
 
-    plt.title(
+    print(max_count, min_count)
+    ax.set_title(
         f'KDE (f_max/f_min = {max_count / min_count:.1f}, bandwidth = {kde.bandwidth_:.3f}, bins = {bin_count})')
-    plt.xlabel('Value')
-    plt.ylabel('Density')
-    plt.legend()
-    plt.grid(True)
+    ax.set_xlabel('Value')
+    ax.set_ylabel('Density')
+    ax.legend()
+    ax.grid(True)
+
     if visualize_kde:
         plt.show()
 
-    return fig
 
 def _iterative_kde_approximation(
     labels,
@@ -351,13 +363,14 @@ def _determine_high_low_freq_bins(labels, bin_count, padding_factor) -> tuple:
     label_min, label_max, step = _get_label_bin_bounds(labels, bin_count, padding_factor)
 
     bins = [labels[(labels < label_min + step * (i+1)) & (labels >= label_min + step * i)] for i in range(bin_count)]
-    low_freq = (bins[0], 0)
     high_freq = (bins[0], 0)
+    for index, _bin in enumerate(bins):
+        if _bin.shape[0] > high_freq[0].shape[0]:
+            high_freq = (_bin, index)
+    low_freq = (high_freq[0], high_freq[1])
     for index, _bin in enumerate(bins):
         if _bin.shape[0] != 0 and _bin.shape[0] < low_freq[0].shape[0]:
             low_freq = (_bin, index)
-        if _bin.shape[0] > high_freq[0].shape[0]:
-            high_freq = (_bin, index)
 
     return high_freq[0], high_freq[1], low_freq[0], low_freq[1]
 

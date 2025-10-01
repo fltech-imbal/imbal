@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "29f78173bd73d585",
+            "id": "d9f4a6ed10965238",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -36,15 +36,17 @@
             }
           },
           {
-            "id": "edc35f7c754c044c",
+            "id": "fbf85ab2c424dfbe",
             "type": "leaf",
             "state": {
-              "type": "release-notes",
+              "type": "markdown",
               "state": {
-                "currentVersion": "1.9.12"
+                "file": "Notes - 10-25.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.9.12"
+              "icon": "lucide-file",
+              "title": "Notes - 10-25"
             }
           }
         ],
@@ -196,21 +198,23 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "edc35f7c754c044c",
+  "active": "fbf85ab2c424dfbe",
   "lastOpenFiles": [
-    "Pasted image 20250929120641.png",
-    "Pasted image 20250929120621.png",
-    "Pasted image 20250929120609.png",
+    "3.png",
+    "Original PDF.pdf",
+    "2.png",
+    "1.png",
+    "Notes - 10-25.md",
+    "Notes - 9-25.md",
+    "mini-pipeline-demo.py",
+    "Images/Pasted image 20250929120621.png",
+    "Images/better_stratified_weight_sampling.png",
+    "Images/Pasted image 20250929120609.png",
+    "Images/Pasted image 20250929120641.png",
     "Images/Pasted image 20250928182826.png",
     "Images/Pasted image 20250928185212.png",
-    "Notes - 9-25.md",
     "Images/Pasted image 20250929081050.png",
     "Images/Pasted image 20250929081034.png",
-    "Images/Pasted image 20250929081016.png",
-    "Images/Pasted image 20250926082118.png",
-    "Original PDF.pdf",
-    "Images/Pasted image 20250924102247.png",
-    "Images/Pasted image 20250924101632.png",
     "Notes - 8-25.md",
     "Images",
     "Notes (Old)/Dr. Chan Meeting 8-18-25.md",
