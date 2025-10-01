@@ -375,28 +375,27 @@ More bins does not necessarily mean better KDE. It seems to be related to whethe
 		- Mean absolute error on the order of $10^{-8}$
 		- Mean square error on the order of $10^{-13}$
 - Delta experimentation:
-	- SEP-C: bandwidth $=0.13$, $\delta=0.773$
-	- SEP-EC: bandwidth $=0.102$, $\delta=0.650$
-	- SARCOS: bandwidth $=0.139$, $\delta=0.949$
-	- Based on SARCOS data...
-		- **Without optimization, time to compute KDE averaged over 10 runs = 34.1 seconds**
-		- **With optimization, time to compute KDE averaged over 10 runs = 57.3 seconds**
-		- Mean absolute error on the order of $10^{-16}$
-		- Mean square error on the order of $10^{-30}$
-	- Why longer?
-		- Ignoring the fact that I did not use binary search for finding the bounds for delta, I believe the main cause is that sklearn seems to do some pre-computation when instancing and fitting a KDE curve that presumably allows for KDEs to be slightly faster to computer after fitting
-			- Tried to investigate source code, but not written in python, some strange in-between python language
-		- It is a tree-based algorithm so likely nlog(n), but that operation is happening for every sample.
-		- Additionally, majority of the data has majority of the data nearby (so time saves end up being not as impactful)
+	- Faster, but didn't have time to test on same system (above number ran on desktop, realized my implementation was incorrect before meeting, fixed on laptop)
+	- Visually, doesn't look like as good of a match as linear interpolation
 #### Linear Interpolation Approximation (32 bins, 10 samples per bin)
 ![[Pasted image 20250928182826.png|500]]
 #### Approximated weights vs actuals (linear)
 ![[Pasted image 20250928185212.png|500]]
 
 #### Delta-based approximations
-SEP-C
+
+**NOTE: All of these graphs were generated before proper implementation. Still did "localized" KDE, but didn't switch to skip-based method for when n > k**
+
+SEP-C (note skip in data results in skip in approximation, though this doesn't affect the accuracy of the approximation)
 ![[Pasted image 20250929081016.png|500]]
 SEC-EC
 ![[Pasted image 20250929081034.png|500]]
 SARCOS
 ![[Pasted image 20250929081050.png|500]]
+
+## Tasks:
+- Investigate how KDE vs histogram curve changes between different bin sizes and constant bandwidth
+	- Also constant bins, varied bandwidth
+![[Pasted image 20250929120609.png|600]]
+![[Pasted image 20250929120621.png|600]]
+![[Pasted image 20250929120641.png|600]]

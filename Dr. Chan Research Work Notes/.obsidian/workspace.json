@@ -34,9 +34,21 @@
               "icon": "lucide-file",
               "title": "Notes - 9-25"
             }
+          },
+          {
+            "id": "edc35f7c754c044c",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.9.12"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.9.12"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -184,21 +196,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "29f78173bd73d585",
+  "active": "edc35f7c754c044c",
   "lastOpenFiles": [
-    "Pasted image 20250929081050.png",
-    "Pasted image 20250929081034.png",
-    "Pasted image 20250929081016.png",
-    "Pasted image 20250928185212.png",
-    "Pasted image 20250928182826.png",
+    "Pasted image 20250929120641.png",
+    "Pasted image 20250929120621.png",
+    "Pasted image 20250929120609.png",
+    "Images/Pasted image 20250928182826.png",
+    "Images/Pasted image 20250928185212.png",
+    "Notes - 9-25.md",
+    "Images/Pasted image 20250929081050.png",
+    "Images/Pasted image 20250929081034.png",
+    "Images/Pasted image 20250929081016.png",
     "Images/Pasted image 20250926082118.png",
     "Original PDF.pdf",
-    "Notes - 9-25.md",
     "Images/Pasted image 20250924102247.png",
     "Images/Pasted image 20250924101632.png",
-    "Images/Pasted image 20250924090335.png",
-    "Images/Pasted image 20250924072208.png",
-    "Images/Pasted image 20250924071642.png",
     "Notes - 8-25.md",
     "Images",
     "Notes (Old)/Dr. Chan Meeting 8-18-25.md",

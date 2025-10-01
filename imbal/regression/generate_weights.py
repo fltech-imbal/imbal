@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib.figure import Figure
 from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
-from math import sqrt, pi, log
+from math import sqrt, pi, log, floor
 
 def generate_weights(
         labels,
@@ -115,7 +115,7 @@ def _generate_density_mapping(
         sample_densities = 1 / sample_densities
         reweights = np.interp(labels, sample_points, sample_densities)
     elif optimization == 'local':
-        points, densities = _local_kde_optimization(labels, kde)
+        points, densities = _local_kde_optimization(labels, kde, samples_per_bin)
         approx = (points, densities)
         reweights = 1 / densities
 
@@ -157,7 +157,8 @@ def _generate_density_mapping(
 
 def _local_kde_optimization(
         labels,
-        kde
+        kde,
+        sample_per_bin
 ):
     labels = np.sort(labels.reshape(-1, ))
     bandwidth = kde.bandwidth_
@@ -165,6 +166,7 @@ def _local_kde_optimization(
     delta = inverse_gaussian(1e-4 / labels.shape[0])
     print('bandwidth', bandwidth)
     print('delta', delta)
+    k = max(2, sample_per_bin*round(log(labels.shape[0])))
 
     sample_densities = []
     labels = labels.reshape(-1,)
@@ -176,8 +178,14 @@ def _local_kde_optimization(
         while high_index < labels.shape[0] and labels[high_index] < label + delta:
             high_index += 1
 
+        if high_index - low_index > k:
+            stride = floor((high_index - low_index) / k)
+            samples = labels[low_index:high_index:stride]
+        else:
+            samples = labels[low_index:high_index]
+
         current_kde = KernelDensity(bandwidth=bandwidth)
-        current_kde.fit(labels[low_index:high_index].reshape(-1,1))
+        current_kde.fit(samples.reshape(-1,1))
         sample_densities.append(np.exp(current_kde.score_samples(np.array([[label]]))) * (high_index - low_index) / labels.shape[0])
 
     sample_densities = np.array(sample_densities).reshape(-1,)
