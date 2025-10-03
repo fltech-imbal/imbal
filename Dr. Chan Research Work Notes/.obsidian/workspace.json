@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "3e33890e9cdd41ef",
+            "id": "e642ecb5b4c36047",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -184,21 +184,22 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3e33890e9cdd41ef",
+  "active": "e642ecb5b4c36047",
   "lastOpenFiles": [
-    "Notes - 9-25.md",
+    "Images/1.png",
+    "Images/sarcos-extended.png",
     "Original PDF.pdf",
     "Notes - 10-25.md",
-    "sarcos-extended.png",
-    "sep-ec-extended.png",
-    "sep-c-extended.png",
-    "scott-sarcos.png",
-    "silverman-sep-ec.png",
-    "silverman-sep-c.png",
-    "silverman-sarcos.png",
-    "scott-sep-ec.png",
-    "scott-sep-c.png",
-    "1.png",
+    "Images/sep-ec-far-bin.png",
+    "Images/sep-c-far-bin.png",
+    "Images/sarcos-far-bin.png",
+    "Images/sep-ec-extended.png",
+    "Images/sep-c-extended.png",
+    "Images/scott-sarcos.png",
+    "Images/silverman-sep-ec.png",
+    "Images/silverman-sep-c.png",
+    "Images/silverman-sarcos.png",
+    "Notes - 9-25.md",
     "mini-pipeline-demo.py",
     "Notes - 8-25.md",
     "Images",
