@@ -8,12 +8,12 @@ from math import sqrt, pi, log, floor, ceil
 def generate_weights(
         labels,
         samples_per_bin=100,
-        bin_width=None,
+        bin_width=None, #TODO remove
         bin_count=None,
         density_mapping=None,
         bandwidth=None,
         steps_per_bin = 10,
-        fine_search = 10,
+        fine_search = 5,
         tolerance = 1e-3,
         return_kde=False,
         visualize_kde=False,
@@ -22,7 +22,6 @@ def generate_weights(
         verbose=False,
         padding_factor=0.01,
         optimization=None,
-
     ):
     """
 
@@ -107,7 +106,7 @@ def _generate_density_mapping(
         optimization=None
 ) -> list:
 
-    if bandwidth is None or bandwidth == 'binned' or bandwidth == 'binned_average':
+    if bandwidth is None or bandwidth == 'binned' or bandwidth == 'binned_average' or bandwidth == 'binned_fit':
         # Use iterative, "binned-based" approach to approximate KDE
         kde = _iterative_kde_approximation(
             labels,
@@ -146,7 +145,7 @@ def _generate_density_mapping(
     if verbose:
         print('Conversion done')
 
-    if visualize_kde or save_figure is not None:
+    if visualize_kde or save_figure is not None or use_axes is not None:
         _plot_kde_graph(
             labels,
             bin_count,
@@ -317,6 +316,7 @@ def _iterative_kde_approximation(
     best_bandwidth = starting_bandwidth
 
     average_mode = bandwidth == 'binned_average'
+    fit_mode = bandwidth == 'binned_fit'
     labels = labels.reshape(-1, 1)
 
     # Ensure at least one loop, and loop until ratio is within tolerance,
@@ -341,19 +341,19 @@ def _iterative_kde_approximation(
                 high_densities = np.exp(kde.score_samples(spaced_high_freq_bin))
                 low_densities = np.exp(kde.score_samples(spaced_low_freq_bin))
                 heuristic = abs(float(np.mean(high_densities)) / float(np.mean(low_densities)) - desired_ratio)
-            else:
-                # DENSITY-RATIO BASED HEURISTIC
-                # high_densities = np.exp(kde.score_samples(spaced_high_freq_bin))
-                # low_densities = np.exp(kde.score_samples(spaced_low_freq_bin))
-                # max_area = (-high_densities[0]/2 - high_densities[-1]/2 + np.sum(high_densities)) * step/steps_per_bin
-                # min_area = (-low_densities[0]/2 - low_densities[-1]/2 + np.sum(low_densities)) * step/steps_per_bin
-                # heuristic = abs(max_area / min_area - desired_ratio)
-                # print(current_bandwidth, max_area, min_area, heuristic)
-
+            elif fit_mode:
                 # CURVE FIT BASED HEURISTIC
                 kde_densities = np.exp(kde.score_samples(spaced_even_curve))
                 heuristic = np.mean(np.abs(histogram_values - kde_densities))
                 print(current_bandwidth, heuristic)
+            else:
+                # DENSITY-RATIO BASED HEURISTIC
+                high_densities = np.exp(kde.score_samples(spaced_high_freq_bin))
+                low_densities = np.exp(kde.score_samples(spaced_low_freq_bin))
+                max_area = (-high_densities[0]/2 - high_densities[-1]/2 + np.sum(high_densities)) * step/steps_per_bin
+                min_area = (-low_densities[0]/2 - low_densities[-1]/2 + np.sum(low_densities)) * step/steps_per_bin
+                heuristic = abs(max_area / min_area - desired_ratio)
+                print(current_bandwidth, max_area, min_area, heuristic)
 
             if bandwidth_contender is None or heuristic < heuristic_contender:
                 print('contender', current_bandwidth, heuristic)

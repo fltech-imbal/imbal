@@ -29,43 +29,71 @@ print(generate_classification_weights(labels, {
 
 print(generate_classification_weights(labels).tolist())
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
 # print(data.shape)
 # data = data[1:, -1].astype(float)
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# print(data.shape)
+# data = data[1:, 22].astype(float)
+
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+for i in range(43):
+    if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
 print(data.shape)
-data = data[1:, 22].astype(float)
-
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-# for i in range(43):
-#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-# print(data.shape)
-# data = data[:, 182].astype(float)
-# print(data.shape)
+data = data[:, 182].astype(float)
+print(data.shape)
 
 
-BINS=1
+BINS=128
 from matplotlib import pyplot as plt
 
 # print(np.std(data.reshape(-1,)))
+
+fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(7*4, 5))
 
 weights, kde = generate_regression_weights(
     data,
     return_kde=True,
     bandwidth='binned',
-    visualize_kde=True,
     optimization='linear_interpolation',
-    save_figure='sarcos-far-bin.png',
-    bin_count=64
+    use_axes=ax[0],
+    bin_count=BINS
 )
 
-# plt.savefig('sep-ec-extended.png')
-# plt.show()
+weights, kde = generate_regression_weights(
+    data,
+    return_kde=True,
+    bandwidth='binned_fit',
+    optimization='linear_interpolation',
+    use_axes=ax[1],
+    bin_count=BINS
+)
+
+weights, kde = generate_regression_weights(
+    data,
+    return_kde=True,
+    bandwidth='scott',
+    optimization='linear_interpolation',
+    use_axes=ax[2],
+    bin_count=BINS
+)
+
+weights, kde = generate_regression_weights(
+    data,
+    return_kde=True,
+    bandwidth='silverman',
+    optimization='linear_interpolation',
+    use_axes=ax[3],
+    bin_count=BINS
+)
+
+plt.savefig('high-sep-ec-ours-new-scott-silverman.png')
+plt.show()
 
 
 # bandwidth_min = 0.02
