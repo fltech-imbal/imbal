@@ -34,21 +34,9 @@
               "icon": "lucide-file",
               "title": "Notes - 10-25"
             }
-          },
-          {
-            "id": "b0bd3537fc9485da",
-            "type": "leaf",
-            "state": {
-              "type": "release-notes",
-              "state": {
-                "currentVersion": "1.9.14"
-              },
-              "icon": "lucide-book-up",
-              "title": "Release Notes 1.9.14"
-            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -196,21 +184,20 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "b0bd3537fc9485da",
+  "active": "e642ecb5b4c36047",
   "lastOpenFiles": [
-    "high-sep-ec-ours-new-scott-silverman.png",
-    "high-sep-c-ours-new-scott-silverman.png",
-    "high-sarcos-ours-new-scott-silverman.png",
-    "low-sep-ec-ours-new-scott-silverman.png",
-    "low-sep-c-ours-new-scott-silverman.png",
-    "low-sarcos-ours-new-scott-silverman.png",
-    "sarcos-ours-new-scott-silverman.png",
-    "Original PDF.pdf",
+    "Images/sarcos-ours-new-scott-silverman.png",
+    "Images/high-sarcos-ours-new-scott-silverman.png",
     "Notes - 10-25.md",
-    "sep-ec-ours-new-scott-silverman.png",
-    "sep-c-ours-new-scott-silverman.png",
+    "Images/sep-ec-ours-new-scott-silverman.png",
+    "Images/sep-c-ours-new-scott-silverman.png",
+    "Images/low-sep-ec-ours-new-scott-silverman.png",
+    "Images/low-sep-c-ours-new-scott-silverman.png",
+    "Images/low-sarcos-ours-new-scott-silverman.png",
+    "Images/high-sep-ec-ours-new-scott-silverman.png",
+    "Images/high-sep-c-ours-new-scott-silverman.png",
     "Images/1.png",
-    "Images/sarcos-extended.png",
+    "Original PDF.pdf",
     "Notes - 9-25.md",
     "mini-pipeline-demo.py",
     "Notes - 8-25.md",

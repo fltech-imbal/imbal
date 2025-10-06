@@ -4,6 +4,46 @@ def generate_weights(
         labels,
         weight_mapping=None
     ):
+    """
+
+    Generates a list of weights, where the index of each weight corresponds to the label
+    at the index of the provides list of labels. The sum of all weights in the returned
+    list of weights will be normalized to 1.
+
+    Args:
+        labels: A NumPy array of labels, arranged as a column vector
+        weight_mapping: A dictionary or list of mappings from class label to weight. If
+            a dictionary is provided, keys will be interpreted as class labels, and the corresponding
+            values interpreted as the fraction of the final weight the class should take up. If a
+            list is provided, the entries in the list will be assumed the fraction of the final weight
+            the class should take up, sorted in ascending order by classes present in :code:`labels`.
+
+    Returns:
+        A normalized list of weights, where the index of each weight corresponds to the label
+        at the index of the provides list of labels.
+
+    Example:
+
+    .. code-block:: python
+
+        >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1]).reshape(-1,1)
+
+        >>> weights = generate_weights(labels, { 0: 0.6, 1: 0.4 })
+
+        >>> print(weights)
+        [0.075 0.075 0.075 0.075 0.075 0.075 0.075 0.075 0.2 0.2]
+
+    .. code-block:: python
+
+        >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).reshape(-1,1)
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2]).reshape(-1,1)
+
+        >>> weights = generate_weights(labels, { 0: 0.4, 1: 0.3, 2: 0.3 })
+
+        >>> print(weights)
+        [0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.1 0.1 0.1 0.15 0.15]
+    """
     labels = labels.reshape(-1, )
     unique_classes, unique_counts = np.unique(labels, return_counts=True)
     full_weight_mapping = {}

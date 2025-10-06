@@ -55,13 +55,13 @@
 ![[high-sep-ec-ours-new-scott-silverman.png]] 
 
 ## Tasks:
-- Make sure density calculations and weight calculations are separated in code
-- Maybe clean up/separate plotting from KDE calculations
-	- Fully separate KDE code form weight code
-	- Plotting still an option, maybe at least as a wrapper
-		- Wrapper in "KDE side" only
-- `mse` as default, `ratio` as option.
-- `average_samples_per_bin` = 100 by default
-- Remove `bin_width` option
-- Resolve documentation issues
+- Make sure density calculations and weight calculations are separated in code $\checkmark$
+- Maybe clean up/separate plotting from KDE calculations $\checkmark$
+	- Fully separate KDE code form weight code $\checkmark$
+	- Plotting still an option, maybe at least as a wrapper $\checkmark$
+		- Wrapper in "KDE side" only $\checkmark$
+- `mse` as default, `ratio` as option. $\checkmark$
+- `average_samples_per_bin` = 100 by default $\checkmark$
+- Remove `bin_width` option $\checkmark$
+- Resolve documentation issues  $\checkmark$
 	- With code examples
