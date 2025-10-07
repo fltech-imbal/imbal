@@ -5,14 +5,58 @@ from imbal.util.sample_weighting import calculate_bin_count, get_label_bin_bound
 
 def fit_kde(
         labels,
-        bandwidth='mse',
-        bin_count=None,
+        bandwidth='kl_divergence',
         average_samples_per_bin=100,
+        bin_count=None,
         steps_per_bin = 10,
         fine_search = 10,
         tolerance = 1e-3,
         padding_factor=0.01
 ):
+    """
+    Automatically determine a bandwidth and gaussian KDE curve best fits
+    the labels provided.
+
+    Args:
+        labels: A NumPy array of labels, arranged as a column vector
+        bandwidth: Optional, default 'kl_divergence'. Can be a number equal to
+            the desired KDE bandwidth, or a string indicating the method to use to
+            determine bandwidth. If set to :code:`scott` or :code:`silverman`, the
+            bandwidth will be determined by using either Scott's or Silverman's
+            rule-of-thumb. If set to :code:`kl_divergence`, :code:`mse`, or :code:`ratio`,
+            an iterative approach will be used to determine the best bandwidth to minimize
+            the specified heuristic. If :code:`kl_divergence`, will try to minimize the KL
+            divergence between the KDE and the normalized histogram (area under the
+            histogram is 1). If :code:`mse`, will try to minimize the MSE between the KDE and the
+            normalized histogram. If :code:`ratio`, will try to minimize the difference between
+            the ratio of the highest frequency bin count to the lowest frequency bin count in the
+            histogram, and the ratio between the average KDE densities in the parts of the KDE curve contained
+            within those bins.
+        average_samples_per_bin: Optional, default :code:`100`. Determines the
+            number of bins used for histogram-based KDE approximation by the number of datapoints. For
+            example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
+            will have 145 bins.
+        bin_count: Optional, default :code:`None`. The number of bins that
+            should be used for the histogram-based KDE approximation.
+            If set, overrides :code:`average_samples_per_bin`.
+        steps_per_bin: Optional, default :code:`10`. Determines the number of
+            steps per bin that should be used for KDE optimizations.
+        fine_search: Optional, default :code:`10`. For iterative approaches only. Determines
+            the number of checks to perform on each step of the iteration. A higher value will
+            take longer, but is more likely to yield accurate results.
+        tolerance: Optional, default :code:`1e-3`. For iterative approaches only. Determines
+            the allowed maximum heuristic value before stopping in instances where the heuristic
+            approaches 0. Prevents infinite iteration approaching 0.
+        padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
+            the data range used for binning. This padding should be specified as a percentage
+            of the range of the data labels. This padding allows for a more graceful
+            handling of scenarios where the minimum or maximum of the labels is the most
+            frequent value in the labels.
+
+    Returns:
+        A scikit-learn KernelDensity object.
+
+    """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
     if bandwidth in ['mse', 'ratio', 'kl_divergence']:
@@ -36,13 +80,42 @@ def fit_kde(
 def plot_kde(
         labels,
         kde,
-        bin_count=None,
         average_samples_per_bin=100,
+        bin_count=None,
         padding_factor=0.01,
         approximation=None,
         use_axes=None,
         save_figure=None
 ) -> None:
+    """
+
+    Args:
+        labels: A NumPy array of labels, arranged as a column vector
+        kde: A scikit-learn KernelDensity object.
+        average_samples_per_bin: Optional, default :code:`100`. Determines the
+            number of bins used for histogram-based KDE approximation by the number of datapoints. For
+            example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
+            will have 145 bins.
+        bin_count: Optional, default :code:`None`. The number of bins that
+            should be used for the histogram-based KDE approximation.
+            If set, overrides :code:`average_samples_per_bin`.
+        padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
+            the data range used for binning. This padding should be specified as a percentage
+            of the range of the data labels. This padding allows for a more graceful
+            handling of scenarios where the minimum or maximum of the labels is the most
+            frequent value in the labels.
+        approximation: Optional, default :code:`None`. A tuple containing a list of x and y
+            pairs, which will be plotted over the KDE curve. Used to show how well approximations
+            of KDE perform.
+        use_axes: Optional, default :code:`None`. If a matplotlib :code:`Axes` object is
+            passed, the figure will be written to the :code:`Axes` object instead of
+            being immediately displayed.
+        save_figure: Optional, default :code:`None`. The path where the figure should
+            be saved to on the local system, as a string. Only saves is not set to :code:`None`.
+
+    Returns:
+        :code:`None`
+    """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
     labels = np.sort(labels.reshape(-1, ))

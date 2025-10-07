@@ -64,4 +64,32 @@
 - `average_samples_per_bin` = 100 by default $\checkmark$
 - Remove `bin_width` option $\checkmark$
 - Resolve documentation issues  $\checkmark$
-	- With code examples
+	- With code examples $\checkmark$
+
+# 10/6/25
+## Prep:
+- Missing code examples for KDE related methods
+
+## Tasks
+- Code examples for `regression` 
+- `plot_kde` and `fit_kde` to just `regression`
+	- Things intended to be called by user should be under `classification` or `regression`, things meant to be "hidden" should be under `util`
+	- Wrappers should also be directly under `classification` or `regression`
+- Remove `mse` from regression
+- padding reasoning
+	- There are some instances where a lot of data points are at the edge of a bin. When comparing to the histogram, the peak may appear to be directly on the edge of a bin, which could appear as a bad fit. By padding, we are increasing the bin width as to move data points "away" from the extremes of the bins. This is more of an issue when bin count is high.
+- For `steps_per_bin` documentation, put (See: `optimization`)
+- Intro for regression `generate_weights`, show that KDE formula is $n^2$, and explain how optimizations provided are to speed up compute time at the cost of a small error.
+	- BOTH `local_approximation` and `linear_interpolation`
+	- Also explain `precision` in introduction (see below)
+- Get rid of `steps_per_bin`, `bin_count`, and `average_samples_per_bin` in `generate_weights`, replace with `distribution_samples`
+	- Include `steps_per_bin*bin_count` in code example
+- add `precision` parameter for `local` optimization
+- add `k` parameter for `local` optimization
+- Change `local` to `local_approximation`
+- Can scikit-learn KDE object be skipped for local approximation
+- Make sure to specify which parameters are ignored and when!
+-  Include math where applicable
+	- Maybe plots of error for difference datasets? As a footnote
+	- Maybe table of method, error, and CPU time (not O(n))
+- Make sure function for `generate_weights` is ALWAYS A FUNCTION FROM DENSITY TO WEIGHT, not LABEL TO WEIGHT

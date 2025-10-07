@@ -5,7 +5,6 @@ def generate_weights(
         weight_mapping=None
     ):
     """
-
     Generates a list of weights, where the index of each weight corresponds to the label
     at the index of the provides list of labels. The sum of all weights in the returned
     list of weights will be normalized to 1.

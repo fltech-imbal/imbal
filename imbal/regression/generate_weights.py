@@ -5,7 +5,7 @@ from imbal.util.sample_weighting import get_label_bin_bounds, calculate_bin_coun
 
 def generate_weights(
         labels,
-        density_mapping=None,
+        density_mapping,
         optimization=None,
         steps_per_bin=10,
         bin_count=None,
@@ -14,23 +14,48 @@ def generate_weights(
         return_optimization=False
     ):
     """
+    Generates a list of weights, where the index of each weight corresponds to the label
+    at the index of the provides list of labels. The sum of all weights in the returned
+    list of weights will be normalized to 1.
 
     Args:
-        return_optimization:
-        average_samples_per_bin:
-        labels:
-        bin_count:
-        density_mapping:
-        steps_per_bin:
+        labels: A NumPy array of labels, arranged as a column vector
+        density_mapping: A scikit-learn :code:`KernelDensity` instance, list, or function.
+            If a :code:`KernelDensity` instance, weights will be calculated
+            as the reciprocal of each points' sampled density, then normalized to 1. If a
+            list, weights will be calculated as the reciprocal of each provided density, then
+            normalized to 1. If a function, weights will be calculated as the reciprocal of the
+            result of each points' value after being inputted to the function, then normalized
+            to 1.
+        optimization: Optional, default :code:`None`. For KDE sampling only. Determines the
+            method that should be used to optimize density sampling from KDE. Allowed values
+            are :code:`'linear_interpolation'` and :code:`'local'`. When set to :code:`'linear_interpolation'`,
+            an approximation of the KDE curve is made by sampling a number of evenly distributed
+            points along the curve equal to :code:`bin_count * steps_per_bin`, which is then used
+            to sample densities. When set to :code:`local`, for each point, only the points close
+            to the point being sample are used to determine the KDE value, reducing the amount of
+            points used for each KDE calculation, while introducing a small error (less than :code:`1e-4`).
+            If set to :code:`None`, no optimization methods are used.
+        return_optimization: Optional, default :code:`False` If set to true, returns a tuple
+            containing the list of x and y coordinates used to generate the optimized KDE. Mainly
+            used for visualization.
+        average_samples_per_bin: Optional, default :code:`100`. For KDE sampling only. Determines the
+            number of bins used for histogram-based KDE approximation by the number of datapoints. For
+            example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
+            will have 145 bins.
+        bin_count: Optional, default :code:`None`. For KDE sampling only. The number of bins that
+            should be used for the histogram-based KDE approximation.
+            If set, overrides :code:`average_samples_per_bin`.
+        steps_per_bin: Optional, default :code:`10`. For KDE sampling only. Determines the number of
+            steps per bin that should be used for KDE optimizations.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
             the data range used for binning. This padding should be specified as a percentage
             of the range of the data labels. This padding allows for a more graceful
             handling of scenarios where the minimum or maximum of the labels is the most
             frequent value in the labels.
-        optimization:
 
     Returns:
-
+        A list of weights, normalized to 1.
     """
 
     approx = None
@@ -61,7 +86,8 @@ def generate_weights(
 
     elif isinstance(density_mapping, list):
         # Use uniform mapping for weights
-        reweights = np.array(density_mapping) / np.sum(density_mapping)
+        reweights = 1 /np.array(density_mapping)
+        reweights = reweights / np.sum(reweights)
     else:
         # Use function mapping for weights
         vectorized_function = np.vectorize(density_mapping)

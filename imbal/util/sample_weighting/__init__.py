@@ -11,7 +11,7 @@ def get_label_bin_bounds(labels, bin_count, padding_factor) -> tuple:
     return label_min, label_max, step
 
 def calculate_bin_count(labels, bin_count, average_samples_per_bin) -> int:
-    if average_samples_per_bin is not None:
+    if bin_count is None:
         labels = np.sort(labels.reshape(-1, ))
         return ceil(labels.shape[0] / average_samples_per_bin)
     else:

@@ -6,6 +6,8 @@
 ## Functions:
 - [split](split.md)
 - [generate_weights](generate_weights.md)
+- [plot_kde](plot_kde.md)
+- [fit_kde](fit_kde.md)
 
 ```{eval-rst}
 .. toctree::
