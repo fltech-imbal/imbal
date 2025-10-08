@@ -1,5 +1,5 @@
 # fit_kde
 
 ```{eval-rst}
-.. autoclass:: imbal.regression.kde.fit_kde
+.. autoclass:: imbal.regression.fit_kde
 ```

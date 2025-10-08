@@ -23,12 +23,11 @@ def fit_kde(
             the desired KDE bandwidth, or a string indicating the method to use to
             determine bandwidth. If set to :code:`scott` or :code:`silverman`, the
             bandwidth will be determined by using either Scott's or Silverman's
-            rule-of-thumb. If set to :code:`kl_divergence`, :code:`mse`, or :code:`ratio`,
+            rule-of-thumb. If set to :code:`kl_divergence`, or :code:`ratio`,
             an iterative approach will be used to determine the best bandwidth to minimize
             the specified heuristic. If :code:`kl_divergence`, will try to minimize the KL
             divergence between the KDE and the normalized histogram (area under the
-            histogram is 1). If :code:`mse`, will try to minimize the MSE between the KDE and the
-            normalized histogram. If :code:`ratio`, will try to minimize the difference between
+            histogram is 1). If :code:`ratio`, will try to minimize the difference between
             the ratio of the highest frequency bin count to the lowest frequency bin count in the
             histogram, and the ratio between the average KDE densities in the parts of the KDE curve contained
             within those bins.
@@ -51,15 +50,33 @@ def fit_kde(
             the data range used for binning. This padding should be specified as a percentage
             of the range of the data labels. This padding allows for a more graceful
             handling of scenarios where the minimum or maximum of the labels is the most
-            frequent value in the labels.
+            frequent value in the labels. There are some instances where many datapoints in a dataset fall on the maximum or minimum.
+            When viewed visually, the resulting histogram may appear to be misaligned with the
+            approximated KDE curve. By padding, we can slightly increase the width of the histogram
+            bins, making it appear as though the extremes have been moved away from the edges of the
+            histogram.
 
     Returns:
-        A scikit-learn KernelDensity object.
+        A scikit-learn KernelDenity object.
+
+    Example:
+
+    .. code-block:: python
+
+        >>> # For the sake of this example, assume a dataset has already been stored in the variable 'data'
+
+        >>> kde = imbal.regression.fit_kde(data, bin_count=10)
+        >>> log_densities = kde.score_samples(data)
+
+        >>> print(log_densities)
+        [-2.948, -3.961, -4.997, -2.948, -3.605, -2.885,
+         -4.244, -4.148, -3.989, -3.961, -2.885, -3.078,
+         -4.275, -2.885, -3.961, -3.989, -5.822, -2.800...
 
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
-    if bandwidth in ['mse', 'ratio', 'kl_divergence']:
+    if bandwidth in ['ratio', 'kl_divergence']:
         # Use iterative, "binned-based" approach to approximate KDE
         kde = _iterative_kde_approximation(
             labels,
@@ -103,7 +120,11 @@ def plot_kde(
             the data range used for binning. This padding should be specified as a percentage
             of the range of the data labels. This padding allows for a more graceful
             handling of scenarios where the minimum or maximum of the labels is the most
-            frequent value in the labels.
+            frequent value in the labels. There are some instances where many datapoints in a dataset fall on the maximum or minimum.
+            When viewed visually, the resulting histogram may appear to be misaligned with the
+            approximated KDE curve. By padding, we can slightly increase the width of the histogram
+            bins, making it appear as though the extremes have been moved away from the edges of the
+            histogram.
         approximation: Optional, default :code:`None`. A tuple containing a list of x and y
             pairs, which will be plotted over the KDE curve. Used to show how well approximations
             of KDE perform.
@@ -115,6 +136,21 @@ def plot_kde(
 
     Returns:
         :code:`None`
+
+    Example:
+
+    .. code-block:: python
+
+        >>> # For the sake of this example, assume a dataset has already been stored in the variable 'data'
+
+        >>> kde = imbal.regression.fit_kde(data, bin_count=10)
+        >>> imbal.regression.plot_kde(data, kde, bin_count=10, save_figure='plot.png')
+
+    Below is the resultant graph saved to :code:`plot.png`:
+
+    .. figure:: images/example_kde_plot.png
+       :scale: 85 %
+       :alt: A histogram plot of the data from the example above
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
@@ -137,7 +173,7 @@ def plot_kde(
     if approximation is not None:
         plt.plot(approximation[0], approximation[1], label='Approximation', color='orange')
 
-    ax.hist(labels, bins=[label_min + i * step for i in range(bin_count)], density=True, alpha=0.6, label='Histogram')
+    ax.hist(labels, bins=[label_min + i * step for i in range(bin_count+1)], density=True, alpha=0.6, label='Histogram')
     f_min_bar = label_min + (low_freq_bin_index + .5) * step
     ax.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
     ax.text(f_min_bar, ax.get_ylim()[1] * 0.02, f'f_min = {min_count}',
@@ -207,10 +243,6 @@ def _iterative_kde_approximation(
         kde_densities = np.exp(kde_curve.score_samples(filtered_curve))
         return np.sum(filtered_histogram*np.log(filtered_histogram/kde_densities))
 
-    def mse_heuristic(kde_curve) -> float:
-        kde_densities = np.exp(kde_curve.score_samples(spaced_even_curve))
-        return np.mean(np.square(histogram_values - kde_densities))
-
     def ratio_heuristic(kde_curve) -> float:
         high_densities = np.exp(kde_curve.score_samples(spaced_high_freq_bin))
         low_densities = np.exp(kde_curve.score_samples(spaced_low_freq_bin))
@@ -219,9 +251,7 @@ def _iterative_kde_approximation(
         return abs(max_area / min_area - desired_ratio)
 
     heuristic_function = kl_divergence_heuristic
-    if bandwidth == 'mse' :
-        heuristic_function = mse_heuristic
-    elif bandwidth == 'ratio':
+    if bandwidth == 'ratio':
         heuristic_function = ratio_heuristic
     labels = labels.reshape(-1, 1)
 

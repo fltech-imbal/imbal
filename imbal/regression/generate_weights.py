@@ -1,53 +1,89 @@
 import numpy as np
 from sklearn.neighbors import KernelDensity
-from math import sqrt, pi, log, floor
-from imbal.util.sample_weighting import get_label_bin_bounds, calculate_bin_count
+from math import sqrt, pi, log, ceil
+from imbal.util.sample_weighting import get_label_bin_bounds
 
-def generate_weights(
+def get_densities(
         labels,
-        density_mapping,
+        kde,
         optimization=None,
-        steps_per_bin=10,
-        bin_count=None,
-        average_samples_per_bin=100,
+        distribution_samples=None,
+        k=None,
+        precision=1e-4,
         padding_factor=0.01,
         return_optimization=False
-    ):
-    """
-    Generates a list of weights, where the index of each weight corresponds to the label
-    at the index of the provides list of labels. The sum of all weights in the returned
-    list of weights will be normalized to 1.
+):
+    r"""
+    This function exists as a means of extracting densities from a scitkit-learn
+    :code:`KernelDensity` object. As a part of this function, some approaches to
+    optimize time efficiency for KDE sampling have been included, which can
+    cost at the cost of a small error in the desnity values sampled.
+
+    Kernel density estimatinon is defined as:
+
+    .. math::
+
+       \hat{f}_h(x)=\frac{1}{n}\sum_{i=1}^{n}K_h(x-x_i)
+
+    By definition, to compute the KDE of a single point, we require a summation of the
+    density kernel centered at each known data point. Therefore, computing the KDE
+    for a single label is an :math:`O(n)` operation, and computing the KDE for each
+    label is an :math:`O(n^2)` operation. This means retreiving the densities
+    for a large dataset will take a long time. To combat this, :code:`get_densities`
+    implements two optimization methods.
+
+    The first optimization method is :code:`linear_interpolation`. This method samples
+    a fixed amount of points from the KDE curve (see :code:`distribution_samples` below),
+    then linearly interpolates the values for each of the desired label densities. This
+    linear interpolation, for a single point, is an :math:`O(\text{log}p)` operation, where
+    :math:`p` is the number of points sampled to generate the linear approximation. Therefore, the
+    time complexity for sampling all label densities is :math:`O(n\text{log}p)`. However, to generate
+    the linear approximation is an :math:`O(n)` operation for each of the :math:`p` points, making the
+    true time complexity :math:`O(pn)`.
+
+    The second optimization available is :code:`local_approximation`. With this optimization,
+    for each label, only the labels that are close to current label are considered in the KDE
+    approximation. A label is considered "close" to another if its kernel affects the other by
+    a value greater than :code:`precision/n`, where :code:`n` is the number of labels
+    (see :code:`precision` below). To futher optimize, in the case where there are more than
+    k close points (see :code:`k` below), a stride is applied to the sampling of close points to
+    ensure the total number of points used for the approximation is less than or equal to :code:`k`.
+    This local approximation, for a single point, is an :math:`O(k)` operation, where
+    :math:`p` is the number of points sampled to generate the linear approximation. Therefore, the
+    time complexity for sampling all label densities is :math:`O(kn)`.
 
     Args:
         labels: A NumPy array of labels, arranged as a column vector
-        density_mapping: A scikit-learn :code:`KernelDensity` instance, list, or function.
-            If a :code:`KernelDensity` instance, weights will be calculated
-            as the reciprocal of each points' sampled density, then normalized to 1. If a
-            list, weights will be calculated as the reciprocal of each provided density, then
-            normalized to 1. If a function, weights will be calculated as the reciprocal of the
-            result of each points' value after being inputted to the function, then normalized
-            to 1.
-        optimization: Optional, default :code:`None`. For KDE sampling only. Determines the
+        kde: A scikit-learn :code:`KernelDensity` object instance. Densities will be
+            sampled from the object using :code:`kde.score_samples`.
+        optimization: Optional, default :code:`None`. The
             method that should be used to optimize density sampling from KDE. Allowed values
-            are :code:`'linear_interpolation'` and :code:`'local'`. When set to :code:`'linear_interpolation'`,
+            are :code:`'linear_interpolation'` and :code:`'local_approximation'`. When set to :code:`'linear_interpolation'`,
             an approximation of the KDE curve is made by sampling a number of evenly distributed
-            points along the curve equal to :code:`bin_count * steps_per_bin`, which is then used
-            to sample densities. When set to :code:`local`, for each point, only the points close
+            points along the curve (see :code:`distribution_samples`), which is then used
+            to sample densities. When set to :code:`local_approximation`, for each point, only the points close
             to the point being sample are used to determine the KDE value, reducing the amount of
-            points used for each KDE calculation, while introducing a small error (less than :code:`1e-4`).
+            points used for each KDE calculation, while introducing a small error (see :code:`precision`).
+            Additionally, when the number of local points is greater than some threshold (see :code:`k`),
+            a fraction of those points are sampled, then the resultant density scaled accordingly.
             If set to :code:`None`, no optimization methods are used.
+        distribution_samples: Optional, default :code:`None`. Used only when :code:`optimization` is set to
+            :code:`linear_interpolation`. The number of points to be sampled from the density distribution.
+            When set to :code:`None`, this value is computed as :code:`labels.shape[0] / 10`. If KDE was generated
+            using :code:`imbal.regression.fit_kde`, :code:`steps_per_bin*bin_count` tends to be a good
+            value for :code:`distribution_samples`.
+        k: Optional, default :code:`None`. Used only when :code:`optimization` is set to
+            :code:`local_approximation`. The maximum number of points to sample during local
+            approximation. Note that because a stride method is used to sample points that match the
+            local distribution of labels, the number of points being sampled in approximations where
+            the number of local points is greater than k could be as little as k/2. If set to :code:`None`,
+            this value is computed as :code:`10*log(labels.shape[0])`.
+        precision: Optional, default :code:`1e-4`. Used only when :code:`optimization` is set to
+            :code:`local_approximation`. The maximum allowed error from each sample in the
+            local approximation.
         return_optimization: Optional, default :code:`False` If set to true, returns a tuple
             containing the list of x and y coordinates used to generate the optimized KDE. Mainly
             used for visualization.
-        average_samples_per_bin: Optional, default :code:`100`. For KDE sampling only. Determines the
-            number of bins used for histogram-based KDE approximation by the number of datapoints. For
-            example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
-            will have 145 bins.
-        bin_count: Optional, default :code:`None`. For KDE sampling only. The number of bins that
-            should be used for the histogram-based KDE approximation.
-            If set, overrides :code:`average_samples_per_bin`.
-        steps_per_bin: Optional, default :code:`10`. For KDE sampling only. Determines the number of
-            steps per bin that should be used for KDE optimizations.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
             the data range used for binning. This padding should be specified as a percentage
             of the range of the data labels. This padding allows for a more graceful
@@ -55,60 +91,99 @@ def generate_weights(
             frequent value in the labels.
 
     Returns:
-        A list of weights, normalized to 1.
+        A NumPy array of densities, arranged as a column vector
+
+    Example:
+
+     .. code-block:: python
+
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2])
+        >>> kde = imbal.regression.fit_kde(labels, bin_count=3)
+        >>> densities = imbal.regression.get_densities(labels, kde)
+
+        >>> print(densities)
+        [0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674,
+         0.674, 0.674, 0.349, 0.349, 0.349, 0.349, 0.349, 0.349, 0.118, 0.118]
     """
+    if distribution_samples is None:
+        distribution_samples = round(labels.shape[0] / 10)
 
-    approx = None
+    # Use KDE estimation to generate weights
+    points, densities = None, None
+    if optimization is None:
+        densities = np.exp(kde.score_samples(labels.reshape(-1, 1)).reshape(-1, ))
+    elif optimization == 'linear_interpolation':
+        points, densities = _linearly_interpolate_kde(
+            labels,
+            kde,
+            distribution_samples,
+            padding_factor
+        )
+    elif optimization == 'local_approximation':
+        points, densities = _local_kde_optimization(labels, kde, k, precision)
+    else:
+        raise ValueError("'optimization' must be either 'linear_interpolation', 'local_approximation', or None")
+    approx = (points, densities)
 
-    bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
+    if return_optimization and approx is not None:
+        return densities, approx
+    else:
+        return densities
 
-    if isinstance(density_mapping, KernelDensity):
-        # Use KDE estimation to generate weights
-        if optimization is None:
-            reweights = 1 / np.exp(density_mapping.score_samples(labels.reshape(-1, 1)).reshape(-1, ))
-        elif optimization == 'linear_interpolation':
-            sample_points, sample_densities = _linearly_interpolate_kde(
-                labels,
-                density_mapping,
-                bin_count,
-                steps_per_bin,
-                padding_factor
-            )
-            approx = (sample_points, sample_densities)
-            sample_densities = 1 / sample_densities
-            reweights = np.interp(labels, sample_points, sample_densities)
-        elif optimization == 'local':
-            points, densities = _local_kde_optimization(labels, density_mapping, steps_per_bin)
-            approx = (points, densities)
-            reweights = 1 / densities
-        else:
-            raise ValueError("'optimization' must be either 'linear_interpolation', 'local', or None")
+def generate_weights(
+        densities,
+        density_mapping=None
+    ):
+    """
+    Generates a list of weights, where the index of each weight corresponds to the density
+    at the index of the provides list of density. The sum of all weights in the returned
+    list of weights will be normalized to 1.
 
-    elif isinstance(density_mapping, list):
+    Args:
+        densities: A NumPy array of densities, arranged as a column vector
+        density_mapping: Optional, default :code:`None`. A float to float function
+            that converts density values to weights. When set to :code:`None`, densities
+            are converted to weights be taking the reciprocal of each density value.
+    Returns:
+        A list of weights, normalized to 1.
+
+    Example:
+
+     .. code-block:: python
+
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2])
+        >>> kde = imbal.regression.fit_kde(labels, bin_count=3)
+        >>> densities = imbal.regression.get_densities(labels, kde)
+        >>> weights = imbal.regression.generate_weights(densities)
+
+        >>> print(weights)
+        [0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028,
+        0.028, 0.028, 0.055, 0.055, 0.055, 0.055, 0.055, 0.055, 0.163, 0.163]
+    """
+    if density_mapping is None:
         # Use uniform mapping for weights
-        reweights = 1 /np.array(density_mapping)
-        reweights = reweights / np.sum(reweights)
+        weights = 1 /np.array(densities)
     else:
         # Use function mapping for weights
         vectorized_function = np.vectorize(density_mapping)
-        reweights = vectorized_function(labels)
-        reweights = reweights / np.sum(reweights)
+        weights = vectorized_function(densities)
 
-    if return_optimization:
-        return reweights, approx
-    else:
-        return reweights
+    weights = weights / np.sum(weights)
+
+    return weights
 
 def _local_kde_optimization(
         labels,
         kde,
-        steps_per_bin
+        k,
+        precision
 ):
     labels = np.sort(labels.reshape(-1, ))
     bandwidth = kde.bandwidth_
     inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
-    delta = inverse_gaussian(1e-4 / labels.shape[0])
-    k = max(2, steps_per_bin*round(log(labels.shape[0])))
+    delta = inverse_gaussian(precision / labels.shape[0])
+    if k is None:
+        k = max(2, round(10*log(labels.shape[0])))
 
     sample_densities = []
     labels = labels.reshape(-1,)
@@ -121,7 +196,7 @@ def _local_kde_optimization(
             high_index += 1
 
         if high_index - low_index > k:
-            stride = floor((high_index - low_index) / k)
+            stride = ceil((high_index - low_index) / k)
             samples = labels[low_index:high_index:stride]
         else:
             samples = labels[low_index:high_index]
@@ -135,14 +210,13 @@ def _local_kde_optimization(
 def _linearly_interpolate_kde(
         labels,
         kde,
-        bin_count,
-        steps_per_bin,
+        distribution_samples,
         padding_factor
 ):
     labels = np.sort(labels.reshape(-1, ))
-    total_samples = bin_count * steps_per_bin
-    label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
-    step /= steps_per_bin
-    sample_points = np.array([label_min + i*step for i in range(total_samples + 1)])
-    sample_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))
+    label_min, label_max, _ = get_label_bin_bounds(labels, 1, padding_factor)
+    step = (label_max - label_min) / distribution_samples
+    sample_points = np.array([label_min + i*step for i in range(distribution_samples + 1)])
+    interpolate_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))
+    sample_densities = np.interp(labels, sample_points, interpolate_densities)
     return sample_points, sample_densities
