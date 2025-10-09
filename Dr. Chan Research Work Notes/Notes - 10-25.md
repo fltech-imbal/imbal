@@ -91,8 +91,45 @@
 - Can scikit-learn KDE object be skipped for local approximation $\times$
 - Make sure to specify which parameters are ignored and when! $\checkmark$
 -  Include math where applicable $\checkmark$
-	- Maybe plots of error for difference datasets? As a footnote $\times$
-	- Maybe table of method, error, and CPU time (not O(n)) $\times$
-		- n/a for regular method error $\times$
+	- Maybe plots of error for difference datasets? As a footnote $\checkmark$
+	- Maybe table of method, error, and CPU time (not O(n)) $\checkmark$
+		- n/a for regular method error $\checkmark$
 - Make sure function for `generate_weights` is ALWAYS A FUNCTION FROM DENSITY TO WEIGHT, not LABEL TO WEIGHT $\checkmark$
 - new function: `get_density` $\checkmark$
+
+## Notes:
+
+#### SARCOS (44485 data points)
+![[sarcos-optimization-error-hists.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE            |
+| ------------------------------------------- | ------------------ | -------------- |
+| Regular                                     | 74.58              | n/a            |
+| Linear Approximation (480 bins)             | 0.45               | $1.42*10^{-3}$ |
+| Local Approximation (k=480, precision=1e-6) | 17.29              | $1.78*10^{-3}$ |
+#### SEP-C (1531 data points)
+![[sep-c-optimization-error-hists.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE            |
+| ------------------------------------------- | ------------------ | -------------- |
+| Regular                                     | 0.13               | n/a            |
+| Linear Approximation (480 bins)             | 0.00701            | $7.07*10^{-2}$ |
+| Local Approximation (k=480, precision=1e-2) | 0.697              | ~0             |
+#### SEC-EC (16720 data points)
+![[sep-ec-optimization-error-hists.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE    |
+| ------------------------------------------- | ------------------ | ------ |
+| Regular                                     | 15.79              | n/a    |
+| Linear Approximation (320 bins)             | 0.16               | $1.31$ |
+| Local Approximation (k=320, precision=1e-6) | 9.51               | $1.31$ |
+
+# 10/8/25
+## Tasks:
+- "misaligned" in padding explanation to "peak of KDE may appear to be on the edge, or slightly outside, of its corresponding histogram bin (due to limited pixel resolution when plotting), which is undesirable for visual comparison. Padding the minimum and maximum causes a slight shift to the bin bounds, allowing the peaks at these extremes to appear inside the bins".
+	- Add "binning for the histogram" first sentence
+	- Remove "gracefully" part
+- Add MAPE column
+- `KernelDensity` with `atol` vs `numpy` manual implementation vs current
+- Change `precision` to `atol`
+- 
