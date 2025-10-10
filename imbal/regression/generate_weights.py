@@ -9,7 +9,7 @@ def get_densities(
         optimization=None,
         distribution_samples=None,
         k=None,
-        precision=1e-4,
+        atol=1e-4,
         padding_factor=0.01,
         return_optimization=False
 ):
@@ -85,10 +85,12 @@ def get_densities(
             containing the list of x and y coordinates used to generate the optimized KDE. Mainly
             used for visualization.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
-            the data range used for binning. This padding should be specified as a percentage
-            of the range of the data labels. This padding allows for a more graceful
-            handling of scenarios where the minimum or maximum of the labels is the most
-            frequent value in the labels.
+            the data range used for binning for the histogram. There are some instances where many datapoints in
+            a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
+            appear to be on the edge, or slightly outside, of its corresponding bin (due to limited
+            pixel resolution when plotting), which is undesirable for visual comparison. By padding, we can slightly increase
+            the width of the histogram bins, shifting their bounds and allowing these peaks to appear
+            inside the bins instead.
 
     Returns:
         A NumPy array of densities, arranged as a column vector
@@ -120,7 +122,7 @@ def get_densities(
             padding_factor
         )
     elif optimization == 'local_approximation':
-        points, densities = _local_kde_optimization(labels, kde, k, precision)
+        points, densities = _local_kde_optimization(labels, kde, k, atol)
     else:
         raise ValueError("'optimization' must be either 'linear_interpolation', 'local_approximation', or None")
     approx = (points, densities)
@@ -176,36 +178,75 @@ def _local_kde_optimization(
         labels,
         kde,
         k,
-        precision
+        atol
 ):
-    labels = np.sort(labels.reshape(-1, ))
+    # sort_indices = np.argsort(labels)
+    # sorted_labels = labels[sort_indices].reshape(-1,)
+    # inverse_sort = np.argsort(sort_indices)
+    # bandwidth = kde.bandwidth_
+    # inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
+    # atol_by_n = atol / labels.shape[0]
+    # delta = inverse_gaussian(atol_by_n)
+    #
+    #
+    # if k is None:
+    #     k = max(2, round(10*log(labels.shape[0])))
+    #
+    # sample_densities = []
+    # low_index = 0
+    # high_index = 0
+    # for label in sorted_labels:
+    #     while sorted_labels[low_index] < label - delta:
+    #         low_index += 1
+    #     while high_index < sorted_labels.shape[0] and sorted_labels[high_index] < label + delta:
+    #         high_index += 1
+    #
+    #     if high_index - low_index > k:
+    #         stride = ceil((high_index - low_index) / k)
+    #         samples = sorted_labels[low_index:high_index:stride]
+    #     else:
+    #         samples = sorted_labels[low_index:high_index]
+    #
+    #     current_kde = KernelDensity(bandwidth=bandwidth, atol=atol_by_n)
+    #     current_kde.fit(samples.reshape(-1,1))
+    #     sample_densities.append(np.exp(current_kde.score_samples(np.array([[label]]))) * (high_index - low_index) / labels.shape[0])
+    # sample_densities = np.array(sample_densities).reshape(-1,)
+    # return sorted_labels[inverse_sort], sample_densities[inverse_sort]
+
+    sort_indices = np.argsort(labels)
+    sorted_labels = labels[sort_indices].reshape(-1,)
+    inverse_sort = np.argsort(sort_indices)
     bandwidth = kde.bandwidth_
     inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
-    delta = inverse_gaussian(precision / labels.shape[0])
+    atol_by_n = atol / labels.shape[0]
+    delta = inverse_gaussian(atol_by_n)
+
+
     if k is None:
         k = max(2, round(10*log(labels.shape[0])))
 
     sample_densities = []
-    labels = labels.reshape(-1,)
     low_index = 0
     high_index = 0
-    for label in labels:
-        while labels[low_index] < label - delta:
+    for label in sorted_labels:
+        while sorted_labels[low_index] < label - delta:
             low_index += 1
-        while high_index < labels.shape[0] and labels[high_index] < label + delta:
+        while high_index < sorted_labels.shape[0] and sorted_labels[high_index] < label + delta:
             high_index += 1
 
         if high_index - low_index > k:
             stride = ceil((high_index - low_index) / k)
-            samples = labels[low_index:high_index:stride]
+            samples = sorted_labels[low_index:high_index:stride]
         else:
-            samples = labels[low_index:high_index]
+            samples = sorted_labels[low_index:high_index]
 
-        current_kde = KernelDensity(bandwidth=bandwidth)
-        current_kde.fit(samples.reshape(-1,1))
-        sample_densities.append(np.exp(current_kde.score_samples(np.array([[label]]))) * (high_index - low_index) / labels.shape[0])
+        def mini_kde(value, data):
+            u = (data - value) / bandwidth
+            return np.sum(np.exp(-0.5 * u ** 2) / np.sqrt(2 * np.pi)) / (data.shape[0] * bandwidth)
+
+        sample_densities.append(mini_kde(label, samples) * (high_index - low_index) / labels.shape[0])
     sample_densities = np.array(sample_densities).reshape(-1,)
-    return labels, sample_densities
+    return sorted_labels[inverse_sort], sample_densities[inverse_sort]
 
 def _linearly_interpolate_kde(
         labels,
@@ -213,8 +254,9 @@ def _linearly_interpolate_kde(
         distribution_samples,
         padding_factor
 ):
-    labels = np.sort(labels.reshape(-1, ))
-    label_min, label_max, _ = get_label_bin_bounds(labels, 1, padding_factor)
+    sort_indices = np.argsort(labels)
+    sorted_labels = labels[sort_indices]
+    label_min, label_max, _ = get_label_bin_bounds(sorted_labels, 1, padding_factor)
     step = (label_max - label_min) / distribution_samples
     sample_points = np.array([label_min + i*step for i in range(distribution_samples + 1)])
     interpolate_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))

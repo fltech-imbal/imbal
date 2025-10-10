@@ -19,16 +19,16 @@ def read_csv_to_list_of_lists(filepath):
 # data = data[1:1000, 2].astype(np.float64)
 # print(data)
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
 # print(data.shape)
 # data = data[1:, -1].astype(float)
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
-# print(data.shape)
-# data = data[1:, 22].astype(float)
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+print(data.shape)
+data = data[1:, 22].astype(float)
 
 data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
 for i in range(43):
@@ -78,7 +78,7 @@ loc_approx_densities, loc_approx_approx = imbal.regression.get_densities(
     distribution_samples=10*BINS,
     optimization='local_approximation',
     k=BINS*10,
-    precision=1e-6,
+    atol=1e-4,
     return_optimization=True
 )
 end=time.time()
@@ -94,15 +94,18 @@ ax[0].set_xscale('log')
 ax[0].set_title('Errors of linear_interpolation')
 ax[0].set_ylim(auto=True)
 loc_approx_errors = np.abs(loc_approx_densities - densities).reshape(-1)
+bins = np.logspace(np.log10(min(loc_approx_errors)), np.log10(max(loc_approx_errors)), num_bins + 1)
 ax[1].hist(loc_approx_errors, bins=bins, alpha=0.6)
 ax[1].set_xscale('log')
 ax[1].set_title('Errors of local_approximation')
 ax[1].set_ylim(auto=True)
-plt.savefig('sep-ec-optimization-error-hists.png')
+plt.savefig('sep-c-optimization-error-hists.png')
 plt.show()
 
 print('lin_int average error:', np.mean(lin_errors))
 print('loc_approx average error:', np.mean(loc_approx_errors))
+print('lin_int average % error:', np.mean(lin_errors / densities * 100))
+print('loc_approx average % error:', np.mean(loc_approx_errors / densities * 100))
 
 ###################### OR ########################
 

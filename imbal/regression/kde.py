@@ -47,14 +47,12 @@ def fit_kde(
             the allowed maximum heuristic value before stopping in instances where the heuristic
             approaches 0. Prevents infinite iteration approaching 0.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
-            the data range used for binning. This padding should be specified as a percentage
-            of the range of the data labels. This padding allows for a more graceful
-            handling of scenarios where the minimum or maximum of the labels is the most
-            frequent value in the labels. There are some instances where many datapoints in a dataset fall on the maximum or minimum.
-            When viewed visually, the resulting histogram may appear to be misaligned with the
-            approximated KDE curve. By padding, we can slightly increase the width of the histogram
-            bins, making it appear as though the extremes have been moved away from the edges of the
-            histogram.
+            the data range used for binning for the histogram. There are some instances where many datapoints in
+            a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
+            appear to be on the edge, or slightly outside, of its corresponding bin (due to limited
+            pixel resolution when plotting), which is undesirable for visual comparison. By padding, we can slightly increase
+            the width of the histogram bins, shifting their bounds and allowing these peaks to appear
+            inside the bins instead.
 
     Returns:
         A scikit-learn KernelDenity object.
@@ -117,14 +115,12 @@ def plot_kde(
             should be used for the histogram-based KDE approximation.
             If set, overrides :code:`average_samples_per_bin`.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
-            the data range used for binning. This padding should be specified as a percentage
-            of the range of the data labels. This padding allows for a more graceful
-            handling of scenarios where the minimum or maximum of the labels is the most
-            frequent value in the labels. There are some instances where many datapoints in a dataset fall on the maximum or minimum.
-            When viewed visually, the resulting histogram may appear to be misaligned with the
-            approximated KDE curve. By padding, we can slightly increase the width of the histogram
-            bins, making it appear as though the extremes have been moved away from the edges of the
-            histogram.
+            the data range used for binning for the histogram. There are some instances where many datapoints in
+            a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
+            appear to be on the edge, or slightly outside, of its corresponding bin (due to limited
+            pixel resolution when plotting), which is undesirable for visual comparison. By padding, we can slightly increase
+            the width of the histogram bins, shifting their bounds and allowing these peaks to appear
+            inside the bins instead.
         approximation: Optional, default :code:`None`. A tuple containing a list of x and y
             pairs, which will be plotted over the KDE curve. Used to show how well approximations
             of KDE perform.

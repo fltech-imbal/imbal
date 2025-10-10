@@ -126,10 +126,39 @@
 
 # 10/8/25
 ## Tasks:
-- "misaligned" in padding explanation to "peak of KDE may appear to be on the edge, or slightly outside, of its corresponding histogram bin (due to limited pixel resolution when plotting), which is undesirable for visual comparison. Padding the minimum and maximum causes a slight shift to the bin bounds, allowing the peaks at these extremes to appear inside the bins".
-	- Add "binning for the histogram" first sentence
-	- Remove "gracefully" part
-- Add MAPE column
-- `KernelDensity` with `atol` vs `numpy` manual implementation vs current
-- Change `precision` to `atol`
-- 
+- "misaligned" in padding explanation to "peak of KDE may appear to be on the edge, or slightly outside, of its corresponding histogram bin (due to limited pixel resolution when plotting), which is undesirable for visual comparison. Padding the minimum and maximum causes a slight shift to the bin bounds, allowing the peaks at these extremes to appear inside the bins". $\checkmark$
+	- Add "binning for the histogram" first sentence $\checkmark$
+	- Remove "gracefully" part $\checkmark$
+- Add MAPE column $\checkmark$
+- `KernelDensity` with `atol` vs `numpy` manual implementation vs current $\checkmark$
+	- `scikit-learn`'s `atol` parameter had no change in performance. Manual implementation of KDE kernel saw a significant leap in performance, producing the same KDE values
+- Change `precision` to `atol` $\checkmark$ 
+
+
+# 10/10/25
+## Notes:
+
+#### SARCOS (44485 data points)
+![[sarcos-optimization-error-hists 1.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
+| ------------------------------------------- | ------------------ | -------------- | --------- |
+| Regular                                     | 44.05              | n/a            | n/a       |
+| Linear Approximation (320 bins)             | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
+| Local Approximation (k=320, precision=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
+#### SEP-C (1531 data points)
+![[sep-c-optimization-error-hists 1.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE             | MAPE     |
+| ------------------------------------------- | ------------------ | --------------- | -------- |
+| Regular                                     | 0.057              | n/a             | n/a      |
+| Linear Approximation (320 bins)             | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
+| Local Approximation (k=320, precision=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
+#### SEC-EC (16720 data points)
+![[sep-ec-optimization-error-hists 1.png|600]]
+
+| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
+| ------------------------------------------- | ------------------ | -------------- | --------- |
+| Regular                                     | 7.33               | n/a            | n/a       |
+| Linear Approximation (320 bins)             | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
+| Local Approximation (k=320, precision=1e-4) | 0.014              | $4.0*10^{-3}$  | $0.140\%$ |
