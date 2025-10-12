@@ -132,7 +132,9 @@
 - Add MAPE column $\checkmark$
 - `KernelDensity` with `atol` vs `numpy` manual implementation vs current $\checkmark$
 	- `scikit-learn`'s `atol` parameter had no change in performance. Manual implementation of KDE kernel saw a significant leap in performance, producing the same KDE values
-- Change `precision` to `atol` $\checkmark$ 
+- Change `precision` to `atol` $\checkmark$
+## Notes:
+- Fixed bug: As I thought, there was an issue with returned densities being sorted in ascending order, which was causing some issues both with the histogram displays along with the errors being calculated. This has now been fixed.
 
 
 # 10/10/25
@@ -161,4 +163,11 @@
 | ------------------------------------------- | ------------------ | -------------- | --------- |
 | Regular                                     | 7.33               | n/a            | n/a       |
 | Linear Approximation (320 bins)             | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.014              | $4.0*10^{-3}$  | $0.140\%$ |
+| Local Approximation (k=320, precision=1e-4) | 0.14 $(???)$       | $4.0*10^{-3}$  | $0.140\%$ |
+
+## Tasks:
+- Add row for `sklearn` with same tolerance directly as `atol` (!!!)
+- `sklearn` implementation is likely multidimensional. leave `atol` as option for `get_densities`
+- Remove our `local` interpolation, extend our linear interpolation for multi-dimensional (!!!)
+	- If our `local` is significantly faster than `sklean` with `atol`, there might be a reason to keep it
+	- See table above... $0.014$ seconds or $0.14$ seconds?

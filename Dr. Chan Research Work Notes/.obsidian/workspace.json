@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "e642ecb5b4c36047",
+            "id": "698763a98290c06c",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -184,13 +184,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9cc31fa7d4918164",
+  "active": "698763a98290c06c",
   "lastOpenFiles": [
-    "Images/sarcos-optimization-error-hists 1.png",
-    "Images/sep-c-optimization-error-hists 1.png",
-    "Images/sep-ec-optimization-error-hists 1.png",
     "Original PDF.pdf",
     "Notes - 10-25.md",
+    "Images/sep-c-optimization-error-hists 1.png",
+    "Images/sep-ec-optimization-error-hists 1.png",
+    "Images/sarcos-optimization-error-hists 1.png",
     "Images/sarcos-optimization-error-hists.png",
     "Images/sep-ec-optimization-error-hists.png",
     "Images/sep-c-optimization-error-hists.png",
@@ -199,7 +199,6 @@
     "Images/high-sarcos-ours-new-scott-silverman.png",
     "Images/sep-ec-ours-new-scott-silverman.png",
     "Images/sep-c-ours-new-scott-silverman.png",
-    "Images/low-sep-ec-ours-new-scott-silverman.png",
     "mini-pipeline-demo.py",
     "Notes - 8-25.md",
     "Images",
