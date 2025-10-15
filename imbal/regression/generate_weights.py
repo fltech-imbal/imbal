@@ -1,15 +1,18 @@
 import numpy as np
-from sklearn.neighbors import KernelDensity
 from math import sqrt, pi, log, ceil
+
+from sklearn.neighbors import KernelDensity
+
 from imbal.util.sample_weighting import get_label_bin_bounds
+from scipy.interpolate import RegularGridInterpolator
 
 def get_densities(
         labels,
-        kde,
+        bandwidth,
         optimization=None,
         distribution_samples=None,
         k=None,
-        atol=1e-4,
+        atol=0,
         padding_factor=0.01,
         return_optimization=False
 ):
@@ -110,10 +113,14 @@ def get_densities(
     if distribution_samples is None:
         distribution_samples = round(labels.shape[0] / 10)
 
+    labels = labels.reshape(labels.shape[0], -1)
+
+    kde = KernelDensity(bandwidth=bandwidth, atol=atol).fit(labels)
+
     # Use KDE estimation to generate weights
     points, densities = None, None
     if optimization is None:
-        densities = np.exp(kde.score_samples(labels.reshape(-1, 1)).reshape(-1, ))
+        densities = np.exp(kde.score_samples(labels).reshape(-1, ))
     elif optimization == 'linear_interpolation':
         points, densities = _linearly_interpolate_kde(
             labels,
@@ -126,6 +133,8 @@ def get_densities(
     else:
         raise ValueError("'optimization' must be either 'linear_interpolation', 'local_approximation', or None")
     approx = (points, densities)
+
+    densities = densities.reshape(densities.shape[0], -1)
 
     if return_optimization and approx is not None:
         return densities, approx
@@ -180,39 +189,6 @@ def _local_kde_optimization(
         k,
         atol
 ):
-    # sort_indices = np.argsort(labels)
-    # sorted_labels = labels[sort_indices].reshape(-1,)
-    # inverse_sort = np.argsort(sort_indices)
-    # bandwidth = kde.bandwidth_
-    # inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
-    # atol_by_n = atol / labels.shape[0]
-    # delta = inverse_gaussian(atol_by_n)
-    #
-    #
-    # if k is None:
-    #     k = max(2, round(10*log(labels.shape[0])))
-    #
-    # sample_densities = []
-    # low_index = 0
-    # high_index = 0
-    # for label in sorted_labels:
-    #     while sorted_labels[low_index] < label - delta:
-    #         low_index += 1
-    #     while high_index < sorted_labels.shape[0] and sorted_labels[high_index] < label + delta:
-    #         high_index += 1
-    #
-    #     if high_index - low_index > k:
-    #         stride = ceil((high_index - low_index) / k)
-    #         samples = sorted_labels[low_index:high_index:stride]
-    #     else:
-    #         samples = sorted_labels[low_index:high_index]
-    #
-    #     current_kde = KernelDensity(bandwidth=bandwidth, atol=atol_by_n)
-    #     current_kde.fit(samples.reshape(-1,1))
-    #     sample_densities.append(np.exp(current_kde.score_samples(np.array([[label]]))) * (high_index - low_index) / labels.shape[0])
-    # sample_densities = np.array(sample_densities).reshape(-1,)
-    # return sorted_labels[inverse_sort], sample_densities[inverse_sort]
-
     sort_indices = np.argsort(labels)
     sorted_labels = labels[sort_indices].reshape(-1,)
     inverse_sort = np.argsort(sort_indices)
@@ -221,9 +197,6 @@ def _local_kde_optimization(
     atol_by_n = atol / labels.shape[0]
     delta = inverse_gaussian(atol_by_n)
 
-
-    if k is None:
-        k = max(2, round(10*log(labels.shape[0])))
 
     sample_densities = []
     low_index = 0
@@ -234,7 +207,7 @@ def _local_kde_optimization(
         while high_index < sorted_labels.shape[0] and sorted_labels[high_index] < label + delta:
             high_index += 1
 
-        if high_index - low_index > k:
+        if k is not None and high_index - low_index > k:
             stride = ceil((high_index - low_index) / k)
             samples = sorted_labels[low_index:high_index:stride]
         else:
@@ -254,11 +227,21 @@ def _linearly_interpolate_kde(
         distribution_samples,
         padding_factor
 ):
-    sort_indices = np.argsort(labels)
-    sorted_labels = labels[sort_indices]
-    label_min, label_max, _ = get_label_bin_bounds(sorted_labels, 1, padding_factor)
-    step = (label_max - label_min) / distribution_samples
-    sample_points = np.array([label_min + i*step for i in range(distribution_samples + 1)])
-    interpolate_densities = np.exp(kde.score_samples(sample_points.reshape(-1,1)).reshape(-1,))
-    sample_densities = np.interp(labels, sample_points, interpolate_densities)
+    labels = np.asarray(labels)
+    if labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+    D = labels.shape[1]
+
+    # Get min, max, step per dimension
+    label_min, label_max, step = get_label_bin_bounds(labels, distribution_samples, padding_factor)
+    # Create 1D linspace per dimension
+    grids_1d = [np.linspace(lo, hi, distribution_samples + 1) for lo, hi in zip(label_min, label_max)]
+    # Create full N-D meshgrid of sample points
+    mesh = np.meshgrid(*grids_1d, indexing='ij')
+    sample_points = np.stack(mesh, axis=-1).reshape(-1, D)  # (num_points, D)
+
+    interpolate_densities = np.exp(kde.score_samples(sample_points))
+    interpolate_densities = interpolate_densities.reshape([distribution_samples + 1] * D)
+    interpolator = RegularGridInterpolator(tuple(grids_1d), interpolate_densities)
+    sample_densities = interpolator(labels)
     return sample_points, sample_densities

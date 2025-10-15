@@ -7,6 +7,6 @@ from .generate_weights import (
 from .tsne_visualization import tsne_visualization
 from .kde import (
     fit_kde,
-    plot_kde
+    plot_kde_1d
 )
 from .wrappers import labels_to_kde_weights

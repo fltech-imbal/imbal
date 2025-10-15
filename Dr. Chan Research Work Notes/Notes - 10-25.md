@@ -141,29 +141,38 @@
 ## Notes:
 
 #### SARCOS (44485 data points)
-![[sarcos-optimization-error-hists 1.png|600]]
+![[dataset-1-error-histogram 1.png]]
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
-| ------------------------------------------- | ------------------ | -------------- | --------- |
-| Regular                                     | 44.05              | n/a            | n/a       |
-| Linear Approximation (320 bins)             | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
+| KDE Optimization Method                   | Compute Time (sec) | MAE             | MAPE      |
+| ----------------------------------------- | ------------------ | --------------- | --------- |
+| scikit-learn                              | 44.05              | n/a             | n/a       |
+| scikit-learn w/ atol=1e-4                 | 21.77              | $2.71*10^{-5}$  | $0.003\%$ |
+| Linear Approximation (320 bins)           | 0.25               | $1.88*10^{-4}$  | $0.152\%$ |
+| Linear Approximation via scipy (320 bins) | 0.25               | $1.88*10^{-4}$  | $0.152\%$ |
+| Local Approximation (k=320, atol=1e-4)    | 0.28               | $2.48*10^{-3}$  | $0.153\%$ |
+| Local Approximation w/o k (atol=1e-4)     | 4.24               | $1.99*10^{-11}$ | ~$0\%$    |
 #### SEP-C (1531 data points)
-![[sep-c-optimization-error-hists 1.png|600]]
+![[dataset-2-error-histogram 1.png]]
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE             | MAPE     |
-| ------------------------------------------- | ------------------ | --------------- | -------- |
-| Regular                                     | 0.057              | n/a             | n/a      |
-| Linear Approximation (320 bins)             | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
+| KDE Optimization Method                         | Compute Time (sec) | MAE             | MAPE     |
+| ----------------------------------------------- | ------------------ | --------------- | -------- |
+| scikit-learn                                    | 0.057              | n/a             | n/a      |
+| scikit-learn w/ atol=1e-4                       | 0.057              | $8.84*10^{-9}$  | ~$0\%$   |
+| Linear Approximation (320 bins)                 | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
+| Linear Approximation via scipy (%% 320 bins) %% | 0.0036             | $2.00*10^{-2}$  | $0.55\%$ |
+| Local Approximation (k=320, atol=1e-4)          | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
+| Local Approximation w/o k (atol=1e-4)           | 0.013              | $4.57*10^{-13}$ | ~$0\%$   |
 #### SEC-EC (16720 data points)
-![[sep-ec-optimization-error-hists 1.png|600]]
+![[dataset-3-error-histogram 1.png]]
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
-| ------------------------------------------- | ------------------ | -------------- | --------- |
-| Regular                                     | 7.33               | n/a            | n/a       |
-| Linear Approximation (320 bins)             | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.14 $(???)$       | $4.0*10^{-3}$  | $0.140\%$ |
+| KDE Optimization Method                   | Compute Time (sec) | MAE             | MAPE      |
+| ----------------------------------------- | ------------------ | --------------- | --------- |
+| scikit-learn                              | 7.33               | n/a             | n/a       |
+| scikit-learn w/ atol=1e-4                 | 6.79               | $2.23*10^{-5}$  | $0.03\%$  |
+| Linear Approximation (320 bins)           | 0.064              | $4.81*10^{-3}$  | $0.156\%$ |
+| Linear Approximation via scipy (320 bins) | 0.072              | $4.81*10^{-3}$  | $0.156\%$ |
+| Local Approximation (k=320, atol=1e-4)    | 0.14               | $4.0*10^{-3}$   | $0.140\%$ |
+| Local Approximation w/o k (atol=1e-4)     | 1.02               | $1.52*10^{-11}$ | ~$0\%$    |
 
 ## Tasks:
 - Add row for `sklearn` with same tolerance directly as `atol` (!!!)
@@ -171,3 +180,34 @@
 - Remove our `local` interpolation, extend our linear interpolation for multi-dimensional (!!!)
 	- If our `local` is significantly faster than `sklean` with `atol`, there might be a reason to keep it
 	- See table above... $0.014$ seconds or $0.14$ seconds?
+
+# 10/13/25
+
+## Prep:
+ - Add row for `sklearn` with same tolerance directly as `atol` $\checkmark$
+ - See table above... $0.014$ seconds or $0.14$ seconds? $\checkmark$ (it was, in fact, a typo)
+ - If our `local` is significantly faster than `sklearn` with `atol`, there might be a reason to keep it
+	 - While it is significantly faster, it is relatively comparable to the linear interpolation method in terms of performance and error, except in the rare case that nearly all of the data is "highly concentrated" (for example, SEP-C having 90% of data points be the same value)
+## Notes:
+- Now that we know that `atol` should just be passed as error per point, speed improvements are more noticeable, but still nothing crazy
+	- Side note: Since `atol` is a parameter in `scikit-learn`'s `KernelDensity` object, it must be specified during `fit_kde`, rather than during `get_densities`
+- I have confirmed that `scikit-learn`'s `KernelDensity` object does in fact work on multidimensional data
+-  I have looked into the math for multidimensional lerp, there exists implementations from `scipy`, which is already a dependency of TensorFlow
+## Tasks:
+- Fifth row: `local_approximation` with no k value (full sampling)
+	- To see how speed compares with `atol`
+	- If speed is no longer significantly faster than `atol`, we will get rid of `local_approximation`
+- Sixth row: `linear_interpolation` with `scipy.RegularGridInterpolator` (in 1D)
+- Reorganize, return bandwidth, not `KernelDensity`, skip `scikit-learn`
+# 10/15/25
+## Prep:
+- Fifth row: `local_approximation` with no k value (full sampling) $\checkmark$
+	- To see how speed compares with `atol` $\checkmark$
+	- If speed is no longer significantly faster than `atol`, we will get rid of `local_approximation` $\checkmark$
+- Sixth row: `linear_interpolation` with `scipy.RegularGridInterpolator` (in 1D) $\checkmark$
+- Reorganize code, return bandwidth, not `KernelDensity`, skip `scikit-learn` $\checkmark $
+
+Notes:
+- Updated code to work in multidimensions
+	- Still not positive this works entirely as expected, but early tests are promising
+	- Converting from 1D to nD took longer than I thought. Linear interpolation was an easy enough problem to solve, however nD iterative bandwidth using KL convergence was much trickier

@@ -22,21 +22,21 @@ def read_csv_to_list_of_lists(filepath):
 PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+print(data.shape)
+data = data[1:, -1].astype(float)
+
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
-# data = data[1:, -1].astype(float)
+# data = data[1:, 22].astype(float)
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
-print(data.shape)
-data = data[1:, 22].astype(float)
-
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-for i in range(43):
-    if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-print(data.shape)
-data = data[:, 182].astype(float)
-print(data.shape)
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+# for i in range(43):
+#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+# print(data.shape)
+# data = data[:, 182].astype(float)
+# print(data.shape)
 
 import matplotlib.pyplot as plt
 import time
@@ -44,17 +44,12 @@ import time
 BINS=32
 
 print(1)
-kde = imbal.regression.kde.fit_kde(
+bandwidth = imbal.regression.kde.fit_kde(
     data,
-    bandwidth='kl_divergence',
+    bandwidth='ratio',
     bin_count=BINS,
 )
-atol_kde = imbal.regression.kde.fit_kde(
-    data,
-    bandwidth='kl_divergence',
-    bin_count=BINS,
-    atol=1e-4
-)
+
 # imbal.regression.plot_kde(
 #     data,
 #     kde,
@@ -65,7 +60,7 @@ print(2)
 start = time.time()
 densities = imbal.regression.get_densities(
     data,
-    kde
+    bandwidth
 )
 end = time.time()
 print('normal', end-start)
@@ -74,7 +69,7 @@ print(3)
 start = time.time()
 lin_int_densities, lin_int_approx = imbal.regression.get_densities(
     data,
-    kde,
+    bandwidth,
     distribution_samples=10*BINS,
     optimization='linear_interpolation',
     return_optimization=True
@@ -86,7 +81,7 @@ print(4)
 start=time.time()
 loc_approx_densities, loc_approx_approx = imbal.regression.get_densities(
     data,
-    kde,
+    bandwidth,
     distribution_samples=10*BINS,
     optimization='local_approximation',
     k=BINS*10,
@@ -101,16 +96,30 @@ print(4.5)
 start=time.time()
 atol_densities = imbal.regression.get_densities(
     data,
-    atol_kde
+    bandwidth,
+    atol=1e-4
 )
 end=time.time()
 print('atol', end-start)
-print(loc_approx_densities.shape)
+print(atol_densities.shape)
 print(5)
+start=time.time()
+no_k_densities = imbal.regression.get_densities(
+    data,
+    bandwidth,
+    distribution_samples=10*BINS,
+    optimization='local_approximation',
+    # k=BINS*10,
+    atol=1e-4
+)
+end=time.time()
+print('no_k', end-start)
+print(no_k_densities.shape)
+print(6)
 num_bins = 32  # Number of desired logarithmic bins
 lin_errors = np.abs(lin_int_densities - densities).reshape(-1)
 bins = np.logspace(np.log10(min(lin_errors)), np.log10(max(lin_errors)), num_bins + 1)
-fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(12, 4), constrained_layout=True)
+fig, ax = plt.subplots(nrows=1, ncols=4, figsize=(16, 4), constrained_layout=True)
 ax[0].hist(lin_errors, bins=bins, alpha=0.6)
 ax[0].set_xscale('log')
 ax[0].set_title('Errors of linear_interpolation')
@@ -127,15 +136,23 @@ ax[2].hist(atol_errors, bins=bins, alpha=0.6)
 # ax[2].set_xscale('log')
 ax[2].set_title('Errors of atol approximation')
 ax[2].set_ylim(auto=True)
-plt.savefig('dataset-3-error-histogram.png')
+no_k_errors = np.abs(no_k_densities - densities).reshape(-1)
+bins = np.linspace(0, max(no_k_errors), num_bins + 1)
+ax[3].hist(no_k_errors, bins=bins, alpha=0.6)
+# ax[3].set_xscale('log')
+ax[3].set_title('Errors of no_k approximation')
+ax[3].set_ylim(auto=True)
+plt.savefig('dataset-1-error-histogram.png')
 plt.show()
 
 print('lin_int average error:', np.mean(lin_errors))
 print('loc_approx average error:', np.mean(loc_approx_errors))
 print('atol average error:', np.mean(atol_errors))
+print('no_k average error:', np.mean(no_k_errors))
 print('lin_int average % error:', np.mean(lin_errors / densities * 100))
 print('loc_approx average % error:', np.mean(loc_approx_errors / densities * 100))
 print('atol average % error:', np.mean(atol_errors / densities * 100))
+print('no_k average % error:', np.mean(no_k_errors / densities * 100))
 
 ###################### OR ########################
 

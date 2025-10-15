@@ -11,7 +11,8 @@ def fit_kde(
         steps_per_bin = 10,
         fine_search = 10,
         tolerance = 1e-3,
-        padding_factor=0.01
+        padding_factor=0.01,
+        atol=0
 ):
     """
     Automatically determine a bandwidth and gaussian KDE curve best fits
@@ -74,9 +75,10 @@ def fit_kde(
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
+    found_bandwidth = bandwidth
     if bandwidth in ['ratio', 'kl_divergence']:
         # Use iterative, "binned-based" approach to approximate KDE
-        kde = _iterative_kde_approximation(
+        found_bandwidth = _iterative_kde_approximation(
             labels,
             bin_count=bin_count,
             bandwidth=bandwidth,
@@ -85,14 +87,14 @@ def fit_kde(
             tolerance=tolerance,
             padding_factor=padding_factor,
         )
-    else:
-        # Use literal or explicit bandwidth to approximate KDE
-        kde = KernelDensity(bandwidth=bandwidth)
-        kde.fit(labels.reshape(-1, 1))
 
-    return kde
+    # Use literal or explicit bandwidth to approximate KDE
+    # kde = KernelDensity(bandwidth=found_bandwidth, atol=atol)
+    # kde.fit(labels.reshape(labels.shape[0], -1))
 
-def plot_kde(
+    return found_bandwidth
+
+def plot_kde_1d(
         labels,
         kde,
         average_samples_per_bin=100,
@@ -151,12 +153,12 @@ def plot_kde(
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
     labels = np.sort(labels.reshape(-1, ))
-    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels,
+    high_freq_bin_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index = _determine_high_low_freq_bins(labels,
                                                                                                          bin_count,
                                                                                                          padding_factor)
     label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
-    min_count = low_freq_bin.shape[0]
-    max_count = high_freq_bin.shape[0]
+    min_count = low_freq_bin_count
+    max_count = high_freq_bin_count
 
     x_plot = np.linspace(label_min - 1, label_max + 1, 1000).reshape(-1, 1)
     log_dens = kde.score_samples(x_plot)
@@ -205,23 +207,13 @@ def _iterative_kde_approximation(
     padding_factor=0.01
 ) -> KernelDensity | tuple:
 
-    # Data formatting
-    labels = np.sort(labels.reshape(-1,))
-
     # Get bounds and bin width
     label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
     # Get bins with the highest frequency and lowest frequency
-    high_freq_bin, high_freq_bin_index, low_freq_bin, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count, padding_factor)
-    desired_ratio = high_freq_bin.shape[0] / low_freq_bin.shape[0]
+    high_freq_bin_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count, padding_factor)
 
-    # Generate lists used for even-spaced sampling across lowest and highest frequency bins
-    spaced_high_freq_bin = np.linspace(high_freq_bin[0], high_freq_bin[0] + step, steps_per_bin).reshape(-1, 1)
-    spaced_low_freq_bin = np.linspace(low_freq_bin[0], low_freq_bin[0] + step, steps_per_bin).reshape(-1, 1)
-
-    spaced_even_curve = np.linspace(label_min, label_max, steps_per_bin*bin_count).reshape(-1, 1)
-    bin_counts = [labels[(labels < label_min + step * (i + 1)) & (labels >= label_min + step * i)].shape[0] for i in range(bin_count)]
-    even_counts = np.repeat(bin_counts, steps_per_bin)
-    histogram_values = even_counts / step / labels.shape[0]
+    spaced_even_curve = _evenly_sample_space(label_min, label_max, bin_count, steps_per_bin)
+    histogram_values = _compute_histogram_areas(labels, bin_count, padding_factor, steps_per_bin)
 
 
     # Starting test ranges for bandwidth should be between 0.01*stddev and 3*stddev
@@ -229,7 +221,6 @@ def _iterative_kde_approximation(
     coarse_search = starting_bandwidth
 
     # Track best results during iteration
-    best_kde = None
     best_heuristic = None
     best_bandwidth = starting_bandwidth
 
@@ -239,23 +230,26 @@ def _iterative_kde_approximation(
         kde_densities = np.exp(kde_curve.score_samples(filtered_curve))
         return np.sum(filtered_histogram*np.log(filtered_histogram/kde_densities))
 
+    # Generate lists used for even-spaced sampling across lowest and highest frequency bins
+    spaced_high_freq_bin = _evenly_sample_bin(label_min, step, low_freq_bin_index, steps_per_bin)
+    spaced_low_freq_bin = _evenly_sample_bin(label_min, step, high_freq_bin_index, steps_per_bin)
     def ratio_heuristic(kde_curve) -> float:
         high_densities = np.exp(kde_curve.score_samples(spaced_high_freq_bin))
         low_densities = np.exp(kde_curve.score_samples(spaced_low_freq_bin))
         max_area = (-high_densities[0] / 2 - high_densities[-1] / 2 + np.sum(high_densities)) * step / steps_per_bin
         min_area = (-low_densities[0] / 2 - low_densities[-1] / 2 + np.sum(low_densities)) * step / steps_per_bin
+        desired_ratio = high_freq_bin_count / low_freq_bin_count
         return abs(max_area / min_area - desired_ratio)
 
     heuristic_function = kl_divergence_heuristic
     if bandwidth == 'ratio':
         heuristic_function = ratio_heuristic
-    labels = labels.reshape(-1, 1)
+    labels = labels.reshape(labels.shape[0], -1)
 
     # Ensure at least one loop, and loop until ratio is within tolerance,
     # or search becomes too fine grain (perhaps ideal ratio is impossible)
-    while best_kde is None or (best_heuristic > tolerance and coarse_search / fine_search > 1e-6):
+    while best_heuristic is None or (best_heuristic > tolerance and coarse_search / fine_search > 1e-6):
         search_steps = round(fine_search)
-        kde_contender = None
         heuristic_contender = None
         bandwidth_contender = None
 
@@ -272,7 +266,6 @@ def _iterative_kde_approximation(
             heuristic = heuristic_function(kde)
 
             if bandwidth_contender is None or heuristic < heuristic_contender:
-                kde_contender = kde
                 heuristic_contender = heuristic
                 bandwidth_contender = current_bandwidth
 
@@ -280,7 +273,6 @@ def _iterative_kde_approximation(
         if best_heuristic is None or heuristic_contender <= best_heuristic:
             # If the best contender in this search loop produces a
             # better density ratio than the previous best, update best
-            best_kde = kde_contender
             best_heuristic = heuristic_contender
             best_bandwidth = bandwidth_contender
             coarse_search = coarse_search/fine_search
@@ -289,30 +281,91 @@ def _iterative_kde_approximation(
             # bandwidth values, break from search loop
             break
 
-    return best_kde
+    return best_bandwidth
 
 
 def _determine_high_low_freq_bins(labels, bin_count, padding_factor) -> tuple:
-    """
-    Calculate the contents of the highest and lowest frequency bins, as
-    well as their index.
-    Args:
-        labels: The data labels to bin.
-        bin_count: The number of bins to create.
 
-    Returns:
+    labels = np.asarray(labels)
+    if labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+    D = labels.shape[1]
 
+    label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
+    bin_indices = np.floor((labels - label_min) / step).astype(int)
+    bin_indices = np.clip(bin_indices, 0, bin_count - 1)
+
+    # Count frequencies in each bin
+    frequencies = np.zeros([bin_count] * D, dtype=int)
+    for idx in bin_indices:
+        frequencies[tuple(idx)] += 1
+
+    high_freq_bin_index = np.unravel_index(np.argmax(frequencies), frequencies.shape)
+    high_freq_count = frequencies[high_freq_bin_index]
+
+    nonzero_mask = frequencies > 0
+    if np.any(nonzero_mask):
+        low_freq_bin_index = np.unravel_index(np.argmin(frequencies[nonzero_mask]), frequencies.shape)
+        low_freq_bin_count = frequencies[low_freq_bin_index]
+    else:
+        low_freq_bin_index = None
+        low_freq_bin_count = 0
+
+    return high_freq_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index
+
+def _get_bin_bounds(label_min, step, bin_idx):
     """
+    Given the min, step, and a bin index (tuple), return the coordinate range for that bin.
+    """
+    lower = label_min + step * np.array(bin_idx)
+    upper = lower + step
+    return lower, upper
+
+def _evenly_sample_space(label_min, label_max, bin_count, steps_per_bin):
+    D = len(label_min)
+
+    # Create 1D linspace per dimension
+    grids_1d = [np.linspace(l, u, steps_per_bin * bin_count) for l, u in zip(label_min, label_max)]
+    # Create full N-D meshgrid
+    mesh = np.meshgrid(*grids_1d, indexing='ij')
+    # Flatten meshgrid to (num_points, D)
+    grid_points = np.stack(mesh, axis=-1).reshape(-1, D)
+    return grid_points
+
+def _evenly_sample_bin(label_min, step, bin_idx, steps_per_bin):
+    lower, upper = _get_bin_bounds(label_min, step, bin_idx)
+    # Create 1D linspaces per dimension
+    grids = [np.linspace(l, u, steps_per_bin) for l, u in zip(lower, upper)]
+    # Create full N-D sampling grid
+    mesh = np.stack(np.meshgrid(*grids, indexing='ij'), axis=-1)
+    return mesh.reshape(-1, len(step))  # Flatten to list of (N_points, D)
+
+def _compute_histogram_areas(labels, bin_count, padding_factor, steps_per_bin):
+    labels = np.asarray(labels)
+    if labels.ndim == 1:
+        labels = labels.reshape(-1, 1)
+    D = labels.shape[1]
+
     label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
 
-    bins = [labels[(labels < label_min + step * (i+1)) & (labels >= label_min + step * i)] for i in range(bin_count)]
-    high_freq = (bins[0], 0)
-    for index, _bin in enumerate(bins):
-        if _bin.shape[0] > high_freq[0].shape[0]:
-            high_freq = (_bin, index)
-    low_freq = (high_freq[0], high_freq[1])
-    for index, _bin in enumerate(bins):
-        if _bin.shape[0] != 0 and _bin.shape[0] <= low_freq[0].shape[0] and abs(high_freq[1] - low_freq[1]) < abs(high_freq[1] - index):
-            low_freq = (_bin, index)
+    # Compute which bin each label falls into
+    bin_indices = np.floor((labels - label_min) / step).astype(int)
+    bin_indices = np.clip(bin_indices, 0, bin_count - 1)
 
-    return high_freq[0], high_freq[1], low_freq[0], low_freq[1]
+    # Make an N-dimensional frequency grid
+    freq = np.zeros([bin_count] * D, dtype=int)
+    for idx in bin_indices:
+        freq[tuple(idx)] += 1
+
+    # Repeat each bin along all axes to match "steps_per_bin"
+    expanded = freq
+    for axis in range(D):
+        expanded = np.repeat(expanded, steps_per_bin, axis=axis)
+
+    # Flatten to 1D
+    expanded = expanded.flatten()
+
+    # Compute normalized histogram values per bin
+    histogram_values = expanded / np.prod(step) / labels.shape[0]
+
+    return histogram_values
