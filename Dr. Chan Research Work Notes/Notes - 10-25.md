@@ -205,9 +205,33 @@
 	- To see how speed compares with `atol` $\checkmark$
 	- If speed is no longer significantly faster than `atol`, we will get rid of `local_approximation` $\checkmark$
 - Sixth row: `linear_interpolation` with `scipy.RegularGridInterpolator` (in 1D) $\checkmark$
-- Reorganize code, return bandwidth, not `KernelDensity`, skip `scikit-learn` $\checkmark $
+- Reorganize code, return bandwidth, not `KernelDensity`, skip `scikit-learn` $\checkmark$
 
 Notes:
 - Updated code to work in multidimensions
 	- Still not positive this works entirely as expected, but early tests are promising
 	- Converting from 1D to nD took longer than I thought. Linear interpolation was an easy enough problem to solve, however nD iterative bandwidth using KL convergence was much trickier
+- Once again, documentation needs a bit of an overhaul.
+
+## Tasks:
+- For `local_approximation`, get rid of `k`, but allow for our (faster and more accurate) method for 1D, otherwise leverage `scikit-learn`, which already has nD
+- For linear interpolation, always use `scikit-learn`
+- In documentation intro, explain methodology for local approximation in 1D (amortized $O(n)$ vs $O(nlogn)$)
+- Documentation for `fit_kde`
+	- Introduction
+		- Two methods for faster computation at the cost of lower accuracy, `atol` and interpolation
+		- 1D for local uses custom implementation for faster results
+			- `scikit-learn` for higher dimension
+		- Interpolation via `scipy`
+	- Parameters
+	- Examples
+		- Where tables and histograms are
+		- Show time differences for better in one dimensional
+- KL divergence (or other metrics too) should occur per bin, not per sub-bin
+- instead of multiplying by bin width and then  "dividing by one", sum up densities in bin, and divide by the sum of all sampled densities
+- Shift by half sub-bin width
+	- Argue that the sum of the sub-bin samples (height) is proportional to the AUC (just missing multiplication by a constant width v)
+- 2D table
+	- Regular
+	- Local (atol)
+	- Linear interpolation

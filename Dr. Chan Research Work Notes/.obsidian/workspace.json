@@ -184,13 +184,13 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9cc31fa7d4918164",
+  "active": "c11cc542a64531c5",
   "lastOpenFiles": [
-    "Images/dataset-1-error-histogram 1.png",
     "Original PDF.pdf",
+    "Notes - 10-25.md",
+    "Images/dataset-1-error-histogram 1.png",
     "Images/dataset-2-error-histogram 1.png",
     "Images/dataset-3-error-histogram 1.png",
-    "Notes - 10-25.md",
     "Images/dataset-3-error-histogram.png",
     "Images/dataset-2-error-histogram.png",
     "Images/dataset-1-error-histogram.png",
@@ -198,7 +198,6 @@
     "Images/sep-c-optimization-error-hists 1.png",
     "Images/sep-ec-optimization-error-hists 1.png",
     "Images/sarcos-optimization-error-hists.png",
-    "Images/sep-ec-optimization-error-hists.png",
     "Notes - 9-25.md",
     "mini-pipeline-demo.py",
     "Notes - 8-25.md",

@@ -2,6 +2,9 @@ import os
 import numpy as np
 import kagglehub
 import csv
+
+from sklearn.neighbors import KernelDensity
+
 import imbal
 
 
@@ -19,7 +22,7 @@ def read_csv_to_list_of_lists(filepath):
 # data = data[1:1000, 2].astype(np.float64)
 # print(data)
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
 data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
@@ -46,16 +49,16 @@ BINS=32
 print(1)
 bandwidth = imbal.regression.kde.fit_kde(
     data,
-    bandwidth='ratio',
+    bandwidth='kl_divergence',
     bin_count=BINS,
 )
-
-# imbal.regression.plot_kde(
-#     data,
-#     kde,
-#     bin_count=BINS,
-#     save_figure='dataset-1.png'
-# )
+kde = KernelDensity(bandwidth=bandwidth).fit(data.reshape(-1, 1))
+imbal.regression.plot_kde_1d(
+    data,
+    kde,
+    bin_count=BINS,
+    save_figure='dataset-1.png'
+)
 print(2)
 start = time.time()
 densities = imbal.regression.get_densities(
@@ -71,7 +74,7 @@ lin_int_densities, lin_int_approx = imbal.regression.get_densities(
     data,
     bandwidth,
     distribution_samples=10*BINS,
-    optimization='linear_interpolation',
+    optimization_method='linear',
     return_optimization=True
 )
 end=time.time()
@@ -83,7 +86,7 @@ loc_approx_densities, loc_approx_approx = imbal.regression.get_densities(
     data,
     bandwidth,
     distribution_samples=10*BINS,
-    optimization='local_approximation',
+    # optimization='local_approximation',
     k=BINS*10,
     atol=1e-4,
     return_optimization=True
@@ -108,7 +111,7 @@ no_k_densities = imbal.regression.get_densities(
     data,
     bandwidth,
     distribution_samples=10*BINS,
-    optimization='local_approximation',
+    # optimization='local_approximation',
     # k=BINS*10,
     atol=1e-4
 )
@@ -144,6 +147,8 @@ ax[3].set_title('Errors of no_k approximation')
 ax[3].set_ylim(auto=True)
 plt.savefig('dataset-1-error-histogram.png')
 plt.show()
+
+densities = densities.reshape(-1)
 
 print('lin_int average error:', np.mean(lin_errors))
 print('loc_approx average error:', np.mean(loc_approx_errors))

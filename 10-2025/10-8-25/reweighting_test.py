@@ -26,9 +26,9 @@ print(os.getcwd())
 # print(data.shape)
 # data = data[1:, -1].astype(float)
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
-print(data.shape)
-data = data[1:, 22].astype(float)
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
+# print(data.shape)
+# data = data[1:, 22].astype(float)
 
 data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
 for i in range(43):
@@ -55,12 +55,12 @@ atol_kde = imbal.regression.kde.fit_kde(
     bin_count=BINS,
     atol=1e-4
 )
-# imbal.regression.plot_kde(
-#     data,
-#     kde,
-#     bin_count=BINS,
-#     save_figure='dataset-1.png'
-# )
+imbal.regression.plot_kde_1d(
+    data,
+    kde,
+    bin_count=BINS,
+    save_figure='dataset-1.png'
+)
 print(2)
 start = time.time()
 densities = imbal.regression.get_densities(

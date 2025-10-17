@@ -38,7 +38,7 @@ bandwidth = imbal.regression.kde.fit_kde(
 )
 print(2)
 
-kde = KernelDensity(bandwidth=bandwidth)
+kde = KernelDensity(bandwidth=bandwidth).fit(data)
 
 print(grid.shape)
 values = np.exp(kde.score_samples(grid))

@@ -9,12 +9,11 @@ from scipy.interpolate import RegularGridInterpolator
 def get_densities(
         labels,
         bandwidth,
-        optimization=None,
-        distribution_samples=None,
-        k=None,
+        interpolation_method=None,
+        interpolation_samples=None,
         atol=0,
         padding_factor=0.01,
-        return_optimization=False
+        return_interpolation_samples=False
 ):
     r"""
     This function exists as a means of extracting densities from a scitkit-learn
@@ -56,6 +55,8 @@ def get_densities(
     time complexity for sampling all label densities is :math:`O(kn)`.
 
     Args:
+        atol:
+        bandwidth:
         labels: A NumPy array of labels, arranged as a column vector
         kde: A scikit-learn :code:`KernelDensity` object instance. Densities will be
             sampled from the object using :code:`kde.score_samples`.
@@ -110,8 +111,8 @@ def get_densities(
         [0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674, 0.674,
          0.674, 0.674, 0.349, 0.349, 0.349, 0.349, 0.349, 0.349, 0.118, 0.118]
     """
-    if distribution_samples is None:
-        distribution_samples = round(labels.shape[0] / 10)
+    if interpolation_samples is None:
+        interpolation_samples = round(labels.shape[0] / 10)
 
     labels = labels.reshape(labels.shape[0], -1)
 
@@ -119,24 +120,22 @@ def get_densities(
 
     # Use KDE estimation to generate weights
     points, densities = None, None
-    if optimization is None:
+    if interpolation_method is None:
         densities = np.exp(kde.score_samples(labels).reshape(-1, ))
-    elif optimization == 'linear_interpolation':
+    else:
         points, densities = _linearly_interpolate_kde(
             labels,
             kde,
-            distribution_samples,
-            padding_factor
+            interpolation_samples,
+            padding_factor,
+            interpolation_method
         )
-    elif optimization == 'local_approximation':
-        points, densities = _local_kde_optimization(labels, kde, k, atol)
-    else:
-        raise ValueError("'optimization' must be either 'linear_interpolation', 'local_approximation', or None")
+
     approx = (points, densities)
 
     densities = densities.reshape(densities.shape[0], -1)
 
-    if return_optimization and approx is not None:
+    if return_interpolation_samples and approx is not None:
         return densities, approx
     else:
         return densities
@@ -224,8 +223,9 @@ def _local_kde_optimization(
 def _linearly_interpolate_kde(
         labels,
         kde,
-        distribution_samples,
-        padding_factor
+        interpolation_samples,
+        padding_factor,
+        optimization_method
 ):
     labels = np.asarray(labels)
     if labels.ndim == 1:
@@ -233,15 +233,15 @@ def _linearly_interpolate_kde(
     D = labels.shape[1]
 
     # Get min, max, step per dimension
-    label_min, label_max, step = get_label_bin_bounds(labels, distribution_samples, padding_factor)
+    label_min, label_max, step = get_label_bin_bounds(labels, interpolation_samples, padding_factor)
     # Create 1D linspace per dimension
-    grids_1d = [np.linspace(lo, hi, distribution_samples + 1) for lo, hi in zip(label_min, label_max)]
+    grids_1d = [np.linspace(lo, hi, interpolation_samples + 1) for lo, hi in zip(label_min, label_max)]
     # Create full N-D meshgrid of sample points
     mesh = np.meshgrid(*grids_1d, indexing='ij')
     sample_points = np.stack(mesh, axis=-1).reshape(-1, D)  # (num_points, D)
 
     interpolate_densities = np.exp(kde.score_samples(sample_points))
-    interpolate_densities = interpolate_densities.reshape([distribution_samples + 1] * D)
-    interpolator = RegularGridInterpolator(tuple(grids_1d), interpolate_densities)
+    interpolate_densities = interpolate_densities.reshape([interpolation_samples + 1] * D)
+    interpolator = RegularGridInterpolator(tuple(grids_1d), interpolate_densities, method=optimization_method)
     sample_densities = interpolator(labels)
     return sample_points, sample_densities

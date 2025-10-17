@@ -11,8 +11,7 @@ def fit_kde(
         steps_per_bin = 10,
         fine_search = 10,
         tolerance = 1e-3,
-        padding_factor=0.01,
-        atol=0
+        padding_factor=0.01
 ):
     """
     Automatically determine a bandwidth and gaussian KDE curve best fits
@@ -151,12 +150,16 @@ def plot_kde_1d(
        :alt: A histogram plot of the data from the example above
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
-
     labels = np.sort(labels.reshape(-1, ))
     high_freq_bin_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index = _determine_high_low_freq_bins(labels,
                                                                                                          bin_count,
                                                                                                          padding_factor)
     label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
+    label_min = label_min[0]
+    label_max = label_max[0]
+    step = step[0]
+    low_freq_bin_index = low_freq_bin_index[0]
+    high_freq_bin_index = high_freq_bin_index[0]
     min_count = low_freq_bin_count
     max_count = high_freq_bin_count
 
@@ -170,7 +173,6 @@ def plot_kde_1d(
     ax.plot(x_plot, np.exp(log_dens), label='KDE Curve')
     if approximation is not None:
         plt.plot(approximation[0], approximation[1], label='Approximation', color='orange')
-
     ax.hist(labels, bins=[label_min + i * step for i in range(bin_count+1)], density=True, alpha=0.6, label='Histogram')
     f_min_bar = label_min + (low_freq_bin_index + .5) * step
     ax.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
