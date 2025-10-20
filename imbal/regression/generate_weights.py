@@ -121,7 +121,10 @@ def get_densities(
     # Use KDE estimation to generate weights
     points, densities = None, None
     if interpolation_method is None:
-        densities = np.exp(kde.score_samples(labels).reshape(-1, ))
+        if labels.shape[1] == 1:
+            points, densities = _local_kde_optimization(labels, kde, atol=atol)
+        else:
+          densities = np.exp(kde.score_samples(labels).reshape(-1,))
     else:
         points, densities = _linearly_interpolate_kde(
             labels,
@@ -185,18 +188,19 @@ def generate_weights(
 def _local_kde_optimization(
         labels,
         kde,
-        k,
-        atol
+        atol=0
 ):
+    labels = labels.reshape(-1, )
     sort_indices = np.argsort(labels)
-    sorted_labels = labels[sort_indices].reshape(-1,)
+    sorted_labels = labels[sort_indices]
     inverse_sort = np.argsort(sort_indices)
     bandwidth = kde.bandwidth_
     inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
     atol_by_n = atol / labels.shape[0]
-    delta = inverse_gaussian(atol_by_n)
-
-
+    if atol == 0:
+        delta = np.max(labels) - np.min(labels)
+    else:
+        delta = inverse_gaussian(atol_by_n)
     sample_densities = []
     low_index = 0
     high_index = 0
@@ -205,12 +209,7 @@ def _local_kde_optimization(
             low_index += 1
         while high_index < sorted_labels.shape[0] and sorted_labels[high_index] < label + delta:
             high_index += 1
-
-        if k is not None and high_index - low_index > k:
-            stride = ceil((high_index - low_index) / k)
-            samples = sorted_labels[low_index:high_index:stride]
-        else:
-            samples = sorted_labels[low_index:high_index]
+        samples = sorted_labels[low_index:high_index]
 
         def mini_kde(value, data):
             u = (data - value) / bandwidth

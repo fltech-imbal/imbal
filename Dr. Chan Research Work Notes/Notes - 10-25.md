@@ -214,8 +214,8 @@ Notes:
 - Once again, documentation needs a bit of an overhaul.
 
 ## Tasks:
-- For `local_approximation`, get rid of `k`, but allow for our (faster and more accurate) method for 1D, otherwise leverage `scikit-learn`, which already has nD
-- For linear interpolation, always use `scikit-learn`
+- For `local_approximation`, get rid of `k`, but allow for our (faster and more accurate) method for 1D, otherwise leverage `scikit-learn`, which already has nD $\checkmark$
+- For linear interpolation, always use `scikit-learn` $\checkmark$
 - In documentation intro, explain methodology for local approximation in 1D (amortized $O(n)$ vs $O(nlogn)$)
 - Documentation for `fit_kde`
 	- Introduction
@@ -227,11 +227,31 @@ Notes:
 	- Examples
 		- Where tables and histograms are
 		- Show time differences for better in one dimensional
-- KL divergence (or other metrics too) should occur per bin, not per sub-bin
-- instead of multiplying by bin width and then  "dividing by one", sum up densities in bin, and divide by the sum of all sampled densities
-- Shift by half sub-bin width
+- KL divergence (or other metrics too) should occur per bin, not per sub-bin $\checkmark$
+- instead of multiplying by bin width and then "dividing by one", sum up densities in bin, and divide by the sum of all sampled densities $\checkmark$
+- Shift by half sub-bin width $\checkmark$
 	- Argue that the sum of the sub-bin samples (height) is proportional to the AUC (just missing multiplication by a constant width v)
-- 2D table
-	- Regular
-	- Local (atol)
-	- Linear interpolation
+- 2D table $\checkmark$
+	- Regular $\checkmark$
+	- Local (`atol`) $\checkmark$
+	- Linear interpolation $\checkmark$
+- Make `colorbar` ranges for 2D histograms have same color range for visual comparison $\checkmark$ 
+- Sorted vs unsorted before passing to `atol` $\checkmark$
+
+
+## Notes:
+- for `atol`, sorting, there was no significant difference between sorted and unsorted
+
+2D data
+![[true-2d-distribution.png|600]]
+KDE
+![[2d-kde-scatter.png|600]]
+Errors
+![[2d-data-error-histogram.png]]
+
+| KDE Optimization Method             | Compute Time (sec) | MAE            | MAPE      |
+| ----------------------------------- | ------------------ | -------------- | --------- |
+| Regular                             | 5.43               | n/a            | n/a       |
+| Local Approximation (atol=1e-4)     | 0.72               | $3.26*10^{-5}$ | $0.014\%$ |
+| Linear Interpolation (320 bins/dim) | 0.40               | $1.12*10^{-2}$ | $4.4\%$   |
+

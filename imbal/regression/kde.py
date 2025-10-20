@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
 from imbal.util.sample_weighting import calculate_bin_count, get_label_bin_bounds
+import itertools
 
 def fit_kde(
         labels,
@@ -214,7 +215,7 @@ def _iterative_kde_approximation(
     # Get bins with the highest frequency and lowest frequency
     high_freq_bin_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index = _determine_high_low_freq_bins(labels, bin_count, padding_factor)
 
-    spaced_even_curve = _evenly_sample_space(label_min, label_max, bin_count, steps_per_bin)
+    spaced_even_curve = _evenly_sample_space(label_min, step, bin_count, steps_per_bin)
     histogram_values = _compute_histogram_areas(labels, bin_count, padding_factor, steps_per_bin)
 
 
@@ -227,19 +228,28 @@ def _iterative_kde_approximation(
     best_bandwidth = starting_bandwidth
 
     def kl_divergence_heuristic(kde_curve) -> float:
-        filtered_histogram = histogram_values[histogram_values > 0]
-        filtered_curve = spaced_even_curve[histogram_values > 0]
-        kde_densities = np.exp(kde_curve.score_samples(filtered_curve))
-        return np.sum(filtered_histogram*np.log(filtered_histogram/kde_densities))
+        filtered_histogram = histogram_values
+        filtered_curve = spaced_even_curve
+        data_shape = filtered_curve.shape
+        kde_scores = np.array([
+            np.exp(kde_curve.score_samples(group))
+            for group in filtered_curve.reshape(np.prod(data_shape))
+        ])
+        summed_kde = np.sum(kde_scores, axis=1)
+        total_kde = np.sum(summed_kde, axis=0)
+        normalized_kde = summed_kde / total_kde
+        normalized_kde = normalized_kde.reshape(data_shape)
+        return np.sum(filtered_histogram*np.log(filtered_histogram/(normalized_kde+1e-6)+ 1e-6))
 
     # Generate lists used for even-spaced sampling across lowest and highest frequency bins
     spaced_high_freq_bin = _evenly_sample_bin(label_min, step, low_freq_bin_index, steps_per_bin)
+
     spaced_low_freq_bin = _evenly_sample_bin(label_min, step, high_freq_bin_index, steps_per_bin)
     def ratio_heuristic(kde_curve) -> float:
         high_densities = np.exp(kde_curve.score_samples(spaced_high_freq_bin))
         low_densities = np.exp(kde_curve.score_samples(spaced_low_freq_bin))
-        max_area = (-high_densities[0] / 2 - high_densities[-1] / 2 + np.sum(high_densities)) * step / steps_per_bin
-        min_area = (-low_densities[0] / 2 - low_densities[-1] / 2 + np.sum(low_densities)) * step / steps_per_bin
+        max_area = np.sum(high_densities) * step / steps_per_bin
+        min_area = np.sum(low_densities) * step / steps_per_bin
         desired_ratio = high_freq_bin_count / low_freq_bin_count
         return abs(max_area / min_area - desired_ratio)
 
@@ -323,21 +333,19 @@ def _get_bin_bounds(label_min, step, bin_idx):
     upper = lower + step
     return lower, upper
 
-def _evenly_sample_space(label_min, label_max, bin_count, steps_per_bin):
-    D = len(label_min)
+def _evenly_sample_space(label_min, step, bin_count, steps_per_bin):
+    dim_ranges = [range(bin_count) for _ in label_min]
 
-    # Create 1D linspace per dimension
-    grids_1d = [np.linspace(l, u, steps_per_bin * bin_count) for l, u in zip(label_min, label_max)]
-    # Create full N-D meshgrid
-    mesh = np.meshgrid(*grids_1d, indexing='ij')
-    # Flatten meshgrid to (num_points, D)
-    grid_points = np.stack(mesh, axis=-1).reshape(-1, D)
-    return grid_points
+    all_points = np.empty([bin_count for _ in label_min], dtype=object)
+    for bin_idx in itertools.product(*dim_ranges):
+        points = _evenly_sample_bin(label_min, step, np.array(bin_idx), steps_per_bin)
+        all_points[bin_idx] = points
+    return all_points
 
 def _evenly_sample_bin(label_min, step, bin_idx, steps_per_bin):
     lower, upper = _get_bin_bounds(label_min, step, bin_idx)
     # Create 1D linspaces per dimension
-    grids = [np.linspace(l, u, steps_per_bin) for l, u in zip(lower, upper)]
+    grids = [np.linspace(l, u, steps_per_bin + 1)[:-1] + step/2 for l, u in zip(lower, upper)]
     # Create full N-D sampling grid
     mesh = np.stack(np.meshgrid(*grids, indexing='ij'), axis=-1)
     return mesh.reshape(-1, len(step))  # Flatten to list of (N_points, D)
@@ -358,16 +366,7 @@ def _compute_histogram_areas(labels, bin_count, padding_factor, steps_per_bin):
     freq = np.zeros([bin_count] * D, dtype=int)
     for idx in bin_indices:
         freq[tuple(idx)] += 1
-
-    # Repeat each bin along all axes to match "steps_per_bin"
-    expanded = freq
-    for axis in range(D):
-        expanded = np.repeat(expanded, steps_per_bin, axis=axis)
-
-    # Flatten to 1D
-    expanded = expanded.flatten()
-
     # Compute normalized histogram values per bin
-    histogram_values = expanded / np.prod(step) / labels.shape[0]
+    histogram_values = freq / np.prod(step) / labels.shape[0]
 
     return histogram_values
