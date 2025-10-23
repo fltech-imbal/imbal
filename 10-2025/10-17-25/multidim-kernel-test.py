@@ -51,7 +51,7 @@ kde = KernelDensity(bandwidth=bandwidth).fit(data)
 
 start = time.time()
 densities = imbal.regression.get_densities(
-    data,
+    grid,
     bandwidth=bandwidth
 )
 end = time.time()
@@ -59,7 +59,7 @@ print('regular', end-start)
 print(densities.shape)
 fig = plt.figure(figsize=(10, 7))
 ax = fig.add_subplot(111)
-sc = ax.scatter(data[:, 0], data[:, 1], c=densities, cmap='viridis')
+sc = ax.scatter(grid[:, 0], grid[:, 1], c=densities, cmap='viridis')
 sc.set_clim(vmin=0, vmax=max_density)
 plt.colorbar(sc, ax=ax)
 # Make it look nice

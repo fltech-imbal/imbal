@@ -1,5 +1,5 @@
 # get_densities
-
+t
 ```{eval-rst}
 .. autoclass:: imbal.regression.get_densities
 ```

@@ -18,6 +18,12 @@ def fit_kde(
     Automatically determine a bandwidth and gaussian KDE curve best fits
     the labels provided.
 
+    It is important to note that when calculating the AUC for each bin in the iterative
+    fit approaches, such as :code:`kl_divergence`, we expect the area under the KDE curve
+    to be roughly proportional to the frequency of the corresponding bin of the histogram
+    of the data from which the KDE is being generated. We calculate this AUC by
+    performing midpoint sums within the bounds of the bin by sampling the KDE.
+
     Args:
         labels: A NumPy array of labels, arranged as a column vector
         bandwidth: Optional, default 'kl_divergence'. Can be a number equal to

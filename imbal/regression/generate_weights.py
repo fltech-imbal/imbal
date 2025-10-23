@@ -32,7 +32,29 @@ def get_densities(
     for a single label is an :math:`O(n)` operation, and computing the KDE for each
     label is an :math:`O(n^2)` operation. This means retreiving the densities
     for a large dataset will take a long time. To combat this, :code:`get_densities`
-    implements two optimization methods.
+    some optimization methods.
+
+    The first of these optimization methods is allowing some absolute tolerance for the
+    error of each KDE value (See: :code:`atol`). For one dimensional data, this absolute tolerance
+    is applied by first sorting the data, then starting from the smallest data point,
+    tracking which points are within some delta of the current point, such that all points
+    outside the delta range contribute an error of no more than :code:`atol/n`, where :code:`n`
+    is the number of data points. By working with the points in ascending order, the delta bounds
+    for each point can be found in :math:`O(1)` amortized time. We use this method as opposed to a binary
+    search to find the bounds for each point, which would be an :math:`O(nlogn)` operation.
+
+    For multidimensional data, we leverage :code:`scikit-learn`'s built-in atol for KDEs, which
+    utilizes a :code:`KDTree` to find its tolerance bounds. This way, the gains in computational
+    performance can still be utilized for one dimensional data, without sacrificing loss of generality.
+
+    The second optimization method is an interpolation method. This method works by sampling
+    evenly spaced points across the span of the provided dataset from the KDE, then using
+    one of `scipy's RegularGridInterpolator interpolation methods <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html>`_
+    to extrapolate the density values for the dataset. This method tends to be faster
+    than using an absolute tolerance, at the cost of sometimes yielding less accurate results.
+
+
+    ---------- !!!!! IGNORE BELOW THIS FOR NOW !!!!! ----------
 
     The first optimization method is :code:`linear_interpolation`. This method samples
     a fixed amount of points from the KDE curve (see :code:`distribution_samples` below),
@@ -55,37 +77,18 @@ def get_densities(
     time complexity for sampling all label densities is :math:`O(kn)`.
 
     Args:
-        atol:
-        bandwidth:
+        bandwidth: The bandwidth that should be used to generate the KDE used for densit sampling
         labels: A NumPy array of labels, arranged as a column vector
-        kde: A scikit-learn :code:`KernelDensity` object instance. Densities will be
-            sampled from the object using :code:`kde.score_samples`.
-        optimization: Optional, default :code:`None`. The
-            method that should be used to optimize density sampling from KDE. Allowed values
-            are :code:`'linear_interpolation'` and :code:`'local_approximation'`. When set to :code:`'linear_interpolation'`,
-            an approximation of the KDE curve is made by sampling a number of evenly distributed
-            points along the curve (see :code:`distribution_samples`), which is then used
-            to sample densities. When set to :code:`local_approximation`, for each point, only the points close
-            to the point being sample are used to determine the KDE value, reducing the amount of
-            points used for each KDE calculation, while introducing a small error (see :code:`precision`).
-            Additionally, when the number of local points is greater than some threshold (see :code:`k`),
-            a fraction of those points are sampled, then the resultant density scaled accordingly.
-            If set to :code:`None`, no optimization methods are used.
-        distribution_samples: Optional, default :code:`None`. Used only when :code:`optimization` is set to
-            :code:`linear_interpolation`. The number of points to be sampled from the density distribution.
+        interpolation_method: Optional, default :code:`None`. When not set as none, will
+            be passed to a `scipy RegularGridInterpolator <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html>`_
+            as the method that should be used to interpolate between sampled points.
+        interpolation_samples: Optional, default :code:`None`. The number of points to be sampled from the density distribution for interpolation.
             When set to :code:`None`, this value is computed as :code:`labels.shape[0] / 10`. If KDE was generated
             using :code:`imbal.regression.fit_kde`, :code:`steps_per_bin*bin_count` tends to be a good
             value for :code:`distribution_samples`.
-        k: Optional, default :code:`None`. Used only when :code:`optimization` is set to
-            :code:`local_approximation`. The maximum number of points to sample during local
-            approximation. Note that because a stride method is used to sample points that match the
-            local distribution of labels, the number of points being sampled in approximations where
-            the number of local points is greater than k could be as little as k/2. If set to :code:`None`,
-            this value is computed as :code:`10*log(labels.shape[0])`.
-        precision: Optional, default :code:`1e-4`. Used only when :code:`optimization` is set to
-            :code:`local_approximation`. The maximum allowed error from each sample in the
-            local approximation.
-        return_optimization: Optional, default :code:`False` If set to true, returns a tuple
+        atol: Optional, default :code:`1e-4`. The maximum allowed error from each sample in the
+            KDE.
+        return_interpolation_samples: Optional, default :code:`False` If set to true, returns a tuple
             containing the list of x and y coordinates used to generate the optimized KDE. Mainly
             used for visualization.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to

@@ -22,7 +22,6 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 # ax.set_zlabel('Density')
 ax.set_title('3D Kernel Density Estimate Surface')
-# ax.view_init(elev=35, azim=135)  # tweak for a nice angle
 
 plt.show()
 
@@ -52,6 +51,4 @@ ax.set_xlabel('X')
 ax.set_ylabel('Y')
 # ax.set_zlabel('Density')
 ax.set_title('3D Kernel Density Estimate Surface')
-# ax.view_init(elev=35, azim=135)  # tweak for a nice angle
-
 plt.show()

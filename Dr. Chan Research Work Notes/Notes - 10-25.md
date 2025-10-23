@@ -216,14 +216,14 @@ Notes:
 ## Tasks:
 - For `local_approximation`, get rid of `k`, but allow for our (faster and more accurate) method for 1D, otherwise leverage `scikit-learn`, which already has nD $\checkmark$
 - For linear interpolation, always use `scikit-learn` $\checkmark$
-- In documentation intro, explain methodology for local approximation in 1D (amortized $O(n)$ vs $O(nlogn)$)
+- In documentation intro, explain methodology for local approximation in 1D (amortized $O(n)$ vs $O(nlogn)$) $\checkmark$
 - Documentation for `fit_kde`
 	- Introduction
-		- Two methods for faster computation at the cost of lower accuracy, `atol` and interpolation
-		- 1D for local uses custom implementation for faster results
-			- `scikit-learn` for higher dimension
-		- Interpolation via `scipy`
-	- Parameters
+		- Two methods for faster computation at the cost of lower accuracy, `atol` and interpolation $\checkmark$
+		- 1D for local uses custom implementation for faster results $\checkmark$
+			- `scikit-learn` for higher dimension $\checkmark$
+		- Interpolation via `scipy` $\checkmark$
+	- Parameters $\checkmark$
 	- Examples
 		- Where tables and histograms are
 		- Show time differences for better in one dimensional
@@ -237,8 +237,6 @@ Notes:
 	- Linear interpolation $\checkmark$
 - Make `colorbar` ranges for 2D histograms have same color range for visual comparison $\checkmark$ 
 - Sorted vs unsorted before passing to `atol` $\checkmark$
-
-
 ## Notes:
 - for `atol`, sorting, there was no significant difference between sorted and unsorted
 
@@ -249,9 +247,46 @@ KDE
 Errors
 ![[2d-data-error-histogram.png]]
 
-| KDE Optimization Method             | Compute Time (sec) | MAE            | MAPE      |
-| ----------------------------------- | ------------------ | -------------- | --------- |
-| Regular                             | 5.43               | n/a            | n/a       |
-| Local Approximation (atol=1e-4)     | 0.72               | $3.26*10^{-5}$ | $0.014\%$ |
-| Linear Interpolation (320 bins/dim) | 0.40               | $1.12*10^{-2}$ | $4.4\%$   |
+| KDE Optimization Method            | Compute Time (sec) | MAE            | MAPE      |
+| ---------------------------------- | ------------------ | -------------- | --------- |
+| Regular                            | 5.43               | n/a            | n/a       |
+| Local Approximation (atol=1e-4)    | 0.72               | $3.26*10^{-5}$ | $0.014\%$ |
+| Linear Interpolation (64 bins/dim) | 0.40               | $1.12*10^{-2}$ | $4.4\%$   |
 
+## Tasks:
+- Redo 2D scatter plot to have evenly-spaced sampling across XY
+- Fix `plot_kde` link
+- `get_densities` - replace "optimization" with "estimation methods to reduce time"
+	- Add to linear interpolation description that there is no guarantee of some maximum error
+	- Double check parameter descriptions (ex. `atol` should include "absolute")
+	- Add examples for local estimation and linear interpolation
+		- Make sure regular example is up-to-date
+		- Remove error distribution charts
+		- change "precision" to "`atol`"
+- After parameters...
+	- Organization of examples
+		- Example for regular
+		- Example for local
+		- Example for interpolation
+	- Comparison of methods
+		- Descriptions/distributions of datasets
+		- table of comparisons regular/local/linear
+	- Show difference between our local 1D and regular 1D (`KernelDensity` with `atol`)
+		- (To show why ours is better for 1D)
+		- For all 3 datasets, a table (two rows per table, theirs and ours)
+	- 2D example
+		- "Toy dataset with \[this covariance\]"
+		- Provide example w/ comparison
+- For `fit_kde`
+	- Double check intro with KL divergence
+	- Get rid of "ratio" option
+	-  Code examples (do they need to be updated)
+	- Show example of comparison KL/`scott`/`silverman`
+- TSNE
+	- Make sure to still do most/least frequent binning for regression
+	- For classification:
+		- MNIST can be used, but make it imbalanced
+			- ex. 0 is frequency, all the way to 9 which is rare
+			- plot TSNE plot of second to last layer
+	- For regression:
+		- MNIST can be "relabeled" to be a regression problem (one output instead of one-hot vector)
