@@ -1,62 +1,108 @@
 # get_densities
-t
+
 ```{eval-rst}
 .. autoclass:: imbal.regression.get_densities
 ```
 
-## Evaluation of Optimizations
+## Comparison of Methods in One Dimension
 
-The `linear_interpolation` and `local_approximation` optimizations
-exist for the `generate_weights`, which greatly decrease the
+The interpolations and absolute tolerance estimation methods
+exist for the `generate_weights`, which can decrease the
 amount of computation time required to compute density values, at 
 the cost of a small amount of error in these values. Below is a
-comparison of these two optimization techniques with the regular
+comparison of these estimation techniques with the regular
 full KDE computation across three different datasets.
 
-### Dataset 1 (44,485 data points)
+### Datasets
 
-#### Data Distribution
+For these comparisons, we have made use of three datasets, shown below. These
+datasets capture several scenarios for imbalanced data.
 
-![A histogram showing the data distribution for the first dataset|400](images/dataset-1.png)
+#### Dataset 1 (44,485 data points)
 
-#### KDE Error Distribution
+![A histogram showing the data distribution for the first dataset](images/dataset-1.png)
 
-![A histogram representing the errors of KDE estimations for the first dataset|400](images/dataset-1-error-histogram.png)
+#### Dataset 2 (1,531 data points)
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
-|---------------------------------------------|--------------------|----------------|-----------|
-| Regular                                     | 44.05              | n/a            | n/a       |
-| Linear Approximation (320 bins)             | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
+![A histogram showing the data distribution for the second dataset](images/dataset-2.png)
 
-### Dataset 2 (1,531 data points)
+#### Dataset 3 (16,720 data points)
 
-#### Data Distribution
+![A histogram showing the data distribution for the third dataset](images/dataset-3.png)
 
-![A histogram showing the data distribution for the second dataset|400](images/dataset-2.png)
+### Statistical Comparisons
 
-#### KDE Error Distribution
+#### Dataset 1
 
-![A histogram representing the errors of KDE estimations for the second dataset|400](images/dataset-2-error-histogram.png)
+| KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
+|----------------------------------------|--------------------|----------------|-----------|
+| Regular                                | 44.05              | n/a            | n/a       |
+| Linear Approximation (320 bins)        | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
+| Local Approximation (k=320, atol=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE             | MAPE     |
-|---------------------------------------------|--------------------|-----------------|----------|
-| Regular                                     | 0.057              | n/a             | n/a      |
-| Linear Approximation (320 bins)             | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
+#### Dataset 2
 
-### Dataset 3 (16,720 data points)
+| KDE Optimization Method                | Compute Time (sec) | MAE             | MAPE     |
+|----------------------------------------|--------------------|-----------------|----------|
+| Regular                                | 0.057              | n/a             | n/a      |
+| Linear Approximation (320 bins)        | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
+| Local Approximation (k=320, atol=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
 
-#### Data Distribution
+#### Dataset 3
 
-![A histogram showing the data distribution for the third dataset|400](images/dataset-3.png)
+| KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
+|----------------------------------------|--------------------|----------------|-----------|
+| Regular                                | 7.33               | n/a            | n/a       |
+| Linear Approximation (320 bins)        | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
+| Local Approximation (k=320, atol=1e-4) | 0.014              | $4.0*10^{-3}$  | $0.140\%$ |
 
-#### KDE Error Distribution
+### Argument for Improved 1D Case
 
-![A histogram representing the errors of KDE estimations for the third dataset|400](images/dataset-3-error-histogram.png)
+For data in one-dimension, we have manually implemented local approximation with absolute tolerance
+in a way that bypasses the `scikit-learn` `KernelDensity` object, avoiding some of the overhead
+it introduces to work in a general n-dimensional case. Our implementation results in significant
+time improvements across all datasets, as shown below. All tests in the table shown below were
+performed with an `atol` value of `1e-4`, with no interpolation.
 
-| KDE Optimization Method                     | Compute Time (sec) | MAE            | MAPE      |
-|---------------------------------------------|--------------------|----------------|-----------|
-| Regular                                     | 7.33               | n/a            | n/a       |
-| Linear Approximation (320 bins)             | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
-| Local Approximation (k=320, precision=1e-4) | 0.014              | $4.0*10^{-3}$  | $0.140\%$ |
+#### Dataset 1
+
+| Method          | Compute Time (sec) | MAE             | MAPE      |
+|-----------------|--------------------|-----------------|-----------|
+| `scitkit-learn` | 23.0               | $2.71*10^{-5}$  | $0.003\%$ |
+| `imbal`         | 4.35               | $2.22*10^{-11}$ | ~$0\%$    |
+
+#### Dataset 2
+
+| Method          | Compute Time (sec) | MAE             | MAPE   |
+|-----------------|--------------------|-----------------|--------|
+| `scitkit-learn` | 0.057              | $1.70*10^{-5}$  | ~$0\%$ |
+| `imbal`         | 0.014              | $4.56*10^{-13}$ | ~$0\%$ |
+
+#### Dataset 3
+
+| Method          | Compute Time (sec) | MAE             | MAPE      |
+|-----------------|--------------------|-----------------|-----------|
+| `scitkit-learn` | 6.21               | $2.25*10^{-5}$  | $0.003\%$ |
+| `imbal`         | 1.00               | $1.53*10^{-11}$ | ~$0\%$    |
+
+### Comparison of Methods in Two Dimensions
+
+For testing of the different estimation methods in two dimensions, we made use of a
+"toy" 2D gaussian dataset with a mean of $0$ and a covariance of $\begin{bmatrix} 1 & 0 \\ 0 & 0.15 \end{bmatrix}$.
+
+#### Dataset Distribution
+
+##### True Distribution
+![A histogram showing the data distribution for the 2d toy dataset](images/true-2d-distribution.png)
+
+##### KDE Estimated Distribution
+![A histogram showing the KDE for the 2d toy dataset](images/2d-kde-scatter.png)
+
+##### Per-Bin Estimated Distribution
+![A histogram showing the KDE for the 2d toy dataset](images/per-bin-2d-kde-scatter.png)
+
+| Method                             | Time | MAE            | MAPE     |
+|------------------------------------|------|----------------|----------|
+| Regular                            | 3.41 | n/a            | n/a      |
+| Local Approximation (atol=1e-4)    | 0.78 | $3.83*10^{-5}$ | $0.04\%$ |
+| Linear Interpolation (64 bins/dim) | 0.42 | $2.21*10^{-3}$ | $1.43\%$ |

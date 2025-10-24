@@ -1,12 +1,13 @@
 import numpy as np
 from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
+
 from imbal.util.sample_weighting import calculate_bin_count, get_label_bin_bounds
 import itertools
 
 def fit_kde(
         labels,
-        bandwidth='kl_divergence',
+        fit_method='kl_divergence',
         average_samples_per_bin=100,
         bin_count=None,
         steps_per_bin = 10,
@@ -21,23 +22,19 @@ def fit_kde(
     It is important to note that when calculating the AUC for each bin in the iterative
     fit approaches, such as :code:`kl_divergence`, we expect the area under the KDE curve
     to be roughly proportional to the frequency of the corresponding bin of the histogram
-    of the data from which the KDE is being generated. We calculate this AUC by
+    for the data from which the KDE is being generated. We calculate this AUC by
     performing midpoint sums within the bounds of the bin by sampling the KDE.
 
     Args:
         labels: A NumPy array of labels, arranged as a column vector
-        bandwidth: Optional, default 'kl_divergence'. Can be a number equal to
-            the desired KDE bandwidth, or a string indicating the method to use to
+        fit_method: Optional, default 'kl_divergence'. A string indicating the method to use to
             determine bandwidth. If set to :code:`scott` or :code:`silverman`, the
             bandwidth will be determined by using either Scott's or Silverman's
-            rule-of-thumb. If set to :code:`kl_divergence`, or :code:`ratio`,
+            rule-of-thumb. If set to :code:`kl_divergence`,
             an iterative approach will be used to determine the best bandwidth to minimize
             the specified heuristic. If :code:`kl_divergence`, will try to minimize the KL
             divergence between the KDE and the normalized histogram (area under the
-            histogram is 1). If :code:`ratio`, will try to minimize the difference between
-            the ratio of the highest frequency bin count to the lowest frequency bin count in the
-            histogram, and the ratio between the average KDE densities in the parts of the KDE curve contained
-            within those bins.
+            histogram is 1).
         average_samples_per_bin: Optional, default :code:`100`. Determines the
             number of bins used for histogram-based KDE approximation by the number of datapoints. For
             example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
@@ -62,7 +59,7 @@ def fit_kde(
             inside the bins instead.
 
     Returns:
-        A scikit-learn KernelDenity object.
+        The found bandwidth that fits the distribution of the provided data, as a float.
 
     Example:
 
@@ -70,33 +67,38 @@ def fit_kde(
 
         >>> # For the sake of this example, assume a dataset has already been stored in the variable 'data'
 
-        >>> kde = imbal.regression.fit_kde(data, bin_count=10)
+        >>> fitted_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
+        >>> kde = KernelDensity(bandwidth=fitted_bandwidth)
+        >>> kde.fit(data)
         >>> log_densities = kde.score_samples(data)
 
         >>> print(log_densities)
-        [-2.948, -3.961, -4.997, -2.948, -3.605, -2.885,
-         -4.244, -4.148, -3.989, -3.961, -2.885, -3.078,
-         -4.275, -2.885, -3.961, -3.989, -5.822, -2.800...
+        [0.702, 0.634, -2.445, 0.535, 0.491, 0.154,
+         0.287, 0.710, 0.059, -0.365, 0.691, -0.758,
+         0.687, -0.336, 0.635, 0.594, 0.658, 0.697 ...
 
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
 
-    found_bandwidth = bandwidth
-    if bandwidth in ['ratio', 'kl_divergence']:
+    found_bandwidth = None
+    if fit_method in ['kl_divergence']:
         # Use iterative, "binned-based" approach to approximate KDE
         found_bandwidth = _iterative_kde_approximation(
             labels,
             bin_count=bin_count,
-            bandwidth=bandwidth,
+            bandwidth=fit_method,
             steps_per_bin=steps_per_bin,
             fine_search=fine_search,
             tolerance=tolerance,
             padding_factor=padding_factor,
         )
+    elif fit_method in ['scott', 'silverman']:
+        labels = labels.reshape(labels.shape[0], -1)
+        kde = KernelDensity(bandwidth=fit_method)
+        kde.fit(labels)
+        found_bandwidth = kde.bandwidth_
 
-    # Use literal or explicit bandwidth to approximate KDE
-    # kde = KernelDensity(bandwidth=found_bandwidth, atol=atol)
-    # kde.fit(labels.reshape(labels.shape[0], -1))
+    assert found_bandwidth is not None
 
     return found_bandwidth
 
@@ -247,21 +249,7 @@ def _iterative_kde_approximation(
         normalized_kde = normalized_kde.reshape(data_shape)
         return np.sum(filtered_histogram*np.log(filtered_histogram/(normalized_kde+1e-6)+ 1e-6))
 
-    # Generate lists used for even-spaced sampling across lowest and highest frequency bins
-    spaced_high_freq_bin = _evenly_sample_bin(label_min, step, low_freq_bin_index, steps_per_bin)
-
-    spaced_low_freq_bin = _evenly_sample_bin(label_min, step, high_freq_bin_index, steps_per_bin)
-    def ratio_heuristic(kde_curve) -> float:
-        high_densities = np.exp(kde_curve.score_samples(spaced_high_freq_bin))
-        low_densities = np.exp(kde_curve.score_samples(spaced_low_freq_bin))
-        max_area = np.sum(high_densities) * step / steps_per_bin
-        min_area = np.sum(low_densities) * step / steps_per_bin
-        desired_ratio = high_freq_bin_count / low_freq_bin_count
-        return abs(max_area / min_area - desired_ratio)
-
     heuristic_function = kl_divergence_heuristic
-    if bandwidth == 'ratio':
-        heuristic_function = ratio_heuristic
     labels = labels.reshape(labels.shape[0], -1)
 
     # Ensure at least one loop, and loop until ratio is within tolerance,
@@ -322,12 +310,19 @@ def _determine_high_low_freq_bins(labels, bin_count, padding_factor) -> tuple:
     high_freq_count = frequencies[high_freq_bin_index]
 
     nonzero_mask = frequencies > 0
-    if np.any(nonzero_mask):
-        low_freq_bin_index = np.unravel_index(np.argmin(frequencies[nonzero_mask]), frequencies.shape)
-        low_freq_bin_count = frequencies[low_freq_bin_index]
-    else:
-        low_freq_bin_index = None
-        low_freq_bin_count = 0
+    if not np.any(nonzero_mask):
+        return high_freq_bin_index, high_freq_count, None, 0
+
+    nonzero_indices = np.argwhere(nonzero_mask)
+    nonzero_counts = frequencies[nonzero_mask]
+    min_freq = np.min(nonzero_counts)
+
+    low_freq_candidates = nonzero_indices[nonzero_counts == min_freq]
+
+    distances = np.linalg.norm(low_freq_candidates - np.array(high_freq_bin_index), axis=1)
+
+    low_freq_bin_index = tuple(low_freq_candidates[np.argmax(distances)])
+    low_freq_bin_count = frequencies[low_freq_bin_index]
 
     return high_freq_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index
 

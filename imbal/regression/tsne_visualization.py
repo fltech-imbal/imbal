@@ -12,7 +12,7 @@ def tsne_visualization(
     perplexity=30,
     save_figure=None
 ):
-    indices = np.argsort(data)
+    indices = np.argsort(labels)
 
     if sort == 'descending':
         indices = indices[::-1]

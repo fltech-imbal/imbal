@@ -254,39 +254,58 @@ Errors
 | Linear Interpolation (64 bins/dim) | 0.40               | $1.12*10^{-2}$ | $4.4\%$   |
 
 ## Tasks:
-- Redo 2D scatter plot to have evenly-spaced sampling across XY
-- Fix `plot_kde` link
-- `get_densities` - replace "optimization" with "estimation methods to reduce time"
-	- Add to linear interpolation description that there is no guarantee of some maximum error
-	- Double check parameter descriptions (ex. `atol` should include "absolute")
-	- Add examples for local estimation and linear interpolation
-		- Make sure regular example is up-to-date
-		- Remove error distribution charts
-		- change "precision" to "`atol`"
+- Redo 2D scatter plot to have evenly-spaced sampling across XY $\checkmark$
+- Fix `plot_kde` link $\checkmark$
+- `get_densities` - replace "optimization" with "estimation methods to reduce time" $\checkmark$
+	- Add to linear interpolation description that there is no guarantee of some maximum error $\checkmark$
+	- Double check parameter descriptions (ex. `atol` should include "absolute") $\checkmark$
+	- Add examples for local estimation and linear interpolation $\checkmark$
+		- Make sure regular example is up-to-date $\checkmark$
+		- Remove error distribution charts $\checkmark$
+		- change "precision" to "`atol`" $\checkmark$
 - After parameters...
-	- Organization of examples
-		- Example for regular
-		- Example for local
-		- Example for interpolation
-	- Comparison of methods
-		- Descriptions/distributions of datasets
-		- table of comparisons regular/local/linear
-	- Show difference between our local 1D and regular 1D (`KernelDensity` with `atol`)
-		- (To show why ours is better for 1D)
-		- For all 3 datasets, a table (two rows per table, theirs and ours)
-	- 2D example
-		- "Toy dataset with \[this covariance\]"
-		- Provide example w/ comparison
+	- Organization of examples $\checkmark$
+		- Example for regular $\checkmark$
+		- Example for local $\checkmark$
+		- Example for interpolation $\checkmark$
+	- Comparison of methods $\checkmark$
+		- Descriptions/distributions of datasets $\checkmark$
+		- table of comparisons regular/local/linear $\checkmark$
+	- Show difference between our local 1D and regular 1D (`KernelDensity` with `atol`) $\checkmark$
+		- (To show why ours is better for 1D) $\checkmark$
+		- For all 3 datasets, a table (two rows per table, theirs and ours) $\checkmark$
+	- 2D example $\checkmark$
+		- "Toy dataset with \[this covariance\]" $\checkmark$
+		- Provide example w/ comparison $\checkmark$
 - For `fit_kde`
-	- Double check intro with KL divergence
-	- Get rid of "ratio" option
-	-  Code examples (do they need to be updated)
-	- Show example of comparison KL/`scott`/`silverman`
+	- Double check intro with KL divergence $\checkmark$
+	- Get rid of "ratio" option $\checkmark$
+	-  Code examples (do they need to be updated) $\checkmark$
+	- Show example of comparison KL/`scott`/`silverman` $\checkmark$
+	
 - TSNE
-	- Make sure to still do most/least frequent binning for regression
+	- Make sure to still do most/least frequent binning for regression $\checkmark$
 	- For classification:
-		- MNIST can be used, but make it imbalanced
-			- ex. 0 is frequency, all the way to 9 which is rare
-			- plot TSNE plot of second to last layer
+		- MNIST can be used, but make it imbalanced $\checkmark$
+			- ex. 0 is frequency, all the way to 9 which is rare $\checkmark$
+			- plot TSNE plot of second to last layer $\checkmark$
 	- For regression:
-		- MNIST can be "relabeled" to be a regression problem (one output instead of one-hot vector)
+		- MNIST can be "relabeled" to be a regression problem (one output instead of one-hot vector) $\checkmark$
+
+# 10/23/25
+
+## Notes:
+- The reason why the grid was generating a scatter plot of seemingly all zeroes is because by default, our function builds the KDE from and then samples densities for the *same input data*.
+	- The KDE being generated was not for the data used to generated the data, but rather the grid, but using the found fitted bandwidth for the gaussian data, resulting in a plot of nearly all zeroes
+- Ours vs theirs 1D `atol` tables
+	- SARCOS: 23.0 seconds, 2.714e-05 MAE, 0.003% MAPE
+	- SEP-C: 0.057 seconds, 1.698e-5 MAE, ~0% MAPE
+	- SEP-EC: 6.21 seconds, 2.251e-5 MAE, 0.003% MAPE
+- 2D toy dataset table
+
+| Method                             | Time | MAE            | MAPE     |
+| ---------------------------------- | ---- | -------------- | -------- |
+| Regular                            | 3.41 | n/a            | n/a      |
+| Local Approximation (atol=1e-4)    | 0.78 | $3.83*10^{-5}$ | $0.04\%$ |
+| Linear Interpolation (64 bins/dim) | 0.42 | $2.21*10^{-3}$ | $1.43\%$ |
+- TSNE - MNIST reuse for regression did not yield the best results... but is good enough for proof of concept I think

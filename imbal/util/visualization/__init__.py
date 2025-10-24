@@ -15,6 +15,8 @@ def generate_tsne_visualization(
 ):
     intermediate_model = keras.Model(inputs=model.input,
                                      outputs=model.get_layer(index=latent_layer_index).output)
+
+    print('data', data.shape)
     latents = intermediate_model.predict(data)
 
     tsne = TSNE(n_components=2, random_state=None, perplexity=perplexity)
