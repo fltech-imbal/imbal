@@ -7,21 +7,40 @@
 ## Comparison of Methods in One Dimension
 
 Below is a comparison of the different bandwidth fitting methods
-available through `fit_kde` across three datasets. Note that the
-`scott` and `silverman` methods are explicit, "rule of thumb" methods
-for finding the bandwidth that take $O(n)$ time. The `kl_divergence`
-method is an iterative method that takes $O(kn)$ time, where $k$ is
-the number of searches performed per iteration, times the number of
-iterations.
+available through `fit_kde` across three datasets.
 
 ### Dataset 1 (44,485 data points)
 
-![A series of plots showing the bandwidth comparison for the first dataset](images/bandwidth_method_comparison-dataset_1.png)
+<img alt="A series of plots showing the bandwidth comparison for the first dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_1.png"
+style="width:100%"
+/>
+
+| Method          | Time (s) |
+|-----------------|----------|
+| `kl_divergence` | $10.581$ |
+| `scott`         | $0.003$  |
+| `silverman`     | $0.003$  |
 
 ### Dataset 2 (1,531 data points)
 
-![A series of plots showing the bandwidth comparison for the second dataset](images/bandwidth_method_comparison-dataset_2.png)
+<img alt="A series of plots showing the bandwidth comparison for the second dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_2.png"
+style="width:100%"
+/>
+
+| Method          | Time (s) |
+|-----------------|----------|
+| `kl_divergence` | $0.423$  |
+| `scott`         | $<0.001$ |
+| `silverman`     | $<0.001$ |
 
 ### Dataset 3 (16,720 data points)
 
-![A series of plots showing the bandwidth comparison for the third dataset](images/bandwidth_method_comparison-dataset_3.png)
+<img alt="A series of plots showing the bandwidth comparison for the third dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_3.png"
+style="width:100%"
+/>
+
+| Method          | Time (s) |
+|-----------------|----------|
+| `kl_divergence` | $3.122$  |
+| `scott`         | $0.002$  |
+| `silverman`     | $0.002$  |

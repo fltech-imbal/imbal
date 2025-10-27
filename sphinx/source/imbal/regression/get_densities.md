@@ -20,19 +20,9 @@ datasets capture several scenarios for imbalanced data.
 
 #### Dataset 1 (44,485 data points)
 
-![A histogram showing the data distribution for the first dataset](images/dataset-1.png)
-
-#### Dataset 2 (1,531 data points)
-
-![A histogram showing the data distribution for the second dataset](images/dataset-2.png)
-
-#### Dataset 3 (16,720 data points)
-
-![A histogram showing the data distribution for the third dataset](images/dataset-3.png)
-
-### Statistical Comparisons
-
-#### Dataset 1
+<img alt="A histogram showing the data distribution for the first dataset" src="/_static/get_densities/dataset-1.png"
+style="width: 450px"
+/>
 
 | KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
 |----------------------------------------|--------------------|----------------|-----------|
@@ -40,7 +30,11 @@ datasets capture several scenarios for imbalanced data.
 | Linear Approximation (320 bins)        | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
 | Local Approximation (k=320, atol=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
 
-#### Dataset 2
+#### Dataset 2 (1,531 data points)
+
+<img alt="A histogram showing the data distribution for the second dataset" src="/_static/get_densities/dataset-2.png"
+style="width: 450px"
+/>
 
 | KDE Optimization Method                | Compute Time (sec) | MAE             | MAPE     |
 |----------------------------------------|--------------------|-----------------|----------|
@@ -48,7 +42,11 @@ datasets capture several scenarios for imbalanced data.
 | Linear Approximation (320 bins)        | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
 | Local Approximation (k=320, atol=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
 
-#### Dataset 3
+#### Dataset 3 (16,720 data points)
+
+<img alt="A histogram showing the data distribution for the third dataset" src="/_static/get_densities/dataset-3.png"
+style="width: 450px"
+/>
 
 | KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
 |----------------------------------------|--------------------|----------------|-----------|
@@ -90,19 +88,14 @@ performed with an `atol` value of `1e-4`, with no interpolation.
 For testing of the different estimation methods in two dimensions, we made use of a
 "toy" 2D gaussian dataset with a mean of $0$ and a covariance of $\begin{bmatrix} 1 & 0 \\ 0 & 0.15 \end{bmatrix}$.
 
-#### Dataset Distribution
+#### True Distribution (left) vs KDE (right)
 
-##### True Distribution
-![A histogram showing the data distribution for the 2d toy dataset](images/true-2d-distribution.png)
+<img alt="A histogram showing the data distribution for the 2d toy dataset" src="/_static/get_densities/multidim-kde-comparison.png"
+style="width:100%"
+/>
 
-##### KDE Estimated Distribution
-![A histogram showing the KDE for the 2d toy dataset](images/2d-kde-scatter.png)
-
-##### Per-Bin Estimated Distribution
-![A histogram showing the KDE for the 2d toy dataset](images/per-bin-2d-kde-scatter.png)
-
-| Method                             | Time | MAE            | MAPE     |
-|------------------------------------|------|----------------|----------|
-| Regular                            | 3.41 | n/a            | n/a      |
-| Local Approximation (atol=1e-4)    | 0.78 | $3.83*10^{-5}$ | $0.04\%$ |
-| Linear Interpolation (64 bins/dim) | 0.42 | $2.21*10^{-3}$ | $1.43\%$ |
+| Method                             | Time (s) | MAE            | MAPE     |
+|------------------------------------|----------|----------------|----------|
+| Regular                            | 3.41     | n/a            | n/a      |
+| Local Approximation (atol=1e-4)    | 0.78     | $3.83*10^{-5}$ | $0.04\%$ |
+| Linear Interpolation (64 bins/dim) | 0.42     | $2.21*10^{-3}$ | $1.43\%$ |

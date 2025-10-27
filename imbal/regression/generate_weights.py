@@ -32,9 +32,9 @@ def get_densities(
     for a single label is an :math:`O(n)` operation, and computing the KDE for each
     label is an :math:`O(n^2)` operation. This means retreiving the densities
     for a large dataset will take a long time. To combat this, :code:`get_densities`
-    implements some estimation methods to reduce compute time.
+    implements some approximation methods to reduce compute time.
 
-    The first of these estimation methods is allowing some absolute tolerance for the
+    The first of these approximation methods is allowing some absolute tolerance for the
     error of each KDE value (See: :code:`atol`). For one dimensional data, this absolute tolerance
     is applied by first sorting the data, then starting from the smallest data point,
     tracking which points are within some delta of the current point, such that all points
@@ -47,7 +47,7 @@ def get_densities(
     utilizes a :code:`KDTree` to find its tolerance bounds. This way, the gains in computational
     performance can still be utilized for one dimensional data, without sacrificing loss of generality.
 
-    The second estimation method is an interpolation method. This method works by sampling
+    The second approximation method is an interpolation method. This method works by sampling
     evenly spaced points across the span of the provided dataset from the KDE, then using
     one of `scipy's RegularGridInterpolator interpolation methods <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html>`_
     to extrapolate the density values for the dataset. This method tends to be faster
@@ -84,29 +84,29 @@ def get_densities(
 
      .. code-block:: python
 
-        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2])
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 5])
         >>> kde_bandwidth = imbal.regression.fit_kde(labels, bin_count=3)
         >>> densities = imbal.regression.get_densities(labels, kde_bandwidth)
 
         >>> print(densities)
-        [0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549,
-         0.549, 0.549, 0.318, 0.318, 0.318, 0.318, 0.318, 0.318, 0.111, 0.111]
+        [[1.0930867], [1.0930867], [1.0930867], [1.0930867], [1.0930867],
+         [1.0930867], [0.5465676], [0.5465676], [0.5465676], [0.1821784]]
 
      .. code-block:: python
 
         >>> # Local Approximation Example
-        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2])
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 5, 5])
         >>> kde_bandwidth = imbal.regression.fit_kde(labels, bin_count=3)
         >>> local_approx_densities = imbal.regression.get_densities(
         >>>     labels,
         >>>     kde_bandwidth,
-        >>>     atol=0.2
+        >>>     atol=1e-3
         >>> )
 
         >>> # For this example dataset, there are no errors, even for higher tolerance values
         >>> print(local_approx_densities)
-        [0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549, 0.549,
-         0.549, 0.549, 0.318, 0.318, 0.318, 0.318, 0.318, 0.318, 0.111, 0.111]
+        [[1.0930705], [1.0930705], [1.0930705], [1.0930705], [1.0930705],
+         [1.0930705], [0.5465353], [0.5465353], [0.5465353], [0.1821784]]
 
      .. code-block:: python
 
@@ -121,8 +121,8 @@ def get_densities(
         >>> )
 
         >>> print(linear_interpolation_densities)
-        [0.543, 0.543, 0.543, 0.543, 0.543, 0.543, 0.543, 0.543, 0.543, 0.543,
-         0.543, 0.543, 0.314, 0.314, 0.314, 0.314, 0.314, 0.314, 0.112, 0.112]
+        [[1.0392918], [1.0392918], [1.0392918], [1.0392918], [1.0392918],
+         [1.0392918], [0.5255651], [0.5255651], [0.5255651], [0.1687906]]
 
     """
     if interpolation_samples is None:
@@ -132,11 +132,11 @@ def get_densities(
 
     kde = KernelDensity(bandwidth=bandwidth, atol=atol).fit(labels)
 
-    # Use KDE estimation to generate weights
+    # Use KDE approximation to generate weights
     points, densities = None, None
     if interpolation_method is None:
         if labels.shape[1] == 1:
-            points, densities = _local_kde_estimation(labels, kde, atol=atol)
+            points, densities = _local_kde_approximation(labels, kde, atol=atol)
         else:
             densities = np.exp(kde.score_samples(labels).reshape(-1,))
     else:
@@ -199,7 +199,7 @@ def generate_weights(
 
     return weights
 
-def _local_kde_estimation(
+def _local_kde_approximation(
         labels,
         kde,
         atol=0

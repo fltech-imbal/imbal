@@ -19,15 +19,31 @@ def fit_kde(
     Automatically determine a bandwidth and gaussian KDE curve best fits
     the labels provided.
 
-    It is important to note that when calculating the AUC for each bin in the iterative
-    fit approaches, such as :code:`kl_divergence`, we expect the area under the KDE curve
-    to be roughly proportional to the frequency of the corresponding bin of the histogram
-    for the data from which the KDE is being generated. We calculate this AUC by
+    For the best results, we have implemented an iterative fit function that aims to
+    minimize the KL divergence between the heights of the density-normalized histogram
+    bins of the data, and the area under the curve of the KDE at each bin. We do this
+    by assuming that the best fits the data will be between :math:`0.01` and :math:`3` times the standard
+    deviation of the data. We then perform a beam search within this data range, searching
+    :math:`k` canditates per round, searching finer and finer ranges until either the
+    KL divergence is within some tolerance of zero, or the current round fails to
+    find a bandwidth that performs better than the best candidate from the previous round.
+
+    In the case of :code:`kl_divergence`, it is important to note that since the KL divergence
+    is calculated by performing per-bin comparisons with a histogram of the data, the bandwidth
+    fit found by this method is dependent on the number of bins that the data is divided into.
+    In general, lower bin counts will result in a smoother KDE, and higher bin counts will
+    result in a bumpy KDE. We calculate the AUC for each bin by
     performing midpoint sums within the bounds of the bin by sampling the KDE.
+
+    The :code:`scott` and :code:`silverman` bandwidth fitting methods are explicit, "rule of thumb" methods
+    for finding the bandwidth that take :math:`O(n)` time. The :code:`kl_divergence`
+    method is an iterative method that takes :math:`O(rkn)` time, where :math:`k` is
+    the number of searches performed per round (default :math:`10`), and :math:`r` is
+    the numer of rounds it takes to reach a final value (unknown, but usually between :math:`5` and :math:`10`).
 
     Args:
         labels: A NumPy array of labels, arranged as a column vector
-        fit_method: Optional, default 'kl_divergence'. A string indicating the method to use to
+        fit_method: Optional, default :code:`'kl_divergence'`. A string indicating the method to use to
             determine bandwidth. If set to :code:`scott` or :code:`silverman`, the
             bandwidth will be determined by using either Scott's or Silverman's
             rule-of-thumb. If set to :code:`kl_divergence`,
@@ -274,7 +290,6 @@ def _iterative_kde_approximation(
             if bandwidth_contender is None or heuristic < heuristic_contender:
                 heuristic_contender = heuristic
                 bandwidth_contender = current_bandwidth
-
 
         if best_heuristic is None or heuristic_contender <= best_heuristic:
             # If the best contender in this search loop produces a
