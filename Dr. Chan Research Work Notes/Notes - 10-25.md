@@ -309,3 +309,33 @@ Errors
 | Local Approximation (atol=1e-4)    | 0.78 | $3.83*10^{-5}$ | $0.04\%$ |
 | Linear Interpolation (64 bins/dim) | 0.42 | $2.21*10^{-3}$ | $1.43\%$ |
 - TSNE - MNIST reuse for regression did not yield the best results... but is good enough for proof of concept I think
+
+# 10/27/25
+
+## Tasks:
+- For documentation of `get_densities`, "approximation", not "estimation"
+- Change examples for `get_densities` so that errors are visible for all approximations
+	- Reduce size of all figures
+		- alternate plot-table... instead of plot-plot-plot table-table-table
+		- side-by-side comparisons for 2D data
+	- per-bin... can dots be bigger and square? fill whitespace
+		- Goal is near 1-to-1 with histogram
+	- `fit_kde` - `fit_method` default not in code font
+- `kl_divergence` requires more description of algorithm
+	- 'beam search'... coarse grain to fine grain
+		- say "k candidates" instead of searches
+	- provide explanation via examples of "k candidates", "iterations", "coarse to fine grain"
+	- split $k$ into $r$ rounds and $k$ candidates
+		- mention default $k$, and $r$ is arbitrary
+	- mention and explain stopping criteria
+		- no improvement in kl from previous iteration
+		- kl divergence is within some tolerance of 0
+		-  make sure tolerance value is being used for "little to no improvement" case
+	- Add time comparison table for `fit_kde`
+		- maybe add bin values to plots?
+	- Reserve section 3 for performance comparisons alone, no description of algorithms
+		- Move current section 3 description up to section 1, ensure kl divergence's dependence on `bin_count` is explained
+	- For `tsne` classification
+		- don't use gradient, use discrete colors, and create legend instead of gradient color bar
+		- Shapes instead of color?
+			- Is there a way to pass this as parameter?
