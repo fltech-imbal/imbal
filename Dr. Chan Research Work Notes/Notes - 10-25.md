@@ -312,7 +312,7 @@ Errors
 
 # 10/27/25
 
-## Tasks:
+## Prep:
 - For documentation of `get_densities`, "approximation", not "estimation" $\checkmark$
 - Change examples for `get_densities` so that errors are visible for all approximations $\checkmark$
 	- Reduce size of all figures $\checkmark$
@@ -323,8 +323,8 @@ Errors
 - `fit_kde` - `fit_method` default not in code font $\checkmark$
 - `kl_divergence` requires more description of algorithm $\checkmark$
 	- 'beam search'... coarse grain to fine grain $\checkmark$
-		- say "k candidates" instead of searches $\checkmark$
-	- provide explanation via examples of "k candidates", "iterations", "coarse to fine grain" $\checkmark$
+		- say "$k$ candidates" instead of searches $\checkmark$
+	- provide explanation via examples of "$k$ candidates", "iterations", "coarse to fine grain" $\checkmark$
 	- split $k$ into $r$ rounds and $k$ candidates $\checkmark$
 		- mention default $k$, and $r$ is arbitrary $\checkmark$
 	- mention and explain stopping criteria $\checkmark$
@@ -341,3 +341,34 @@ Errors
 		- Shapes instead of color? $\checkmark$
 			- **Doesn't seem as feasible as colors**
 			- Is there a way to pass this as parameter?
+
+## Tasks:
+- For `fit_kde`
+	- Introduce term "stopping criteria"
+	- When describing $r$ in time complexity, refer back to "stopping criteria", then say rough expected value
+	- Describe stopping criteria scenarios
+		- `tolerance` example, explained an potentially in code
+		- tolerance should default to $0$, not specified means use only "no improvement" stopping criteria
+- For `get_densities`
+	- Introduce/define/describe delta
+		- Not "some delta ... such that", rather "\[define delta\] ... which we call delta."
+		- Mention inverse gaussian for calculation of delta
+			- Range is +/- delta
+			- All values beyond delta have a density value below `atol/n`
+		- Mention motivation - further away points contribute very little to density
+			- some min distance, which we call delta
+- Binary classification example to highlight rarer classes being plotted "on top"
+	- Mention in documentation example (begin documentation)
+	- Examples:
+		- Rare plotted last
+		- Models can perform worse when data is imbalanced, which can be shown visually with TSNE
+- For `tsne`
+	- don't specify colors, instead make multiple scatter plots and make `matplotlib` handle it
+		- But still allow for user colors, shapes, size
+			- 3 lists, not list of tuples
+		- Provide documentation example
+		- Replace descending/ascending with binning, pass bins by descending frequency
+	- Example ordering:
+		- Rare plotted first
+		- shape/size/color
+		- Imbalance can be a problem, shown visually

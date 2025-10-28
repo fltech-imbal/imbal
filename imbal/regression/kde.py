@@ -11,32 +11,33 @@ def fit_kde(
         average_samples_per_bin=100,
         bin_count=None,
         steps_per_bin = 10,
-        fine_search = 10,
+        fine_search = 5,
         tolerance = 1e-3,
         padding_factor=0.01
 ):
     """
-    Automatically determine a bandwidth and gaussian KDE curve best fits
-    the labels provided.
+    Determine the bandwidth which generates a KDE curve that best fits
+    the labels provided, based on some rule of thumb or heuristic.
 
     For the best results, we have implemented an iterative fit function that aims to
     minimize the KL divergence between the heights of the density-normalized histogram
-    bins of the data, and the area under the curve of the KDE at each bin. We do this
-    by assuming that the best fits the data will be between :math:`0.01` and :math:`3` times the standard
-    deviation of the data. We then perform a beam search within this data range, searching
-    :math:`k` canditates per round, searching finer and finer ranges until either the
-    KL divergence is within some tolerance of zero, or the current round fails to
-    find a bandwidth that performs better than the best candidate from the previous round.
+    bins of the data (area of all bins sums to :math:`1`), and the area under the curve
+    of the KDE at each bin. We do this by assuming that the best fits the data is
+    between :math:`0.01` and :math:`3` times the standard deviation of the data. We then
+    perform a beam search within this data range, searching :math:`k` canditates per round,
+    performing searches in finer and finer ranges until either the KL divergence is within
+    some tolerance of zero, or the candidates in the current round perform no better
+    than the best candidate from the previous round.
 
-    In the case of :code:`kl_divergence`, it is important to note that since the KL divergence
+    It is important to note that since the KL divergence
     is calculated by performing per-bin comparisons with a histogram of the data, the bandwidth
     fit found by this method is dependent on the number of bins that the data is divided into.
     In general, lower bin counts will result in a smoother KDE, and higher bin counts will
     result in a bumpy KDE. We calculate the AUC for each bin by
     performing midpoint sums within the bounds of the bin by sampling the KDE.
 
-    The :code:`scott` and :code:`silverman` bandwidth fitting methods are explicit, "rule of thumb" methods
-    for finding the bandwidth that take :math:`O(n)` time. The :code:`kl_divergence`
+    The :code:`'scott'` and :code:`'silverman'` bandwidth fitting methods are explicit, "rule of thumb" methods
+    for finding the bandwidth that take :math:`O(n)` time. The :code:`'kl_divergence'`
     method is an iterative method that takes :math:`O(rkn)` time, where :math:`k` is
     the number of searches performed per round (default :math:`10`), and :math:`r` is
     the numer of rounds it takes to reach a final value (unknown, but usually between :math:`5` and :math:`10`).
@@ -44,11 +45,11 @@ def fit_kde(
     Args:
         labels: A NumPy array of labels, arranged as a column vector
         fit_method: Optional, default :code:`'kl_divergence'`. A string indicating the method to use to
-            determine bandwidth. If set to :code:`scott` or :code:`silverman`, the
+            determine bandwidth. If set to :code:`'scott'` or :code:`'silverman'`, the
             bandwidth will be determined by using either Scott's or Silverman's
-            rule-of-thumb. If set to :code:`kl_divergence`,
+            rule-of-thumb. If set to :code:`'kl_divergence'`,
             an iterative approach will be used to determine the best bandwidth to minimize
-            the specified heuristic. If :code:`kl_divergence`, will try to minimize the KL
+            the specified heuristic. If :code:`'kl_divergence'`, will try to minimize the KL
             divergence between the KDE and the normalized histogram (area under the
             histogram is 1).
         average_samples_per_bin: Optional, default :code:`100`. Determines the
@@ -102,7 +103,6 @@ def fit_kde(
         found_bandwidth = _iterative_kde_approximation(
             labels,
             bin_count=bin_count,
-            bandwidth=fit_method,
             steps_per_bin=steps_per_bin,
             fine_search=fine_search,
             tolerance=tolerance,
@@ -227,7 +227,6 @@ def plot_kde_1d(
 def _iterative_kde_approximation(
     labels,
     bin_count=10,
-    bandwidth=None,
     steps_per_bin=10,
     fine_search = 10,
     tolerance = 1e-3,
@@ -270,7 +269,7 @@ def _iterative_kde_approximation(
 
     # Ensure at least one loop, and loop until ratio is within tolerance,
     # or search becomes too fine grain (perhaps ideal ratio is impossible)
-    while best_heuristic is None or (best_heuristic > tolerance and coarse_search / fine_search > 1e-6):
+    while best_heuristic is None or (best_heuristic > tolerance and coarse_search / fine_search > 1e-9):
         search_steps = round(fine_search)
         heuristic_contender = None
         bandwidth_contender = None

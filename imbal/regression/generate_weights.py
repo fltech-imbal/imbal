@@ -95,7 +95,7 @@ def get_densities(
      .. code-block:: python
 
         >>> # Local Approximation Example
-        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 5, 5])
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 5])
         >>> kde_bandwidth = imbal.regression.fit_kde(labels, bin_count=3)
         >>> local_approx_densities = imbal.regression.get_densities(
         >>>     labels,
@@ -103,7 +103,7 @@ def get_densities(
         >>>     atol=1e-3
         >>> )
 
-        >>> # For this example dataset, there are no errors, even for higher tolerance values
+        >>> # For this example dataset, small errors are found in some densities
         >>> print(local_approx_densities)
         [[1.0930705], [1.0930705], [1.0930705], [1.0930705], [1.0930705],
          [1.0930705], [0.5465353], [0.5465353], [0.5465353], [0.1821784]]
@@ -111,7 +111,7 @@ def get_densities(
      .. code-block:: python
 
         >>> # Linear Interpolation Example
-        >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2])
+        >>> labels = np.array([0, 0, 0, 0, 0, 0, 1, 1, 1, 5])
         >>> kde_bandwidth = imbal.regression.fit_kde(labels, bin_count=3)
         >>> linear_interpolation_densities = imbal.regression.get_densities(
         >>>     labels,
@@ -120,6 +120,7 @@ def get_densities(
         >>>     interpolation_samples=5
         >>> )
 
+        >>> # For this example dataset, small errors are found in all densities
         >>> print(linear_interpolation_densities)
         [[1.0392918], [1.0392918], [1.0392918], [1.0392918], [1.0392918],
          [1.0392918], [0.5255651], [0.5255651], [0.5255651], [0.1687906]]

@@ -3,8 +3,8 @@ import keras
 from keras import layers
 import numpy as np
 
-MODE = 'regression'
-IMBALANCED = False
+MODE = 'classification'
+IMBALANCED = True
 SAVE_FIG_NAME = f'test-tsne-imbalanced-{MODE}-imbalanced-{IMBALANCED}.png'
 
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
