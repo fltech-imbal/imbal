@@ -72,17 +72,20 @@ imbal.regression.plot_kde_1d(
     data,
     kl_kde,
     bin_count=BINS,
-    use_axes=ax[0]
+    use_axes=ax[0],
+    show_extreme_frequencies=True,
 )
-ax[0].set_title(f'kl_divergence method (bandwidth={kl_bandwidth:.3f}, bins={BINS})')
+# ax[0].set_title(f'kl_divergence method (bandwidth={kl_bandwidth:.3f}, bins={BINS})')
 scott_kde = KernelDensity(bandwidth=scott_bandwidth).fit(data.reshape(-1, 1))
 imbal.regression.plot_kde_1d(
     data,
     scott_kde,
     bin_count=BINS,
-    use_axes=ax[1]
+    use_axes=ax[1],
+    show_bin_count=False,
+    show_bandwidth=False
 )
-ax[1].set_title(f'scott method (bandwidth={scott_bandwidth:.3f}, bins={BINS})')
+# ax[1].set_title(f'scott method (bandwidth={scott_bandwidth:.3f}, bins={BINS})')
 silverman_kde = KernelDensity(bandwidth=silverman_bandwidth).fit(data.reshape(-1, 1))
 imbal.regression.plot_kde_1d(
     data,
@@ -90,7 +93,7 @@ imbal.regression.plot_kde_1d(
     bin_count=BINS,
     use_axes=ax[2]
 )
-ax[2].set_title(f'silverman method (bandwidth={silverman_bandwidth:.3f}, bins={BINS})')
+# ax[2].set_title(f'silverman method (bandwidth={silverman_bandwidth:.3f}, bins={BINS})')
 
 plt.savefig('bandwidth_method_comparison-dataset_3.png')
 plt.show()

@@ -18,21 +18,21 @@ def read_csv_to_list_of_lists(filepath):
 PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
-print(data.shape)
-data = data[1:, -1].astype(float)
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
+# print(data.shape)
+# data = data[1:, -1].astype(float)
 
 # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
 # data = data[1:, 22].astype(float)
 
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-# for i in range(43):
-#     if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-# print(data.shape)
-# data = data[:, 182].astype(float)
-# print(data.shape)
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+for i in range(43):
+    if os.path.exists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+print(data.shape)
+data = data[:, 182].astype(float)
+print(data.shape)
 
 fitted_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
 kde = KernelDensity(bandwidth=fitted_bandwidth)

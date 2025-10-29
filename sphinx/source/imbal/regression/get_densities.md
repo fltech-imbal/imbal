@@ -20,7 +20,7 @@ datasets capture several scenarios for imbalanced data.
 
 #### Dataset 1 (44,485 data points)
 
-<img alt="A histogram showing the data distribution for the first dataset" src="/_static/get_densities/dataset-1.png"
+<img alt="A histogram showing the data distribution for the first dataset" src="/_static/regression/get_densities/dataset-1.png"
 style="width: 450px"
 />
 
@@ -32,7 +32,7 @@ style="width: 450px"
 
 #### Dataset 2 (1,531 data points)
 
-<img alt="A histogram showing the data distribution for the second dataset" src="/_static/get_densities/dataset-2.png"
+<img alt="A histogram showing the data distribution for the second dataset" src="/_static/regression/get_densities/dataset-2.png"
 style="width: 450px"
 />
 
@@ -44,7 +44,7 @@ style="width: 450px"
 
 #### Dataset 3 (16,720 data points)
 
-<img alt="A histogram showing the data distribution for the third dataset" src="/_static/get_densities/dataset-3.png"
+<img alt="A histogram showing the data distribution for the third dataset" src="/_static/regression/get_densities/dataset-3.png"
 style="width: 450px"
 />
 
@@ -90,7 +90,7 @@ For testing of the different estimation methods in two dimensions, we made use o
 
 #### True Distribution (left) vs KDE (right)
 
-<img alt="A histogram showing the data distribution for the 2d toy dataset" src="/_static/get_densities/multidim-kde-comparison.png"
+<img alt="A histogram showing the data distribution for the 2d toy dataset" src="/_static/regression/get_densities/multidim-kde-comparison.png"
 style="width:100%"
 />
 

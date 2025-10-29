@@ -342,33 +342,45 @@ Errors
 			- **Doesn't seem as feasible as colors**
 			- Is there a way to pass this as parameter?
 
+# 10/29/25
 ## Tasks:
-- For `fit_kde`
-	- Introduce term "stopping criteria"
-	- When describing $r$ in time complexity, refer back to "stopping criteria", then say rough expected value
-	- Describe stopping criteria scenarios
-		- `tolerance` example, explained an potentially in code
-		- tolerance should default to $0$, not specified means use only "no improvement" stopping criteria
-- For `get_densities`
-	- Introduce/define/describe delta
-		- Not "some delta ... such that", rather "\[define delta\] ... which we call delta."
-		- Mention inverse gaussian for calculation of delta
-			- Range is +/- delta
-			- All values beyond delta have a density value below `atol/n`
-		- Mention motivation - further away points contribute very little to density
-			- some min distance, which we call delta
-- Binary classification example to highlight rarer classes being plotted "on top"
-	- Mention in documentation example (begin documentation)
-	- Examples:
-		- Rare plotted last
-		- Models can perform worse when data is imbalanced, which can be shown visually with TSNE
-- For `tsne`
-	- don't specify colors, instead make multiple scatter plots and make `matplotlib` handle it
-		- But still allow for user colors, shapes, size
-			- 3 lists, not list of tuples
-		- Provide documentation example
-		- Replace descending/ascending with binning, pass bins by descending frequency
-	- Example ordering:
-		- Rare plotted first
-		- shape/size/color
-		- Imbalance can be a problem, shown visually
+- For `fit_kde` $\checkmark$
+	- Introduce term "stopping criteria" $\checkmark$
+	- When describing $r$ in time complexity, refer back to "stopping criteria", then say rough expected value $\checkmark$
+	- Describe stopping criteria scenarios $\checkmark$
+		- `tolerance` example, explained an potentially in code $\times$ 
+		- tolerance should default to $0$, not specified means use only "no improvement" stopping criteria $\checkmark$
+- For `get_densities` $\checkmark$
+	- Introduce/define/describe delta $\checkmark$
+		- Not "some delta ... such that", rather "\[define delta\] ... which we call delta." $\checkmark$
+		- Mention inverse gaussian for calculation of delta $\checkmark$
+			- Range is +/- delta $\checkmark$
+			- All values beyond delta have a density value below `atol/n` $\checkmark$
+		- Mention motivation - further away points contribute very little to density $\checkmark$
+			- some min distance, which we call delta $\checkmark$
+- Binary classification example to highlight rarer classes being plotted "on top" $\checkmark$
+	- Mention in documentation example (begin documentation) $\checkmark$
+	- Examples: $\checkmark$
+		- Rare plotted last $\checkmark$
+		- Models can perform worse when data is imbalanced, which can be shown visually with TSNE $\checkmark$
+- For `tsne` $\checkmark$
+	- don't specify colors, instead make multiple scatter plots and make `matplotlib` handle it $\checkmark$
+		- But still allow for user colors, shapes, size $\checkmark$
+			- 3 lists, not list of tuples $\checkmark$
+		- Provide documentation example $\checkmark$
+		- Replace descending/ascending with binning, pass bins by descending frequency $\checkmark$
+	- Example ordering: $\checkmark$
+		- Rare plotted first $\checkmark$
+		- shape/size/color $\checkmark$
+		- Imbalance can be a problem, shown visually $\checkmark$
+- plotting KDE $\checkmark$
+	- default includes bandwidth and bin count in title, not min/max frequencies $\checkmark$
+	- all three are parameters that can be enabled/disabled $\checkmark$
+
+## Notes:
+* Found a bug: was using `atol/n` for finding delta, but should have been using just `atol`, since Gaussians are divided by $n$ later on
+
+
+## Tasks:
+- For `get_densities`:
+	- `tolerance` example, explained an potentially in code $\times$ 

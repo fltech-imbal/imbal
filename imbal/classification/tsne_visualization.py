@@ -1,4 +1,3 @@
-import numpy as np
 from imbal.util.visualization import generate_tsne_visualization
 
 def tsne_visualization(
@@ -6,42 +5,53 @@ def tsne_visualization(
     data,
     labels,
     latent_layer_index=-2,
-    display_classes=None,
-    gradient='plasma',
     perplexity=30,
-    save_figure=None
+    save_figure=None,
+    s=None,
+    c=None,
+    marker=None
 ):
-    if display_classes is None:
-        display_classes = np.array([
-            "#1f77b4",
-            "#ff7f0e",
-            "#2ca02c",
-            "#d62728",
-            "#9467bd",
-            "#8c564b",
-            "#e377c2",
-            "#7f7f7f",
-            "#bcbd22",
-            "#17becf"
-        ])
+    """
 
-    unique_classes, counts = np.unique(labels, return_counts=True)
-    indices = np.argsort(counts)[::-1]
-    ordered_unique_classes = unique_classes[indices]
+    Provides a visualization of a model's representation space using
+    TSNE.
 
-    sorted_labels = np.concatenate([labels[labels == cls] for cls in ordered_unique_classes])
-    sorted_data = np.concatenate([data[labels == cls] for cls in ordered_unique_classes])
-    sorted_colors = display_classes[np.searchsorted(unique_classes, sorted_labels)]
+    This function will always plot rarer classes last, allowing for those rare
+    classes to always be more visible in the TSNE plot. This is because points
+    plotted first may be overwritten by points plotted later, so plotting rare
+    classes last ensures the rare classes are not overwritten by common classes.
+    An example of this can be seen below.
 
+    Args:
+        model: The PyTorch model whose representation space you wish to visualize.
+        data: The data whose representation you wish to visualize, as a column vector.
+        labels: The corresponding labels for the provided data, as a column vector.
+        latent_layer_index: Optional, default :math:`2`. The index of the layer of your
+            model to extract the representation from. Defaults to the second to last
+            layer of the provided model.
+        perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
+        save_figure: Optional, default :code:`None`. If set to a string, will save the
+            resultant plot to the specified path.
+        s: Optional, default :code:`None`. If not :code:`None`, a list of floats of length
+            equal to the number of classes, where each float represents the marker size for the
+            class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+        c: Optional, default :code:`None`. If not :code:`None`, a list of colors for each
+            class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+        marker: Optional, default :code:`None`. If not :code:`None`, a list of marker shapes for each
+            class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+
+    Returns: :code:`None`
+    """
 
     fig = generate_tsne_visualization(
         model,
-        sorted_data,
-        sorted_labels,
+        data,
+        labels,
         latent_layer_index=latent_layer_index,
-        gradient=gradient,
         save_figure=save_figure,
         perplexity=perplexity,
-        legend_pairs=(unique_classes, display_classes),
-        color_map=sorted_colors
+        mode='classification',
+        s=s,
+        c=c,
+        marker=marker
     )

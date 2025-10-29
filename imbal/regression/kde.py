@@ -11,8 +11,8 @@ def fit_kde(
         average_samples_per_bin=100,
         bin_count=None,
         steps_per_bin = 10,
-        fine_search = 5,
-        tolerance = 1e-3,
+        num_candidates = 10,
+        tolerance = 0,
         padding_factor=0.01
 ):
     """
@@ -20,14 +20,26 @@ def fit_kde(
     the labels provided, based on some rule of thumb or heuristic.
 
     For the best results, we have implemented an iterative fit function that aims to
-    minimize the KL divergence between the heights of the density-normalized histogram
+    minimize the KL divergence between the area of the density-normalized histogram
     bins of the data (area of all bins sums to :math:`1`), and the area under the curve
-    of the KDE at each bin. We do this by assuming that the best fits the data is
-    between :math:`0.01` and :math:`3` times the standard deviation of the data. We then
-    perform a beam search within this data range, searching :math:`k` canditates per round,
-    performing searches in finer and finer ranges until either the KL divergence is within
-    some tolerance of zero, or the candidates in the current round perform no better
-    than the best candidate from the previous round.
+    of the KDE at each bin. The fit is performed as follows:
+
+    - Start by assuming that the bandwidth that best fits the data is
+      between :math:`0.01` and :math:`3` times the standard deviation of the data.
+    - We perform a beam search within this data range, searching :math:`k` canditates
+      within the current data range.
+    - For each bandwidth candidate, we compute the KL divergence between the area of each
+      bin in the density-normalized histogram of the data and the area under the curve
+      of the KDE within the corresponding data range for each bin.
+    - After checking all :math:`k` candidates, we take the candidate with the lowest KL
+      divergence, and perform a new round of beam searches, centered on the best candidate,
+      and spanning the range of the neighboring candiates (ex. With :math:`k=10`, if a
+      beam search from :math:`1` to :math:`10` found :math:`3` to be the best bandwidth
+      candidate, the next round would be a beam search from :math:`2` to :math:`4`).
+
+    There are two stopping criteria for this iterative fit method:
+    - The candidates in the current round perform no better than the best candidate from the previous round.
+    - The KL divergence is within some tolerance of zero (this method is disabled by default).
 
     It is important to note that since the KL divergence
     is calculated by performing per-bin comparisons with a histogram of the data, the bandwidth
@@ -40,7 +52,8 @@ def fit_kde(
     for finding the bandwidth that take :math:`O(n)` time. The :code:`'kl_divergence'`
     method is an iterative method that takes :math:`O(rkn)` time, where :math:`k` is
     the number of searches performed per round (default :math:`10`), and :math:`r` is
-    the numer of rounds it takes to reach a final value (unknown, but usually between :math:`5` and :math:`10`).
+    the numer of rounds it takes to reach a final value (determined by the stopping criteria described above. Based
+    on our experiments, :math:`r` is typically between :math:`5` and :math:`10`).
 
     Args:
         labels: A NumPy array of labels, arranged as a column vector
@@ -61,10 +74,10 @@ def fit_kde(
             If set, overrides :code:`average_samples_per_bin`.
         steps_per_bin: Optional, default :code:`10`. Determines the number of
             steps per bin that should be used for KDE optimizations.
-        fine_search: Optional, default :code:`10`. For iterative approaches only. Determines
-            the number of checks to perform on each step of the iteration. A higher value will
+        num_candidates: Optional, default :code:`10`. For iterative approach only. Determines
+            the number of candidates to check during each round of beam search. A higher value will
             take longer, but is more likely to yield accurate results.
-        tolerance: Optional, default :code:`1e-3`. For iterative approaches only. Determines
+        tolerance: Optional, default :code:`0`. For iterative approach only. Determines
             the allowed maximum heuristic value before stopping in instances where the heuristic
             approaches 0. Prevents infinite iteration approaching 0.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
@@ -104,7 +117,7 @@ def fit_kde(
             labels,
             bin_count=bin_count,
             steps_per_bin=steps_per_bin,
-            fine_search=fine_search,
+            fine_search=num_candidates,
             tolerance=tolerance,
             padding_factor=padding_factor,
         )
@@ -126,7 +139,10 @@ def plot_kde_1d(
         padding_factor=0.01,
         approximation=None,
         use_axes=None,
-        save_figure=None
+        save_figure=None,
+        show_bandwidth=True,
+        show_bin_count=True,
+        show_extreme_frequencies=False
 ) -> None:
     """
 
@@ -199,20 +215,33 @@ def plot_kde_1d(
     if approximation is not None:
         plt.plot(approximation[0], approximation[1], label='Approximation', color='orange')
     ax.hist(labels, bins=[label_min + i * step for i in range(bin_count+1)], density=True, alpha=0.6, label='Histogram')
-    f_min_bar = label_min + (low_freq_bin_index + .5) * step
-    ax.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
-    ax.text(f_min_bar, ax.get_ylim()[1] * 0.02, f'f_min = {min_count}',
-             rotation=90, color='red',
-             verticalalignment='bottom', horizontalalignment='right')
 
-    f_max_bar = label_min + (high_freq_bin_index + .5) * step
-    ax.axvline(x=f_max_bar, color='red', linestyle='--', linewidth=2)
-    ax.text(f_max_bar, ax.get_ylim()[1] * 0.02, f'f_max = {max_count}',
-             rotation=90, color='red',
-             verticalalignment='bottom', horizontalalignment='right')
+    if show_extreme_frequencies:
+        f_min_bar = label_min + (low_freq_bin_index + .5) * step
+        ax.axvline(x=f_min_bar, color='red', linestyle='--', linewidth=2)
+        ax.text(f_min_bar, ax.get_ylim()[1] * 0.02, f'f_min = {min_count}',
+                 rotation=90, color='red',
+                 verticalalignment='bottom', horizontalalignment='right')
 
-    ax.set_title(
-        f'KDE (f_max/f_min = {max_count / min_count:.1f}, bandwidth = {kde.bandwidth_:.3f}, bins = {bin_count})')
+        f_max_bar = label_min + (high_freq_bin_index + .5) * step
+        ax.axvline(x=f_max_bar, color='red', linestyle='--', linewidth=2)
+        ax.text(f_max_bar, ax.get_ylim()[1] * 0.02, f'f_max = {max_count}',
+                 rotation=90, color='red',
+                 verticalalignment='bottom', horizontalalignment='right')
+
+    title_strings = []
+    if show_extreme_frequencies:
+        title_strings.append(f'f_max/f_min = {max_count / min_count:.1f}')
+    if show_bandwidth:
+        title_strings.append(f'bandwidth = {kde.bandwidth_:.3f}')
+    if show_bin_count:
+        title_strings.append(f'bin_count = {bin_count}')
+
+    title_details = ''
+    if len(title_strings) > 0:
+        title_details = f' ({", ".join(title_strings)})'
+
+    ax.set_title(f'KDE{title_details}')
     ax.set_xlabel('Value')
     ax.set_ylabel('Density')
     ax.legend()
@@ -229,7 +258,7 @@ def _iterative_kde_approximation(
     bin_count=10,
     steps_per_bin=10,
     fine_search = 10,
-    tolerance = 1e-3,
+    tolerance = 0,
     padding_factor=0.01
 ) -> KernelDensity | tuple:
 

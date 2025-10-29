@@ -1,18 +1,23 @@
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from sklearn.manifold import TSNE
 from tensorflow import keras
+import numpy as np
+from imbal.util.sample_weighting import get_label_bin_bounds
 
 def generate_tsne_visualization(
         model,
         data,
         labels,
         latent_layer_index,
-        gradient,
+        gradient=None,
+        mode='classification',
         save_figure=None,
         perplexity=30,
-        color_map=None,
-        legend_pairs=None,
+        bin_count=64,
+        padding_factor=0.01,
+        s=None,
+        c=None,
+        marker=None
 ):
     intermediate_model = keras.Model(inputs=model.input,
                                      outputs=model.get_layer(index=latent_layer_index).output)
@@ -24,13 +29,51 @@ def generate_tsne_visualization(
     fig = plt.figure(figsize=(10, 10))
     ax = fig.add_subplot(111)
 
-    if color_map is None:
-        scatter = ax.scatter(tsne_fit[:, 0], tsne_fit[:, 1], c=labels, cmap=gradient)
-        plt.colorbar(scatter)
+    scatter = None
+    if mode == 'classification':
+        unique_classes, counts = np.unique(labels, return_counts=True)
+        index_ordering = np.argsort(counts)[::-1]
+        unique_classes = unique_classes[index_ordering]
+
+        if s is not None:
+            s = np.array(s)[index_ordering]
+        if c is not None:
+            c = np.array(c)[index_ordering]
+        if marker is not None:
+            marker = np.array(marker)[index_ordering]
+        for i in range(len(unique_classes)):
+            cls_s = s[i] if s is not None else None
+            cls_c = c[i] if c is not None else None
+            cls_marker = marker[i] if marker is not None else None
+            scatter = ax.scatter(
+                tsne_fit[:, 0][labels == unique_classes[i]],
+                tsne_fit[:, 1][labels == unique_classes[i]],
+                label=unique_classes[i],
+                s=cls_s,
+                c=cls_c,
+                marker=cls_marker
+            )
+        ax.legend()
     else:
-        handles = [patches.Patch(color=legend_pairs[1][i], label=legend_pairs[0][i]) for i in range(legend_pairs[0].shape[0])]
-        scatter = ax.scatter(tsne_fit[:, 0], tsne_fit[:, 1], c=color_map)
-        plt.legend(handles=handles)
+        label_min, label_max, step = get_label_bin_bounds(labels, bin_count, padding_factor)
+
+        bins = [np.where((labels >= label_min[0] + step * i) & (labels < label_min[0] + step * (i + 1)))[0] for i in range(bin_count)]
+        sorted_bins = sorted(bins, key=len, reverse=True)
+
+        for indices in sorted_bins:
+            # print(indices)
+            # print('\n\n\nOKAY\n\n\n')
+            scatter = ax.scatter(
+                tsne_fit[:, 0][indices],
+                tsne_fit[:, 1][indices],
+                c=labels[indices],
+                cmap=gradient,
+                vmin=label_min[0],
+                vmax=label_max[0]
+            )
+        plt.colorbar(scatter)
+
+    assert scatter is not None
 
     if save_figure is not None:
         plt.savefig(save_figure)

@@ -35,13 +35,29 @@ def get_densities(
     implements some approximation methods to reduce compute time.
 
     The first of these approximation methods is allowing some absolute tolerance for the
-    error of each KDE value (See: :code:`atol`). For one dimensional data, this absolute tolerance
-    is applied by first sorting the data, then starting from the smallest data point,
-    tracking which points are within some delta of the current point, such that all points
-    outside the delta range contribute an error of no more than :code:`atol/n`, where :code:`n`
-    is the number of data points. By working with the points in ascending order, the delta bounds
+    error of each KDE value (See: :code:`atol`). This method is motivated by the fact
+    that points that are far from one another contribute very little to each of their
+    respective KDEs. By ignoring points far away from each point in the KDE calculation,
+    we can achieve a faster KDE calculation while ensuring a maximum possible error.
+
+    For one dimensional data, we use a
+    custom implementation that tends to yeilds results faster, which is implemented as follows:
+
+    - We define :math:`\delta` such that :math:`K(\delta) = \text{atol}`, where :math:`K` is the
+      Gaussian kernel. Or in other words, :math:`\delta` is equal to the distance from the center
+      of the Gaussian kernel which will produce a density value of :code:`atol`. Points beyond this
+      distance :math:`\delta` will produce a density less than :code:`atol`.
+    - We sort the data, then iterate through the list of data points. From the current point, :math:`p`,
+      we find all points :math:`x \in [p - \delta, p + \delta]`
+    - For each point, we can determine a localized KDE estimate using only the points that fall within the
+      delta range, that normalize the local KDE to the same scale as the full KDE.
+
+    The result of this method is an apporixmation of the full KDE, such that each approximated point has an
+    error no greater than :math`\text{atol}/n`, therefore the total error is no more than :code:`atol`.
+
+    By working with the points in ascending order, the delta bounds
     for each point can be found in :math:`O(1)` amortized time. We use this method as opposed to a binary
-    search to find the bounds for each point, which would be an :math:`O(nlogn)` operation.
+    search to find the bounds for each point, which would be an :math:`O(log(n))` operation per point.
 
     For multidimensional data, we leverage :code:`scikit-learn`'s built-in atol for KDEs, which
     utilizes a :code:`KDTree` to find its tolerance bounds. This way, the gains in computational
@@ -215,7 +231,7 @@ def _local_kde_approximation(
     if atol == 0:
         delta = np.max(labels) - np.min(labels)
     else:
-        delta = inverse_gaussian(atol_by_n)
+        delta = inverse_gaussian(atol) # atol_by_n or atol?
     sample_densities = []
     low_index = 0
     high_index = 0
@@ -228,9 +244,9 @@ def _local_kde_approximation(
 
         def mini_kde(value, data):
             u = (data - value) / bandwidth
-            return np.sum(np.exp(-0.5 * u ** 2) / np.sqrt(2 * np.pi)) / (data.shape[0] * bandwidth)
+            return np.sum(np.exp(-0.5 * u ** 2) / np.sqrt(2 * np.pi)) / bandwidth
 
-        sample_densities.append(mini_kde(label, samples) * (high_index - low_index) / labels.shape[0])
+        sample_densities.append(mini_kde(label, samples) / labels.shape[0])
     sample_densities = np.array(sample_densities).reshape(-1,)
     return sorted_labels[inverse_sort], sample_densities[inverse_sort]
 

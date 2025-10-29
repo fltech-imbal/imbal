@@ -9,6 +9,7 @@
 - [generate_weights](generate_weights.md)
 - [plot_kde_1d](plot_kde_1d.md)
 - [fit_kde](fit_kde.md)
+- [tsne_visualization](tsne_visualization.md)
 
 ```{eval-rst}
 .. toctree::
@@ -21,4 +22,5 @@
     generate_weights <generate_weights>
     plot_kde_1d <plot_kde_1d>
     fit_kde <fit_kde>
+    tsne_visualization <tsne_visualization>
 ```

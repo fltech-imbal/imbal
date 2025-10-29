@@ -11,7 +11,7 @@ available through `fit_kde` across three datasets.
 
 ### Dataset 1 (44,485 data points)
 
-<img alt="A series of plots showing the bandwidth comparison for the first dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_1.png"
+<img alt="A series of plots showing the bandwidth comparison for the first dataset" src="/_static/regression/get_densities/bandwidth_method_comparison-dataset_1.png"
 style="width:100%"
 />
 
@@ -23,7 +23,7 @@ style="width:100%"
 
 ### Dataset 2 (1,531 data points)
 
-<img alt="A series of plots showing the bandwidth comparison for the second dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_2.png"
+<img alt="A series of plots showing the bandwidth comparison for the second dataset" src="/_static/regression/get_densities/bandwidth_method_comparison-dataset_2.png"
 style="width:100%"
 />
 
@@ -35,7 +35,7 @@ style="width:100%"
 
 ### Dataset 3 (16,720 data points)
 
-<img alt="A series of plots showing the bandwidth comparison for the third dataset" src="/_static/get_densities/bandwidth_method_comparison-dataset_3.png"
+<img alt="A series of plots showing the bandwidth comparison for the third dataset" src="/_static/regression/get_densities/bandwidth_method_comparison-dataset_3.png"
 style="width:100%"
 />
 
