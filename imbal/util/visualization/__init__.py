@@ -61,15 +61,15 @@ def generate_tsne_visualization(
         sorted_bins = sorted(bins, key=len, reverse=True)
 
         for indices in sorted_bins:
-            # print(indices)
-            # print('\n\n\nOKAY\n\n\n')
             scatter = ax.scatter(
                 tsne_fit[:, 0][indices],
                 tsne_fit[:, 1][indices],
-                c=labels[indices],
                 cmap=gradient,
+                c=labels[indices],
                 vmin=label_min[0],
-                vmax=label_max[0]
+                vmax=label_max[0],
+                s=s,
+                marker=marker
             )
         plt.colorbar(scatter)
 

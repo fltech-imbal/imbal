@@ -382,22 +382,23 @@ Errors
 
 
 ## Tasks:
-- For `get_densities`:
-	- `tolerance` example, explained an potentially in code $\times$ 
-	- Make sure fine grain searches do not include redundant endpoints and redundant "best sample"
-		- Use "center-bin" sampling
-	- Add inverse equation for $\delta$ ("in other words" or "concretely")
+- For `fit_kde`: $\checkmark$
+	- `tolerance` example, explained an potentially in code $\checkmark$ 
+	- Make sure fine grain searches do not include redundant endpoints and redundant "best sample" $\checkmark$
+		- Use "center-bin" sampling $\checkmark$
+
+- Add inverse equation for $\delta$ ("in other words" or "concretely") $\checkmark$
 	
-- Update errors on `get_densities` tables
-	- Also update local approximation code example
-		- SARCOS time update as well
-- update `plot_kde_1d` documentation with examples of different plot parameters
-	- make sure
-- `TSNE`
-	- Fix binary classification plots to be the same TSNE
-	- Use code for color/shape/size example
-	- Code examples for regression/classification
+- Update errors on `get_densities` tables $\checkmark$
+	- Also update local approximation code example $\checkmark$
+		- SARCOS time update as well $\checkmark$
+- update `plot_kde_1d` documentation with examples of different plot parameters $\checkmark$
+- `TSNE` $\checkmark$
+	- Fix binary classification plots to be the same TSNE $\checkmark$
+	- Use code for color/shape/size example $\checkmark$
+	- Code examples for regression/classification $\checkmark$
 - Read $2.4$
 	- Find implementations of LIME and SHAP
 		- Papers have original implementations, but might be in `TF`/`scipy`/`scikit-learn`
-- 
+
+## Notes:

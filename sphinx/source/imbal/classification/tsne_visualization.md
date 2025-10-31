@@ -30,9 +30,17 @@ within the blue region are clearly visible.
 Below is an example of a TSNE plot of the representation space of a model trained on MNIST data.
 The following parameters have been passed to the TSNE visualization:
 
-- `s = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10]`
-- `c = ['r', 'g', 'b', 'c', 'm', 'y', 'k', 'aquamarine', '#707070', '#00FF00']`
-- `marker = ['s','1','2','3','4','o','*','+','p','d']`
+```python
+>>> imbal.classification.tsne_visualization(
+>>>     model,
+>>>     x_test,
+>>>     y_test,
+>>>     s=[100, 90, 80, 70, 60, 50, 40, 30, 20, 10],
+>>>     marker=['s','1','2','3','4','o','*','+','p','d'],
+>>>     c=['r', 'g', 'b', 'c', 'm', 'y', 'k', 'aquamarine', '#707070', '#00FF00']
+>>> )
+```
+
 
 <img alt="test 3"
 style="width: 450px"

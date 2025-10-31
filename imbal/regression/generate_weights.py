@@ -45,7 +45,8 @@ def get_densities(
 
     - We define :math:`\delta` such that :math:`K(\delta) = \text{atol}`, where :math:`K` is the
       Gaussian kernel. Or in other words, :math:`\delta` is equal to the distance from the center
-      of the Gaussian kernel which will produce a density value of :code:`atol`. Points beyond this
+      of the Gaussian kernel which will produce a density value of :code:`atol` (Concretely,
+      :math:`\delta = K^{-1}(\text{atol})`). Points beyond this
       distance :math:`\delta` will produce a density less than :code:`atol`.
     - We sort the data, then iterate through the list of data points. From the current point, :math:`p`,
       we find all points :math:`x \in [p - \delta, p + \delta]`
@@ -86,12 +87,7 @@ def get_densities(
             containing the list of x and y coordinates used to generate the optimized KDE. Mainly
             used for visualization.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
-            the data range used for binning for the histogram. There are some instances where many datapoints in
-            a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
-            appear to be on the edge, or slightly outside, of its corresponding bin (due to limited
-            pixel resolution when plotting), which is undesirable for visual comparison. By padding, we can slightly increase
-            the width of the histogram bins, shifting their bounds and allowing these peaks to appear
-            inside the bins instead.
+            the data range used for binning for the histogram. See :doc:`imbal.regression.fit_kde </imbal/regression/fit_kde>`.
 
     Returns:
         A NumPy array of densities, arranged as a column vector

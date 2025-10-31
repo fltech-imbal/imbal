@@ -24,11 +24,11 @@ datasets capture several scenarios for imbalanced data.
 style="width: 450px"
 />
 
-| KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
-|----------------------------------------|--------------------|----------------|-----------|
-| Regular                                | 44.05              | n/a            | n/a       |
-| Linear Approximation (320 bins)        | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
-| Local Approximation (k=320, atol=1e-4) | 0.28               | $2.48*10^{-3}$ | $0.153\%$ |
+| KDE Optimization Method         | Compute Time (sec) | MAE            | MAPE      |
+|---------------------------------|--------------------|----------------|-----------|
+| Regular                         | 7.41               | n/a            | n/a       |
+| Linear Approximation (320 bins) | 0.25               | $1.88*10^{-4}$ | $0.152\%$ |
+| Local Approximation (atol=1e-4) | 3.67               | $1.46*10^{-6}$ | ~$0\%$    |
 
 #### Dataset 2 (1,531 data points)
 
@@ -36,11 +36,11 @@ style="width: 450px"
 style="width: 450px"
 />
 
-| KDE Optimization Method                | Compute Time (sec) | MAE             | MAPE     |
-|----------------------------------------|--------------------|-----------------|----------|
-| Regular                                | 0.057              | n/a             | n/a      |
-| Linear Approximation (320 bins)        | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
-| Local Approximation (k=320, atol=1e-4) | 0.012              | $4.56*10^{-13}$ | ~$0\%$   |
+| KDE Optimization Method         | Compute Time (sec) | MAE             | MAPE     |
+|---------------------------------|--------------------|-----------------|----------|
+| Regular                         | 0.018              | n/a             | n/a      |
+| Linear Approximation (320 bins) | 0.0029             | $2.00*10^{-2}$  | $0.55\%$ |
+| Local Approximation (atol=1e-4) | 0.012              | $5.88*10^{-10}$ | ~$0\%$   |
 
 #### Dataset 3 (16,720 data points)
 
@@ -48,11 +48,11 @@ style="width: 450px"
 style="width: 450px"
 />
 
-| KDE Optimization Method                | Compute Time (sec) | MAE            | MAPE      |
-|----------------------------------------|--------------------|----------------|-----------|
-| Regular                                | 7.33               | n/a            | n/a       |
-| Linear Approximation (320 bins)        | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
-| Local Approximation (k=320, atol=1e-4) | 0.014              | $4.0*10^{-3}$  | $0.140\%$ |
+| KDE Optimization Method         | Compute Time (sec) | MAE            | MAPE      |
+|---------------------------------|--------------------|----------------|-----------|
+| Regular                         | 1.22               | n/a            | n/a       |
+| Linear Approximation (320 bins) | 0.064              | $4.81*10^{-3}$ | $0.156\%$ |
+| Local Approximation (atol=1e-4) | 1.12               | $5.84*10^{-7}$ | ~$0\%$    |
 
 ### Argument for Improved 1D Case
 
@@ -64,24 +64,24 @@ performed with an `atol` value of `1e-4`, with no interpolation.
 
 #### Dataset 1
 
-| Method          | Compute Time (sec) | MAE             | MAPE      |
-|-----------------|--------------------|-----------------|-----------|
-| `scitkit-learn` | 23.0               | $2.71*10^{-5}$  | $0.003\%$ |
-| `imbal`         | 4.35               | $2.22*10^{-11}$ | ~$0\%$    |
+| Method          | Compute Time (sec) | MAE              | MAPE      |
+|-----------------|--------------------|------------------|-----------|
+| `scitkit-learn` | 23.0               | $2.71*10^{-5}$   | $0.003\%$ |
+| `imbal`         | 3.67               | $1.46*10^{-6}$   | ~$0\%$    |
 
 #### Dataset 2
 
 | Method          | Compute Time (sec) | MAE             | MAPE   |
 |-----------------|--------------------|-----------------|--------|
 | `scitkit-learn` | 0.057              | $1.70*10^{-5}$  | ~$0\%$ |
-| `imbal`         | 0.014              | $4.56*10^{-13}$ | ~$0\%$ |
+| `imbal`         | 0.012              | $5.88*10^{-10}$ | ~$0\%$ |
 
 #### Dataset 3
 
-| Method          | Compute Time (sec) | MAE             | MAPE      |
-|-----------------|--------------------|-----------------|-----------|
-| `scitkit-learn` | 6.21               | $2.25*10^{-5}$  | $0.003\%$ |
-| `imbal`         | 1.00               | $1.53*10^{-11}$ | ~$0\%$    |
+| Method          | Compute Time (sec) | MAE            | MAPE      |
+|-----------------|--------------------|----------------|-----------|
+| `scitkit-learn` | 6.21               | $2.25*10^{-5}$ | $0.003\%$ |
+| `imbal`         | 1.124*10^{-7}$ | ~$0\%$    |
 
 ### Comparison of Methods in Two Dimensions
 

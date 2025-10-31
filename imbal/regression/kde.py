@@ -42,6 +42,12 @@ def fit_kde(
     - The candidates in the current round perform no better than the best candidate from the previous round.
     - The KL divergence is within some tolerance of zero (this method is disabled by default).
 
+    In general, the KL divergence heuristic will reach a minimum greater than :math:`0` rather
+    than find a true "perfect fit", so the second stopping criteria is disabled by default. Still
+    though, in the scenarios where the KL divergence does approach :math:`0`, it can be nice
+    to have some tolerance, as setting one can allow the iterative method to stop a few rounds
+    earlier than what the first stopping criteria would allow.
+
     It is important to note that since the KL divergence
     is calculated by performing per-bin comparisons with a histogram of the data, the bandwidth
     fit found by this method is dependent on the number of bins that the data is divided into.
@@ -78,9 +84,9 @@ def fit_kde(
         num_candidates: Optional, default :code:`10`. For iterative approach only. Determines
             the number of candidates to check during each round of beam search. A higher value will
             take longer, but is more likely to yield accurate results.
-        tolerance: Optional, default :code:`0`. For iterative approach only. Determines
-            the allowed maximum heuristic value before stopping in instances where the heuristic
-            approaches 0. Prevents infinite iteration approaching 0.
+        tolerance: Optional, default :code:`0`. For iterative approach only. Determines the tolerance
+            within which the iterative heuristic can be considered close to 0, allowing iteration to end.
+            Prevents infinite iteration approaching 0.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
             the data range used for binning for the histogram. There are some instances where many datapoints in
             a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
@@ -98,7 +104,7 @@ def fit_kde(
 
         >>> # For the sake of this example, assume a dataset has already been stored in the variable 'data'
 
-        >>> fitted_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
+        >>> fitted_bandwidth = imbal.regression.fit_kde(data, bin_count=10, tolerance=1e-3)
         >>> kde = KernelDensity(bandwidth=fitted_bandwidth)
         >>> kde.fit(data)
         >>> log_densities = kde.score_samples(data)
@@ -107,6 +113,8 @@ def fit_kde(
         [0.702, 0.634, -2.445, 0.535, 0.491, 0.154,
          0.287, 0.710, 0.059, -0.365, 0.691, -0.758,
          0.687, -0.336, 0.635, 0.594, 0.658, 0.697 ...
+
+
 
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
@@ -134,7 +142,7 @@ def fit_kde(
 
 def plot_kde_1d(
         labels,
-        kde,
+        bandwidth,
         average_samples_per_bin=100,
         bin_count=None,
         padding_factor=0.01,
@@ -158,12 +166,7 @@ def plot_kde_1d(
             should be used for the histogram-based KDE approximation.
             If set, overrides :code:`average_samples_per_bin`.
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
-            the data range used for binning for the histogram. There are some instances where many datapoints in
-            a dataset fall on the maximum or minimum. When viewed visually, the peak of the found KDE curve may
-            appear to be on the edge, or slightly outside, of its corresponding bin (due to limited
-            pixel resolution when plotting), which is undesirable for visual comparison. By padding, we can slightly increase
-            the width of the histogram bins, shifting their bounds and allowing these peaks to appear
-            inside the bins instead.
+            the data range used for binning for the histogram. See :doc:`imbal.regression.fit_kde </imbal/regression/fit_kde>`.
         approximation: Optional, default :code:`None`. A tuple containing a list of x and y
             pairs, which will be plotted over the KDE curve. Used to show how well approximations
             of KDE perform.
@@ -182,12 +185,37 @@ def plot_kde_1d(
 
         >>> # For the sake of this example, assume a dataset has already been stored in the variable 'data'
 
-        >>> kde = imbal.regression.fit_kde(data, bin_count=10)
-        >>> imbal.regression.plot_kde(data, kde, bin_count=10, save_figure='plot.png')
+        >>> found_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
+        >>> imbal.regression.plot_kde_1d(
+        >>>     data,
+        >>>     found_bandwidth,
+        >>>     bin_count=10,
+        >>>     save_figure='plot.png'
+        >>> )
 
     Below is the resultant graph saved to :code:`plot.png`:
 
-    .. figure:: images/example_kde_plot.png
+    .. figure:: ../../_static/regression/plot_kde_1d/example_kde_plot.png
+       :scale: 85 %
+       :alt: A histogram plot of the data from the example above
+
+    Parameters can also be set to modify the values shown on the plot:
+
+    .. code-block:: python
+
+
+        >>> found_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
+        >>> imbal.regression.plot_kde_1d(
+        >>>     data,
+        >>>     found_bandwidth,
+        >>>     bin_count=10,
+        >>>     save_figure='plot.png',
+        >>>     show_bin_count=False,
+        >>>     show_bandwidth=False,
+        >>>     show_extreme_frequencies=True
+        >>> )
+
+    .. figure:: ../../_static/regression/plot_kde_1d/example_kde_plot_2.png
        :scale: 85 %
        :alt: A histogram plot of the data from the example above
     """
@@ -204,6 +232,9 @@ def plot_kde_1d(
     high_freq_bin_index = high_freq_bin_index[0]
     min_count = low_freq_bin_count
     max_count = high_freq_bin_count
+
+    kde = KernelDensity(bandwidth=bandwidth)
+    kde.fit(labels.reshape(-1, 1))
 
     x_plot = np.linspace(label_min - 1, label_max + 1, 1000).reshape(-1, 1)
     log_dens = kde.score_samples(x_plot)
@@ -232,7 +263,7 @@ def plot_kde_1d(
 
     title_strings = []
     if show_bandwidth:
-        title_strings.append(f'bandwidth = {kde.bandwidth_:.3f}')
+        title_strings.append(f'bandwidth = {bandwidth:.3f}')
     if show_bin_count:
         title_strings.append(f'bin_count = {bin_count}')
 
@@ -272,7 +303,6 @@ def _iterative_kde_approximation(
 
     # Starting test ranges for bandwidth should be between 0.01*stddev and 3*stddev
     starting_bandwidth = float(np.std(labels)) * 1.49
-    coarse_search = starting_bandwidth
 
     # Track best results during iteration
     best_heuristic = None
@@ -295,17 +325,20 @@ def _iterative_kde_approximation(
     heuristic_function = kl_divergence_heuristic
     labels = labels.reshape(labels.shape[0], -1)
 
+    search_min = 0
+    search_max = starting_bandwidth * 2
+
     # Ensure at least one loop, and loop until ratio is within tolerance,
     # or search becomes too fine grain (perhaps ideal ratio is impossible)
-    while best_heuristic is None or (best_heuristic > tolerance and coarse_search / fine_search > 1e-9):
+    while best_heuristic is None or (best_heuristic > tolerance and (search_max - search_min) > 1e-9):
         search_steps = round(fine_search)
         heuristic_contender = None
         bandwidth_contender = None
 
         for i in range(search_steps):
-            current_bandwidth = best_bandwidth + (i - (search_steps-1)/2) * 2*coarse_search / fine_search
+            current_bandwidth = (search_max - search_min) / search_steps * (i + 0.5)
             # Prevent negative and zero bandwidths
-            if current_bandwidth <= 1e-6:
+            if current_bandwidth <= 1e-9:
                 continue
 
             # Fit KDE with current bandwidth
@@ -323,7 +356,8 @@ def _iterative_kde_approximation(
             # better density ratio than the previous best, update best
             best_heuristic = heuristic_contender
             best_bandwidth = bandwidth_contender
-            coarse_search = coarse_search/fine_search
+            search_min = best_bandwidth - (search_max - search_min) / search_steps
+            search_max = best_bandwidth + (search_max - search_min) / search_steps
         else:
             # Otherwise, current search window provided no better
             # bandwidth values, break from search loop

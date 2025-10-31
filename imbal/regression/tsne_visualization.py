@@ -17,19 +17,40 @@ def tsne_visualization(
     """
 
     Args:
-        padding_factor:
-        bin_count:
-        marker:
-        s:
-        model:
-        data:
-        labels:
-        latent_layer_index:
-        gradient:
-        perplexity:
-        save_figure:
+        model: The PyTorch model whose representation space you wish to visualize.
+        data: The data whose representation you wish to visualize, as a column vector.
+        labels: The corresponding labels for the provided data, as a column vector.
+        latent_layer_index: Optional, default :math:`2`. The index of the layer of your
+            model to extract the representation from. Defaults to the second to last
+            layer of the provided model.
+        perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
+        save_figure: Optional, default :code:`None`. If set to a string, will save the
+            resultant plot to the specified path.
+        s: Optional, default :code:`None`. If not :code:`None`, a float that represents the marker size
+            of each plotted point. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+        gradient: Optional, default :code:`'plasma'`. A gradient to be used for plotting. See `matplotlib's colormaps <https://matplotlib.org/stable/users/explain/colors/colormaps.html>`_
+        marker: Optional, default :code:`None`. If not :code:`None`, a marker shape. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+        bin_count: Optional, default :code:`64`. The number of bins to use for determining graphing order. Labels
+            are grouped into bins, and then bins are plotted from most frequent to least frequenct, ensuring
+            that rare points are always visible "on top" of more common points.
+        padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
+            the data range used for binning for the histogram. See :doc:`imbal.regression.fit_kde </imbal/regression/fit_kde>`.
 
-    Returns:
+    Returns: :code:`None`
+
+    Example:
+
+    .. code-block:: python
+
+        >>> # For this example, assume a trained model is saved in 'model', and
+        >>> # data and labels are stored in 'data' and 'labels' respectively.
+
+        >>> imbal.classification.tsne_visualization(
+        >>>     model,
+        >>>     data,
+        >>>     labels,
+        >>>     perplexity=20
+        >>> )
 
     """
     indices = np.argsort(labels)

@@ -7,7 +7,6 @@ Welcome to the imbal documentation. This documentation was created by *Tommy Gal
 
 Subpackages:
 
-- :doc:`Metrics <imbal/metrics/metrics>`
 - :doc:`Classification </imbal/classification/classification>`
 - :doc:`Regression </imbal/regression/regression>`
 

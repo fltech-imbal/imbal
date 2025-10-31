@@ -41,6 +41,21 @@ def tsne_visualization(
             class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
 
     Returns: :code:`None`
+
+    Example:
+
+    .. code-block:: python
+
+        >>> # For this example, assume a trained model is saved in 'model', and
+        >>> # data and labels are stored in 'data' and 'labels' respectively.
+
+        >>> imbal.classification.tsne_visualization(
+        >>>     model,
+        >>>     data,
+        >>>     labels,
+        >>>     perplexity=20
+        >>> )
+
     """
 
     fig = generate_tsne_visualization(
