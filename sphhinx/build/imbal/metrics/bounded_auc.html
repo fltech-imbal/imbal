@@ -1,0 +1,617 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>imbal.metrics.BoundedAUC &#8212; imbal  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/metrics/bounded_auc';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Classification" href="../classification/classification.html" />
+    <link rel="prev" title="imbal.metrics.CriticalSuccessIndex" href="critical_success_index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">imbal  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="metrics.html">
+    Metrics
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../classification/classification.html">
+    Classification
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../regression/regression.html">
+    Regression
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="metrics.html">
+    Metrics
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../classification/classification.html">
+    Classification
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../regression/regression.html">
+    Regression
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="true_skill_statistic.html">True Skill Statistic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="j_statistic.html">J Statistic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="youdens_index.html">Youden's Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heikde_skill_score.html">Heikde Skill Score</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gilbert_skill_score.html">Gilbert Skill Score</a></li>
+<li class="toctree-l1"><a class="reference internal" href="critical_success_index.html">Critical Success Index</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Bounded AUC</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="metrics.html" class="nav-link">Metrics</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">imbal.metrics.BoundedAUC</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="imbal-metrics-boundedauc">
+<h1>imbal.metrics.BoundedAUC<a class="headerlink" href="#imbal-metrics-boundedauc" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.metrics.</span></span><span class="sig-name descname"><span class="pre">BoundedAUC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_thresholds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.BoundedAUC" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AUC</span></code></p>
+<p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/AUC">TensorFlow’s AUC class</a>
+which allows for limiting the AUC graph with an optional x minimum, x maximum,
+y minimum, and y maximum.</p>
+<p>For a best approximation of the real AUC, <code class="code docutils literal notranslate"><span class="pre">predictions</span></code> should be
+distributed approximately uniformly in the range <code class="code docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> (if
+<code class="code docutils literal notranslate"><span class="pre">from_logits=False</span></code>). The quality of the AUC approximation may be poor if
+this is not the case. Setting <code class="code docutils literal notranslate"><span class="pre">summation_method</span></code> to ‘minoring’ or ‘majoring’
+can help quantify the error in the approximation by providing lower or upper
+bound estimate of the AUC.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">sample_weight</span></code> is <code class="code docutils literal notranslate"><span class="pre">None</span></code>, weights default to 1.
+Use <code class="code docutils literal notranslate"><span class="pre">sample_weight</span></code> of 0 to mask values.</p>
+<p>For use in TensorFlow’s <code class="code docutils literal notranslate"><span class="pre">model.compile</span></code> function, this class
+can be passed as a class instance or as any of the following string type
+aliases:</p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;BoundedAUC&quot;</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;bounded_auc&quot;</span></code></p></li>
+</ul>
+<p><strong>Note:</strong> Where appropriate, documentation for functions from <code class="code docutils literal notranslate"><span class="pre">tf.keras.Metric</span></code> has been
+overridden to be more descriptive. Any other non-descriptive documentation of individual functions
+on this page is due to a lack of documentation in TensorFlow’s original source code. Still, TensorFlow’s
+documentation and source code for the <code class="code docutils literal notranslate"><span class="pre">Metric</span></code> class can be found <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Metric">here</a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_thresholds</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">200</span></code>. The number of thresholds to
+use when discretizing the roc curve. Values must be &gt; 1.</p></li>
+<li><p><strong>min_x</strong> – Optional. A float between <code class="code docutils literal notranslate"><span class="pre">0</span></code> and <code class="code docutils literal notranslate"><span class="pre">1</span></code>, specifying the minimum
+x  value at which AUC should be computed. Setting this value should be used for debugging
+purposes only, as ignoring low x values of AUC is generally undesireable.</p></li>
+<li><p><strong>max_x</strong> – Optional. A float between <code class="code docutils literal notranslate"><span class="pre">0</span></code> and <code class="code docutils literal notranslate"><span class="pre">1</span></code>, specifying the maximum
+x value at which AUC should be computed.</p></li>
+<li><p><strong>min_y</strong> – Optional. A float between <code class="code docutils literal notranslate"><span class="pre">0</span></code> and <code class="code docutils literal notranslate"><span class="pre">1</span></code>, specifying the minimum
+y value at which AUC should be computed.</p></li>
+<li><p><strong>max_y</strong> – Optional. A float between <code class="code docutils literal notranslate"><span class="pre">0</span></code> and <code class="code docutils literal notranslate"><span class="pre">1</span></code>, specifying the maximum
+y value at which AUC should be computed. Setting this value should be used for debugging
+purposes only, as ignoring high y values of AUC is generally undesireable.</p></li>
+<li><p><strong>curve</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">'PR'</span></code> Specifies the name of the curve to be computed,
+<code class="code docutils literal notranslate"><span class="pre">'ROC'</span></code> (default) or <code class="code docutils literal notranslate"><span class="pre">'PR'</span></code> for the Precision-Recall-curve.</p></li>
+<li><p><strong>summation_method</strong> – Optional. Specifies the <a class="reference external" href="https://en.wikipedia.org/wiki/Riemann_sum">Riemann summation method</a> used.
+‘interpolation’ (default) applies mid-point summation scheme for
+<code class="code docutils literal notranslate"><span class="pre">ROC</span></code>.  For PR-AUC, interpolates (true/false) positives but not
+the ratio that is precision (see Davis &amp; Goadrich 2006 for
+details); ‘minoring’ applies left summation for increasing
+intervals and right summation for decreasing intervals; ‘majoring’
+does the opposite.</p></li>
+<li><p><strong>name</strong> – Optional. String name of the metric instance.</p></li>
+<li><p><strong>dtype</strong> – Optional. Data type of the metric result.</p></li>
+<li><p><strong>thresholds</strong> – Optional. A list of floating point values to use as the
+thresholds for discretizing the curve. If set, the <code class="code docutils literal notranslate"><span class="pre">num_thresholds</span></code>
+parameter is ignored. Values should be in <code class="code docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>. Endpoint
+thresholds equal to {<code class="code docutils literal notranslate"><span class="pre">-epsilon</span></code>, <code class="code docutils literal notranslate"><span class="pre">1+epsilon</span></code>} for a small positive
+epsilon value will be automatically included with these to correctly
+handle predictions equal to exactly 0 or 1.</p></li>
+<li><p><strong>multi_label</strong> – boolean indicating whether multilabel data should be
+treated as such, wherein AUC is computed separately for each label
+and then averaged across labels, or (when <code class="code docutils literal notranslate"><span class="pre">False</span></code>) if the data
+should be flattened into a single label before AUC computation. In
+the latter case, when multilabel data is passed to AUC, each
+label-prediction pair is treated as an individual data point. Should
+be set to <code class="code docutils literal notranslate"><span class="pre">False</span></code> for multi-class data.</p></li>
+<li><p><strong>num_labels</strong> – Optional. The number of labels, used when <code class="code docutils literal notranslate"><span class="pre">multi_label</span></code> is
+True. If <cite>num_labels</cite> is not specified, then state variables get
+created on the first call to <code class="code docutils literal notranslate"><span class="pre">update_state</span></code>.</p></li>
+<li><p><strong>label_weights</strong> – Optional. List, array, or tensor of non-negative weights
+used to compute AUCs for multilabel data. When <code class="code docutils literal notranslate"><span class="pre">multi_label</span></code> is
+True, the weights are applied to the individual label AUCs when they
+are averaged to produce the multi-label AUC. When it’s False, they
+are used to weight the individual label predictions in computing the
+confusion matrix on the flattened data. Note that this is unlike
+<code class="code docutils literal notranslate"><span class="pre">class_weights</span></code> in that <code class="code docutils literal notranslate"><span class="pre">class_weights</span></code> weights the example
+depending on the value of its label, whereas <code class="code docutils literal notranslate"><span class="pre">label_weights</span></code> depends
+only on the index of that label before flattening; therefore
+<code class="code docutils literal notranslate"><span class="pre">label_weights</span></code> should not be used for multi-class data.</p></li>
+<li><p><strong>from_logits</strong> – boolean indicating whether the predictions (<code class="code docutils literal notranslate"><span class="pre">y_pred</span></code> in
+<code class="code docutils literal notranslate"><span class="pre">update_state</span></code>) are probabilities or sigmoid logits. As a rule of thumb,
+when using a keras loss, the <code class="code docutils literal notranslate"><span class="pre">from_logits</span></code> constructor argument of the
+loss should match the AUC <code class="code docutils literal notranslate"><span class="pre">from_logits</span></code> constructor argument.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">BoundedAUC</span><span class="p">(</span><span class="n">num_thresholds</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">update_state</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># threshold values are [0 - 1e-7, 0.5, 1 + 1e-7]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># tp = [2, 1, 0], fp = [2, 0, 0], fn = [0, 1, 2], tn = [0, 2, 2]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># tp_rate = recall = [1, 0.5, 0], fp_rate = [1, 0, 0]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># auc = ((((1 + 0.5) / 2) * (1 - 0)) + (((0.5 + 0) / 2) * (0 - 0)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#     = 0.75</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+<span class="go">0.75</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">update_state</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">],</span>
+<span class="gp">... </span>               <span class="n">sample_weight</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+<p>Usage with <cite>compile()</cite> API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reports the AUC of a model outputting a probability.</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;sgd&#39;</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">BinaryCrossentropy</span><span class="p">(),</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">BoundedAUC</span><span class="p">()])</span>
+
+<span class="c1"># Reports the AUC of a model outputting a logit.</span>
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;sgd&#39;</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">BinaryCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">BoundedAUC</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">)])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.reset_state">
+<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.BoundedAUC.reset_state" title="Link to this definition">#</a></dt>
+<dd><p>Reset all of the metric state variables.</p>
+<p>This function is called between epochs/steps,
+when a metric is evaluated during training.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.result">
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">_ScalarType_co</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#imbal.metrics.BoundedAUC.result" title="Link to this definition">#</a></dt>
+<dd><p>Compute the current metric value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A scalar tensor, or a dictionary of scalar tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.update_state">
+<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.BoundedAUC.update_state" title="Link to this definition">#</a></dt>
+<dd><p>Accumulates confusion matrix statistics.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> – The ground truth values.</p></li>
+<li><p><strong>y_pred</strong> – The predicted values.</p></li>
+<li><p><strong>sample_weight</strong> – Optional weighting of each example. Can
+be a tensor whose rank is either 0, or the same rank as
+<cite>y_true</cite>, and must be broadcastable to <cite>y_true</cite>. Defaults to
+<cite>1</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="critical_success_index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">imbal.metrics.CriticalSuccessIndex</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../classification/classification.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Classification</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC"><code class="docutils literal notranslate"><span class="pre">BoundedAUC</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.reset_state"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.reset_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.result"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.update_state"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.update_state()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/imbal/metrics/bounded_auc.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

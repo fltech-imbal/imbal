@@ -38,6 +38,7 @@ def fit_kde(
       candidate, the next round would be a beam search from :math:`2` to :math:`4`).
 
     There are two stopping criteria for this iterative fit method:
+
     - The candidates in the current round perform no better than the best candidate from the previous round.
     - The KL divergence is within some tolerance of zero (this method is disabled by default).
 
@@ -230,8 +231,6 @@ def plot_kde_1d(
                  verticalalignment='bottom', horizontalalignment='right')
 
     title_strings = []
-    if show_extreme_frequencies:
-        title_strings.append(f'f_max/f_min = {max_count / min_count:.1f}')
     if show_bandwidth:
         title_strings.append(f'bandwidth = {kde.bandwidth_:.3f}')
     if show_bin_count:

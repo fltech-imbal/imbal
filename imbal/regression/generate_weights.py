@@ -53,7 +53,7 @@ def get_densities(
       delta range, that normalize the local KDE to the same scale as the full KDE.
 
     The result of this method is an apporixmation of the full KDE, such that each approximated point has an
-    error no greater than :math`\text{atol}/n`, therefore the total error is no more than :code:`atol`.
+    error no greater than :math:`\text{atol}/n`, therefore the total error is no more than :code:`atol`.
 
     By working with the points in ascending order, the delta bounds
     for each point can be found in :math:`O(1)` amortized time. We use this method as opposed to a binary
