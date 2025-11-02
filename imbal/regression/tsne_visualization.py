@@ -15,7 +15,6 @@ def tsne_visualization(
     padding_factor=0.01,
 ):
     """
-
     Args:
         model: The PyTorch model whose representation space you wish to visualize.
         data: The data whose representation you wish to visualize, as a column vector.
@@ -45,7 +44,7 @@ def tsne_visualization(
         >>> # For this example, assume a trained model is saved in 'model', and
         >>> # data and labels are stored in 'data' and 'labels' respectively.
 
-        >>> imbal.classification.tsne_visualization(
+        >>> imbal.regression.tsne_visualization(
         >>>     model,
         >>>     data,
         >>>     labels,

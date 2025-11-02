@@ -397,8 +397,22 @@ Errors
 	- Fix binary classification plots to be the same TSNE $\checkmark$
 	- Use code for color/shape/size example $\checkmark$
 	- Code examples for regression/classification $\checkmark$
-- Read $2.4$
-	- Find implementations of LIME and SHAP
-		- Papers have original implementations, but might be in `TF`/`scipy`/`scikit-learn`
+- Read $2.4$ $\checkmark$
+	- Find implementations of LIME and SHAP $\checkmark$
+		- Papers have original implementations, but might be in `TF`/`scipy`/`scikit-learn` $\checkmark$
 
-## Notes:
+
+# 10/31/25
+
+## Tasks:
+- Skip floor(steps/2) in `fit_kde`
+- `plot_kde_1d` images smaller (pull images from docstring and put in markdown)
+- frequent/rare example fix for regression
+	- More than 2 classes for regression
+- Import `LIME` and `SHAP`
+	- Build basic explainer wrappers
+	- Use MNIST for examples/prototyping
+		- Classification **AND** regression
+	- Two examples:
+		- Image dataset
+		- Tabular dataset

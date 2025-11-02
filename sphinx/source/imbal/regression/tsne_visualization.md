@@ -6,9 +6,9 @@
 
 ## Example of Rare Class Last Plotting Benefits
 
-By plotting rare classes last, we can ensure that instances of rare classes are
-always plotted above instances of more common classes, leading to a clearer
-visual of the TSNE plot.
+By plotting bins with infrequent values last, we can ensure that instances
+of these infrequent values are always plotted above instances of more frequent
+values, leading to a clearer visual of the TSNE plot.
 
 <div style="display: flex; width: 100%;">
 <img alt="test"
@@ -20,8 +20,8 @@ src="../../_static/classification/tsne_visualization/tsne-binary-classification-
 </div>
 
 As you can see in the visualization above, in the case where the labels
-are plotted in order (left), the few blue points that have been plotted
-in the orange region are almost entirely lost. On the other hand, using
+are plotted most frequent first (left), the few orange points that have been plotted
+in the blue region are almost entirely lost. On the other hand, using
 our "rare plotted last" method (right), all the orange points plotted
 within the blue region are clearly visible.
 

@@ -20,8 +20,8 @@ src="../../_static/classification/tsne_visualization/tsne-binary-classification-
 </div>
 
 As you can see in the visualization above, in the case where the labels
-are plotted in order (left), the few blue points that have been plotted
-in the orange region are almost entirely lost. On the other hand, using
+are plotted in order (left), the few orange points that have been plotted
+in the blue region are almost entirely lost. On the other hand, using
 our "rare plotted last" method (right), all the orange points plotted
 within the blue region are clearly visible.
 
