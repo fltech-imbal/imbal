@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from imbal.util.sample_weighting import calculate_bin_count, get_label_bin_bounds
 import itertools
+from math import floor
 
 def fit_kde(
         labels,
@@ -193,31 +194,6 @@ def plot_kde_1d(
         >>>     save_figure='plot.png'
         >>> )
 
-    Below is the resultant graph saved to :code:`plot.png`:
-
-    .. figure:: ../../_static/regression/plot_kde_1d/example_kde_plot.png
-       :scale: 85 %
-       :alt: A histogram plot of the data from the example above
-
-    Parameters can also be set to modify the values shown on the plot:
-
-    .. code-block:: python
-
-
-        >>> found_bandwidth = imbal.regression.fit_kde(data, bin_count=10)
-        >>> imbal.regression.plot_kde_1d(
-        >>>     data,
-        >>>     found_bandwidth,
-        >>>     bin_count=10,
-        >>>     save_figure='plot.png',
-        >>>     show_bin_count=False,
-        >>>     show_bandwidth=False,
-        >>>     show_extreme_frequencies=True
-        >>> )
-
-    .. figure:: ../../_static/regression/plot_kde_1d/example_kde_plot_2.png
-       :scale: 85 %
-       :alt: A histogram plot of the data from the example above
     """
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
     labels = np.sort(labels.reshape(-1, ))
@@ -336,6 +312,9 @@ def _iterative_kde_approximation(
         bandwidth_contender = None
 
         for i in range(search_steps):
+            if search_steps % 2 == 1 and i == floor(search_steps / 2):
+                continue
+
             current_bandwidth = (search_max - search_min) / search_steps * (i + 0.5)
             # Prevent negative and zero bandwidths
             if current_bandwidth <= 1e-9:

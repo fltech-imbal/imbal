@@ -13,10 +13,10 @@ values, leading to a clearer visual of the TSNE plot.
 <div style="display: flex; width: 100%;">
 <img alt="test"
 style="flex: 1; max-width: 50%;"
-src="../../_static/classification/tsne_visualization/tsne-binary-classification-without-proper-plot-order.png"/>
+src="../../_static/regression/tsne_visualization/tsne-regression-without-proper-plot-order.png"/>
 <img alt="test 2"
 style="flex: 1; max-width: 50%;"
-src="../../_static/classification/tsne_visualization/tsne-binary-classification-with-proper-plot-order.png"/>
+src="../../_static/regression/tsne_visualization/tsne-regression-with-proper-plot-order.png"/>
 </div>
 
 As you can see in the visualization above, in the case where the labels

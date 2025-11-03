@@ -405,7 +405,7 @@ Errors
 # 10/31/25
 
 ## Tasks:
-- Skip floor(steps/2) in `fit_kde`
+- Skip floor(steps/2) in `fit_kde` $\checkmark$
 - `plot_kde_1d` images smaller (pull images from docstring and put in markdown)
 - frequent/rare example fix for regression
 	- More than 2 classes for regression
