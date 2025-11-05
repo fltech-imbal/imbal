@@ -24,7 +24,7 @@ else:
         return data
 
 
-    PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+    PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
     print(os.getcwd())
 
     # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
@@ -150,20 +150,36 @@ EXPLAIN_INDEX = 1000
 
 print(x_test.shape)
 
+print(model.predict(x_test[0].reshape(1, 28, 28, 1)))
+print(model.predict(x_test[0].reshape(1, 28, 28, 1)).shape)
+
 import shap
+from matplotlib import pyplot as plt
 
-background = x_train[np.random.choice(x_train.shape[0], 1000, replace=False)]
+if LIME_MODE == 'image':
+    background = x_train[np.random.choice(x_train.shape[0], 1000, replace=False)]
 
-x_test = np.expand_dims(x_test, -1)
-background = np.expand_dims(background, -1)
+    # x_test = np.expand_dims(x_test, -1)
+    # background = np.expand_dims(background, -1)
 
-print(background.shape)
-print(x_test.shape)
+    print(background.shape)
+    print(x_test.shape)
 
-explainer = shap.DeepExplainer(model, background)
-shap_values = explainer.shap_values(x_test[0:5], check_additivity=False)
+    explainer = shap.DeepExplainer(model, background)
+    shap_values = explainer.shap_values(x_test[0:5], check_additivity=False)
 
-print(shap_values.shape)
+    print(shap_values.shape)
 
-shap.image_plot(shap_values, x_test[0:5])
+    shap.image_plot(shap_values, x_test[0:5])
+    plt.show()
+else:
+    def f(x):
+        return model.predict(x)
 
+    print('here!')
+    background = x_train[np.random.choice(x_train.shape[0], 1000, replace=False)]
+    kernel_explainer = shap.KernelExplainer(f, background)
+    shap_values = kernel_explainer.shap_values(x_train[EXPLAIN_INDEX], nsamples=500)
+
+    plot = shap.force_plot(kernel_explainer.expected_value, shap_values)
+    shap.save_html('test.html', plot)

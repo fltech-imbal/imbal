@@ -7,7 +7,7 @@ import csv
 
 import imbal.util.explanation
 
-LIME_MODE = 'tabular'
+LIME_MODE = 'image'
 MODE = 'classification'
 
 IMBALANCED = False
@@ -26,7 +26,7 @@ else:
         return data
 
 
-    PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+    PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
     print(os.getcwd())
 
     # data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/CISIR-data/SARCOS/sarcos_inv_training.csv'))
@@ -148,20 +148,20 @@ if LIME_MODE == 'image':
 else:
     model.load_weights(f'trained-tabular-model-{MODE}.weights.h5')
 
-EXPLAIN_INDEX = 1000
+EXPLAIN_INDEX = 1300
 
 if LIME_MODE=='image':
     x_test = np.stack((x_test,)*3, axis=-1)
 
 print(x_test.shape)
 
-imbal.util.explanation.lime_explaination(
+imbal.util.explanation.lime_explanation(
     x_test,
     y_test,
     model,
     instance_index=EXPLAIN_INDEX,
     lime_mode=LIME_MODE,
     model_type=MODE,
-    num_features=25
+    num_features=2
 )
 

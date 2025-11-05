@@ -4,7 +4,7 @@ from skimage.segmentation import mark_boundaries
 import tensorflow as tf
 import numpy as np
 
-def lime_explaination(
+def lime_explanation(
     data,
     labels,
     model,
@@ -108,8 +108,15 @@ def _lime_explain_tabular(
         num_features=num_features
     )
 
+    # Get HTML representation
+    html_content = exp.as_html()
+
+    # Save to file
+    with open("lime_explanation.html", "w") as f:
+        f.write(html_content)
+
     exp.as_pyplot_figure()
     plt.show()
 
-def shap_explaination():
+def shap_explanation():
     pass

@@ -4,7 +4,7 @@
 .. autoclass:: imbal.regression.kde.plot_kde_1d
 ```
 
-Below is the resultant graph saved to :code:`plot.png`:
+Below is the resultant graph saved to `plot.png`:
 
 <img alt="A histogram plot of the data from the example above" 
 style="width:500px"
