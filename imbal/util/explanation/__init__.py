@@ -14,7 +14,8 @@ def lime_explanation(
     model_type='classification',
     num_samples=100,
     num_features=4,
-    top_labels=3
+    top_labels=3,
+    class_names=None,
 ):
     if lime_mode == 'image':
         _lime_explain_image(
@@ -22,10 +23,9 @@ def lime_explanation(
             model,
             instance_index=instance_index,
             segmentation_fn=segmentation_fn,
-            model_type=model_type,
             num_samples=num_samples,
             num_features=num_features,
-            top_labels=top_labels
+            class_names=class_names,
         )
     elif lime_mode == 'tabular':
         _lime_explain_tabular(
@@ -37,7 +37,6 @@ def lime_explanation(
             model_type=model_type,
             num_samples=num_samples,
             num_features=num_features,
-            top_labels=top_labels
         )
     else:
         raise ValueError('lime_mode must be either "image" or "tabular"')
@@ -47,21 +46,18 @@ def _lime_explain_image(
         model,
         instance_index=0,
         segmentation_fn=None,
-        model_type='classification',
         num_samples=100,
         num_features=4,
-        top_labels=3
+        class_names=None
 ):
     def predict_fn(images):
-        gray = tf.image.rgb_to_grayscale(images)
-        gray = tf.image.resize(gray, [28, 28])
-        return model.predict(gray)
+        return model.predict(images)
 
     explainer = lime_image.LimeImageExplainer()
     explanation = explainer.explain_instance(
         data[instance_index],
         predict_fn,
-        top_labels=top_labels,
+        top_labels=1,
         hide_color=None,
         num_samples=num_samples,
         segmentation_fn=segmentation_fn,
@@ -74,9 +70,17 @@ def _lime_explain_image(
         hide_rest=False
     )
 
-    print(explanation.top_labels[0])
-    plt.imshow(mark_boundaries(temp, mask))
-    plt.axis('off')
+    fig, ax = plt.subplots(nrows=1, ncols=2)
+
+    if class_names is not None:
+        print('top', explanation.top_labels)
+        fig.suptitle(f'Explanation for "{class_names[explanation.top_labels[0]]}"')
+    ax[0].imshow(data[instance_index])
+    ax[0].set_title('Original Image')
+    ax[0].set_axis_off()
+    ax[1].imshow(mark_boundaries(temp, mask))
+    ax[1].set_title('Explanation')
+    ax[1].set_axis_off()
     plt.show()
 
 def _lime_explain_tabular(
@@ -88,7 +92,6 @@ def _lime_explain_tabular(
         model_type='classification',
         num_samples=100,
         num_features=4,
-        top_labels=3
 ):
 
     explainer = lime_tabular.LimeTabularExplainer(

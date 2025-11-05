@@ -10,3 +10,5 @@ from .kde import (
     plot_kde_1d
 )
 from .wrappers import labels_to_kde_weights
+
+from .explanation import lime_image_explanation

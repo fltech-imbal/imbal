@@ -42,3 +42,34 @@
 - Focus on LIME first
 	- Read up
 - Draw the line for parameters at important/often necessary
+
+
+# 11/5/25
+
+## Prep:
+- Try and use LIME associated dataset $\checkmark$
+	- Read LIME paper - They likely reference the dataset $\checkmark$
+	- In general, try to swap in datasets that they used $\checkmark$
+- SHAP getting full plot
+	- Look at documentation/source
+	- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
+	
+- Get "basics" of plotting to work first (matplotlib for images, HTML for tabular) $\checkmark$
+- We perform LIME grayscale to RGB conversion $\checkmark$
+- Focus on LIME first $\checkmark$
+	- Read up $\checkmark$
+- Draw the line for parameters at important/often necessary $\checkmark$
+
+## Notes:
+- Went through LIME paper, either the paper fails to mention where they get images from when showing an image, or refer to the images in their figures as "arbitrary images" without further elaboration.
+	- Instead used data from this [STL-10](https://cs.stanford.edu/~acoates/stl10/) dataset, which is a small subset of ImageNet, $96\times96$ resolution
+- LIME on regression data is not easily adaptable
+	- LIME explains a single feature at a time (such as class)
+	- For regression, LIME works fine when regression leads to a single numerical output
+	- For multiple numerical outputs, a singular feature must be picked to be explained (ex. a model that predict the bounding box of an object in an image can only be explained in terms of one width, height, x position, or y position at a time)
+- Should I be concerned with text explanations?
+## Tasks:
+- `SHAP`
+	- SHAP getting full plot
+		- Look at documentation/source
+		- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
