@@ -35,7 +35,8 @@ def tsne_visualization(
         padding_factor: Optional, default :code:`0.01`. Used to add a small padding to
             the data range used for binning for the histogram. See :doc:`imbal.regression.fit_kde </imbal/regression/fit_kde>`.
 
-    Returns: :code:`None`
+    Returns:
+        :code:`None`
 
     Example:
 

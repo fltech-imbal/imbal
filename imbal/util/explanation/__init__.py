@@ -1,125 +1,44 @@
 from lime import lime_image, lime_tabular
 from matplotlib import pyplot as plt
-from skimage.segmentation import mark_boundaries
-import tensorflow as tf
-import numpy as np
 
-def lime_explanation(
-    data,
-    labels,
-    model,
-    instance_index=0,
-    segmentation_fn=None,
-    lime_mode='image',
-    model_type='classification',
-    num_samples=100,
-    num_features=4,
-    top_labels=3,
-    class_names=None,
-):
-    if lime_mode == 'image':
-        _lime_explain_image(
-            data,
-            model,
-            instance_index=instance_index,
-            segmentation_fn=segmentation_fn,
-            num_samples=num_samples,
-            num_features=num_features,
-            class_names=class_names,
-        )
-    elif lime_mode == 'tabular':
-        _lime_explain_tabular(
-            data,
-            labels,
-            model,
-            instance_index=instance_index,
-            segmentation_fn=segmentation_fn,
-            model_type=model_type,
-            num_samples=num_samples,
-            num_features=num_features,
-        )
-    else:
-        raise ValueError('lime_mode must be either "image" or "tabular"')
-
-def _lime_explain_image(
-        data,
+def lime_tabular_explanation(
+        image,
         model,
-        instance_index=0,
-        segmentation_fn=None,
+        training_data,
         num_samples=100,
-        num_features=4,
-        class_names=None
+        class_names=None,
+        feature_names=None,
+        label=None,
+        mode='classification',
+        figure_save_path='lime-explanation.html',
+        use_pyplot=False,
+        return_figure=False,
 ):
-    def predict_fn(images):
-        return model.predict(images)
-
-    explainer = lime_image.LimeImageExplainer()
-    explanation = explainer.explain_instance(
-        data[instance_index],
-        predict_fn,
-        top_labels=1,
-        hide_color=None,
-        num_samples=num_samples,
-        segmentation_fn=segmentation_fn,
-    )
-
-    temp, mask = explanation.get_image_and_mask(
-        explanation.top_labels[0],
-        positive_only=False,
-        num_features=num_features,
-        hide_rest=False
-    )
-
-    fig, ax = plt.subplots(nrows=1, ncols=2)
-
-    if class_names is not None:
-        print('top', explanation.top_labels)
-        fig.suptitle(f'Explanation for "{class_names[explanation.top_labels[0]]}"')
-    ax[0].imshow(data[instance_index])
-    ax[0].set_title('Original Image')
-    ax[0].set_axis_off()
-    ax[1].imshow(mark_boundaries(temp, mask))
-    ax[1].set_title('Explanation')
-    ax[1].set_axis_off()
-    plt.show()
-
-def _lime_explain_tabular(
-        data,
-        labels,
-        model,
-        instance_index=0,
-        segmentation_fn=None,
-        model_type='classification',
-        num_samples=100,
-        num_features=4,
-):
-
-    explainer = lime_tabular.LimeTabularExplainer(
-        data,
-        mode=model_type,
-        training_labels=labels,
-    )
 
     def predict_fn(value):
-        p1 = model.predict(value).reshape(-1)  # shape (n_samples,)
-        p0 = 1 - p1
-        return np.vstack([p0, p1]).T
+        return model.predict(value)
 
-    exp = explainer.explain_instance(
-        data[instance_index],
+    explainer = lime_tabular.LimeTabularExplainer(
+        training_data,
+        mode=mode,
+        class_names=class_names,
+        feature_names=feature_names,
+    )
+    explanation = explainer.explain_instance(
+        image,
         predict_fn,
-        num_features=num_features
+        labels=[label],
+        top_labels=1 if label is None else None,
+        num_samples=num_samples,
     )
 
-    # Get HTML representation
-    html_content = exp.as_html()
+    if use_pyplot:
+        fig = explanation.as_pyplot_figure()
+        plt.show()
+        if return_figure:
+            return fig
+    else:
+        explanation.save_to_file(figure_save_path)
+        print(f'LIME explanation saved to "{figure_save_path}"')
 
-    # Save to file
-    with open("lime_explanation.html", "w") as f:
-        f.write(html_content)
-
-    exp.as_pyplot_figure()
-    plt.show()
-
-def shap_explanation():
-    pass
+    return figure_save_path

@@ -10,6 +10,7 @@
 - [plot_kde_1d](plot_kde_1d.md)
 - [fit_kde](fit_kde.md)
 - [tsne_visualization](tsne_visualization.md)
+- [lime_tabular_explanation](lime_tabular_explanation.md)
 
 ```{eval-rst}
 .. toctree::
@@ -23,4 +24,5 @@
     plot_kde_1d <plot_kde_1d>
     fit_kde <fit_kde>
     tsne_visualization <tsne_visualization>
+    lime_tabular_explanation <lime_tabular_explanation>
 ```

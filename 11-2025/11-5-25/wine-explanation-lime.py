@@ -56,11 +56,12 @@ for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
     y = y_test[i + EXPLAIN_INDEX_START]
 
-    imbal.classification.explanation.lime_tabular_explaination(
+    imbal.classification.explanation.lime_tabular_explanation(
         x,
         model,
         x_train,
         label=y,
+        class_names=['Region 1', 'Region 2', 'Region 3'],
         feature_names=labels,
         figure_save_path=f'temp-{i}.html',
         # use_pyplot=True

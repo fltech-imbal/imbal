@@ -37089,25 +37089,25 @@
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divAVABALVTQ0RMYUO"></div>
+        <div class="lime top_div" id="top_divV8WTRPJI9P4VZ02"></div>
         
         <script>
-        var top_div = d3.select('#top_divAVABALVTQ0RMYUO').classed('lime top_div', true);
+        var top_div = d3.select('#top_divV8WTRPJI9P4VZ02').classed('lime top_div', true);
         
-        
-                    var pp_div = top_div.append('div')
-                                        .classed('lime predicted_value', true);
-                    var pp_svg = pp_div.append('svg').style('width', '100%');
-                    var pp = new lime.PredictedValue(pp_svg, 2.561255693435669, 1.0452100038528442, 4.345755577087402);
-                    
-        var exp_div;
-            var exp = new lime.Explanation(["negative", "positive"]);
-        
-            exp_div = top_div.append('div').classed('lime explanation', true);
-            exp.show([["Latitude > 37.69", 0.599668790305016], ["792.00 < Population <= 1168.00", 0.5855249326584864], ["2.52 < MedInc <= 3.48", -0.19888976619674753], ["-121.24 < Longitude <= -118.30", -0.18930725150905806], ["AveBedrms > 1.10", -0.14921042395378728], ["4.38 < AveRooms <= 5.16", -0.14094981630595368], ["2.42 < AveOccup <= 2.83", -0.1196067890319011], ["30.00 < HouseAge <= 38.00", -0.028831225007838884]], 1, exp_div);
+            var pp_div = top_div.append('div')
+                                .classed('lime predict_proba', true);
+            var pp_svg = pp_div.append('svg').style('width', '100%');
+            var pp = new lime.PredictProba(pp_svg, ["Region 1", "Region 2", "Region 3"], [0.00018411065684631467, 0.42105570435523987, 0.5787600874900818]);
             
+        
+        var exp_div;
+            var exp = new lime.Explanation(["Region 1", "Region 2", "Region 3"]);
+        
+                exp_div = top_div.append('div').classed('lime explanation', true);
+                exp.show([["alcalinity_of_ash > 21.00", 0.08550655758834608], ["malic_acid > 2.27", 0.06423090773380899], ["2.33 < ash <= 2.54", 0.05283203088643672], ["hue <= 0.91", 0.04760169400428089], ["magnesium > 107.00", -0.04407066853956707], ["od280/od315_of_diluted_wines <= 2.53", 0.04151640306813179], ["proline <= 495.00", -0.032919392267607345], ["proanthocyanins <= 1.35", -0.032132892160379276], ["12.29 < alcohol <= 12.87", 0.024463354367177226], ["flavanoids <= 1.75", -0.015618451617044478]], 2, exp_div);
+                
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["Latitude", "37.80", 0.599668790305016], ["Population", "971.00", 0.5855249326584864], ["MedInc", "2.61", -0.19888976619674753], ["Longitude", "-121.21", -0.18930725150905806], ["AveBedrms", "1.10", -0.14921042395378728], ["AveRooms", "4.79", -0.14094981630595368], ["AveOccup", "2.50", -0.1196067890319011], ["HouseAge", "33.00", -0.028831225007838884]], 1, raw_div);
+            exp.show_raw_tabular([["alcalinity_of_ash", "22.00", 0.08550655758834608], ["malic_acid", "2.67", 0.06423090773380899], ["ash", "2.48", 0.05283203088643672], ["hue", "0.48", 0.04760169400428089], ["magnesium", "112.00", -0.04407066853956707], ["od280/od315_of_diluted_wines", "1.47", 0.04151640306813179], ["proline", "480.00", -0.032919392267607345], ["proanthocyanins", "1.26", -0.032132892160379276], ["alcohol", "12.79", 0.024463354367177226], ["flavanoids", "1.36", -0.015618451617044478]], 2, raw_div);
         
         </script>
         </body></html>
