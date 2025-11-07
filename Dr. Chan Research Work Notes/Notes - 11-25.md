@@ -73,3 +73,23 @@
 	- SHAP getting full plot
 		- Look at documentation/source
 		- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
+- Better model? Pretrained or just make my model bigger
+- Pass class names for tabular classification (for wine, low, medium, high quality)
+	- Same for tabular regression
+- Don't worry about LIME image regression or text classification branch yet
+- Pull out code to separate `util` where necessary
+- Modify image classification:
+	- `actual_label` and `label_to_explain`
+		- `actual_label` is required
+		- `label_to_explain` defaults to predicted label from model
+		- Show indexes in title/image labels if string correspondences are not passed
+- Start documenting
+	- Still intro, parameters, then examples
+		- Make sure to refer to lime documentation when applicable (no need to discuss algorithm, time complexity, refer to LIME. Keep it simple. Just wrapping).
+	- Explain that we do not do text classification (unlikely to be used for space applications, but may be added later on)
+	- Explain that we do not do image regression for LIME because LIME does not support it by default
+	- LIME has its own page on home page,
+		- Links to all LIME wrappers
+		- Link to paper, GitHub, etc.
+		- Each function page should like back to the main LIME explanation page as well
+	- For image classification, show example of correct prediction, incorrect prediction, and overridden prediction

@@ -64,7 +64,7 @@ def lime_image_explanation(
     plt.show()
     return None
 
-def lime_tabular_explaination(
+def lime_tabular_explanation(
         image,
         model,
         training_data,

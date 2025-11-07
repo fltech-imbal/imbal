@@ -195,7 +195,7 @@ class_labels = ['airplane', 'bird', 'car', 'cat', 'deer', 'dog', 'horse', 'monke
 
 
 EXPLAIN_INDEX_START = 20
-EXPLAIN_AMOUNT = 5
+EXPLAIN_AMOUNT = 50
 
 for i in range(6):
     x_ = x_test[EXPLAIN_INDEX_START]

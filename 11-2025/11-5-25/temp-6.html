@@ -37089,25 +37089,25 @@
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_div6IWSO23RTIACVZ8"></div>
+        <div class="lime top_div" id="top_divLGRRNB5R5GUTGYP"></div>
         
         <script>
-        var top_div = d3.select('#top_div6IWSO23RTIACVZ8').classed('lime top_div', true);
+        var top_div = d3.select('#top_divLGRRNB5R5GUTGYP').classed('lime top_div', true);
         
-            var pp_div = top_div.append('div')
-                                .classed('lime predict_proba', true);
-            var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["0", "1", "2"], [0.07581834495067596, 0.12118048220872879, 0.8030011653900146]);
-            
         
+                    var pp_div = top_div.append('div')
+                                        .classed('lime predicted_value', true);
+                    var pp_svg = pp_div.append('svg').style('width', '100%');
+                    var pp = new lime.PredictedValue(pp_svg, 1.6771012544631958, 1.112540364265442, 3.6887619495391846);
+                    
         var exp_div;
-            var exp = new lime.Explanation(["0", "1", "2"]);
+            var exp = new lime.Explanation(["negative", "positive"]);
         
-                exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["495.00 < proline <= 680.00", 0.16356428374860266], ["alcalinity_of_ash > 21.00", 0.12834466129651362], ["88.00 < magnesium <= 98.00", 0.06399446447962685], ["color_intensity > 5.42", 0.05574017661540089], ["nonflavanoid_phenols > 0.41", 0.03581982731628501], ["flavanoids <= 1.75", 0.03522579638354524], ["od280/od315_of_diluted_wines <= 2.53", 0.029703753789597744], ["proanthocyanins <= 1.35", 0.022454728762776256], ["2.33 < ash <= 2.54", -0.01870907483235469], ["total_phenols <= 2.00", -0.010020164966080637]], 2, exp_div);
-                
+            exp_div = top_div.append('div').classed('lime explanation', true);
+            exp.show([["Latitude > 37.69", 0.42661483671606437], ["AveRooms <= 4.38", -0.27959123815860704], ["MedInc <= 2.52", -0.2649472324142432], ["HouseAge > 38.00", 0.13971352618333144], ["Population <= 792.00", -0.11913314877672354], ["AveBedrms <= 1.01", -0.047900044942859585], ["AveOccup <= 2.42", -0.01860992960020562], ["-121.24 < Longitude <= -118.30", 0.014989859640848122]], 1, exp_div);
+            
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["proline", "650.00", 0.16356428374860266], ["alcalinity_of_ash", "21.50", 0.12834466129651362], ["magnesium", "92.00", 0.06399446447962685], ["color_intensity", "8.42", 0.05574017661540089], ["nonflavanoid_phenols", "0.45", 0.03581982731628501], ["flavanoids", "0.76", 0.03522579638354524], ["od280/od315_of_diluted_wines", "1.62", 0.029703753789597744], ["proanthocyanins", "1.25", 0.022454728762776256], ["ash", "2.38", -0.01870907483235469], ["total_phenols", "1.93", -0.010020164966080637]], 2, raw_div);
+            exp.show_raw_tabular([["Latitude", "37.80", 0.42661483671606437], ["AveRooms", "4.11", -0.27959123815860704], ["MedInc", "2.18", -0.2649472324142432], ["HouseAge", "44.00", 0.13971352618333144], ["Population", "160.00", -0.11913314877672354], ["AveBedrms", "0.99", -0.047900044942859585], ["AveOccup", "2.19", -0.01860992960020562], ["Longitude", "-121.21", 0.014989859640848122]], 1, raw_div);
         
         </script>
         </body></html>

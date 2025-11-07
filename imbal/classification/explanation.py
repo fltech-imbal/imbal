@@ -7,7 +7,7 @@ def lime_image_explanation(
         image,
         model,
         num_samples=100,
-        num_features=1000,
+        num_features=100000,
         class_names=None,
         label=None,
         return_figure=False
@@ -60,14 +60,14 @@ def lime_image_explanation(
     plt.show()
     return None
 
-def lime_tabular_explaination(
+def lime_tabular_explanation(
         image,
         model,
         training_data,
         num_samples=100,
         feature_names=None,
         label=None,
-        figure_save_path='temp.html',
+        figure_save_path='lime-explanation.html',
         use_pyplot=False,
         return_figure=False,
 ):
@@ -96,5 +96,6 @@ def lime_tabular_explaination(
             return fig
     else:
         explanation.save_to_file(figure_save_path)
+        print(f'LIME explanation saved to "{figure_save_path}"')
 
-    return None
+    return figure_save_path
