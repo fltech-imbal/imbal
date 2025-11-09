@@ -11,6 +11,15 @@ expansions to LIME's original functionalities, nor provide further insight into 
 inner workings, but rather to simply provide a simpler, more streamlined interface
 for some of LIME's functionalities.
 
+At the moment, our package does not implement wrappers for LIME's text classification
+capabilities. The main goal of this package is to be used for space research applications,
+and we felt that this field would have little use for this capability, though we may
+add these wrappers later on.
+
+Additionally, at this time we do not support explanations for image-based regression models, as
+LIME does not inherently support this type of explanation by default. We may implement
+this capability at a later date.
+
 Below is a list of the functions we have implement which utilize LIME's capabilities:
 - [imbal.classification.lime_image_explanation](../imbal/classification/lime_image_explanation.md)
 - [imbal.classification.lime_tabular_explanation](../imbal/classification/lime_tabular_explanation.md)

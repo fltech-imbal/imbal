@@ -46,24 +46,29 @@ model.compile(optimizer=optimizer,
 
 model.load_weights(f'wine-trained-tabular-model-{MODE}.weights.h5')
 
+import matplotlib.pyplot as plt
 
 print(x_test.shape)
 
-EXPLAIN_INDEX_START = 0
+EXPLAIN_INDEX_START = 1
 EXPLAIN_AMOUNT = 10
 
 for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
     y = y_test[i + EXPLAIN_INDEX_START]
 
-    imbal.classification.explanation.lime_tabular_explanation(
+    fig = imbal.classification.lime_tabular_explanation(
         x,
         model,
         x_train,
-        label=y,
-        class_names=['Region 1', 'Region 2', 'Region 3'],
-        feature_names=labels,
-        figure_save_path=f'temp-{i}.html',
-        # use_pyplot=True
+        # label_to_explain=y,
+        # class_names=['Region 1', 'Region 2', 'Region 3'],
+        # feature_names=labels,
+        # figure_save_path=f'temp-{i}.html',
+        use_pyplot=True,
+        # return_figure=True
     )
+
+    plt.savefig(f'temp-{i}.png')
+    plt.show()
 

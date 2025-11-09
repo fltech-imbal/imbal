@@ -1,4 +1,5 @@
 import keras
+import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.datasets import fetch_california_housing
 
@@ -59,13 +60,14 @@ for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
     y = y_test[i + EXPLAIN_INDEX_START]
 
-    imbal.regression.explanation.lime_tabular_explaination(
+    imbal.regression.lime_tabular_explanation(
         x,
         model,
         x_train,
-        label=y,
+        label_to_explain=y,
         feature_names=labels,
         figure_save_path=f'temp-{i}.html',
-        # use_pyplot=True
+        # use_pyplot=True,
+        # return_figure=True
     )
 

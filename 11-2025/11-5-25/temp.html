@@ -37089,25 +37089,25 @@
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divDZSGY2NPJ0XWX8W"></div>
+        <div class="lime top_div" id="top_divGZUUL1ZT3FNAXUL"></div>
         
         <script>
-        var top_div = d3.select('#top_divDZSGY2NPJ0XWX8W').classed('lime top_div', true);
+        var top_div = d3.select('#top_divGZUUL1ZT3FNAXUL').classed('lime top_div', true);
         
             var pp_div = top_div.append('div')
                                 .classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["Region 1", "Region 2", "Region 3"], [0.3568729758262634, 0.18154564499855042, 0.46158134937286377]);
+            var pp = new lime.PredictProba(pp_svg, ["0", "1", "2"], [2.879710700653959e-05, 0.7694697380065918, 0.2305014729499817]);
             
         
         var exp_div;
-            var exp = new lime.Explanation(["Region 1", "Region 2", "Region 3"]);
+            var exp = new lime.Explanation(["0", "1", "2"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["proanthocyanins <= 1.35", 0.08099167471345958], ["od280/od315_of_diluted_wines <= 2.53", 0.06346458180349385], ["flavanoids <= 1.75", 0.029908657860912503], ["nonflavanoid_phenols > 0.41", -0.024013039317004107], ["total_phenols <= 2.00", 0.01718697134982732], ["malic_acid > 2.27", -0.011869242078607137], ["680.00 < proline <= 1048.75", -0.011851197946948885], ["2.91 < color_intensity <= 4.15", -0.011225564724966648], ["98.00 < magnesium <= 107.00", 0.010783103787862378], ["12.87 < alcohol <= 13.68", 0.008829909985639406]], 2, exp_div);
+                exp.show([["12 <= 495.00", 0.4498878034243169], ["4 > 107.00", 0.21796384358057905], ["9 > 5.42", -0.1506406577125734], ["10 <= 0.91", -0.14114082680812529], ["1.73 < 1 <= 2.27", 0.11206244061997785], ["3 > 21.00", -0.06117761542320028], ["2 > 2.54", 0.055263950778712996], ["11 <= 2.53", -0.03565129497960615], ["6 <= 1.75", -0.02803780059932437], ["2.00 < 5 <= 2.50", -0.02594405287616629]], 1, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["proanthocyanins", "1.30", 0.08099167471345958], ["od280/od315_of_diluted_wines", "1.68", 0.06346458180349385], ["flavanoids", "0.55", 0.029908657860912503], ["nonflavanoid_phenols", "0.43", -0.024013039317004107], ["total_phenols", "1.50", 0.01718697134982732], ["malic_acid", "3.57", -0.011869242078607137], ["proline", "830.00", -0.011851197946948885], ["color_intensity", "4.00", -0.011225564724966648], ["magnesium", "102.00", 0.010783103787862378], ["alcohol", "13.16", 0.008829909985639406]], 2, raw_div);
+            exp.show_raw_tabular([["12", "425.00", 0.4498878034243169], ["4", "116.00", 0.21796384358057905], ["9", "7.10", -0.1506406577125734], ["10", "0.61", -0.14114082680812529], ["1", "1.90", 0.11206244061997785], ["3", "25.50", -0.06117761542320028], ["2", "2.75", 0.055263950778712996], ["11", "1.33", -0.03565129497960615], ["6", "1.28", -0.02803780059932437], ["5", "2.20", -0.02594405287616629]], 1, raw_div);
         
         </script>
         </body></html>

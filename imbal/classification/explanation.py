@@ -15,24 +15,33 @@ def lime_image_explanation(
         return_figure=False
 ):
     """
-        Utilizes LIME to generate an explanation for the classification of a particular image
-        by a given model. For more about LIME, see :doc:`this page </imbal/lime-explanation>`.
-    
-        Args:
-            image: The image to generate a LIME explanation for.
-            model: The PyTorch model whose representation space you wish to visualize.
-            num_samples: TODO
-            num_features: TODO
-            class_names: TODO
-            actual_label: TODO
-            label_to_explain: TODO
-            return_figure: TODO
+    Utilizes LIME to generate an explanation for the classification of a particular image
+    by a given model. For more about LIME, see :doc:`this page </imbal/lime-explanation>`.
 
-        Returns:
-            :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
-            :code:`return_figure` is set to :code:`True`.
+    Args:
+        image: The image to generate a LIME explanation for.
+        model: The PyTorch model to generate a LIME explanation from.
+        num_samples: Optional, default 100. The number of local samples to perform for
+            the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
+        num_features: Optional, default 100000. The maximum number of features to present
+            in the explanation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
+        class_names: Optional, default :code:`None`. An array of strings, which maps
+            class labels (as integer indices) to class names. Used to label the
+            generated figure.
+        actual_label: Optional, default :code:`None`. default The true label of the
+            provided image.
+        label_to_explain: Optional, default :code:`None`. The label of the class
+            you wish to generate an explanation for. This label need not be the same
+            as the true label for the provided image. When set to :code:`None`, the
+            label that is predicted by the model will be explained.
+        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
+            Matplotlib Figure and Axes objects associated with the generated figure will
+            be returned.
 
-        """
+    Returns:
+        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
+        :code:`return_figure` is set to :code:`True`.
+    """
     if len(image.shape) < 2 or len(image.shape) > 3:
         raise ValueError('"image" must be a 2D or 3D array (height, width, channels)')
 
@@ -50,7 +59,7 @@ def lime_image_explanation(
         image,
         predict_fn,
         labels=[label_to_explain] if label_to_explain is not None else None,
-        top_labels=1 if label_to_explain is None else None,
+        top_labels=None,
         num_samples=num_samples,
     )
 
@@ -96,28 +105,58 @@ def lime_image_explanation(
     return None
 
 def lime_tabular_explanation(
-        image,
+        sample,
         model,
         training_data,
         num_samples=100,
         class_names=None,
         feature_names=None,
-        label=None,
-        figure_save_path='temp.html',
+        label_to_explain=None,
+        figure_save_path='lime-explanation.html',
         use_pyplot=False,
         return_figure=False,
 ):
     """
+    Utilizes LIME to generate an explanation for the classification of a particular sample
+    by a given model. For more about LIME, see :doc:`this page </imbal/lime-explanation>`.
 
+    Args:
+        sample: The sample to generate a LIME explanation for.
+        model: The PyTorch model to generate a LIME explanation from.
+        training_data: The data the given model was trained on.
+        num_samples: Optional, default 100. The number of local samples to perform for
+            the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
+        class_names: Optional, default :code:`None`. An array of strings, which maps
+            class labels (as integer indices) to class names. Used to label the
+            generated figure.
+        feature_names: Optional, default :code:`None`. An array of strings, which maps
+            features (by integer index) to feature names. Use to label the
+            generated figure.
+        label_to_explain: Optional, default :code:`None`. The label of the class
+            you wish to generate an explanation for. This label need not be the same
+            as the true label for the provided image. When set to :code:`None`, the
+            label that is predicted by the model will be explained.
+        figure_save_path: Optional, default :code:`"temp.html"`. The path to
+            save the generated HTML figure to.
+        use_pyplot: Optional, default :code:`False`. Whether to use pyplot
+            to display the generated figure. The `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_
+            recommends not using the pyplot plot, but it can be useful for quick visualization.
+        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
+            Matplotlib Figure and Axes objects associated with the generated figure will
+            be returned. Ignored when :code:`use_pyplot` is set to :code:`False`.
+
+    Returns:
+        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
+        :code:`return_figure` is set to :code:`True`.
     """
     return explanation.lime_tabular_explanation(
-        image,
+        sample,
         model,
         training_data,
         num_samples=num_samples,
         class_names=class_names,
         feature_names=feature_names,
-        label=label,
+        label=label_to_explain,
         figure_save_path=figure_save_path,
         use_pyplot=use_pyplot,
         return_figure=return_figure,
