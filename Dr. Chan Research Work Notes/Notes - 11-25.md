@@ -69,10 +69,7 @@
 	- For multiple numerical outputs, a singular feature must be picked to be explained (ex. a model that predict the bounding box of an object in an image can only be explained in terms of one width, height, x position, or y position at a time)
 - Should I be concerned with text explanations?
 ## Tasks:
-- `SHAP`
-	- SHAP getting full plot
-		- Look at documentation/source
-		- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
+
 - Better model? Pretrained or just make my model bigger $\checkmark$
 - Pass class names for tabular classification (for wine, low, medium, high quality) $\checkmark$
 	- Same for tabular regression $\checkmark$
@@ -84,12 +81,29 @@
 		- `label_to_explain` defaults to predicted label from model $\checkmark$
 		- Show indexes in title/image labels if string correspondences are not passed $\checkmark$
 - Start documenting $\checkmark$
-	- Still intro, parameters, then examples
-		- Make sure to refer to lime documentation when applicable (no need to discuss algorithm, time complexity, refer to LIME. Keep it simple. Just wrapping).
-	- Explain that we do not do text classification (unlikely to be used for space applications, but may be added later on)
-	- Explain that we do not do image regression for LIME because LIME does not support it by default
+	- Still intro, parameters, then examples $\checkmark$
+		- Make sure to refer to lime documentation when applicable (no need to discuss algorithm, time complexity, refer to LIME. Keep it simple. Just wrapping) $\checkmark$.
+	- Explain that we do not do text classification (unlikely to be used for space applications, but may be added later on) $\checkmark$
+	- Explain that we do not do image regression for LIME because LIME does not support it by default $\checkmark$
 	- LIME has its own page on home page $\checkmark$
 		- Links to all LIME wrappers $\checkmark$
 		- Link to paper, GitHub, etc. $\checkmark$
 		- Each function page should like back to the main LIME explanation page as well $\checkmark$
-	- For image classification, show example of correct prediction, incorrect prediction, and overridden prediction
+	- For image classification, show example of correct prediction, incorrect prediction, and overridden prediction $\checkmark$
+## Notes: 
+- Explicit code examples missing (but easy to add)
+- Having issue with pyplot representation for tabular classification... not entirely sure why.
+## Tasks:
+- Explicit code examples missing (but easy to add) !!!
+- Having issue with `pyplot` representation for tabular classification... not entirely sure why.
+- Correct/incorrect/override examples for tabular classification
+	- For regression, close/far/override
+- `SHAP`
+	- Look at paper
+	- Find similar/used datasets
+	- image/tabular, classification/regression (where supported)
+- `SHAP` issues
+	- SHAP getting full plot
+		- Look at documentation/source
+		- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
+- Start implementing `SHAP`, remember easy to use

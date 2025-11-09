@@ -1,4 +1,4 @@
-from lime import lime_image, lime_tabular
+from lime import lime_tabular
 from matplotlib import pyplot as plt
 
 def lime_tabular_explanation(
@@ -34,9 +34,10 @@ def lime_tabular_explanation(
 
     if use_pyplot:
         fig = explanation.as_pyplot_figure()
-        plt.show()
         if return_figure:
             return fig
+        else:
+            plt.show()
     else:
         explanation.save_to_file(figure_save_path)
         print(f'LIME explanation saved to "{figure_save_path}"')
