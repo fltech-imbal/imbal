@@ -1,15 +1,26 @@
 import keras
-from sklearn.datasets import load_wine
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.datasets import fetch_california_housing
+
 
 import imbal.util.explanation
-MODE='classification'
+MODE='regression'
 IMBALANCED = False
 HIGH_IMBALANCE = False
 SAVE_FIG_NAME = f'tsne-{MODE}-imbalanced-{IMBALANCED}.png'
 
-x, y = load_wine(return_X_y=True)
-labels = load_wine().feature_names
+from sklearn.datasets import fetch_california_housing
+
+x, y = fetch_california_housing(return_X_y=True)
+labels = fetch_california_housing().feature_names
+
 print(labels)
+
+shuffle = np.random.permutation(len(x))
+x = x[shuffle]
+y = y[shuffle]
+
 
 DATASET_PERCENTAGE = 1.0
 TRAIN_SPLIT = 0.8
@@ -31,9 +42,9 @@ print('y_test',y_test.shape)
 from keras import layers
 
 inputs = keras.Input(shape=(x.shape[1],))
-x = layers.Dense(32, activation='relu')(inputs)
-x = layers.Dense(16, activation='relu')(x)
-output = layers.Dense(3, activation='softmax')(x)
+x = layers.Dense(64, activation='relu')(inputs)
+x = layers.Dense(32, activation='relu')(x)
+output = layers.Dense(1)(x)
 
 loss_fn = 'mse'
 metrics = ['mae', 'mse']
@@ -44,31 +55,37 @@ model.compile(optimizer=optimizer,
               loss=loss_fn,
               metrics=metrics)
 
-model.load_weights(f'wine-trained-tabular-model-{MODE}.weights.h5')
+model.load_weights(f'housing-trained-tabular-model-{MODE}.weights.h5')
 
-import matplotlib.pyplot as plt
 
-print(x_test.shape)
+print(y_test[:20])
 
-EXPLAIN_INDEX_START = 1
+EXPLAIN_INDEX_START = 0
 EXPLAIN_AMOUNT = 10
 
 for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
     y = y_test[i + EXPLAIN_INDEX_START]
 
-    fig = imbal.classification.lime_tabular_explanation(
+    imbal.regression.lime_tabular_explanation(
         x,
         model,
         x_train,
-        label_to_explain=y,
-        class_names=['Region 1', 'Region 2', 'Region 3'],
+        # label_to_explain=y,
         feature_names=labels,
         figure_save_path=f'temp-{i}.html',
         # use_pyplot=True,
         # return_figure=True
     )
 
-    # plt.savefig(f'temp-{i}.png')
-    # plt.show()
+    imbal.regression.lime_tabular_explanation(
+        x,
+        model,
+        x_train,
+        label_to_explain=y,
+        feature_names=labels,
+        figure_save_path=f'temp-{i}-actual.html',
+        # use_pyplot=True,
+        # return_figure=True
+    )
 

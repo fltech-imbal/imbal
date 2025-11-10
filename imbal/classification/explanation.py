@@ -59,7 +59,7 @@ def lime_image_explanation(
         image,
         predict_fn,
         labels=[label_to_explain] if label_to_explain is not None else None,
-        top_labels=None,
+        top_labels=1,
         num_samples=num_samples,
     )
 
@@ -136,7 +136,7 @@ def lime_tabular_explanation(
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
             label that is predicted by the model will be explained.
-        figure_save_path: Optional, default :code:`"temp.html"`. The path to
+        figure_save_path: Optional, default :code:`"lime-explanation.html"`. The path to
             save the generated HTML figure to.
         use_pyplot: Optional, default :code:`False`. Whether to use pyplot
             to display the generated figure. The `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_

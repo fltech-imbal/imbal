@@ -1,5 +1,6 @@
 import keras
 from sklearn.datasets import load_wine
+import numpy as np
 
 import imbal.util.explanation
 MODE='classification'
@@ -8,6 +9,10 @@ HIGH_IMBALANCE = False
 SAVE_FIG_NAME = f'tsne-{MODE}-imbalanced-{IMBALANCED}.png'
 
 x, y = load_wine(return_X_y=True)
+shuffle = np.random.permutation(len(x))
+x = x[shuffle]
+y = y[shuffle]
+
 labels = load_wine().feature_names
 print(labels)
 
@@ -49,19 +54,25 @@ model.load_weights(f'wine-trained-tabular-model-{MODE}.weights.h5')
 import matplotlib.pyplot as plt
 
 print(x_test.shape)
+import numpy as np
+indices = np.random.permutation(len(x_test))
+x_test = x_test[indices]
+y_test = y_test[indices]
 
-EXPLAIN_INDEX_START = 1
-EXPLAIN_AMOUNT = 10
+print(y_test)
+
+EXPLAIN_INDEX_START = 0
+EXPLAIN_AMOUNT = 5
 
 for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
     y = y_test[i + EXPLAIN_INDEX_START]
 
-    fig = imbal.classification.lime_tabular_explanation(
+    imbal.classification.lime_tabular_explanation(
         x,
         model,
         x_train,
-        label_to_explain=y,
+        # label_to_explain=y,
         class_names=['Region 1', 'Region 2', 'Region 3'],
         feature_names=labels,
         figure_save_path=f'temp-{i}.html',
@@ -69,6 +80,15 @@ for i in range(EXPLAIN_AMOUNT):
         # return_figure=True
     )
 
-    # plt.savefig(f'temp-{i}.png')
-    # plt.show()
+    imbal.classification.lime_tabular_explanation(
+        x,
+        model,
+        x_train,
+        label_to_explain=y,
+        class_names=['Region 1', 'Region 2', 'Region 3'],
+        feature_names=labels,
+        figure_save_path=f'temp-{i}-correct.html',
+        # use_pyplot=True,
+        # return_figure=True
+    )
 

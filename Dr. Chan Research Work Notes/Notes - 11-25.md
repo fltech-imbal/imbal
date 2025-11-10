@@ -90,6 +90,8 @@
 		- Link to paper, GitHub, etc. $\checkmark$
 		- Each function page should like back to the main LIME explanation page as well $\checkmark$
 	- For image classification, show example of correct prediction, incorrect prediction, and overridden prediction $\checkmark$
+
+# 11/7/25
 ## Notes: 
 - Explicit code examples missing (but easy to add)
 - Having issue with pyplot representation for tabular classification... not entirely sure why.
@@ -98,12 +100,31 @@
 - Having issue with `pyplot` representation for tabular classification... not entirely sure why.
 - Correct/incorrect/override examples for tabular classification
 	- For regression, close/far/override
-- `SHAP`
-	- Look at paper
-	- Find similar/used datasets
+- `SHAP` $\checkmark$
+	- Look at paper $\checkmark$
+	- Find similar/used datasets $\checkmark$
 	- image/tabular, classification/regression (where supported)
 - `SHAP` issues
 	- SHAP getting full plot
 		- Look at documentation/source
 		- May be related to current model outputting `(1, 10)` instead of `(10, 1)`
 - Start implementing `SHAP`, remember easy to use
+
+# 11/10/25
+
+## Prep:
+ - Explicit code examples missing (but easy to add) !!! $\checkmark$
+- Having issue with `pyplot` representation for tabular classification... not entirely sure why. $\checkmark$
+	- LIME documentation has no examples where they shoe pyplots for tabular data... it might be best to just scrap it in favor of HTML. All LIME code examples show HTML output  
+- Correct/incorrect/override examples for tabular classification $\checkmark$
+	- For regression, close/far/override $\checkmark$
+- `SHAP` $\checkmark$
+	- Look at paper $\checkmark$
+	- Find similar/used datasets $\checkmark$
+	- image/tabular, classification/regression (where supported) $\checkmark$
+	- **Note:** Image classification, tabular classification, and tabular regression are supported
+- `SHAP` issues 
+	- SHAP getting full plot $\checkmark$
+		- Look at documentation/source $\checkmark$
+		- May be related to current model outputting `(1, 10)` instead of `(10, 1)` $\checkmark$
+- Start implementing `SHAP`, remember easy to use $\checkmark$
