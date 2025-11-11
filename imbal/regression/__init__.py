@@ -11,4 +11,5 @@ from .kde import (
 )
 from .wrappers import labels_to_kde_weights
 
-from .explanation import lime_tabular_explanation
+from .lime import lime_tabular_explanation
+from .shap import shap_tabular_explanation

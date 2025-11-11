@@ -128,3 +128,16 @@
 		- Look at documentation/source $\checkmark$
 		- May be related to current model outputting `(1, 10)` instead of `(10, 1)` $\checkmark$
 - Start implementing `SHAP`, remember easy to use $\checkmark$
+
+## Tasks:
+- `LIME`
+	- For regression override, explain that predicted label doesn't update, but explanation updates to explain passed label.
+- `SHAP`
+	- Can you increase resolution? Should be able to, but how?
+	- Add titles, labels and such to plots
+	- Allow for most plot types, even multi-sample plots
+	- Include any appropriate/intuitive plots
+	- Stick to explaining one class at a time (not plotting all classes as with images)
+- Rename functions to reflect singular sample vs across dataset
+- Note: dataset documentation examples don't have the correct/incorrect/override
+	- BUT include all three scenarios for all per-sample explanation documentation
