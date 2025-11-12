@@ -130,14 +130,17 @@
 - Start implementing `SHAP`, remember easy to use $\checkmark$
 
 ## Tasks:
-- `LIME`
-	- For regression override, explain that predicted label doesn't update, but explanation updates to explain passed label.
-- `SHAP`
-	- Can you increase resolution? Should be able to, but how?
-	- Add titles, labels and such to plots
-	- Allow for most plot types, even multi-sample plots
-	- Include any appropriate/intuitive plots
-	- Stick to explaining one class at a time (not plotting all classes as with images)
-- Rename functions to reflect singular sample vs across dataset
+- `LIME` $\checkmark$
+	- For regression override, explain that predicted label doesn't update, but explanation updates to explain passed label. $\checkmark$
+- `SHAP` $\checkmark$
+	- Can you increase resolution? Should be able to, but how? $\checkmark$
+		- **Note:** Might need to make model that outputs logits 
+	- Add titles, labels and such to plots $\checkmark$
+	- Allow for most plot types, even multi-sample plots $\checkmark$
+	- Include any appropriate/intuitive plots $\checkmark$
+		- **Note:** Decided to exclude `scatter` plot, as it either produces an unwieldy plot, or requires an extra parameter that other plots would not require
+![[Pasted image 20251112073805.png]]
+	- Stick to explaining one class at a time (not plotting all classes as with images) $\checkmark$
+- Rename functions to reflect singular sample vs across dataset $\checkmark$
 - Note: dataset documentation examples don't have the correct/incorrect/override
 	- BUT include all three scenarios for all per-sample explanation documentation

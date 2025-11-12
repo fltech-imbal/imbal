@@ -1,7 +1,7 @@
-# lime_image_explanation
+# shap_explain_image_sample
 
 ```{eval-rst}
-.. autoclass:: imbal.classification.lime_image_explanation
+.. autoclass:: imbal.classification.shap_explain_image_sample
 ```
 
 Example:

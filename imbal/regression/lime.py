@@ -1,6 +1,6 @@
 import imbal.util.explanation as explanation
 
-def lime_tabular_explanation(
+def lime_explain_tabular_sample(
         sample,
         model,
         training_data,
@@ -45,7 +45,7 @@ def lime_tabular_explanation(
         :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
         :code:`return_figure` is set to :code:`True`.
     """
-    return explanation.lime_tabular_explanation(
+    return explanation.lime_explain_tabular_sample(
         sample,
         model,
         training_data,

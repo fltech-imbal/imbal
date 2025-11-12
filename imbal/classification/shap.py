@@ -5,7 +5,7 @@ import numpy as np
 import imbal.util.explanation as explanation
 
 
-def shap_image_explanation(
+def shap_explain_image_sample(
         image,
         model,
         num_samples=100,
@@ -16,8 +16,8 @@ def shap_image_explanation(
         return_figure=False
 ):
     """
-    Utilizes LIME to generate an explanation for the classification of a particular image
-    by a given model. For more about LIME, see :doc:`this page </imbal/lime-explanation>`.
+    Utilizes SHAP to generate an explanation for the classification of a particular image
+    by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
         image: The image to generate a LIME explanation for.
@@ -30,7 +30,7 @@ def shap_image_explanation(
             class labels (as integer indices) to class names. Used to label the
             generated figure.
         actual_label: Optional, default :code:`None`. default The true label of the
-            provided image.
+            provided image. Used to label the generated figure.
         label_to_explain: Optional, default :code:`None`. The label of the class
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
@@ -105,51 +105,49 @@ def shap_image_explanation(
     plt.show()
     return None
 
-def shap_tabular_explanation(
+def shap_explain_tabular_sample(
     sample,
     model,
     training_data,
     class_names=None,
     feature_names=None,
     label_to_explain=None,
+    actual_label=None,
     plot_type='bar',
     figure_save_path='shap-explanation.png',
-    return_figure=False
+    show=True
 ):
     """
-    Utilizes LIME to generate an explanation for the classification of a particular sample
-    by a given model. For more about LIME, see :doc:`this page </imbal/lime-explanation>`.
+    Utilizes SHAP to generate an explanation for the classification of a particular sample
+    by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
-        sample: The sample to generate a LIME explanation for.
-        model: The PyTorch model to generate a LIME explanation from.
+        sample: The sample to generate a SHAP explanation for.
+        model: The PyTorch model to generate a SHAP explanation from.
         training_data: The data the given model was trained on.
-        num_samples: Optional, default 100. The number of local samples to perform for
-            the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
         feature_names: Optional, default :code:`None`. An array of strings, which maps
-            features (by integer index) to feature names. Use to label the
+            features (by integer index) to feature names. Used to label the
             generated figure.
+        actual_label: Optional, default :code:`None`. The actual label for the sample
+            being explained. Used to label the generated figure.
         label_to_explain: Optional, default :code:`None`. The label of the class
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
             label that is predicted by the model will be explained.
-        figure_save_path: Optional, default :code:`"lime-explanation.html"`. The path to
-            save the generated HTML figure to.
-        use_pyplot: Optional, default :code:`False`. Whether to use pyplot
-            to display the generated figure. The `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_
-            recommends not using the pyplot plot, but it can be useful for quick visualization.
-        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
-            Matplotlib Figure and Axes objects associated with the generated figure will
-            be returned. Ignored when :code:`use_pyplot` is set to :code:`False`.
+        figure_save_path: Optional, default :code:`"shap-explanation.png"`. The path to
+            save the generated figure to.
+        plot_type: Optional, default :code:`"bar"`. The type of plot to generate. Available options are
+            :code:`"bar"` and :code:`"waterfall"`. See `SHAP documentation <https://shap.readthedocs.io/en/latest/api_examples.html#plots>`_.
+        show: Optional, default :code:`True`. Whether to show the generated figure. If set to
+            :code:`False`, the figure can be further modified before displaying or saving it.
 
     Returns:
-        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
-        :code:`return_figure` is set to :code:`True`.
+        None
     """
-    return explanation.shap_tabular_explanation(
+    return explanation.shap_explain_tabular_sample(
         sample,
         model,
         training_data,
@@ -157,7 +155,63 @@ def shap_tabular_explanation(
         class_names=class_names,
         feature_names=feature_names,
         figure_save_path=figure_save_path,
-        return_figure=return_figure,
+        actual_label=actual_label,
+        show=show,
+        plot_type=plot_type,
+        mode='classification'
+    )
+
+def shap_explain_tabular_dataset(
+    dataset,
+    model,
+    training_data,
+    label_to_explain,
+    class_names=None,
+    feature_names=None,
+    plot_type='bar',
+    figure_save_path='shap-explanation.png',
+    return_figure=False,
+    show = True,
+):
+    """
+    Utilizes SHAP to generate an explanation for the classification of a particular sample
+    by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
+
+    Args:
+        sample: The sample to generate a SHAP explanation for.
+        model: The PyTorch model to generate a SHAP explanation from.
+        training_data: The data the given model was trained on.
+        class_names: Optional, default :code:`None`. An array of strings, which maps
+            class labels (as integer indices) to class names. Used to label the
+            generated figure.
+        feature_names: Optional, default :code:`None`. An array of strings, which maps
+            features (by integer index) to feature names. Used to label the
+            generated figure.
+        actual_label: Optional, default :code:`None`. The actual label for the sample
+            being explained. Used to label the generated figure.
+        label_to_explain: Optional, default :code:`None`. The label of the class
+            you wish to generate an explanation for. This label need not be the same
+            as the true label for the provided image. When set to :code:`None`, the
+            label that is predicted by the model will be explained.
+        figure_save_path: Optional, default :code:`"shap-explanation.png"`. The path to
+            save the generated figure to.
+        plot_type: Optional, default :code:`"bar"`. The type of plot to generate. Available options are
+            :code:`"bar"` and :code:`"waterfall"`.
+        show: Optional, default :code:`True`. Whether to show the generated figure. If set to
+            :code:`False`, the figure can be further modified before displaying or saving it.
+
+    Returns:
+        None
+    """
+    return explanation.shap_explain_tabular_dataset(
+        dataset,
+        model,
+        training_data,
+        label_to_explain,
+        class_names=class_names,
+        feature_names=feature_names,
+        figure_save_path=figure_save_path,
+        show=show,
         plot_type=plot_type,
         mode='classification'
     )

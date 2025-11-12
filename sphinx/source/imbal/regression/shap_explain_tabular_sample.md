@@ -1,7 +1,7 @@
-# lime_tabular_explanation
+# lime_explain_tabular_sample
 
 ```{eval-rst}
-.. autoclass:: imbal.classification.lime_tabular_explanation
+.. autoclass:: imbal.regression.shap_explain_tabular_sample
 ```
 
 Example:

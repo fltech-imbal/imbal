@@ -10,7 +10,9 @@
 - [plot_kde_1d](plot_kde_1d.md)
 - [fit_kde](fit_kde.md)
 - [tsne_visualization](tsne_visualization.md)
-- [lime_tabular_explanation](lime_tabular_explanation.md)
+- [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
+- [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
+- [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
 
 ```{eval-rst}
 .. toctree::
@@ -24,5 +26,7 @@
     plot_kde_1d <plot_kde_1d>
     fit_kde <fit_kde>
     tsne_visualization <tsne_visualization>
-    lime_tabular_explanation <lime_tabular_explanation>
+    lime_explain_tabular_sample <lime_explain_tabular_sample>
+    shap_explain_tabular_sample <shap_explain_tabular_sample>
+    shap_explain_tabular_dataset <shap_explain_tabular_dataset>
 ```

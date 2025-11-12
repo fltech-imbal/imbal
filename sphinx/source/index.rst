@@ -14,6 +14,7 @@ Subpackages:
 Information on select tools used:
 
 - :doc:`LIME Model Explanation </imbal/lime-explanation>`
+- :doc:`SHAP Model Explanation </imbal/shap-explanation>`
 
 .. toctree::
     :hidden:

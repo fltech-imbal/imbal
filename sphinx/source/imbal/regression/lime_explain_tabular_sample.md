@@ -1,7 +1,7 @@
-# lime_tabular_explanation
+# lime_explain_tabular_sample
 
 ```{eval-rst}
-.. autoclass:: imbal.regression.lime_tabular_explanation
+.. autoclass:: imbal.regression.lime_explain_tabular_sample
 ```
 
 Example:
@@ -59,7 +59,9 @@ style="width: 600px"
 src="../../_static/regression/lime_tabular_explanation/lime_tabular_explanation_example_incorrect.png"/>
 
 Below is an example of the resulting HTML plot for the explanation of the correct class
-for the incorrectly predicted sample shown above.
+for the incorrectly predicted sample shown above. Note that the prediction shown is the same, despite the
+value being explained being overridden. Still, the explained values have been updated to reflect the
+desired override value.
 
 ```python
 >>> imbal.regression.lime_tabular_explanation(
