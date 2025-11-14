@@ -34,6 +34,7 @@ Below is an example of the resulting HTML plot for a correctly predicted sample 
 >>>     x,
 >>>     model,
 >>>     x_train,
+>>>     actual_label=y,
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels
 >>> )
@@ -50,6 +51,7 @@ Below is an example of the resulting HTML plot for an incorrectly predicted samp
 >>>     x,
 >>>     model,
 >>>     x_train,
+>>>     actual_label=y,
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels
 >>> )
@@ -68,6 +70,7 @@ for the incorrectly predicted sample shown above.
 >>>     model,
 >>>     x_train,
 >>>     label_to_explain=y,
+>>>     actual_label=y,
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels
 >>> )

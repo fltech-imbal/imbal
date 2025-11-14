@@ -25,15 +25,16 @@ Example:
 
 ## Plot Examples
 
-Below is an example of the resulting HTML plot for a correctly predicted sample in the `scikit-learn`.
+Below is an example of the resulting HTML plot for a correctly predicted sample (within a reasonable tolerance) 
+in the `scikit-learn`
 [California housing dataset](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html).
-(Within a reasonable tolerance. The correct label was $2.195$).
 
 ```python
 >>> imbal.regression.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
+>>>     actual_label=y,
 >>>     feature_names=labels
 >>> )
 ```
@@ -43,13 +44,13 @@ style="width: 600px"
 src="../../_static/regression/lime_tabular_explanation/lime_tabular_explanation_example.png"/>
 
 Below is an example of the resulting HTML plot for an incorrectly predicted sample.
-(Outside a reasonable tolerance. The correct label was $4.405$).
 
 ```python
 >>> imbal.regression.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
+>>>     actual_label=y,
 >>>     feature_names=labels
 >>> )
 ```
@@ -68,7 +69,8 @@ desired override value.
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     label_to_explain=y
+>>>     label_to_explain=y,
+>>>     actual_label=y,
 >>>     feature_names=labels
 >>> )
 ```

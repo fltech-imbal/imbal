@@ -28,7 +28,7 @@ Example:
 ## Plot Examples
 
 Below is an example of a heatmap plot explaining a model's predictions
-for the second class of the `scikit-learn`
+for the third class of the `scikit-learn`
 [wine dataset](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_wine.html).
 
 ```python
@@ -36,7 +36,7 @@ for the second class of the `scikit-learn`
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     1,
+>>>     2, # Index 2 corresponds to class 3
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels,
 >>>     plot_type='heatmap'
@@ -45,17 +45,17 @@ for the second class of the `scikit-learn`
 
 <img 
 style="width: 400px"
-src="../../_static/classification/shap_tabular_dataset/shap-explanation-1-heatmap.png"/>
+src="../../_static/classification/shap_tabular_dataset/shap-explanation-2-heatmap.png"/>
 
 Below is an example of a beeswarm plot explaining predictions
-for the first class of the same dataset.
+for the third class of the same dataset.
 
 ```python
 >>> imbal.classification.shap_explain_tabular_dataset(
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     0,
+>>>     2, # Index 2 corresponds to class 3
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels,
 >>>     plot_type='beeswarm'
@@ -64,7 +64,7 @@ for the first class of the same dataset.
 
 <img 
 style="width: 400px"
-src="../../_static/classification/shap_tabular_dataset/shap-explanation-0-beeswarm.png"/>
+src="../../_static/classification/shap_tabular_dataset/shap-explanation-2-beeswarm.png"/>
 
 Below is an example of a violin plot explaining predictions
 for the third class of the same dataset.
@@ -74,7 +74,7 @@ for the third class of the same dataset.
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     2,
+>>>     2, # Index 2 corresponds to class 3
 >>>     class_names=['Region 1', 'Region 2', 'Region 3'],
 >>>     feature_names=labels,
 >>>     plot_type='violin'

@@ -144,15 +144,27 @@
 - Rename functions to reflect singular sample vs across dataset $\checkmark$
 - Note: dataset documentation examples don't have the correct/incorrect/override
 	- BUT include all three scenarios for all per-sample explanation documentation
-
 ## Tasks:
 - `SHAP` figure out and finalize wrapper for image classification
-- Documentation
+- Documentation $\checkmark$
 	- Image classification SHAP documentation needs to be completely done
-	- Code and plot examples for tabular regression
-- Remove LIME `pyplot` code for tabular data
-- LIME add title to HTML plots by modifying HTML object
-- For dataset plots, use same label for all 3 plots (so you can compare the methods) (probably region 2/3)
-- Add paragraph to SHAP page explaining that in addition to sample explanations, SHAP can do "dataset explanations"
-- Read paper section $2.3$
+	- Code and plot examples for tabular regression $\checkmark$
+- Remove LIME `pyplot` code for tabular data $\checkmark$
+- LIME add title to HTML plots by modifying HTML object $\checkmark$
+- For dataset plots, use same label for all 3 plots (so you can compare the methods) (probably region 2/3) $\checkmark$
+- Add paragraph to SHAP page explaining that in addition to sample explanations, SHAP can do "dataset explanations" $\checkmark$
+- Read paper section $2.3$ $\checkmark$
+
+# 11/14/25
+
+## Notes:
+- After further inspection, SHAP does not have an "override" for regression values
+	- Override for classification is based on the fact that a confidence value is produced for each class, so filtering the confidences for a particular class can generate an explanation for that class for any sample
+	- Regression only outputs a single value, hence no "override" for SHAP
+	- Looking into LIME (and again, their documentation is very sparse) I'm no longer confident that the regression override for LIME is doing exactly as we expect either (I ran some test, passing the exact label the model predicts as the label to explain produces different results than passing no label to explain, which is also supposed to default to using the models prediction)
+		- Should override be removed from regression sample explanations altogether?
+- SHAP image explanation is being a hassle
+	- It differentiates between Python lists and Numpy arrays in the worst possible way... still trying to understand how to replicate MNSIT example, but getting closer
+
+## Tasks:
 - 

@@ -14,65 +14,65 @@ Example:
 >>> x, y = load_wine(return_X_y=True)
 >>> labels = load_wine().feature_names
 >>>
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.regression.shap_explain_tabular_dataset(
 >>>     x[0],
 >>>     model,
 >>>     x_train,
->>>     label_to_explain=y[0],
->>>     class_names=['Region 1', 'Region 2', 'Region 3'],
->>>     feature_names=labels
+>>>     feature_names=labels,
+>>>     plot_typle='heatmap'
 >>> )
 ```
 
 ## Plot Examples
 
-Below is an example of the resulting HTML plot for a correctly predicted sample in the `scikit-learn`
-[wine dataset](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_wine.html).
+Below is an example of a heatmap plot explaining a model's predictions
+for the third class of the `scikit-learn`
+[California housing dataset](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_california_housing.html).
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.shap_explain_tabular_dataset(
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     class_names=['Region 1', 'Region 2', 'Region 3'],
->>>     feature_names=labels
+>>>     feature_names=labels,
+>>>     plot_type='heatmap'
 >>> )
 ```
 
 <img 
-style="width: 600px"
-src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanation_example.png"/>
+style="width: 400px"
+src="../../_static/regression/shap_tabular_dataset/housing-heatmap-dataset.png"/>
 
-Below is an example of the resulting HTML plot for an incorrectly predicted sample.
+Below is an example of a beeswarm plot explaining predictions
+for the third class of the same dataset.
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.shap_explain_tabular_dataset(
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     class_names=['Region 1', 'Region 2', 'Region 3'],
->>>     feature_names=labels
+>>>     feature_names=labels,
+>>>     plot_type='beeswarm'
 >>> )
 ```
 
 <img 
-style="width: 600px"
-src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanation_example_incorrect.png"/>
+style="width: 400px"
+src="../../_static/regression/shap_tabular_dataset/housing-beeswarm-dataset.png"/>
 
-Below is an example of the resulting HTML plot for the explanation of the correct class
-for the incorrectly predicted sample shown above.
+Below is an example of a violin plot explaining predictions
+for the third class of the same dataset.
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.shap_explain_tabular_dataset(
 >>>     x,
 >>>     model,
 >>>     x_train,
->>>     label_to_explain=y,
->>>     class_names=['Region 1', 'Region 2', 'Region 3'],
->>>     feature_names=labels
+>>>     feature_names=labels,
+>>>     plot_type='violin'
 >>> )
 ```
 
 <img 
-style="width: 600px"
-src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanation_example_overridden.png"/>
+style="width: 400px"
+src="../../_static/regression/shap_tabular_dataset/housing-violin-dataset.png"/>

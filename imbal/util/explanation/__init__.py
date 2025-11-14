@@ -2,6 +2,7 @@ from lime import lime_tabular
 import shap
 import numpy as np
 from matplotlib import pyplot as plt
+from bs4 import BeautifulSoup
 
 def lime_explain_tabular_sample(
         sample,
@@ -10,11 +11,10 @@ def lime_explain_tabular_sample(
         num_samples=100,
         class_names=None,
         feature_names=None,
-        label=None,
+        label_to_explain=None,
+        actual_label=None,
         mode='classification',
-        figure_save_path='lime-explanation.html',
-        use_pyplot=False,
-        return_figure=False,
+        figure_save_path='lime-explanation.html'
 ):
 
     def predict_fn(value):
@@ -29,20 +29,38 @@ def lime_explain_tabular_sample(
     explanation = explainer.explain_instance(
         sample,
         predict_fn,
-        labels=[label],
-        top_labels=1 if label is None else None,
+        labels=[label_to_explain],
+        top_labels=1 if label_to_explain is None else None,
         num_samples=num_samples,
     )
 
-    if use_pyplot:
-        fig = explanation.as_pyplot_figure()
-        if return_figure:
-            return fig
+    if label_to_explain is None:
+        label_to_explain = model.predict(np.expand_dims(sample, axis=0))[0]
+        if mode == 'classification':
+            label_to_explain = label_to_explain.argmax()
         else:
-            plt.show()
-    else:
-        explanation.save_to_file(figure_save_path)
-        print(f'LIME explanation saved to "{figure_save_path}"')
+            label_to_explain = f'{label_to_explain[0]:.3f}'
+
+    explanation_label = label_to_explain
+    if class_names is not None:
+        explanation_label = class_names[label_to_explain]
+    title_string = f'Explanation for "{explanation_label}"'
+
+    if actual_label is not None:
+        if class_names is not None:
+            actual_label = class_names[actual_label]
+        title_string += f' (Actual label: {actual_label})'
+
+    soup = BeautifulSoup(explanation.as_html(), "lxml")
+    body = soup.find('body')
+    title = soup.new_tag('h1')
+    title.string = title_string
+    title['style'] = 'text-align: center'
+    body.insert(0, title)
+
+    with open(figure_save_path, "w") as f:
+        f.write(str(soup))
+    print(f'LIME explanation saved to "{figure_save_path}"')
 
     return figure_save_path
 
@@ -64,7 +82,11 @@ def shap_explain_tabular_sample(
     shap_values = explainer(np.expand_dims(sample, axis=0))
 
     if label_to_explain is None:
-        label_to_explain = model.predict(np.expand_dims(sample, axis=0))[0].argmax()
+        label_to_explain = model.predict(np.expand_dims(sample, axis=0))[0]
+        if mode == 'classification':
+            label_to_explain = label_to_explain.argmax()
+        else:
+            label_to_explain = f'{label_to_explain[0]:.3f}'
 
     if mode == 'classification':
         single_class_expl = shap.Explanation(
@@ -112,7 +134,7 @@ def shap_explain_tabular_dataset(
     dataset,
     model,
     training_data,
-    label_to_explain,
+    label_to_explain=None,
     class_names=None,
     feature_names=None,
     plot_type='heatmap',
@@ -123,9 +145,6 @@ def shap_explain_tabular_dataset(
 ):
     explainer = shap.Explainer(model, training_data)
     shap_values = explainer(dataset)
-
-    if label_to_explain is None:
-        label_to_explain = model.predict(np.expand_dims(dataset, axis=0))[0].argmax()
 
     if mode == 'classification':
         single_class_expl = shap.Explanation(
@@ -155,7 +174,10 @@ def shap_explain_tabular_dataset(
 
 
     if class_names is None:
-        explanation_label = f'Class {label_to_explain}'
+        if label_to_explain is None:
+            explanation_label = f'predictions'
+        else:
+            explanation_label = f'Class {label_to_explain}'
     else:
         explanation_label = f'class "{class_names[label_to_explain]}"'
 

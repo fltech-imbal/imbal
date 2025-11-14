@@ -4,12 +4,11 @@ from matplotlib import pyplot as plt
 import numpy as np
 import imbal.util.explanation as explanation
 
-
 def shap_explain_image_sample(
         image,
         model,
-        num_samples=100,
-        num_features=100000,
+        training_data,
+        num_samples=None,
         class_names=None,
         actual_label=None,
         label_to_explain=None,
@@ -208,7 +207,7 @@ def shap_explain_tabular_dataset(
         dataset,
         model,
         training_data,
-        label_to_explain,
+        label_to_explain=label_to_explain,
         class_names=class_names,
         feature_names=feature_names,
         figure_save_path=figure_save_path,

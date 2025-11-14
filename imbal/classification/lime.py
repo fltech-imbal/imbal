@@ -28,8 +28,8 @@ def lime_explain_image_sample(
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
-        actual_label: Optional, default :code:`None`. default The true label of the
-            provided image.
+        actual_label: Optional, default :code:`None`. The true label of the
+            provided image. Used only to label the generated figure.
         label_to_explain: Optional, default :code:`None`. The label of the class
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
@@ -112,9 +112,8 @@ def lime_explain_tabular_sample(
         class_names=None,
         feature_names=None,
         label_to_explain=None,
-        figure_save_path='lime-explanation.html',
-        use_pyplot=False,
-        return_figure=False,
+        actual_label=None,
+        figure_save_path='lime-explanation.html'
 ):
     """
     Utilizes LIME to generate an explanation for the classification of a particular sample
@@ -136,14 +135,10 @@ def lime_explain_tabular_sample(
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
             label that is predicted by the model will be explained.
+        actual_label: Optional, default :code:`None`. The true label of the
+            provided image. Used only to label the generated figure.
         figure_save_path: Optional, default :code:`"lime-explanation.html"`. The path to
             save the generated HTML figure to.
-        use_pyplot: Optional, default :code:`False`. Whether to use pyplot
-            to display the generated figure. The `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_
-            recommends not using the pyplot plot, but it can be useful for quick visualization.
-        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
-            Matplotlib Figure and Axes objects associated with the generated figure will
-            be returned. Ignored when :code:`use_pyplot` is set to :code:`False`.
 
     Returns:
         :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
@@ -156,9 +151,8 @@ def lime_explain_tabular_sample(
         num_samples=num_samples,
         class_names=class_names,
         feature_names=feature_names,
-        label=label_to_explain,
+        label_to_explain=label_to_explain,
+        actual_label=actual_label,
         figure_save_path=figure_save_path,
-        use_pyplot=use_pyplot,
-        return_figure=return_figure,
         mode='classification',
     )
