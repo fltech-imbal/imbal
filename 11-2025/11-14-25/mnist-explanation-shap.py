@@ -85,11 +85,11 @@ for i in range(EXPLAIN_AMOUNT):
     print(x_test[i].shape)
     shap.image_plot(shap_values[0][..., int(y_test[i].argmax())], x_test[i])
 
-    shap_values = np.transpose(shap_values, (0, 1, 2, 3, 4))
+    shap_values = np.transpose(shap_values, (4, 0, 1, 2, 3))
     demo_value = x_test[i][np.newaxis, :]
 
     print('demo')
     print(shap_values.shape)
     print(demo_value.shape)
-    shap.image_plot([shap_values], demo_value)
+    shap.image_plot([shap_values[i] for i in range(shap_values.shape[0])], demo_value)
 

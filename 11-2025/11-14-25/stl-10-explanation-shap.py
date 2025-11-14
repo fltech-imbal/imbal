@@ -87,8 +87,8 @@ result = model.predict(np.reshape(x_test[0], (1, 96, 96, 3)))
 
 class_labels = ['airplane', 'bird', 'car', 'cat', 'deer', 'dog', 'horse', 'monkey', 'ship', 'truck']
 
-EXPLAIN_INDEX_START = 20
-EXPLAIN_AMOUNT = 10
+EXPLAIN_INDEX_START = 0
+EXPLAIN_AMOUNT = 5
 
 for i in range(EXPLAIN_AMOUNT):
     def f(X):
@@ -98,14 +98,31 @@ for i in range(EXPLAIN_AMOUNT):
     x_ = x_test[i + EXPLAIN_INDEX_START]
     y_ = y_test[i + EXPLAIN_INDEX_START]
 
-    x_sample = np.expand_dims(x_, axis=0).astype(np.float32)
-    background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)].astype(np.float32)
-    explainer = shap.GradientExplainer(model, background)
-    shap_values = explainer.shap_values(x_sample)
-    vals = shap_values[0][..., int(y_)]
-    # vals = vals / np.max(np.abs(vals))
-    vals = vals.squeeze()
-    print(x_.shape)
-    print(vals.shape)
-    shap.image_plot([vals], x_)
+    # x_sample = np.expand_dims(x_, axis=0).astype(np.float32)
+    # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)].astype(np.float32)
+    # explainer = shap.GradientExplainer(model, background)
+    # shap_values = explainer.shap_values(x_sample)
+    # vals = shap_values[0][..., int(y_)]
+    # # vals = vals / np.max(np.abs(vals))
+    # vals = vals.squeeze()
+    # print(x_.shape)
+    # print(vals.shape)
+    # shap.image_plot([vals], x_)
+
+    background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)]
+    e = shap.GradientExplainer(model, background)
+    shap_values = e.shap_values(x_test[i:i + 1])
+
+    print('better')
+    print(shap_values[0][..., int(y_test[i].argmax())].shape)
+    print(x_test[i].shape)
+    shap.image_plot(shap_values[0][..., int(y_test[i].argmax())], x_test[i])
+
+    shap_values = np.transpose(shap_values, (4, 0, 1, 2, 3))
+    demo_value = x_test[i][np.newaxis, :]
+
+    print('demo')
+    print(shap_values.shape)
+    print(demo_value.shape)
+    shap.image_plot([shap_values[i] for i in range(shap_values.shape[0])], demo_value)
 
