@@ -134,7 +134,7 @@
 	- For regression override, explain that predicted label doesn't update, but explanation updates to explain passed label. $\checkmark$
 - `SHAP` $\checkmark$
 	- Can you increase resolution? Should be able to, but how? $\checkmark$
-		- **Note:** Might need to make model that outputs logits 
+		- **Note:** Have results, but they don't look good. Might need to make model that outputs logits, or just need to do some more testing to ensure I'm using it right
 	- Add titles, labels and such to plots $\checkmark$
 	- Allow for most plot types, even multi-sample plots $\checkmark$
 	- Include any appropriate/intuitive plots $\checkmark$
@@ -144,3 +144,15 @@
 - Rename functions to reflect singular sample vs across dataset $\checkmark$
 - Note: dataset documentation examples don't have the correct/incorrect/override
 	- BUT include all three scenarios for all per-sample explanation documentation
+
+## Tasks:
+- `SHAP` figure out and finalize wrapper for image classification
+- Documentation
+	- Image classification SHAP documentation needs to be completely done
+	- Code and plot examples for tabular regression
+- Remove LIME `pyplot` code for tabular data
+- LIME add title to HTML plots by modifying HTML object
+- For dataset plots, use same label for all 3 plots (so you can compare the methods) (probably region 2/3)
+- Add paragraph to SHAP page explaining that in addition to sample explanations, SHAP can do "dataset explanations"
+- Read paper section $2.3$
+- 

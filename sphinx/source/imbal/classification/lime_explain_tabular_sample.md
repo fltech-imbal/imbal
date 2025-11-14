@@ -14,7 +14,7 @@ Example:
 >>> x, y = load_wine(return_X_y=True)
 >>> labels = load_wine().feature_names
 >>>
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.lime_explain_tabular_sample(
 >>>     x[0],
 >>>     model,
 >>>     x_train,
@@ -30,7 +30,7 @@ Below is an example of the resulting HTML plot for a correctly predicted sample 
 [wine dataset](https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_wine.html).
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
@@ -46,7 +46,7 @@ src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanat
 Below is an example of the resulting HTML plot for an incorrectly predicted sample.
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
@@ -63,7 +63,7 @@ Below is an example of the resulting HTML plot for the explanation of the correc
 for the incorrectly predicted sample shown above.
 
 ```python
->>> imbal.classification.lime_tabular_explanation(
+>>> imbal.classification.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,

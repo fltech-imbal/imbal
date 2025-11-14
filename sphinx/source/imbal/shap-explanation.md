@@ -20,7 +20,7 @@ Additionally, at this time we do not support explanations for image-based regres
 SHAP does not inherently support this type of explanation by default. We may implement
 this capability at a later date.
 
-Below is a list of the functions we have implement which utilize LIME's capabilities:
+Below is a list of the functions we have implement which utilize SHAP's capabilities:
 - [imbal.classification.shap_explain_image_sample](../imbal/classification/shap_explain_image_sample.md)
 - [imbal.classification.shap_explain_tabular_sample](../imbal/classification/shap_explain_tabular_sample.md)
 - [imbal.classification.shap_explain_tabular_dataset](../imbal/classification/shap_explain_tabular_dataset.md)

@@ -64,16 +64,20 @@ print(y_test)
 EXPLAIN_INDEX_START = 0
 EXPLAIN_AMOUNT = 5
 
-for i in range(3):
-    imbal.classification.shap_explain_tabular_dataset(
-        x_test,
-        model,
-        x_train,
-        i,
-        feature_names=labels,
-        class_names=['Region 1', 'Region 2', 'Region 3'],
-        plot_type='heatmap'
-    )
+# for i in range(3):
+#     for plot_type in ['heatmap', 'beeswarm', 'violin']:
+#         imbal.classification.shap_explain_tabular_dataset(
+#             x_test,
+#             model,
+#             x_train,
+#             i,
+#             feature_names=labels,
+#             class_names=['Region 1', 'Region 2', 'Region 3'],
+#             plot_type=plot_type,
+#             save_figure=True,
+#             figure_save_path=f'shap-explanation-{i}-{plot_type}.png',
+#         )
+
 
 for i in range(EXPLAIN_AMOUNT):
     x = x_test[i + EXPLAIN_INDEX_START]
@@ -87,5 +91,20 @@ for i in range(EXPLAIN_AMOUNT):
             feature_names=labels,
             actual_label=y,
             class_names=['Region 1', 'Region 2', 'Region 3'],
-            plot_type=plot_type
+            plot_type=plot_type,
+            save_figure=True,
+            figure_save_path=f'shap-explanation-{i}-{plot_type}.png',
+        )
+
+        imbal.classification.shap_explain_tabular_sample(
+            x,
+            model,
+            x_train,
+            feature_names=labels,
+            actual_label=y,
+            label_to_explain=y,
+            class_names=['Region 1', 'Region 2', 'Region 3'],
+            plot_type=plot_type,
+            save_figure=True,
+            figure_save_path=f'shap-explanation-override-{i}-{plot_type}.png',
         )

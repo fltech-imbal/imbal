@@ -14,7 +14,7 @@ Example:
 >>> x, y = fetch_california_housing(return_X_y=True)
 >>> labels = fetch_california_housing().feature_names
 >>>
->>> imbal.regression.lime_tabular_explanation(
+>>> imbal.regression.lime_explain_tabular_sample(
 >>>     x[0],
 >>>     model,
 >>>     x_train,
@@ -30,7 +30,7 @@ Below is an example of the resulting HTML plot for a correctly predicted sample 
 (Within a reasonable tolerance. The correct label was $2.195$).
 
 ```python
->>> imbal.regression.lime_tabular_explanation(
+>>> imbal.regression.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
@@ -46,7 +46,7 @@ Below is an example of the resulting HTML plot for an incorrectly predicted samp
 (Outside a reasonable tolerance. The correct label was $4.405$).
 
 ```python
->>> imbal.regression.lime_tabular_explanation(
+>>> imbal.regression.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,
@@ -64,7 +64,7 @@ value being explained being overridden. Still, the explained values have been up
 desired override value.
 
 ```python
->>> imbal.regression.lime_tabular_explanation(
+>>> imbal.regression.lime_explain_tabular_sample(
 >>>     x,
 >>>     model,
 >>>     x_train,

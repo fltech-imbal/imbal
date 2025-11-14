@@ -70,7 +70,7 @@ for i in range(EXPLAIN_AMOUNT):
     y = y_test[i + EXPLAIN_INDEX_START]
 
     for plot_type in ['bar', 'waterfall']:
-        imbal.classification.shap_tabular_explanation(
+        imbal.classification.shap_explain_tabular_sample(
             x,
             model,
             x_train,

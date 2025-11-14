@@ -154,7 +154,13 @@ def shap_explain_tabular_dataset(
         raise ValueError('Invalid plot type')
 
 
-    plt.title(f'Explanation of dataset')
+    if class_names is None:
+        explanation_label = f'Class {label_to_explain}'
+    else:
+        explanation_label = f'class "{class_names[label_to_explain]}"'
+
+
+    plt.title(f'Explanation of {explanation_label} across dataset')
 
     if save_figure:
         plt.savefig(figure_save_path)

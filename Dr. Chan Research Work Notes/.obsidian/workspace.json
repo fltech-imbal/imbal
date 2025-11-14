@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "0217180cd4ca8f2b",
+            "id": "e4e02e7dea7a2c05",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -35,8 +35,7 @@
               "title": "Notes - 11-25"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,22 +183,22 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "0217180cd4ca8f2b",
+  "active": "10b9777023201082",
   "lastOpenFiles": [
+    "Notes - 11-25.md",
     "Original PDF.pdf",
+    "Images/true-2d-distribution.png",
     "Images/Pasted image 20251112073805.png",
     "Images/2d-kde-scatter.png",
-    "Images/true-2d-distribution.png",
-    "Notes - 11-25.md",
+    "Images/2d-data-error-histogram.png",
     "Notes - 10-25.md",
     "Notes - 9-25.md",
-    "Images/2d-data-error-histogram.png",
+    "2d-data-error-histogram.png",
+    "2d-kde-scatter.png",
+    "true-2d-distribution.png",
     "Images/dataset-1-error-histogram 1.png",
     "Images/dataset-2-error-histogram 1.png",
     "Images/dataset-3-error-histogram 1.png",
-    "Images/dataset-3-error-histogram.png",
-    "Images/dataset-2-error-histogram.png",
-    "Images/dataset-1-error-histogram.png",
     "mini-pipeline-demo.py",
     "Notes - 8-25.md",
     "Images",

@@ -15,7 +15,7 @@ Example:
 >>> x = x_test[0]
 >>> y = y_test[0]
 >>> 
->>> fig, ax = imbal.classification.lime_image_explanation(
+>>> fig, ax = imbal.classification.lime_explain_image_sample(
 >>>     x,
 >>>     model,
 >>>     actual_label=y,
@@ -31,7 +31,7 @@ Below is an example of the resulting Matplotlib pyplot plot for a
 correctly predicted class
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
+>>> imbal.regression.explanation.lime_explain_image_sample(
 >>>     x,
 >>>     model,
 >>>     actual_label=y
@@ -46,7 +46,7 @@ An example of the resulting Matplotlib pyplot plot for in
 incorrectly predicted class
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
+>>> imbal.regression.explanation.lime_explain_image_sample(
 >>>     x,
 >>>     model,
 >>>     actual_label=y
@@ -65,7 +65,7 @@ with the airpxplane class, the backside of the plane is incorrectly associated
 with the ship class, leading to the incorrect prediction.
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
+>>> imbal.regression.explanation.lime_explain_image_sample(
 >>>     x,
 >>>     model,
 >>>     actual_label=y

@@ -1,7 +1,7 @@
-# shap_explain_tabular_sample
+# shap_explain_tabular_dataset
 
 ```{eval-rst}
-.. autoclass:: imbal.regression.shap_explain_tabular_sample
+.. autoclass:: imbal.regression.shap_explain_tabular_dataset
 ```
 
 Example:
