@@ -186,6 +186,5 @@ def shap_explain_tabular_dataset(
 
     if save_figure:
         plt.savefig(figure_save_path)
-
     if show:
         plt.show()

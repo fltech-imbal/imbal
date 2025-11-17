@@ -145,9 +145,9 @@
 - Note: dataset documentation examples don't have the correct/incorrect/override
 	- BUT include all three scenarios for all per-sample explanation documentation
 ## Tasks:
-- `SHAP` figure out and finalize wrapper for image classification
+- `SHAP` figure out and finalize wrapper for image classification $\checkmark$
 - Documentation $\checkmark$
-	- Image classification SHAP documentation needs to be completely done
+	- Image classification SHAP documentation needs to be completely done $\times$
 	- Code and plot examples for tabular regression $\checkmark$
 - Remove LIME `pyplot` code for tabular data $\checkmark$
 - LIME add title to HTML plots by modifying HTML object $\checkmark$
@@ -164,7 +164,21 @@
 	- Looking into LIME (and again, their documentation is very sparse) I'm no longer confident that the regression override for LIME is doing exactly as we expect either (I ran some test, passing the exact label the model predicts as the label to explain produces different results than passing no label to explain, which is also supposed to default to using the models prediction)
 		- Should override be removed from regression sample explanations altogether?
 - SHAP image explanation is being a hassle
-	- It differentiates between Python lists and Numpy arrays in the worst possible way... still trying to understand how to replicate MNSIT example, but getting closer
+	- It differentiates between Python lists and numpy arrays in the worst possible way... still trying to understand how to replicate MNSIT example, but getting closer
+		- Essentially, SHAP interprets `[np.array([1, 2, 3])]` differently from `np.array([[1, 2, 3]])`
 
 ## Tasks:
-- 
+- Complete SHAP image classification documentation
+- Change SHAP page from 'one important difference' to "one difference"
+- In my documentation for SHAP wrappers, explain that all list-like data should be passed as numpy arrays
+	- Make sure to raise an exception for when non-numpy arrays are passed
+- Prefer to use STL-10 for SHAP image classification examples in documentation, but if results stay bad, use MNIST
+- Remove override examples for SHAP  tabular regression (it does not allow for it)
+	- Include a note explaining this in documentation
+- Think about how to implement a `decoupled_fit` wrapper (Figure $1$, section $2.3$)
+	- Consider latent space is second to last layer
+	- Call `tf.model.fit` twice
+- Think about AED inclusion
+	- Implemented with flag, default to `True`
+	- "Invert" the model passed by the user
+	- **WRAPPER FIRST, then this AED branch**

@@ -54,7 +54,7 @@ print(x_test.shape)
 result = model.predict(np.reshape(x_test[0], (1, 28, 28, 1)))
 
 EXPLAIN_INDEX_START = 20
-EXPLAIN_AMOUNT = 5
+EXPLAIN_AMOUNT = 10
 
 import tensorflow as tf
 # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)].astype(np.float32)
@@ -75,21 +75,41 @@ for i in range(EXPLAIN_AMOUNT):
     # # print(x_.shape)
     # shap.image_plot(vals.reshape(1, 28, 28, 1), x_.reshape(1, 28, 28, 1).astype(np.float32))
 
+    imbal.classification.shap_explain_image_sample(
+        x_test[i + EXPLAIN_INDEX_START],
+        model,
+        x_train,
+        actual_label=y_test[i + EXPLAIN_INDEX_START].argmax(),
+        num_samples=100,
+        save_figure=True,
+        figure_save_path=f'stl10-explanation-shap-{i}.png'
+    )
 
-    background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)]
-    e = shap.DeepExplainer(model, background)
-    shap_values = e.shap_values(x_test[i:i+1])
+    imbal.classification.shap_explain_image_sample(
+        x_test[i + EXPLAIN_INDEX_START],
+        model,
+        x_train,
+        label_to_explain=4,
+        actual_label=y_test[i + EXPLAIN_INDEX_START].argmax(),
+        num_samples=100,
+        save_figure=True,
+        figure_save_path=f'stl10-explanation-shap-{i}-override.png'
+    )
 
-    print('better')
-    print(shap_values[0][..., int(y_test[i].argmax())].shape)
-    print(x_test[i].shape)
-    shap.image_plot(shap_values[0][..., int(y_test[i].argmax())], x_test[i])
-
-    shap_values = np.transpose(shap_values, (4, 0, 1, 2, 3))
-    demo_value = x_test[i][np.newaxis, :]
-
-    print('demo')
-    print(shap_values.shape)
-    print(demo_value.shape)
-    shap.image_plot([shap_values[i] for i in range(shap_values.shape[0])], demo_value)
+    # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)]
+    # e = shap.DeepExplainer(model, background)
+    # shap_values = e.shap_values(x_test[i:i+1])
+    #
+    # print('better')
+    # print(shap_values[0][..., int(y_test[i].argmax())].shape)
+    # print(x_test[i].shape)
+    # shap.image_plot(shap_values[0][..., int(y_test[i].argmax())], x_test[i])
+    #
+    # shap_values = np.transpose(shap_values, (4, 0, 1, 2, 3))
+    # demo_value = x_test[i][np.newaxis, :]
+    #
+    # print('demo')
+    # print(shap_values.shape)
+    # print(demo_value.shape)
+    # shap.image_plot([shap_values[i] for i in range(shap_values.shape[0])], demo_value)
 

@@ -1,8 +1,8 @@
-from lime import lime_image, lime_tabular
 from skimage.segmentation import mark_boundaries
 from matplotlib import pyplot as plt
 import numpy as np
 import imbal.util.explanation as explanation
+import shap
 
 def shap_explain_image_sample(
         image,
@@ -12,7 +12,9 @@ def shap_explain_image_sample(
         class_names=None,
         actual_label=None,
         label_to_explain=None,
-        return_figure=False
+        show=True,
+        save_figure=False,
+        figure_save_path='shap-image-explanation.png'
 ):
     """
     Utilizes SHAP to generate an explanation for the classification of a particular image
@@ -42,67 +44,40 @@ def shap_explain_image_sample(
         :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
         :code:`return_figure` is set to :code:`True`.
     """
-    if len(image.shape) < 2 or len(image.shape) > 3:
-        raise ValueError('"image" must be a 2D or 3D array (height, width, channels)')
 
-    if len(image.shape) == 2:
-        image = np.expand_dims(image, axis=-1)
+    if label_to_explain is not None:
+        label_to_explain = int(label_to_explain)
+    if actual_label is not None:
+        actual_label = int(actual_label)
 
-    if len(image.shape) == 3 and image.shape[-1] == 1:
-        image = np.repeat(image, 3, -1)
+    background = training_data
+    if num_samples is not None:
+        background = training_data[np.random.choice(training_data.shape[0], num_samples, replace=False)]
 
-    def predict_fn(value):
-        return model.predict(value)
+    e = shap.DeepExplainer(model, background)
 
-    explainer = lime_image.LimeImageExplainer()
-    explanation = explainer.explain_instance(
-        image,
-        predict_fn,
-        labels=[label_to_explain] if label_to_explain is not None else None,
-        top_labels=1,
-        num_samples=num_samples,
-    )
-
-    explanation_label_display = label_to_explain
-    if explanation_label_display is None:
-        explanation_label_display = explanation.top_labels[0]
-    if class_names is not None:
-        explanation_label_display = class_names[explanation_label_display]
-    explanation_display = 'Prediction' if label_to_explain is None else 'Explanation'
-    explanation_display += f' ({explanation_label_display})'
+    shap_values = e.shap_values(np.array([image]))
 
     if label_to_explain is None:
-        label_to_explain = explanation.top_labels[0]
+        label_to_explain = int(model.predict(np.array([image])).argmax())
 
-    temp, mask = explanation.get_image_and_mask(
-        label_to_explain,
-        positive_only=False,
-        num_features=num_features,
-        hide_rest=False
-    )
+    shap.image_plot(shap_values[0][..., label_to_explain], image, show=False)
 
-    actual_label_display = ""
+    explanation_label = label_to_explain
+    if class_names is not None:
+        explanation_label = class_names[label_to_explain]
+    title_string = f'Explanation for "{explanation_label}"'
+
     if actual_label is not None:
         if class_names is not None:
-            actual_label_display = class_names[actual_label]
-        else:
-            actual_label_display = actual_label
-    fig, ax = plt.subplots(nrows=1, ncols=2)
+            actual_label = class_names[actual_label]
+        title_string += f' (Actual label: {actual_label})'
+    plt.suptitle(title_string)
 
-    if class_names is not None:
-        fig.suptitle(f'Explanation for "{explanation_label_display}"')
-    ax[0].imshow(image)
-    ax[0].set_title(f'Original Image{f" ({actual_label_display})" if actual_label is not None else ""}')
-    ax[0].set_axis_off()
-    ax[1].imshow(mark_boundaries(temp, mask))
-    ax[1].set_title(explanation_display)
-    ax[1].set_axis_off()
-
-    if return_figure:
-        return fig, ax
-
-    plt.show()
-    return None
+    if save_figure:
+        plt.savefig(figure_save_path)
+    if show:
+        plt.show()
 
 def shap_explain_tabular_sample(
     sample,

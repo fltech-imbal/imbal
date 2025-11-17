@@ -35,8 +35,7 @@
               "title": "Notes - 11-25"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,10 +183,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "0217180cd4ca8f2b",
+  "active": "10b9777023201082",
   "lastOpenFiles": [
-    "Original PDF.pdf",
     "Notes - 11-25.md",
+    "Original PDF.pdf",
     "Images/Pasted image 20251112073805.png",
     "Images/2d-kde-scatter.png",
     "Images/true-2d-distribution.png",
