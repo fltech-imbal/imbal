@@ -28,7 +28,7 @@ Example:
 ## Plot Examples
 
 Below is an example of the resulting Matplotlib pyplot plot for a 
-correctly predicted class
+correctly predicted class.
 
 ```python
 >>> imbal.regression.explanation.lime_explain_image_sample(
@@ -43,7 +43,7 @@ src="../../_static/classification/lime_image_classification/lime_image_explanati
 width="450px"/>
 
 An example of the resulting Matplotlib pyplot plot for in
-incorrectly predicted class
+incorrectly predicted class.
 
 ```python
 >>> imbal.regression.explanation.lime_explain_image_sample(
@@ -61,7 +61,7 @@ An example of the resulting Matplotlib pyplot plot for the same
 sample shown above, but providing and explanation for the correct class.
 From these explanations, we gain insight into the fact that while the
 model seems to correctly positively correlate the body of the airplane
-with the airpxplane class, the backside of the plane is incorrectly associated
+with the airplane class, the backside of the plane is incorrectly associated
 with the ship class, leading to the incorrect prediction.
 
 ```python

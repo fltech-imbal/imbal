@@ -78,6 +78,11 @@ def shap_explain_tabular_sample(
     show=True,
     mode='classification'
 ):
+    if not isinstance(sample, np.ndarray):
+        raise TypeError('Sample must be a Numpy array.')
+    if not isinstance(training_data, np.ndarray):
+        raise TypeError('Training data must be a Numpy array.')
+
     explainer = shap.Explainer(model, training_data)
     shap_values = explainer(np.expand_dims(sample, axis=0))
 
@@ -143,6 +148,11 @@ def shap_explain_tabular_dataset(
     show=True,
     mode='classification'
 ):
+    if not isinstance(dataset, np.ndarray):
+        raise TypeError('Dataset must be a Numpy array.')
+    if not isinstance(training_data, np.ndarray):
+        raise TypeError('Training data must be a Numpy array.')
+
     explainer = shap.Explainer(model, training_data)
     shap_values = explainer(dataset)
 

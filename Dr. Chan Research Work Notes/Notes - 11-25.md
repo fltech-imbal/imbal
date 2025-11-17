@@ -1,4 +1,4 @@
-# 11/3/25
+	# 11/3/25
 
 ## Prep:
 - Skip floor(steps/2) in `fit_kde` $\checkmark$
@@ -167,18 +167,25 @@
 	- It differentiates between Python lists and numpy arrays in the worst possible way... still trying to understand how to replicate MNSIT example, but getting closer
 		- Essentially, SHAP interprets `[np.array([1, 2, 3])]` differently from `np.array([[1, 2, 3]])`
 
+# 11/17/25
 ## Tasks:
-- Complete SHAP image classification documentation
-- Change SHAP page from 'one important difference' to "one difference"
-- In my documentation for SHAP wrappers, explain that all list-like data should be passed as numpy arrays
-	- Make sure to raise an exception for when non-numpy arrays are passed
-- Prefer to use STL-10 for SHAP image classification examples in documentation, but if results stay bad, use MNIST
-- Remove override examples for SHAP  tabular regression (it does not allow for it)
-	- Include a note explaining this in documentation
-- Think about how to implement a `decoupled_fit` wrapper (Figure $1$, section $2.3$)
-	- Consider latent space is second to last layer
-	- Call `tf.model.fit` twice
+- Complete SHAP image classification documentation $\checkmark$
+- Change SHAP page from 'one important difference' to "one difference" $\checkmark$
+- In my documentation for SHAP wrappers, explain that all list-like data should be passed as numpy arrays $\checkmark$
+	- Make sure to raise an exception for when non-numpy arrays are passed $\checkmark$
+- Prefer to use STL-10 for SHAP image classification examples in documentation, but if results stay bad, use MNIST $\checkmark$
+- Remove override examples for SHAP tabular regression (it does not allow for it) $\checkmark$
+	- Include a note explaining this in documentation $\checkmark$
+- Think about how to implement a `decoupled_fit` wrapper (Figure $1$, section $2.3$) $\checkmark$
+	- Consider latent space is second to last layer $\checkmark$
+	- Call `tf.model.fit` twice $\checkmark$
 - Think about AED inclusion
 	- Implemented with flag, default to `True`
 	- "Invert" the model passed by the user
-	- **WRAPPER FIRST, then this AED branch**
+	- **WRAPPER FIRST, then this AED branch** $\checkmark$ 
+
+## Notes:
+- After some tinkering with TensorFlow, I've come to the realization that by default, TensorFlow weights samples with a weight of `1` per sample when no weights are provided, not `1/n` as our previous methods have implemented
+	- The difference in weights was very noticeable in training losses (sharp decrease in loss from low "under-weighting")
+	- I have made the necessary changes to stay consistent with this, but can revert if necessary
+- Also went back and rewrote previous code for classification to support one-hot vector labels on top of integer labels

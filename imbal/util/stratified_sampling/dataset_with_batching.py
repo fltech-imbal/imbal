@@ -183,16 +183,22 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         super(DatasetWithBatching, self).__init__(**kwargs)
         # Declare sampler attributes
         self._x_set : Tensor = tf.constant(x_set)
-        self._y_set : Tensor = tf.reshape(tf.constant(y_set), (-1,))
+        self._y_set : Tensor = tf.constant(y_set)
         self._sample_weights = None
         self._seed = seed
         self._data_by_class = []
         self._data_labels = []
         self._data_weights = []
-        self._weight_sum = None
         self._shuffle = shuffle
         self._mode = mode
         self._sort = sort
+
+        if self._y_set.ndim == 1:
+            self._comp_values = self._y_set
+        elif self._y_set.ndim == 2:
+            self._comp_values = tf.argmax(self._y_set, axis=1, output_type=tf.int32)
+        else:
+            raise ValueError('labels must be scalar values, or one-hot vectors')
 
         # Make sure num_batches is set (num_batches is easier to work with than batch_size)
         if num_batches is None:
@@ -202,14 +208,12 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             self._num_batches = num_batches
 
         if sample_weights is None:
-            self._sample_weights = np.ones([x_set.shape[0]]) / x_set.shape[0]
+            self._sample_weights = np.ones([x_set.shape[0]])
         else:
             self._sample_weights = tf.reshape(tf.constant(sample_weights), (-1,))
 
         if not (self._x_set.shape[0] == self._y_set.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
             raise ValueError("Number of entries in data, labels, and weights must be equal")
-
-        self._weight_sum = float(sum(self._sample_weights))
 
         if self._mode == ModelType.REGRESSION:
             if self._sort == 'descending':
@@ -225,7 +229,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             unique_classes = [1] * len(unique_counts)
         else:
             # Get a list of all labels in data, along with how many of each label
-            unique_classes, _, unique_counts = tf.unique_with_counts(self._y_set)
+            unique_classes, _, unique_counts = tf.unique_with_counts(self._comp_values)
             unique_classes, unique_counts = unique_classes.numpy(), unique_counts.numpy()
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
@@ -235,8 +239,8 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
                 class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
                 class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
             else:
-                class_data = tf.boolean_mask(self._x_set, self._y_set == label, axis=0)
-                class_weights = tf.boolean_mask(self._sample_weights, self._y_set == label, axis=0) / duplicate_factor
+                class_data = tf.boolean_mask(self._x_set, self._comp_values == label, axis=0)
+                class_weights = tf.boolean_mask(self._sample_weights, self._comp_values == label, axis=0) / duplicate_factor
             if self._shuffle:
                 indices = tf.random.experimental.stateless_shuffle(tf.range(class_data.shape[0]),
                                                                    seed=[self._seed + idx, self._seed + idx])
@@ -254,7 +258,14 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
                 class_labels = tf.gather(class_labels, indices)
                 self._data_labels.append(tf.tile(class_labels, tf.constant([duplicate_factor])))
             else:
-                self._data_labels.append(tf.tile(tf.fill([count], label), tf.constant([duplicate_factor])))
+                if self._y_set.ndim == 1:
+                    label_value = label
+                    labels_block = tf.tile([label_value], [count])
+                    self._data_labels.append(tf.tile(labels_block, [duplicate_factor]))
+                if self._y_set.ndim == 2:
+                    label_value = tf.one_hot(label, self._y_set.shape[1])
+                    labels_block = tf.tile([label_value], [count, 1])
+                    self._data_labels.append(tf.tile(labels_block, [duplicate_factor, 1]))
 
         self._seed += self._num_batches
 
@@ -279,7 +290,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
 
 
         return (tf.gather(self._batchable_data[idx::self._num_batches], indices),
-            tf.reshape(tf.gather(self._batchable_labels[idx::self._num_batches], indices), (-1, 1)),
+            tf.gather(self._batchable_labels[idx::self._num_batches], indices),
             tf.reshape(tf.gather(self._batchable_weights[idx::self._num_batches], indices), (-1, 1)))
 
     def on_epoch_end(self) -> None:

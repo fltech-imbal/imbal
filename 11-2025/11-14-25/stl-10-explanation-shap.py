@@ -47,26 +47,17 @@ print('y_test', y_test.shape)
 
 inputs = keras.Input(shape=(96,96,3))
 output = None
-if MODE == 'classification':
-    x = layers.Conv2D(16, (3, 3), activation='relu')(inputs)
-    x = layers.BatchNormalization()(x)
-    x = layers.Conv2D(16, (3, 3), activation='relu')(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Conv2D(32, (3, 3), activation='relu')(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.Conv2D(32, (3, 3), activation='relu')(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Conv2D(64, (3, 3), activation='relu')(x)
-    x = layers.BatchNormalization()(x)
-    x = layers.MaxPooling2D((2, 2))(x)
-    x = layers.Flatten()(x)
-    x = layers.Dense(64, activation='relu')(x)
-    x = layers.Dropout(0.3)(x)
-    output = layers.Dense(
-        10 if HIGH_IMBALANCE == False else 1,
-        activation='softmax' if HIGH_IMBALANCE == False else 'sigmoid'
-    )(x)
+
+x = layers.Conv2D(16, (7, 7), activation='relu')(inputs)
+x = layers.MaxPooling2D((2, 2))(x)
+x = layers.Conv2D(32, (7, 7), activation='relu')(x)
+x = layers.MaxPooling2D((2, 2))(x)
+x = layers.Flatten()(x)
+x = layers.Dropout(0.3)(x)
+output = layers.Dense(
+    10,
+    activation='softmax'
+)(x)
 
 loss_fn = ('sparse_categorical_crossentropy' if HIGH_IMBALANCE == False else 'binary_crossentropy') if MODE == 'classification' else 'mse'
 metrics = ['accuracy'] if MODE == 'classification' else ['mae', 'mse']
@@ -87,8 +78,10 @@ result = model.predict(np.reshape(x_test[0], (1, 96, 96, 3)))
 
 class_labels = ['airplane', 'bird', 'car', 'cat', 'deer', 'dog', 'horse', 'monkey', 'ship', 'truck']
 
-EXPLAIN_INDEX_START = 20
+EXPLAIN_INDEX_START = 80
 EXPLAIN_AMOUNT = 5
+
+from matplotlib import pyplot as plt
 
 for i in range(EXPLAIN_AMOUNT):
     def f(X):
@@ -98,34 +91,6 @@ for i in range(EXPLAIN_AMOUNT):
     x_ = x_test[i + EXPLAIN_INDEX_START]
     y_ = y_test[i + EXPLAIN_INDEX_START]
 
-    # x_sample = np.expand_dims(x_, axis=0).astype(np.float32)
-    # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)].astype(np.float32)
-    # explainer = shap.GradientExplainer(model, background)
-    # shap_values = explainer.shap_values(x_sample)
-    # vals = shap_values[0][..., int(y_)]
-    # # vals = vals / np.max(np.abs(vals))
-    # vals = vals.squeeze()
-    # print(x_.shape)
-    # print(vals.shape)
-    # shap.image_plot([vals], x_)
-
-    # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)]
-    # e = shap.GradientExplainer(model, background)
-    # shap_values = e.shap_values(x_test[i:i + 1])
-    #
-    # print('better')
-    # print(shap_values[0][..., int(y_test[i].argmax())].shape)
-    # print(x_test[i].shape)
-    # shap.image_plot(shap_values[0][..., int(y_test[i].argmax())], x_test[i])
-    #
-    # shap_values = np.transpose(shap_values, (4, 0, 1, 2, 3))
-    # demo_value = x_test[i][np.newaxis, :]
-    #
-    # print('demo')
-    # print(shap_values.shape)
-    # print(demo_value.shape)
-    # shap.image_plot([shap_values[i] for i in range(shap_values.shape[0])], demo_value)
-
     imbal.classification.shap_explain_image_sample(
         x_test[i + EXPLAIN_INDEX_START],
         model,
@@ -133,6 +98,45 @@ for i in range(EXPLAIN_AMOUNT):
         class_names=class_labels,
         actual_label=y_test[i + EXPLAIN_INDEX_START],
         num_samples=100,
-        save_figure=True
+        save_figure=True,
+        figure_save_path=f'stl10-explanation-shap-{i}.png',
     )
+
+    imbal.classification.shap_explain_image_sample(
+        x_test[i + EXPLAIN_INDEX_START],
+        model,
+        x_train,
+        class_names=class_labels,
+        label_to_explain=y_test[i + EXPLAIN_INDEX_START],
+        actual_label=y_test[i + EXPLAIN_INDEX_START],
+        num_samples=100,
+        save_figure=True,
+        figure_save_path=f'stl10-explanation-shap-{i}-override.png',
+    )
+
+
+    # background = x_train[np.random.choice(x_train.shape[0], 100, replace=False)]
+    #
+    # e = shap.DeepExplainer(model, background)
+    # shap_values = e.shap_values(np.array([x_test[i + EXPLAIN_INDEX_START]]))
+    # shap_values = np.transpose(shap_values[0], (3, 0, 1, 2))
+    # print(shap_values.shape)
+    #
+    # # if label_to_explain is None:
+    # #     label_to_explain = int(model.predict(np.array([x_test[i + EXPLAIN_INDEX_START]])).argmax())
+    # # shap.image_plot(shap_values[0][..., label_to_explain], x_test[i + EXPLAIN_INDEX_START], show=False)
+    #
+    # shap.image_plot([x for x in shap_values], x_test[i + EXPLAIN_INDEX_START], show=False)
+    #
+    # # explanation_label = label_to_explain
+    # # if class_names is not None:
+    # #     explanation_label = class_names[label_to_explain]
+    # # title_string = f'Explanation for "{explanation_label}"'
+    # #
+    # # if actual_label is not None:
+    # #     if class_names is not None:
+    # #         actual_label = class_names[actual_label]
+    # #     title_string += f' (Actual label: {actual_label})'
+    # # plt.suptitle(title_string)
+    # plt.show()
 

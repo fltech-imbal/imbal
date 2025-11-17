@@ -12,6 +12,8 @@ def generate_weights(
     Args:
         labels: A NumPy array of labels, arranged as a column vector
         weight_mapping: A dictionary or list of mappings from class label to weight. If
+            no weight mapping is provided, each class will be weighted equally (samples of
+            more frequent classes will be weighted lower, and vice versa). If
             a dictionary is provided, keys will be interpreted as class labels, and the corresponding
             values interpreted as the fraction of the final weight the class should take up. If a
             list is provided, the entries in the list will be assumed the fraction of the final weight
@@ -43,6 +45,10 @@ def generate_weights(
         >>> print(weights)
         [0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.1 0.1 0.1 0.15 0.15]
     """
+
+    if labels.ndim == 2:
+        labels = labels.argmax(axis=1)
+
     labels = labels.reshape(-1, )
     unique_classes, unique_counts = np.unique(labels, return_counts=True)
     full_weight_mapping = {}
@@ -70,7 +76,7 @@ def generate_weights(
                 weight_sum += weight
 
     for label, count in zip(unique_classes, unique_counts):
-        balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count})
+        balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count * labels.shape[0]})
 
     return np.array([balanced_mapping[label] for label in labels])
 

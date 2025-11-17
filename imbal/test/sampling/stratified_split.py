@@ -31,11 +31,11 @@ class TestStratifiedSplit(unittest.TestCase):
         x_train, y_train, w_train = train_set.get_unzipped()
         x_test, y_test, w_test = test_set.get_unzipped()
 
-        train_unique_counts = np.unique_counts(y_train)
-        test_unique_counts = np.unique_counts(y_test)
+        _, train_unique_counts = np.unique(y_train, return_counts=True)
+        _, test_unique_counts = np.unique(y_test, return_counts=True)
 
-        self.assertTrue(np.array_equal(train_unique_counts.counts, (6, 6, 3)))
-        self.assertTrue(np.array_equal(test_unique_counts.counts, (2, 2, 1)))
+        self.assertTrue(np.array_equal(train_unique_counts, (6, 6, 3)))
+        self.assertTrue(np.array_equal(test_unique_counts, (2, 2, 1)))
         self.assertTrue(np.array_equal(np.choose(x_train, labels), y_train))
         self.assertTrue(np.array_equal(np.choose(x_test, labels), y_test))
         self.assertTrue(np.array_equal(np.choose(x_train, weights), w_train))
@@ -78,7 +78,7 @@ class TestStratifiedSplit(unittest.TestCase):
         y_combined = np.concatenate((y_train, y_test))
         w_combined = np.concatenate((w_train, w_test))
 
-        combined_label_uniques = np.unique_counts(y_combined)
+        combined_label_uniques, counts = np.unique(y_combined, return_counts=True)
 
         self.assertTrue(x_train.shape[0] == 16)
         self.assertTrue(y_train.shape[0] == 16)
@@ -86,8 +86,8 @@ class TestStratifiedSplit(unittest.TestCase):
         self.assertTrue(x_test.shape[0] == 4)
         self.assertTrue(y_test.shape[0] == 4)
         self.assertTrue(w_test.shape[0] == 4)
-        self.assertTrue(combined_label_uniques.values.shape[0] == 20)
-        self.assertTrue(np.allclose(combined_label_uniques.counts.reshape(-1,), np.ones(20)))
+        self.assertTrue(combined_label_uniques.shape[0] == 20)
+        self.assertTrue(np.allclose(counts.reshape(-1,), np.ones(20)))
 
 if __name__ == '__main__':
     unittest.main()

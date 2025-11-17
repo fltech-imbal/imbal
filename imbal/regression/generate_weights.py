@@ -208,7 +208,7 @@ def generate_weights(
         vectorized_function = np.vectorize(density_mapping)
         weights = vectorized_function(densities)
 
-    weights = weights / np.sum(weights)
+    weights = weights / np.sum(weights) * weights.shape[0]
 
     return weights
 

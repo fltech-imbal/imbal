@@ -15,64 +15,71 @@ Example:
 >>> x = x_test[0]
 >>> y = y_test[0]
 >>> 
->>> fig, ax = imbal.classification.lime_image_explanation(
+>>> imbal.classification.shap_explain_image_sample(
 >>>     x,
 >>>     model,
+>>>     x_train,
+>>>     class_names=class_labels,
 >>>     actual_label=y,
->>>     label_to_explain=y,
->>>     class_names=class_labels
->>>     return_figure=True
+>>>     save_figure=True,
 >>> )
 ```
 
 ## Plot Examples
 
 Below is an example of the resulting Matplotlib pyplot plot for a 
-correctly predicted class
+correctly predicted class.
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
->>>     x,
+>>> imbal.classification.shap_explain_image_sample(
+>>>     x_test[i],
 >>>     model,
->>>     actual_label=y
+>>>     x_train,
+>>>     class_names=labels,
+>>>     actual_label=y_test[i]
 >>> )
 ```
 
 <img
-src="../../_static/classification/lime_image_classification/lime_image_explanation_correct_pred.png"
+src="../../_static/classification/shap_image_sample/stl10-explanation-shap-2.png"
 width="450px"/>
 
 An example of the resulting Matplotlib pyplot plot for in
-incorrectly predicted class
+incorrectly predicted class.
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
->>>     x,
+>>> imbal.classification.shap_explain_image_sample(
+>>>     x_test[i],
 >>>     model,
->>>     actual_label=y
+>>>     x_train,
+>>>     class_names=labels,
+>>>     actual_label=y_test[i]
 >>> )
 ```
 
 <img
-src="../../_static/classification/lime_image_classification/lime_image_explanation_incorrect_pred.png"
+src="../../_static/classification/shap_image_sample/stl10-explanation-shap-1.png"
 style="width:450px; image-rendering:pixelated;"/>
 
 An example of the resulting Matplotlib pyplot plot for the same
 sample shown above, but providing and explanation for the correct class.
 From these explanations, we gain insight into the fact that while the
-model seems to correctly positively correlate the body of the airplane
-with the airpxplane class, the backside of the plane is incorrectly associated
-with the ship class, leading to the incorrect prediction.
+model seems to correctly positively correlate some parts of the truck with
+the truck class, it found a negative correlation with the windows of the
+building in the background, which the model positively associated with the
+ship class.
 
 ```python
->>> imbal.regression.explanation.lime_image_explanation(
->>>     x,
+>>> imbal.classification.shap_explain_image_sample(
+>>>     x_test[i],
 >>>     model,
->>>     actual_label=y
->>>     label_to_explain=y
+>>>     x_train,
+>>>     class_names=labels,
+>>>     label_to_explain=y_test[i],
+>>>     actual_label=y_test[i]
 >>> )
 ```
 
 <img
-src="../../_static/classification/lime_image_classification/lime_image_explanation_overridden_pred.png"
+src="../../_static/classification/shap_image_sample/stl10-explanation-shap-1-override.png"
 width="450px"/>

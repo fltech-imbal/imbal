@@ -6,7 +6,6 @@ def shap_explain_tabular_sample(
     training_data,
     class_names=None,
     feature_names=None,
-    label_to_explain=None,
     actual_label=None,
     plot_type='bar',
     figure_save_path='shap-explanation.png',
@@ -20,7 +19,7 @@ def shap_explain_tabular_sample(
     Args:
         sample: The sample to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: The data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
@@ -29,10 +28,6 @@ def shap_explain_tabular_sample(
             generated figure.
         actual_label: Optional, default :code:`None`. The actual label for the sample
             being explained. Used to label the generated figure.
-        label_to_explain: Optional, default :code:`None`. The label of the class
-            you wish to generate an explanation for. This label need not be the same
-            as the true label for the provided image. When set to :code:`None`, the
-            label that is predicted by the model will be explained.
         save_figure: Optional, default :code:`False`. Whether to save the generated figure.
         figure_save_path: Optional, default :code:`"shap-explanation.png"`. The path to
             save the generated figure to.
@@ -50,7 +45,6 @@ def shap_explain_tabular_sample(
         training_data,
         class_names=class_names,
         feature_names=feature_names,
-        label_to_explain=label_to_explain,
         actual_label=actual_label,
         figure_save_path=figure_save_path,
         show=show,
@@ -77,7 +71,7 @@ def shap_explain_tabular_dataset(
     Args:
         dataset: The dataset to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: The data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.

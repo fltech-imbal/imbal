@@ -11,7 +11,7 @@ expansions to SHAP's original functionalities, nor provide further insight into 
 inner workings, but rather to simply provide a simpler, more streamlined interface
 for some of SHAP's functionalities.
 
-An important feature that separates SHAP from [LIME](lime-explanation.md) is that SHAP includes
+One difference that separates SHAP from [LIME](lime-explanation.md) is that SHAP includes
 the ability to perform explanations across an entire dataset, along with per-sample explanations,
 whereas LIME only contains the capability to perform per-sample explanations out of the box.
 

@@ -8,7 +8,7 @@ def shap_explain_image_sample(
         image,
         model,
         training_data,
-        num_samples=None,
+        num_samples=100,
         class_names=None,
         actual_label=None,
         label_to_explain=None,
@@ -21,40 +21,43 @@ def shap_explain_image_sample(
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
-        image: The image to generate a LIME explanation for.
-        model: The PyTorch model to generate a LIME explanation from.
-        num_samples: Optional, default 100. The number of local samples to perform for
-            the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
-        num_features: Optional, default 100000. The maximum number of features to present
-            in the explanation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
+        image: The image to generate a SHAP explanation for, as a Numpy array.
+        model: The PyTorch model to generate a SHAP explanation from.
+        training_data: A Numpy array containing the data the given model was trained on.
+        num_samples: Optional, default :code:`100`. The number of samples to randomly pick
+            from the training data used to generate the localized SHAP explanation.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
-        actual_label: Optional, default :code:`None`. default The true label of the
-            provided image. Used to label the generated figure.
+        actual_label: Optional, default :code:`None`. The actual label for the sample
+            being explained. Used to label the generated figure.
         label_to_explain: Optional, default :code:`None`. The label of the class
             you wish to generate an explanation for. This label need not be the same
             as the true label for the provided image. When set to :code:`None`, the
             label that is predicted by the model will be explained.
-        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
-            Matplotlib Figure and Axes objects associated with the generated figure will
-            be returned.
+        save_figure: Optional, default :code:`False`. Whether to save the generated figure.
+        figure_save_path: Optional, default :code:`"shap-explanation.png"`. The path to
+            save the generated figure to.
+        show: Optional, default :code:`True`. Whether to show the generated figure. If set to
+            :code:`False`, the figure can be further modified before displaying or saving it.
 
     Returns:
-        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
-        :code:`return_figure` is set to :code:`True`.
+        None
     """
+
+    if not isinstance(image, np.ndarray):
+        raise TypeError('Input image must be a Numpy array.')
+    if not isinstance(training_data, np.ndarray):
+        raise TypeError('Training data must be a Numpy array.')
 
     if label_to_explain is not None:
         label_to_explain = int(label_to_explain)
     if actual_label is not None:
         actual_label = int(actual_label)
 
-    background = training_data
-    if num_samples is not None:
-        background = training_data[np.random.choice(training_data.shape[0], num_samples, replace=False)]
+    background = training_data[np.random.choice(training_data.shape[0], num_samples, replace=False)]
 
-    e = shap.DeepExplainer(model, background)
+    e = shap.GradientExplainer(model, background)
 
     shap_values = e.shap_values(np.array([image]))
 
@@ -99,7 +102,7 @@ def shap_explain_tabular_sample(
     Args:
         sample: The sample to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: The data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
@@ -123,6 +126,7 @@ def shap_explain_tabular_sample(
     Returns:
         None
     """
+
     return explanation.shap_explain_tabular_sample(
         sample,
         model,
@@ -155,9 +159,9 @@ def shap_explain_tabular_dataset(
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
-        dataset: The dataset to generate a SHAP explanation for.
+        dataset: A Numpy array containing the dataset to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: The data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.

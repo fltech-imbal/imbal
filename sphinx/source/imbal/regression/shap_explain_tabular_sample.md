@@ -63,21 +63,4 @@ Below is an example of the bar plot for an incorrectly predicted sample.
 style="width: 400px"
 src="../../_static/regression/shap_tabular_sample/housing-bar-0.png"/>
 
-Below is an example of the bar plot for the explanation of the correct class
-for the incorrectly predicted sample shown above.
-
-```python
->>> imbal.regression.shap_explain_tabular_sample(
->>>     x,
->>>     model,
->>>     x_train,
->>>     actual_label=y,
->>>     label_to_plot=y,
->>>     feature_names=labels,
->>>     plot_typle='bar'
->>> )
-```
-
-<img 
-style="width: 400px"
-src="../../_static/regression/shap_tabular_sample/housing-bar-0-override.png"/>
+Unlike LIME, SHAP does not support explanations for chosen regression values.
