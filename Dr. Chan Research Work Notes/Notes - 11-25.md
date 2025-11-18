@@ -1,4 +1,4 @@
-	# 11/3/25
+# 11/3/25
 
 ## Prep:
 - Skip floor(steps/2) in `fit_kde` $\checkmark$
@@ -189,3 +189,26 @@
 	- The difference in weights was very noticeable in training losses (sharp decrease in loss from low "under-weighting")
 	- I have made the necessary changes to stay consistent with this, but can revert if necessary
 - Also went back and rewrote previous code for classification to support one-hot vector labels on top of integer labels
+- Review parameters for `decoupled_fit`
+	- For `compile_function`, include `stage` parameter?
+
+# 11/19/25
+
+## Tasks:
+- Add which explainer is used for all SHAP documentation (first part)
+	- Anything else that might be relevant
+- Change code that looks for representation layer to by default search for *last layer with parameters*
+	- For when layer is specified, specified index should be less than or equal to index of last layer with parameter
+		- If not, warn and override
+	- Extract logic into `util` function, also add to TSNE
+	- Consideration for layer: Representation layer could be in separate branches?
+- Change documentation of generated weights and dataset with batching to say weights sum to 1, and this is what TensorFlow expects
+	- Also code examples
+- Can I decouple weight logic in generate weights and `DatasetWithBatching` to separate function?
+- Notes for one-hot vectors in documentation for weights and batching
+- (See photos) Wrapper function to store compile parameters
+	- Return an object which we create, and **document it**
+- Allow for different compile parameters for each stage
+	- By default, assume stages are the same
+- Epochs should be `int` or `tuple`
+- 

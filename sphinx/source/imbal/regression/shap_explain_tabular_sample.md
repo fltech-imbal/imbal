@@ -63,4 +63,5 @@ Below is an example of the bar plot for an incorrectly predicted sample.
 style="width: 400px"
 src="../../_static/regression/shap_tabular_sample/housing-bar-0.png"/>
 
-Unlike LIME, SHAP does not support explanations for chosen regression values.
+Unlike LIME, SHAP does not currently support explanations for a chosen
+(user specified) regression value, only values predicted by the provided model.
