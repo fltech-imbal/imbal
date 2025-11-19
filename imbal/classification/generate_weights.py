@@ -7,10 +7,18 @@ def generate_weights(
     """
     Generates a list of weights, where the index of each weight corresponds to the label
     at the index of the provides list of labels. The sum of all weights in the returned
-    list of weights will be normalized to 1.
+    list of weights will be normalized to :math:`n`.
+
+    Normally, it is standard to normalize weights to :math:`1`. However, when no weights
+    are provided to Tensorflow, its default behavior is to assign a weight of :math:`1`
+    to each sample, meaning the total weight for the dataset is :math:`n`. Straying from
+    this pattern would affect the scale of calculated loss values, which would also
+    have an impact on how learning rates perform, therefore we have decided to align
+    our weight generation implementations as closely as possible with Tensorflow's
+    default behavaiors.
 
     Args:
-        labels: A NumPy array of labels, arranged as a column vector
+        labels: A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
         weight_mapping: A dictionary or list of mappings from class label to weight. If
             no weight mapping is provided, each class will be weighted equally (samples of
             more frequent classes will be weighted lower, and vice versa). If
@@ -27,26 +35,32 @@ def generate_weights(
 
     .. code-block:: python
 
+        >>> import imbal
+        >>> import numpy as np
+
         >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
         >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1]).reshape(-1,1)
 
-        >>> weights = generate_weights(labels, { 0: 0.6, 1: 0.4 })
+        >>> weights = imbal.classification.generate_weights(labels, { 0: 0.6, 1: 0.4 })
 
         >>> print(weights)
-        [0.075 0.075 0.075 0.075 0.075 0.075 0.075 0.075 0.2 0.2]
+        [0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.0 2.0]
 
     .. code-block:: python
+
+        >>> import imbal
+        >>> import numpy as np
 
         >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).reshape(-1,1)
         >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2]).reshape(-1,1)
 
-        >>> weights = generate_weights(labels, { 0: 0.4, 1: 0.3, 2: 0.3 })
+        >>> weights = imbal.classification.generate_weights(labels, { 0: 0.4, 1: 0.3, 2: 0.3 })
 
         >>> print(weights)
-        [0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.05 0.1 0.1 0.1 0.15 0.15]
+        [0.65 0.65 0.65 0.65 0.65 0.65 0.65 0.65 1.3 1.3 1.3 1.95 1.95]
     """
 
-    if labels.ndim == 2:
+    if labels.ndim == 2 and labels.shape[1] != 1:
         labels = labels.argmax(axis=1)
 
     labels = labels.reshape(-1, )

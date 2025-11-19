@@ -192,11 +192,17 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._shuffle = shuffle
         self._mode = mode
         self._sort = sort
+        self._was_2d = False
 
         if self._y_set.ndim == 1:
             self._comp_values = self._y_set
         elif self._y_set.ndim == 2:
-            self._comp_values = tf.argmax(self._y_set, axis=1, output_type=tf.int32)
+            if self._y_set.shape[1] > 1:
+                self._comp_values = tf.argmax(self._y_set, axis=1, output_type=tf.int32)
+            else:
+                self._y_set = tf.reshape(self._y_set, (-1))
+                self._was_2d = True
+                self._comp_values = self._y_set
         else:
             raise ValueError('labels must be scalar values, or one-hot vectors')
 
@@ -212,14 +218,14 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         else:
             self._sample_weights = tf.reshape(tf.constant(sample_weights), (-1,))
 
-        if not (self._x_set.shape[0] == self._y_set.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
+        if not (self._x_set.shape[0] == self._comp_values.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
             raise ValueError("Number of entries in data, labels, and weights must be equal")
 
         if self._mode == ModelType.REGRESSION:
             if self._sort == 'descending':
-                sort_order = tf.argsort(self._y_set, direction="DESCENDING")
+                sort_order = tf.argsort(self._comp_values, direction="DESCENDING")
             else:
-                sort_order = tf.argsort(self._y_set)
+                sort_order = tf.argsort(self._comp_values)
 
             self._x_set = tf.gather(self._x_set, sort_order)
             self._y_set = tf.gather(self._y_set, sort_order)
@@ -288,9 +294,12 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         else:
             indices = tf.range(batch_size)
 
+        labels = tf.gather(self._batchable_labels[idx::self._num_batches], indices)
+        if self._was_2d:
+            labels = tf.reshape(labels, (-1, 1))
 
         return (tf.gather(self._batchable_data[idx::self._num_batches], indices),
-            tf.gather(self._batchable_labels[idx::self._num_batches], indices),
+            labels,
             tf.reshape(tf.gather(self._batchable_weights[idx::self._num_batches], indices), (-1, 1)))
 
     def on_epoch_end(self) -> None:

@@ -195,20 +195,24 @@
 # 11/19/25
 
 ## Tasks:
-- Add which explainer is used for all SHAP documentation (first part)
-	- Anything else that might be relevant
-- Change code that looks for representation layer to by default search for *last layer with parameters*
-	- For when layer is specified, specified index should be less than or equal to index of last layer with parameter
-		- If not, warn and override
-	- Extract logic into `util` function, also add to TSNE
-	- Consideration for layer: Representation layer could be in separate branches?
-- Change documentation of generated weights and dataset with batching to say weights sum to 1, and this is what TensorFlow expects
-	- Also code examples
-- Can I decouple weight logic in generate weights and `DatasetWithBatching` to separate function?
-- Notes for one-hot vectors in documentation for weights and batching
-- (See photos) Wrapper function to store compile parameters
-	- Return an object which we create, and **document it**
-- Allow for different compile parameters for each stage
-	- By default, assume stages are the same
-- Epochs should be `int` or `tuple`
+- Add which explainer is used for all SHAP documentation (first part) $\checkmark$
+	- Anything else that might be relevant $\checkmark$
+- Change code that looks for representation layer to by default search for *last layer with parameters* $\checkmark$
+	- For when layer is specified, specified index should be less than or equal to index of last layer with parameter $\checkmark$
+		- If not, warn and override $\checkmark$
+	- Extract logic into `util` function, also add to TSNE $\checkmark$
+	- Consideration for layer: Representation layer could be in separate branches? $\checkmark$
+- Change documentation of generated weights and dataset with batching to say weights sum to 1, and this is what TensorFlow expects $\checkmark$
+	- Also code examples $\checkmark$
+- Can I decouple weight logic in generate weights and `DatasetWi thBatching` to separate function? $\checkmark$ (no) 
+- Notes for one-hot vectors in documentation for weights and batching $\checkmark$
+- (See photos) Wrapper function to store compile parameters $\checkmark$
+	- Return an object which we create, and **document it** $\times$
+- Allow for different compile parameters for each stage $\checkmark$
+	- By default, assume stages are the same $\checkmark$
+- Epochs should be `int` or `tuple` $\checkmark$
+
+## Notes:
+- `Consideration for layer: Representation layer could be in separate branches?`
+	- Layers are always indexable, but it is a little hard to detect a branch on our end...
 - 

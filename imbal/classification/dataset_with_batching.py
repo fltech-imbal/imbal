@@ -15,8 +15,8 @@ class DatasetWithBatching(UtilDataset):
     samples is reached. Then, the sample weights of each sample in the class is
     adjusted to account for the duplication, such that the sum of the weights of
     all copies of a particular sample is equal to the weight of the original
-    singular sample (ex. 3 copies of a samples with weight 0.3 will have adjusted
-    weights of 0.1 each).
+    singular sample (ex. 3 copies of a samples with weight 1.5 will have adjusted
+    weights of 0.5 each).
 
     Once all classes have the property above, samples are distributed across each batch via
     rotation, such that every batch will
@@ -32,7 +32,7 @@ class DatasetWithBatching(UtilDataset):
 
     Args:
         x_set: A NumPy array of data points, arranged as a column vector
-        y_set: A NumPy array of labels, arranged as a column vector
+        y_set: A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
         sample_weights: Optional, default :code:`None`. A NumPy array of weights,
             arranged as a column vector. When :code:`None`, all samples are assumed to be equally weighted.
         batch_size: Optional, default :code:`64`. The approximate size of each batch.

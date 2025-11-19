@@ -177,7 +177,15 @@ def generate_weights(
     """
     Generates a list of weights, where the index of each weight corresponds to the density
     at the index of the provides list of density. The sum of all weights in the returned
-    list of weights will be normalized to 1.
+    list of weights will be normalized to :math:`n`.
+
+    Normally, it is standard to normalize weights to :math:`1`. However, when no weights
+    are provided to Tensorflow, its default behavior is to assign a weight of :math:`1`
+    to each sample, meaning the total weight for the dataset is :math:`n`. Straying from
+    this pattern would affect the scale of calculated loss values, which would also
+    have an impact on how learning rates perform, therefore we have decided to align
+    our weight generation implementations as closely as possible with Tensorflow's
+    default behavaiors.
 
     Args:
         densities: A NumPy array of densities, arranged as a column vector
@@ -185,7 +193,7 @@ def generate_weights(
             that converts density values to weights. When set to :code:`None`, densities
             are converted to weights be taking the reciprocal of each density value.
     Returns:
-        A list of weights, normalized to 1.
+        A list of weights, normalized to :math:`n`.
 
     Example:
 

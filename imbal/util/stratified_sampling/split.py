@@ -1,7 +1,7 @@
 from sklearn.model_selection import train_test_split
 import numpy as np
 from imbal.util.constants import ModelType
-from imbal.util.simple_dataset import SimpleDataset
+from imbal.util.helpers import SimpleDataset
 
 def split(
         x_set,
