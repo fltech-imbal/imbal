@@ -1,4 +1,5 @@
 # Classification
+`imbal.classification`
 
 ## Classes:
 - [DatasetWithBatching](dataset_with_batching.md)
@@ -12,6 +13,8 @@
 - [shap_explain_image_sample](shap_explain_image_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
+- [decoupled_fit](decoupled_fit.md)
+- [compile_parameters](compile_parameters.md)
 
 ```{eval-rst}
 .. toctree::
@@ -28,4 +31,6 @@
     shap_explain_image_sample <shap_explain_image_sample>
     shap_explain_tabular_sample <shap_explain_tabular_sample>
     shap_explain_tabular_dataset <shap_explain_tabular_dataset>
+    decoupled_fit <decoupled_fit>
+    compile_parameters <compile_parameters>
 ```

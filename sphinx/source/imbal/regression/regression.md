@@ -1,4 +1,5 @@
 # Regression
+`imbal.regression`
 
 ## Classes:
 - [DatasetWithBatching](dataset_with_batching.md)
@@ -13,6 +14,8 @@
 - [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
+- [decoupled_fit](decoupled_fit.md)
+- [compile_parameters](compile_parameters.md)
 
 ```{eval-rst}
 .. toctree::
@@ -20,6 +23,7 @@
     :maxdepth: 2
     :caption: Contents:
 
+    DatasetWithBatching <dataset_with_batching>
     split <split>
     get_densities <get_densities>
     generate_weights <generate_weights>
@@ -29,4 +33,6 @@
     lime_explain_tabular_sample <lime_explain_tabular_sample>
     shap_explain_tabular_sample <shap_explain_tabular_sample>
     shap_explain_tabular_dataset <shap_explain_tabular_dataset>
+    decoupled_fit <decoupled_fit>
+    compile_parameters <compile_parameters>
 ```

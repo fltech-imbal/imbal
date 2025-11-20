@@ -202,12 +202,12 @@
 		- If not, warn and override $\checkmark$
 	- Extract logic into `util` function, also add to TSNE $\checkmark$
 	- Consideration for layer: Representation layer could be in separate branches? $\checkmark$
-- Change documentation of generated weights and dataset with batching to say weights sum to 1, and this is what TensorFlow expects $\checkmark$
+- Change documentation of generated weights and dataset with batching to say weights sum to n, and this is what TensorFlow expects $\checkmark$
 	- Also code examples $\checkmark$
-- Can I decouple weight logic in generate weights and `DatasetWi thBatching` to separate function? $\checkmark$ (no) 
+- Can I decouple weight logic in generate weights and `DatasetWithBatching` to separate function? $\checkmark$ (no) 
 - Notes for one-hot vectors in documentation for weights and batching $\checkmark$
 - (See photos) Wrapper function to store compile parameters $\checkmark$
-	- Return an object which we create, and **document it** $\times$
+	- Return an object which we create, and **document it** $\checkmark$
 - Allow for different compile parameters for each stage $\checkmark$
 	- By default, assume stages are the same $\checkmark$
 - Epochs should be `int` or `tuple` $\checkmark$
@@ -215,4 +215,26 @@
 ## Notes:
 - `Consideration for layer: Representation layer could be in separate branches?`
 	- Layers are always indexable, but it is a little hard to detect a branch on our end...
-- 
+# 11/21/25
+
+## Tasks
+- Substitute in layer finding for TSNE (see previous notes)
+- Add ICLR 2020 after Kang et al. in documentation for `decoupled_fit`
+- Reword `compile_parameters`, `stage_one_compile_parameters`, and `stage_two...`
+	- Stage one and two refer to `compile_parameters` if not specified, `compile_parameters` refer to TF defaults if not specified
+	- Make sure to mention TF's `model.compile()` defaults, which are used with `compile_parameters` is `None`
+- For appropriate `model.fit` parameters, note (Same as `model.fit()`) (and link)
+- If integer epoch is specified, halve for second stage (in code and documentation)
+	- Swap `util` with `util.backend` and `util.helpers` to `util`
+- For code examples for decoupled fit, generate examples (with table) for imbalanced MNIST example, showing "normal" training procedure vs decoupled, comparing performance
+	- Show differences in code (or rather, how few changes are needed)
+	- Split into binary classification ($0$ and $1$, $0$ is common, $1$ is rare)
+		- If TF's F1Score already supports multi-class. If so, add this example as well!
+	- Table entries
+		- Method
+		- Time
+		- F1 score
+		- AUC
+## Notes
+- `Consideration for layer: Representation layer could be in separate branches?`
+	-  can we know full graph, not just indices?

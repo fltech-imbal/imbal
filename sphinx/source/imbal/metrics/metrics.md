@@ -1,4 +1,5 @@
 # Metrics
+`imbal.metrics`
 
 ## Classes:
 - [True Skill Statistic](true_skill_statistic.md)

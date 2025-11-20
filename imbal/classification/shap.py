@@ -17,7 +17,7 @@ def shap_explain_image_sample(
         figure_save_path='shap-image-explanation.png'
 ):
     """
-    Utilizes SHAP's GradientExplainer to generate an explanation for the classification of a particular image
+    Utilizes SHAP's `GradientExplainer <https://shap.readthedocs.io/en/latest/generated/shap.GradientExplainer.html>`_ to generate an explanation for the classification of a particular image
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
