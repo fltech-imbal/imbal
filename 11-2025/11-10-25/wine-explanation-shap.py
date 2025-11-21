@@ -3,7 +3,7 @@ from sklearn.datasets import load_wine
 import numpy as np
 import shap
 
-import imbal.util.explanation
+import imbal.backend.explanation
 MODE='classification'
 IMBALANCED = False
 HIGH_IMBALANCE = False

@@ -217,15 +217,15 @@
 	- Layers are always indexable, but it is a little hard to detect a branch on our end...
 # 11/21/25
 
-## Tasks
-- Substitute in layer finding for TSNE (see previous notes)
-- Add ICLR 2020 after Kang et al. in documentation for `decoupled_fit`
-- Reword `compile_parameters`, `stage_one_compile_parameters`, and `stage_two...`
-	- Stage one and two refer to `compile_parameters` if not specified, `compile_parameters` refer to TF defaults if not specified
-	- Make sure to mention TF's `model.compile()` defaults, which are used with `compile_parameters` is `None`
-- For appropriate `model.fit` parameters, note (Same as `model.fit()`) (and link)
-- If integer epoch is specified, halve for second stage (in code and documentation)
-	- Swap `util` with `util.backend` and `util.helpers` to `util`
+## Prep:
+- Substitute in layer finding for TSNE (see previous notes) $\checkmark$
+- Add ICLR 2020 after Kang et al. in documentation for `decoupled_fit` $\checkmark$
+- Reword `compile_parameters`, `stage_one_compile_parameters`, and `stage_two...` $\checkmark$
+	- Stage one and two refer to `compile_parameters` if not specified, `compile_parameters` refer to TF defaults if not specified $\checkmark$
+	- Make sure to mention TF's `model.compile()` defaults, which are used with `compile_parameters` is `None` $\checkmark$
+- For appropriate `model.fit` parameters, note (Same as `model.fit()`) (and link) $\checkmark$
+- If integer epoch is specified, halve for second stage (in code and documentation) $\checkmark$
+- Swap `util` with `util.backend` and `util.helpers` to `util` $\checkmark$
 - For code examples for decoupled fit, generate examples (with table) for imbalanced MNIST example, showing "normal" training procedure vs decoupled, comparing performance
 	- Show differences in code (or rather, how few changes are needed)
 	- Split into binary classification ($0$ and $1$, $0$ is common, $1$ is rare)
@@ -238,3 +238,26 @@
 ## Notes
 - `Consideration for layer: Representation layer could be in separate branches?`
 	-  can we know full graph, not just indices?
+
+### 80:1, LR 1e-3, 20 epochs
+- decoupled:
+	AUC: 0.9158 - F1Score: 0.3444 - accuracy: 0.6098 - loss: 1.2162
+- regular:
+	AUC: 0.9513 - F1Score: 0.3437 - accuracy: 0.6728 - loss: 0.9193
+
+### 80:1, LR 2e-5, 40 epochs
+- decoupled
+	AUC: 0.9356 - F1Score: 0.3087 - accuracy: 0.6162 - loss: 1.0570
+- regular:
+	AUC: 0.9418 - F1Score: 0.3204 - accuracy: 0.6380 - loss: 1.0002
+
+### 100:1, LR 2e-5, 30 epochs, CNN structure
+- decoupled:
+	
+- regular:
+	AUC: 0.9487 - F1Score: 0.3443 - accuracy: 0.6480 - loss: 0.9729
+- decoupled:
+	 AUC: 0.9347 - F1Score: 0.3259 - accuracy: 0.6373 - loss: 1.0633
+## Tasks:
+- temp
+# 11/24/25

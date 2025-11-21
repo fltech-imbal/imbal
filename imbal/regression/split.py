@@ -1,5 +1,5 @@
-from imbal.util.stratified_sampling.split import split as util_split
-from imbal.util.constants import ModelType
+from imbal.util.backend.stratified_sampling.split import split as util_split
+from imbal.util.backend.constants import ModelType
 
 def split(
         x_set,

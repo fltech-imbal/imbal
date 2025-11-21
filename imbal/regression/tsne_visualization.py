@@ -1,5 +1,5 @@
 import numpy as np
-from imbal.util.visualization import generate_tsne_visualization
+from imbal.util.backend.visualization import generate_tsne_visualization
 
 def tsne_visualization(
     model,

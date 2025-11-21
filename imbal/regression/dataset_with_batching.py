@@ -1,5 +1,5 @@
-from imbal.util.stratified_sampling.dataset_with_batching import DatasetWithBatching as UtilDataset
-from imbal.util.constants import ModelType
+from imbal.util.backend.stratified_sampling.dataset_with_batching import DatasetWithBatching as UtilDataset
+from imbal.util.backend.constants import ModelType
 
 class DatasetWithBatching(UtilDataset):
     """

@@ -2,7 +2,7 @@ from lime import lime_image, lime_tabular
 from skimage.segmentation import mark_boundaries
 from matplotlib import pyplot as plt
 import numpy as np
-import imbal.util.explanation as explanation
+import imbal.util.backend.explanation as explanation
 
 def lime_explain_image_sample(
         image,

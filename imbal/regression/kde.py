@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.neighbors import KernelDensity
 import matplotlib.pyplot as plt
 
-from imbal.util.sample_weighting import calculate_bin_count, get_label_bin_bounds
+from imbal.util.backend.sample_weighting import calculate_bin_count, get_label_bin_bounds
 import itertools
 from math import floor
 

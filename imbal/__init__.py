@@ -5,4 +5,3 @@ from . import (
     classification,
     regression
 )
-from .util import stratified_sampling, sample_weighting, explanation

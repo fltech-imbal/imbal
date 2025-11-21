@@ -5,7 +5,7 @@ from random import randint
 import os
 import csv
 
-import imbal.util.explanation
+import imbal.backend.explanation
 
 LIME_MODE = 'image'
 MODE = 'classification'

@@ -10,7 +10,7 @@ Subpackages:
 - :doc:`Metrics </imbal/metrics/metrics>`
 - :doc:`Classification </imbal/classification/classification>`
 - :doc:`Regression </imbal/regression/regression>`
-- :doc:`Helpers </imbal/helpers/helpers>`
+- :doc:`Util </imbal/util/util>`
 
 Information on select tools used:
 
@@ -25,6 +25,6 @@ Information on select tools used:
     /imbal/metrics/metrics
     /imbal/classification/classification
     /imbal/regression/regression
-    /imbal/helpers/helpers
+    /imbal/util/util
 
 

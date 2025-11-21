@@ -1,4 +1,4 @@
-import imbal.util.explanation as explanation
+import imbal.util.backend.explanation as explanation
 
 def lime_explain_tabular_sample(
         sample,

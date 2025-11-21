@@ -1,7 +1,7 @@
 from skimage.segmentation import mark_boundaries
 from matplotlib import pyplot as plt
 import numpy as np
-import imbal.util.explanation as explanation
+import imbal.util.backend.explanation as explanation
 import shap
 
 def shap_explain_image_sample(

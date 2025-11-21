@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.datasets import fetch_california_housing
 import shap
 
-import imbal.util.explanation
+import imbal.backend.explanation
 MODE='regression'
 IMBALANCED = False
 HIGH_IMBALANCE = False

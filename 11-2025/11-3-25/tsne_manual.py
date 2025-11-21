@@ -128,7 +128,7 @@ unique_classes, counts = np.unique(y_test, return_counts=True)
 index_ordering = np.argsort(counts)[::-1]
 unique_classes = unique_classes[index_ordering]
 
-from imbal.util.sample_weighting import get_label_bin_bounds
+from imbal.backend.sample_weighting import get_label_bin_bounds
 
 label_min, label_max, step = get_label_bin_bounds(y_test, 10, 0)
 

@@ -1,9 +1,9 @@
 import numpy as np
-from math import sqrt, pi, log, ceil
+from math import sqrt, pi, log
 
 from sklearn.neighbors import KernelDensity
 
-from imbal.util.sample_weighting import get_label_bin_bounds
+from imbal.util.backend.sample_weighting import get_label_bin_bounds
 from scipy.interpolate import RegularGridInterpolator
 
 def get_densities(

@@ -1,5 +1,4 @@
 from keras.src.metrics import AUC
-from typing import List
 from numpy.typing import NDArray
 
 from keras.src import ops

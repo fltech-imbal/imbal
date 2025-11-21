@@ -1,0 +1,131 @@
+import keras
+from keras import layers
+import numpy as np
+from keras.utils import to_categorical
+
+MODE = 'decoupled'
+FILTER = 'imbalanced'
+
+num_classes = 10
+input_shape = (96, 96, 3)
+
+DATASET_PERCENTAGE = 0.8
+TRAIN_SPLIT = 0.8
+
+with open('../../stl10_binary/train_X.bin', 'rb') as file:
+    everything = np.fromfile(file, dtype=np.uint8)
+    x_train = np.reshape(everything, (-1, 3, 96, 96))
+    x_train = np.transpose(x_train, (0, 3, 2, 1))
+with open('../../stl10_binary/train_y.bin', 'rb') as file:
+    y_train = np.fromfile(file, dtype=np.uint8)
+with open('../../stl10_binary/test_X.bin', 'rb') as file:
+    everything = np.fromfile(file, dtype=np.uint8)
+    x_test = np.reshape(everything, (-1, 3, 96, 96))
+    x_test = np.transpose(x_test, (0, 3, 2, 1))
+with open('../../stl10_binary/test_y.bin', 'rb') as file:
+    y_test = np.fromfile(file, dtype=np.uint8)
+x_combined = np.concatenate((x_train, x_test), axis=0) / 255.0
+y_combined = np.concatenate((y_train, y_test), axis=0) - 1
+
+num_data = x_combined.shape[0]
+percent_index = int(num_data * DATASET_PERCENTAGE)
+shuffled_indices = np.random.permutation(len(x_combined))[:percent_index]
+x_combined = x_combined[shuffled_indices].astype(np.float32)
+y_combined = y_combined[shuffled_indices].astype(np.float32)
+num_data = x_combined.shape[0]
+split_index = int(num_data * TRAIN_SPLIT)
+x_train, x_test = x_combined[:split_index], x_combined[split_index:]
+y_train, y_test = y_combined[:split_index], y_combined[split_index:]
+print('x_train', x_train.shape)
+print('y_train',y_train.shape)
+print('x_test',x_test.shape)
+print('y_test',y_test.shape)
+
+class_split = []
+for i in range(num_classes):
+    class_split.append(len(y_train[y_train == i]))
+print(class_split)
+
+x_train_filter = []
+y_train_filter = []
+x_test_filter = []
+y_test_filter = []
+print(np.tile(x_train[y_train==0], [10, 1, 1, 1]).shape)
+for i in range(num_classes):
+    if i < 5 or FILTER != 'imbalanced':
+        x_train_filter.append(np.tile(x_train[y_train==i], [3, 1, 1, 1]))
+        y_train_filter.append(np.tile(y_train[y_train==i], 3))
+        x_test_filter.append(np.tile(x_test[y_test==i], [3, 1, 1, 1]))
+        y_test_filter.append(np.tile(y_test[y_test==i], 3))
+    else:
+        x_train_filter.append(x_train[y_train == i][:24])
+        y_train_filter.append(y_train[y_train == i][:24])
+        x_test_filter.append(x_test[y_test == i][:10])
+        y_test_filter.append(y_test[y_test == i][:10])
+
+x_train = np.concatenate(x_train_filter)
+x_test = np.concatenate(x_test_filter)
+y_train = np.concatenate(y_train_filter)
+y_test = np.concatenate(y_test_filter)
+
+print(y_train.shape)
+print(x_test.shape)
+
+class_split = []
+for i in range(num_classes):
+    class_split.append(len(y_train[y_train == i]))
+print('distribution', class_split)
+
+y_train = to_categorical(y_train, num_classes if FILTER != 'binary' else 2)
+y_test = to_categorical(y_test, num_classes if FILTER != 'binary' else 2)
+
+inputs = keras.Input(shape=input_shape)
+x = layers.Conv2D(16, (3, 3), strides=(2, 2))(inputs)
+x = layers.LayerNormalization()(x)
+x = layers.Activation('relu')(x)
+x = layers.Conv2D(32, (3, 3), strides=(2, 2))(x)
+x = layers.LayerNormalization()(x)
+x = layers.Activation('relu')(x)
+x = layers.Conv2D(64, (3, 3), strides=(2, 2))(x)
+x = layers.LayerNormalization()(x)
+x = layers.Activation('relu')(x)
+x = layers.Flatten()(x)
+x = layers.Dense(64, activation='relu')(x)
+output = layers.Dense(num_classes, activation='softmax')(x)
+
+model = keras.Model(inputs=inputs, outputs=output)
+
+model.summary()
+
+import imbal
+
+batch_size = 512
+epochs = 30
+
+parameters = imbal.classification.compile_parameters(
+    loss="categorical_crossentropy",
+    optimizer=keras.optimizers.Adam(learning_rate=2e-5),
+    metrics=["accuracy", 'F1Score', 'AUC']
+)
+
+if MODE == 'decoupled':
+    imbal.classification.decoupled_fit(
+        model,
+        x_train,
+        y_train,
+        compile_parameters=parameters,
+        epochs=epochs,
+        batch_size=batch_size
+    )
+else:
+    model.compile(**parameters.to_dict())
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=epochs
+    )
+
+model.evaluate(x_test, y_test)
+
+

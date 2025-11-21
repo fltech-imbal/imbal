@@ -16,34 +16,42 @@ def decoupled_fit(
 ):
     """
     Performs a decoupled fit on the provided model, as described in
-    `this paper by Kang et al. <https://arxiv.org/abs/1910.09217>`_.
+    `this paper by Kang et al. (ICLR 2020) <https://arxiv.org/abs/1910.09217>`_.
 
 
     Args:
         model: The model to perform the decoupled fit on.
-        x: Optional, default :code:`None`. A NumPy array of data points, arranged as a column vector
-        y: Optional, default :code:`None`. A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
+        x: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            A NumPy array of data points, arranged as a column vector
+        y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
         compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
-            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
-            to their corresponding values. Will be used in place of :code:`stage_one_compile_parameters`
-            and :code:`stage_two_compile_parameters`, if one or neither is provided.
+            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
+            to their corresponding values. If set to :code:`None`, the default `model.compile <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
+            parameters will be used.
         stage_one_compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
-            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. These parameters are used to compile the model
-            during the first (representation learning) stage of the decoupled fit.
+            during the first (representation learning) stage of the decoupled fit. If set to :code:`None`,
+            will be overriden by the value of :code:`compile_parameters`.
         stage_two_compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
-            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+            object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. These parameters are used to compile the model
-            during the second (classifier learning) stage of the decoupled fit.
-        batch_size: Optional, default :code:`32`. The batch size to use during training.
-        epochs: Optional, default :code:`1`. The number of epochs to train for. If an :code:`int`,
-            the provided number of epochs will be used during the first and second stages of training.
+            during the second (classifier learning) stage of the decoupled fit.  If set to :code:`None`,
+            will be overriden by the value of :code:`compile_parameters`.
+        batch_size: Optional, default :code:`32` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            The batch size to use during training.
+        epochs: Optional, default :code:`1` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            The number of epochs to train for. If an :code:`int`,
+            the provided number of epochs will be used during the first stage, and halved for the second stage.
             If a tuple or list of length 2, the value in the first index will be used as the number of
             epochs in the first stage of training, and the second index for the number of epochs
             in the second stage of training.
-        validation_data: Optional, default :code:`None`. The data used to validate the model during training.
+        validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            The data used to validate the model during training.
             See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_.
-        shuffle: Optional, default :code:`True`. Whether to shuffle the data before each epoch.
+        shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            Whether to shuffle the data before each epoch.
         representation_layer_index: Optional, default :code:`-2`. The index of the representation layer
             in the provided model's :code:`model.layers` list.
         aed_for_representation: Optional, default :code:`True`. TODO.
@@ -77,7 +85,7 @@ def decoupled_fit(
         >>> )
 
     """
-    imbal.util.decoupled_fit(
+    imbal.util.backend.decoupled_fit(
         model,
         x=x,
         y=y,
