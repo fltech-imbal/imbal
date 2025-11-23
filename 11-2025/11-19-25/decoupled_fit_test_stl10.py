@@ -50,16 +50,16 @@ x_train_filter = []
 y_train_filter = []
 x_test_filter = []
 y_test_filter = []
-print(np.tile(x_train[y_train==0], [10, 1, 1, 1]).shape)
+print(np.tile(x_train[y_train==0], [1, 1, 1, 1]).shape)
 for i in range(num_classes):
     if i < 5 or FILTER != 'imbalanced':
-        x_train_filter.append(np.tile(x_train[y_train==i], [3, 1, 1, 1]))
-        y_train_filter.append(np.tile(y_train[y_train==i], 3))
-        x_test_filter.append(np.tile(x_test[y_test==i], [3, 1, 1, 1]))
-        y_test_filter.append(np.tile(y_test[y_test==i], 3))
+        x_train_filter.append(np.tile(x_train[y_train==i], [1, 1, 1, 1]))
+        y_train_filter.append(np.tile(y_train[y_train==i], 1))
+        x_test_filter.append(np.tile(x_test[y_test==i], [1, 1, 1, 1]))
+        y_test_filter.append(np.tile(y_test[y_test==i], 1))
     else:
-        x_train_filter.append(x_train[y_train == i][:24])
-        y_train_filter.append(y_train[y_train == i][:24])
+        x_train_filter.append(x_train[y_train == i][:20])
+        y_train_filter.append(y_train[y_train == i][:20])
         x_test_filter.append(x_test[y_test == i][:10])
         y_test_filter.append(y_test[y_test == i][:10])
 
@@ -100,12 +100,14 @@ model.summary()
 import imbal
 
 batch_size = 512
-epochs = 30
+epochs = 20
+
+auc = keras.metrics.AUC(multi_label=True)
 
 parameters = imbal.classification.compile_parameters(
     loss="categorical_crossentropy",
     optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-    metrics=["accuracy", 'F1Score', 'AUC']
+    metrics=["accuracy", 'F1Score', auc]
 )
 
 if MODE == 'decoupled':
@@ -126,6 +128,8 @@ else:
         epochs=epochs
     )
 
+
+print('Evaluating model...')
 model.evaluate(x_test, y_test)
 
 

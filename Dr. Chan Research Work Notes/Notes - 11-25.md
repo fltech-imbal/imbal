@@ -251,13 +251,38 @@
 - regular:
 	AUC: 0.9418 - F1Score: 0.3204 - accuracy: 0.6380 - loss: 1.0002
 
-### 100:1, LR 2e-5, 30 epochs, CNN structure
-- decoupled:
-	
+### 100:1, LR 2e-5, 30 epochs, CNN structure	
 - regular:
 	AUC: 0.9487 - F1Score: 0.3443 - accuracy: 0.6480 - loss: 0.9729
 - decoupled:
 	 AUC: 0.9347 - F1Score: 0.3259 - accuracy: 0.6373 - loss: 1.0633
+
+### 100:1, LR 2e-5, 20 epochs, CNN structure (FIXED AUC)
+- regular
+	 F1Score: 0.3219 - accuracy: 0.6400 - auc: 0.7442 - loss: 0.9689
+- decoupled
+	- F1Score: 0.3064 - accuracy: 0.6168 - auc: 0.7761 - loss: 0.9957
 ## Tasks:
 - temp
 # 11/24/25
+## Tasks:
+- Attempt implementation of AED decoupling approach
+	- FULL DOCUMENTATION FOR NON-AED FIRST
+- Representation layer finding is WRONG
+	- Must be latest layer that is before the last trainable layer
+	- Algorithm (much simpler than before) (see picture on phone):
+		- user specifies layer
+		- Check if there are weights beyond (closer to output) that layer
+		- If not, move closer to input until a layer that does is found (it need not be a weighted layer)
+- MNIST/other data (Maybe `iNaturalist 2018`???)
+	- Binary classification
+	- Table entries
+		- Method
+		- Time
+		- F1 score
+		- AUC
+		- Take a look at confusion matrices, maybe save as well
+- Confirm weights are being frozen by checking weights directly
+- See if website has website/GitHub with link to dataset they used
+- Read paper
+	- Make sure CRT is implemented properly (Dr. Chan is not sure if there is more to it)

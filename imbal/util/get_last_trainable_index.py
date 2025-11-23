@@ -1,7 +1,7 @@
 def get_last_trainable_index(
-        model,
-        n_to_last=1,
-        desired_layer_index=-2,
+    model,
+    n_to_last=1,
+    desired_layer_index=-2,
 ):
 
     best_fit = None, None
