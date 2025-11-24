@@ -264,7 +264,6 @@
 	- F1Score: 0.3064 - accuracy: 0.6168 - auc: 0.7761 - loss: 0.9957
 ## Tasks:
 - temp
-# 11/24/25
 ## Tasks:
 - Attempt implementation of AED decoupling approach
 	- FULL DOCUMENTATION FOR NON-AED FIRST
@@ -285,4 +284,75 @@
 - Confirm weights are being frozen by checking weights directly
 - See if website has website/GitHub with link to dataset they used
 - Read paper
-	- Make sure CRT is implemented properly (Dr. Chan is not sure if there is more to it)
+	- Make sure CRT is implemented properly (Dr. Chan is not sure if there is more to it) 
+
+# 11/24/25
+
+## Prep:
+- Attempt implementation of AED decoupling approach
+	- FULL DOCUMENTATION FOR NON-AED FIRST
+- Representation layer finding is WRONG $\checkmark$
+	- Must be latest layer that is before the last trainable layer $\checkmark$
+	- Algorithm (much simpler than before) (see picture on phone): $\checkmark$
+		- user specifies layer $\checkmark$
+		- Check if there are weights beyond (closer to output) that layer $\checkmark$
+		- If not, move closer to input until a layer that does is found (it need not be a weighted layer) $\checkmark$
+- MNIST/other data (CIFAR10) $\checkmark$
+	- Binary classification $\checkmark$
+	- Table entries $\checkmark$
+		- Method $\checkmark$
+		- Time $\checkmark$
+		- F1 score $\checkmark$
+		- AUC $\checkmark$
+		- Take a look at confusion matrices, maybe save as well
+- Confirm weights are being frozen by checking weights directly $\checkmark$
+	- Confirmed working correctly!
+- See if website has website/GitHub with link to dataset they used $\checkmark$
+- Read paper $\checkmark$
+	- Make sure CRT is implemented properly (Dr. Chan is not sure if there is more to it) $\checkmark$
+	![[Pasted image 20251124091404.png]]
+
+## Notes:
+- All datasets that were used in the paper ([ImageNet 2014](https://image-net.org/index), [Places365](http://places2.csail.mit.edu/download.html), and [iNaturalist](https://github.com/visipedia/inat_comp/tree/master/2018#Data)) are far too large for to run on my system (100s of GB)
+	- Sticking with either MNIST or STL10
+
+
+#### First Test
+- regular
+	- F1Score: 0.2874 - accuracy: 0.5635 - auc: 0.7375 - loss: 1.2026
+- decoupled
+	- F1Score: 0.3241 - accuracy: 0.5382 - auc: 0.7855 - loss: 1.4098
+
+#### First Test + 40% dropout, 300 epochs
+- regular
+	- F1Score: 0.3401 - accuracy: 0.6673 - auc: 0.7466 - loss: 1.1204
+- decoupled
+	- F1Score: 0.3233 - accuracy: 0.6260 - auc: 0.7902 - loss: 1.1640
+
+#### CIFAR10, 20 epochs, ResNet50
+- decoupled
+	- F1Score: 0.6022 - accuracy: 0.6025 - auc: 0.9018 - loss: 1.4449
+- regular
+	- F1Score: 0.6126 - accuracy: 0.6134 - auc: 0.9080 - loss: 1.4085
+
+#### CIFAR10, 20 epochs, simpler model
+- regular
+	- F1Score: 0.3192 - accuracy: 0.3331 - auc: 0.7985 - loss: 1.8219
+- decoupled
+	- F1Score: 0.3422 - accuracy: 0.3581 - auc: 0.8104 - loss: 1.7660
+
+### BINARY CLASSIFICATION
+#### CIFAR10, 20 epochs, simple model, 1:100
+- regular
+	- F1Score: 0.3332 - accuracy: 0.4998 - auc: 0.4574 - loss: 2.3868
+	- Time: 9.37s
+- decoupled
+	- F1Score: 0.3332 - accuracy: 0.4998 - auc: 0.2715 - loss: 1.8800
+	- Time: 16.58s
+#### CIFAR10, 20 epochs, simple model, 1:10
+- regular
+	- F1Score: 0.3332 - accuracy: 0.4998 - auc: 0.9967 - loss: 1.1240
+	- Time: 9.36
+- decoupled
+	- F1Score: 0.9850 - accuracy: 0.9850 - auc: 1.0000 - loss: 0.4123
+	- Time: 15.62

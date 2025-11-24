@@ -24,9 +24,8 @@ def generate_tsne_visualization(
     if latent_layer_index < 0:
         latent_layer_index =  len(model.layers) + latent_layer_index
 
-    found_layer, found_index = util.get_last_trainable_index(
+    found_layer, found_index = util.get_representation_layer_index(
         model,
-        n_to_last=2,
         desired_layer_index=latent_layer_index
     )
 

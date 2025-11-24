@@ -1,3 +1,3 @@
 from .simple_dataset import SimpleDataset
-from .get_last_trainable_index import get_last_trainable_index
+from .get_representation_layer_index import get_representation_layer_index
 from .tf_model_compile_parameters import TFModelCompileParameters, compile_parameters

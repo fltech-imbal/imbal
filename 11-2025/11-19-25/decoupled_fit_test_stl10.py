@@ -1,10 +1,10 @@
 import keras
-from keras import layers
+import tensorflow as tf
 import numpy as np
 from keras.utils import to_categorical
 
 MODE = 'decoupled'
-FILTER = 'imbalanced'
+FILTER = ''
 
 num_classes = 10
 input_shape = (96, 96, 3)
@@ -52,14 +52,14 @@ x_test_filter = []
 y_test_filter = []
 print(np.tile(x_train[y_train==0], [1, 1, 1, 1]).shape)
 for i in range(num_classes):
-    if i < 5 or FILTER != 'imbalanced':
+    if i < 1 or FILTER != 'imbalanced':
         x_train_filter.append(np.tile(x_train[y_train==i], [1, 1, 1, 1]))
         y_train_filter.append(np.tile(y_train[y_train==i], 1))
         x_test_filter.append(np.tile(x_test[y_test==i], [1, 1, 1, 1]))
         y_test_filter.append(np.tile(y_test[y_test==i], 1))
     else:
-        x_train_filter.append(x_train[y_train == i][:20])
-        y_train_filter.append(y_train[y_train == i][:20])
+        x_train_filter.append(x_train[y_train == i][:10])
+        y_train_filter.append(y_train[y_train == i][:10])
         x_test_filter.append(x_test[y_test == i][:10])
         y_test_filter.append(y_test[y_test == i][:10])
 
@@ -79,21 +79,39 @@ print('distribution', class_split)
 y_train = to_categorical(y_train, num_classes if FILTER != 'binary' else 2)
 y_test = to_categorical(y_test, num_classes if FILTER != 'binary' else 2)
 
-inputs = keras.Input(shape=input_shape)
-x = layers.Conv2D(16, (3, 3), strides=(2, 2))(inputs)
-x = layers.LayerNormalization()(x)
-x = layers.Activation('relu')(x)
-x = layers.Conv2D(32, (3, 3), strides=(2, 2))(x)
-x = layers.LayerNormalization()(x)
-x = layers.Activation('relu')(x)
-x = layers.Conv2D(64, (3, 3), strides=(2, 2))(x)
-x = layers.LayerNormalization()(x)
-x = layers.Activation('relu')(x)
-x = layers.Flatten()(x)
-x = layers.Dense(64, activation='relu')(x)
-output = layers.Dense(num_classes, activation='softmax')(x)
+# inputs = keras.Input(shape=input_shape)
+# x = layers.Conv2D(16, (3, 3), strides=(2, 2))(inputs)
+# x = layers.LayerNormalization()(x)
+# x = layers.Activation('relu')(x)
+# x = layers.Conv2D(32, (3, 3), strides=(2, 2))(x)
+# x = layers.LayerNormalization()(x)
+# x = layers.Activation('relu')(x)
+# x = layers.Conv2D(64, (3, 3), strides=(2, 2))(x)
+# x = layers.LayerNormalization()(x)
+# x = layers.Activation('relu')(x)
+# x = layers.Flatten()(x)
+# x = layers.Dropout(0.4)(x)
+# x = layers.Dense(64, activation='relu')(x)
+# output = layers.Dense(num_classes, activation='softmax')(x)
+#
+# model = keras.Model(inputs=inputs, outputs=output)
 
-model = keras.Model(inputs=inputs, outputs=output)
+base = tf.keras.applications.ResNet50(
+    include_top=False,
+    weights="imagenet",
+    input_shape=input_shape
+)
+
+# Freeze base if desired
+base.trainable = True   # or True for fine-tuning
+
+# Add new classification head
+inputs = tf.keras.Input(shape=input_shape)
+x = base(inputs, training=True)
+x = tf.keras.layers.GlobalAveragePooling2D()(x)
+outputs = tf.keras.layers.Dense(10, activation="softmax")(x)
+
+model = tf.keras.Model(inputs, outputs)
 
 model.summary()
 
@@ -101,6 +119,8 @@ import imbal
 
 batch_size = 512
 epochs = 20
+
+print('number of layers', len(model.layers))
 
 auc = keras.metrics.AUC(multi_label=True)
 
@@ -127,7 +147,6 @@ else:
         batch_size=batch_size,
         epochs=epochs
     )
-
 
 print('Evaluating model...')
 model.evaluate(x_test, y_test)

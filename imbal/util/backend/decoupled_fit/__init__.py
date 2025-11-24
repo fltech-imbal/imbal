@@ -1,3 +1,4 @@
+import tensorflow as tf
 import imbal.classification as classification
 import imbal.regression as regression
 import imbal.util as util
@@ -62,12 +63,9 @@ def decoupled_fit(
         shuffle=shuffle
     )
 
-    if representation_layer_index < 0:
-        representation_layer_index =  len(model.layers) + representation_layer_index
 
-    found_layer, found_index = util.get_last_trainable_index(
+    found_layer, found_index = util.get_representation_layer_index(
         model,
-        n_to_last=2,
         desired_layer_index=representation_layer_index
     )
     if found_index is None:
@@ -76,6 +74,7 @@ def decoupled_fit(
         representation_layer_index = found_index
         warnings.warn(f"Specified representation layer index is an untrainable layer, "
                       f"overriding to layer {found_index}")
+
 
     untrainable_layers = model.layers[:representation_layer_index+1]
     trainable_layers = model.layers[representation_layer_index+1:]
@@ -108,10 +107,12 @@ def decoupled_fit(
         )
 
 
-    print(weights)
+    print(np.unique(weights))
 
     model.fit(
-        dataset,
+        x,
+        y,
+        sample_weight=weights,
         epochs=second_train_epochs,
-        validation_data=validation_data,
+        validation_data=validation_data
     )
