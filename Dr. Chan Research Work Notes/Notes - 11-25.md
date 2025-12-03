@@ -309,14 +309,12 @@
 	- Confirmed working correctly!
 - See if website has website/GitHub with link to dataset they used $\checkmark$
 - Read paper $\checkmark$
-	- Make sure CRT is implemented properly (Dr. Chan is not sure if there is more to it) $\checkmark$
+	- Make sure CRT is implemented properly $\checkmark$
 	![[Pasted image 20251124091404.png]]
 
 ## Notes:
 - All datasets that were used in the paper ([ImageNet 2014](https://image-net.org/index), [Places365](http://places2.csail.mit.edu/download.html), and [iNaturalist](https://github.com/visipedia/inat_comp/tree/master/2018#Data)) are far too large for to run on my system (100s of GB)
-	- Sticking with either MNIST or STL10
-
-
+	- Sticking with either MNIST or STL10, (or... remember CIFAR10!)
 #### First Test
 - regular
 	- F1Score: 0.2874 - accuracy: 0.5635 - auc: 0.7375 - loss: 1.2026
@@ -351,8 +349,88 @@
 	- Time: 16.58s
 #### CIFAR10, 20 epochs, simple model, 1:10
 - regular
-	- F1Score: 0.3332 - accuracy: 0.4998 - auc: 0.9967 - loss: 1.1240
-	- Time: 9.36
+	- F1Score: 0.3332 - accuracy: 0.4998 - auc: 0.8421 - loss: 1.1612
+	- Time: 7.75
 - decoupled
-	- F1Score: 0.9850 - accuracy: 0.9850 - auc: 1.0000 - loss: 0.4123
-	- Time: 15.62
+	- F1Score: 0.9833 - accuracy: 0.9833 - auc: 0.9887 - loss: 0.5069
+	- Time: 14.05
+
+### REGRESSION
+#### Housing, 100 epochs
+- regular
+	- mse: 1.2620
+	- Time: 10.47
+- decoupled
+	- mse: 1.3036
+	- Time: 38.01
+
+# 11/24/25
+## Tasks
+- For eval/confusion matrix, still should be imbalanced (!!!) $\checkmark$
+- For regression, use housing still (if it is imbalanced, check) or use provided data $\checkmark$
+	- For regression documentation, show histogram for data distribution $\checkmark$
+- For `decoupled_fit` code examples, 3 cases: $\checkmark$
+	- Regular, imbalanced training distribution (no weighting/batching) $\checkmark$
+	- Regular, balanced training distribution (weighting, no stratified batching) $\checkmark$
+	- Decoupling $\checkmark$
+- Stratified batching should be an optional parameter for `decoupled_fit`, which is `True` by default, but can be disabled. $\checkmark$
+- Add a wrapper for balanced training, i.e. v2, for the user.   $\checkmark$
+	v1   imbalanced training -- regular  $\checkmark$
+	v2   balanced training  -- changing the training data distribution  $\checkmark$
+	v3   decoupled ... $\checkmark$
+## Note:
+- 12/2/25 meeting at 2:00pm
+- autoencoder food for though
+- Should passing bandwidth still be an option? Would save time during the actual balanced/decoupled fit itself
+
+### Model Training Results:
+#### Housing
+- decoupled:
+	- loss: 1.4444 - mse: 1.4444
+	- Time: 28.83s (includes KDE fit time)
+- balanced:
+	- loss: 1.4618 - mse: 1.4618
+	- Time: 28.90s (includes KDE fit time)
+- regular:
+	- loss: 1.3149 - mse: 1.3149
+	- Time: 10.3s
+
+#### CIFAR10
+- regular
+	- F1Score: 0.4898 - accuracy: 0.9599 - auc: 0.8697 - loss: 0.1593    
+	- Time: 9.33
+
+# 11/28/25
+## Tasks
+- Redo `decoupled_fit` documentation with dataset 3 (SEP-EC) $\checkmark$
+	- Rare is <-1 or >1 $\checkmark$
+	- Common is -1 < x < 1 $\checkmark$
+	- Measure MSE in both categories separately and report them in table $\checkmark$
+		- Regular, balanced, decoupled $\checkmark$
+	- Instead of actual vs. absolute error, plot actual vs. prediction $\checkmark$
+		- 0 error falls on y=x. Plot dotted line on y=x to show 0 error $\checkmark$
+- regression `decoupled_fit`/`balanced_fit` $\checkmark$
+	- KDE fit and getting densities *should* be outside of wrapper (but handle and provide warning if not) $\checkmark$
+	- Densities can be passed for regression $\checkmark$
+		- If neither is passed (desired class weights and sample weights) for classification print a warning and use standard class balance $\checkmark$
+		- If neither is passed for regression (sample weights and sample densities), throw an exception. At least one must be passed. $\checkmark$
+- Move plots and code examples for `decoupled_fit`/`balanced_fit` to a separate page, which is linked to by both $\checkmark$
+- TSNE plots for regression as well $\checkmark$
+- Document `balanced_fit` $\checkmark$
+
+## Notes:
+
+SEP-EC
+- regular
+	- Time: 10.63
+	- Common MSE: 0.02482
+	- Rare MSE: 1.96580
+- balanced
+	- Time: 35.35
+	- Common MSE: 0.11810
+	- Rare MSE: 2.86728
+- decoupled
+	- Time: 29.30
+	- Common MSE: 0.06089
+	- Rare MSE: 2.59575
+- Also tried with SARCOS, got similar results in terms of relative performance and MSE

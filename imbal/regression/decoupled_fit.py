@@ -5,8 +5,11 @@ def decoupled_fit(
     x=None,
     y=None,
     compile_parameters=None,
+    kde_fit_parameters=None,
     stage_one_compile_parameters=None,
     stage_two_compile_parameters=None,
+    sample_weights=None,
+    sample_densities=None,
     batch_size=32,
     epochs=1,
     validation_data=None,
@@ -33,7 +36,7 @@ def decoupled_fit(
             to their corresponding values. These parameters are used to compile the model
             during the first (representation learning) stage of the decoupled fit. If set to :code:`None`,
             will be overriden by the value of :code:`compile_parameters`.
-        stage_two_compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
+        stage_two_compile_parameters: Optional, default :code:`None`. A :doc:`ModelCompileParameters </imbal/util/model_compile_parameters>`
             object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. These parameters are used to compile the model
             during the second (classifier learning) stage of the decoupled fit.  If set to :code:`None`,
@@ -84,13 +87,15 @@ def decoupled_fit(
         >>> )
 
     """
-    imbal.util.decoupled_fit(
+    imbal.util.backend.decoupled_fit(
         model,
         x=x,
         y=y,
         compile_parameters=compile_parameters,
         stage_one_compile_parameters=stage_one_compile_parameters,
         stage_two_compile_parameters=stage_two_compile_parameters,
+        sample_weights=sample_weights,
+        sample_densities=sample_densities,
         batch_size=batch_size,
         epochs=epochs,
         validation_data=validation_data,

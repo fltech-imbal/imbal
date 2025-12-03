@@ -3,10 +3,10 @@
 
 ## Classes:
 - [SimpleDataset](simple_dataset.md)
-- [TFModelCompileParameters](tf_model_compile_parameters.md)
+- [ModelCompileParameters](model_compile_parameters.md)
 
 ## Functions:
-- [compile_parameters](compile_parameters.md)
+- [wrap_model_compile_parameters](wrap_model_compile_parameters.md)
 
 ```{eval-rst}
 .. toctree::
@@ -15,6 +15,6 @@
     :caption: Contents:
 
     SimpleDataset <simple_dataset>
-    TFModelCompileParameters <tf_model_compile_parameters>
-    compile_parameters <compile_parameters>
+    ModelCompileParameters <model_compile_parameters>
+    wrap_model_compile_parameters <wrap_model_compile_parameters>
 ```

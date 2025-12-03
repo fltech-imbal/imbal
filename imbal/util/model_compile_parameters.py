@@ -1,6 +1,6 @@
-class TFModelCompileParameters:
+class ModelCompileParameters:
     """
-    A Simple object which can store the parameters to be passed to Tensorflow's
+    A simple object which can store the parameters to be passed to Tensorflow's
     :code:`model.compile` function.
     """
     def __init__(self, optimizer='rmsprop', loss=None, metrics=None, **kwargs):
@@ -19,14 +19,14 @@ class TFModelCompileParameters:
         """
         return self.__dict__
 
-def compile_parameters(
+def wrap_model_compile_parameters(
     optimizer='rmsprop',
     loss=None,
     metrics=None,
     **kwargs
 ):
     """
-    A wrapper function to construct a :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
+    A wrapper function to construct a :doc:`ModelCompileParameters </imbal/helpers/model_compile_parameters>`
     object. Implemented to help mimic Tensorflow's process for compling models.
 
     Args:
@@ -36,7 +36,7 @@ def compile_parameters(
         **kwargs: Any additional parameters to include during model compilation.
 
     Returns:
-        A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>` object
+        A :doc:`ModelCompileParameters </imbal/helpers/model_compile_parameters>` object
         containing the passed parameters.
     """
-    return TFModelCompileParameters(optimizer=optimizer, loss=loss, metrics=metrics, **kwargs)
+    return ModelCompileParameters(optimizer=optimizer, loss=loss, metrics=metrics, **kwargs)

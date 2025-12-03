@@ -30,7 +30,7 @@ def generate_tsne_visualization(
     )
 
     intermediate_model = keras.Model(inputs=model.input,
-                                     outputs=model.get_layer(index=found_layer).output)
+                                     outputs=found_layer.output)
 
     latents = intermediate_model.predict(data)
 

@@ -7,6 +7,8 @@ def decoupled_fit(
     compile_parameters=None,
     stage_one_compile_parameters=None,
     stage_two_compile_parameters=None,
+    sample_weights=None,
+    class_weights=None,
     batch_size=32,
     epochs=1,
     validation_data=None,
@@ -25,7 +27,7 @@ def decoupled_fit(
             A NumPy array of data points, arranged as a column vector
         y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-        compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
+        compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/util/model_compile_parameters>`
             object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. If set to :code:`None`, the default `model.compile <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             parameters will be used.
@@ -34,7 +36,7 @@ def decoupled_fit(
             to their corresponding values. These parameters are used to compile the model
             during the first (representation learning) stage of the decoupled fit. If set to :code:`None`,
             will be overriden by the value of :code:`compile_parameters`.
-        stage_two_compile_parameters: Optional, default :code:`None`. A :doc:`TFModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
+        stage_two_compile_parameters: Optional, default :code:`None`. A :doc:`ModelCompileParameters </imbal/helpers/tf_model_compile_parameters>`
             object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. These parameters are used to compile the model
             during the second (classifier learning) stage of the decoupled fit.  If set to :code:`None`,
@@ -92,6 +94,8 @@ def decoupled_fit(
         compile_parameters=compile_parameters,
         stage_one_compile_parameters=stage_one_compile_parameters,
         stage_two_compile_parameters=stage_two_compile_parameters,
+        sample_weights=sample_weights,
+        class_weights=class_weights,
         batch_size=batch_size,
         epochs=epochs,
         validation_data=validation_data,

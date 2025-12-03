@@ -1,4 +1,5 @@
 import warnings
+from imbal.util.backend.tools import positive_model_layer_index
 
 def get_representation_layer_index(
     model,
@@ -6,11 +7,7 @@ def get_representation_layer_index(
 ):
 
     num_layers = len(model.layers)
-    if desired_layer_index < 0:
-        desired_layer_index = num_layers + desired_layer_index
-
-    if desired_layer_index >= num_layers:
-        raise ValueError("Desired layer index cannot be greater than or equal to number of layers, or less than -(number of layers)")
+    desired_layer_index = positive_model_layer_index(model, desired_layer_index)
 
     best_fit = None
 

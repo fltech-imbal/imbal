@@ -2,7 +2,7 @@ import numpy as np
 
 def generate_weights(
         labels,
-        weight_mapping=None
+        class_weights=None
     ):
     """
     Generates a list of weights, where the index of each weight corresponds to the label
@@ -19,7 +19,7 @@ def generate_weights(
 
     Args:
         labels: A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-        weight_mapping: A dictionary or list of mappings from class label to weight. If
+        class_weights: A dictionary or list of mappings from class label to weight. If
             no weight mapping is provided, each class will be weighted equally (samples of
             more frequent classes will be weighted lower, and vice versa). If
             a dictionary is provided, keys will be interpreted as class labels, and the corresponding
@@ -69,23 +69,23 @@ def generate_weights(
     balanced_mapping = {}
     weight_sum = 0
 
-    if isinstance(weight_mapping, dict):
+    if isinstance(class_weights, dict):
         for cls in unique_classes:
-            if cls in weight_mapping:
-                full_weight_mapping[cls] = weight_mapping[cls]
+            if cls in class_weights:
+                full_weight_mapping[cls] = class_weights[cls]
             else:
                 full_weight_mapping[cls] = 1
             weight_sum += full_weight_mapping[cls]
     else:
-        if weight_mapping is None:
+        if class_weights is None:
             for cls in unique_classes:
                 full_weight_mapping[cls] = 1
                 weight_sum += full_weight_mapping[cls]
         else:
-            if len(weight_mapping) != len(unique_classes):
+            if len(class_weights) != len(unique_classes):
                 raise ValueError(
                     'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
-            for cls, weight in zip(unique_classes, weight_mapping):
+            for cls, weight in zip(unique_classes, class_weights):
                 full_weight_mapping[cls] = weight
                 weight_sum += weight
 

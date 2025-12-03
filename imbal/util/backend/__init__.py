@@ -1,4 +1,4 @@
-from .decoupled_fit import decoupled_fit
+from .fit import decoupled_fit, balanced_fit
 from .constants import ModelType
 from .explanation import (
     shap_explain_tabular_sample,
@@ -15,3 +15,5 @@ from .stratified_sampling import (
 )
 
 from .visualization import generate_tsne_visualization
+
+from .tools import *
