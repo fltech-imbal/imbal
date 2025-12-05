@@ -20,7 +20,7 @@ def read_csv_to_list_of_lists(filepath):
             data.append(row)
     return data
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
 def safe_float(x):
@@ -123,7 +123,7 @@ kde_bandwidth = imbal.regression.fit_kde(
     y_train,
     bin_count=BIN_COUNT
 )
-densities = imbal.regression.get_densities(
+densities = imbal.regression.get_sample_densities(
     y_train,
     kde_bandwidth,
 )

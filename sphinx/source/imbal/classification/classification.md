@@ -6,7 +6,7 @@
 
 ## Functions:
 - [split](split.md)
-- [generate_weights](generate_weights.md)
+- [generate_sample_weights](generate_sample_weights.md)
 - [tsne_visualization](tsne_visualization.md)
 - [lime_explain_image_sample](lime_explain_image_sample.md)
 - [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
@@ -25,7 +25,7 @@
 
     DatasetWithBatching <dataset_with_batching>
     split <split>
-    generate_weights <generate_weights>
+    generate_sample_weights <generate_sample_weights>
     tsne_visualization <tsne_visualization>
     lime_explain_image_sample <lime_explain_image_sample>
     lime_explain_tabular_sample <lime_explain_tabular_sample>

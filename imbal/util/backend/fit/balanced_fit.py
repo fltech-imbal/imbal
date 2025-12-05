@@ -1,5 +1,6 @@
 from imbal import classification, regression, util
 from imbal.util.backend.tools import safe_object_unwrap
+import warnings
 
 def balanced_fit(
     model,
@@ -7,8 +8,8 @@ def balanced_fit(
     y=None,
     compile_parameters=None,
     sample_densities=None,
-    sample_weights=None,
     class_weights=None,
+    sample_weights=None,
     batch_size=32,
     epochs=1,
     validation_data=None,
@@ -23,8 +24,11 @@ def balanced_fit(
 
     dataset = x
     if mode == 'classification':
+        if sample_weights is not None and class_weights is not None:
+            warnings.warn('Both sample_weights and class_weights have been provided' +
+                          'to balanced_fit. class_weights will be ignored.')
         if sample_weights is None:
-            sample_weights = classification.generate_weights(y, class_weights=class_weights)
+            sample_weights = classification.generate_sample_weights(y, class_weights=class_weights)
         if stratify_batches:
             dataset = classification.DatasetWithBatching(
                 x,
@@ -34,10 +38,13 @@ def balanced_fit(
                 shuffle=shuffle,
             )
     else:
+        if sample_weights is not None and sample_densities is not None:
+            warnings.warn('Both sample_weights and sample_densities have been provided' +
+                          'to balanced_fit. sample_densities will be ignored.')
         if sample_weights is None:
             if sample_densities is None:
                 raise ValueError('Must provide either sample_densities or sample_weights')
-            sample_weights = regression.generate_weights(sample_densities)
+            sample_weights = regression.generate_sample_weights(sample_densities)
 
         if stratify_batches:
             dataset = regression.DatasetWithBatching(

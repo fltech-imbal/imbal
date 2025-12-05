@@ -81,7 +81,7 @@ if MODE=='classification':
         batch_size=512,
     )
 else:
-    from imbal.regression import DatasetWithBatching, generate_weights, get_densities, fit_kde
+    from imbal.regression import DatasetWithBatching, generate_sample_weights, get_densities, fit_kde
 
     kde_bandwidth = fit_kde(
         y_train,

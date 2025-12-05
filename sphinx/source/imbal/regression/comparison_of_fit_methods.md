@@ -105,8 +105,8 @@ For the table below, common samples refer to samples whose label
 falls in the range $[-1, 1]$, and rare samples are those whose label
 falls outside of this range.
 
-| Method    | Time (s) | Common Sample MSE | Rare Sample MSE |
-|-----------|----------|-------------------|-----------------| 
-| Regular   | $10.63$  | $0.0248$          | $1.9658$        |
-| Balanced  | $35.35$  | $0.1181$          | $2.8672$        |
-| Decoupled | $29.30$  | $0.0609$          | $2.5958$        |
+| Method    | Time (s) | Frequent Sample MSE | Rare Sample MSE |
+|-----------|----------|---------------------|-----------------| 
+| Regular   | $10.63$  | $0.0159$            | $1.0796$        |
+| Balanced  | $35.35$  | $0.0833$            | $0.2215$        |
+| Decoupled | $29.30$  | $0.0434$            | $0.5567$        |

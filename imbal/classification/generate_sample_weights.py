@@ -1,6 +1,6 @@
 import numpy as np
 
-def generate_weights(
+def generate_sample_weights(
         labels,
         class_weights=None
     ):

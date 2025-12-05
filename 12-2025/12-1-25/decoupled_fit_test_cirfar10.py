@@ -78,6 +78,13 @@ x_test = np.concatenate(x_test_filter)
 y_train = np.concatenate(y_train_filter)
 y_test = np.concatenate(y_test_filter)
 
+train_shuffle = np.random.permutation(x_train.shape[0])
+test_shuffle = np.random.permutation(x_test.shape[0])
+x_train = x_train[train_shuffle]
+x_test = x_test[test_shuffle]
+y_train = y_train[train_shuffle]
+y_test = y_test[test_shuffle]
+
 print(y_train.shape)
 print(x_test.shape)
 
@@ -158,32 +165,40 @@ print('EXECUTION TIME:', end - start)
 
 print('Evaluating model...')
 model.evaluate(x_test, y_test)
-y_test = np.argmax(y_test, axis=1)
-print(y_test.shape)
-print(y_test)
-print(np.unique(y_test, return_counts=True))
+y_test_labels = np.argmax(y_test, axis=1)
+print(y_test_labels.shape)
+print(y_test_labels)
+print(np.unique(y_test_labels, return_counts=True))
 
 predictions = model.predict(x_test)
-predictions = np.argmax(predictions, axis=1)
+predictions_labels = np.argmax(predictions, axis=1)
 
-print(predictions)
+print(predictions_labels)
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
-cm = confusion_matrix(y_test, predictions)
+cm = confusion_matrix(y_test_labels, predictions_labels)
 disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Airplane", "Dog"])
 disp.plot()
 plt.savefig(f'confusion-matrix-{MODE}.png')
 plt.show()
 
-print(y_test.shape)
+print(y_test_labels.shape)
 imbal.classification.tsne_visualization(
     model,
     x_test,
-    y_test,
+    y_test_labels,
     save_figure=f'tsne_visualization-{MODE}.png',
 )
+import tensorflow as tf
+f1_score = tf.keras.metrics.F1Score()
+f1_score.update_state(y_test, predictions)
+print(y_test[:20])
+print(predictions[:20])
+print(f1_score.result())
+
+
 
 
 

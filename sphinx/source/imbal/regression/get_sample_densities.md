@@ -1,13 +1,13 @@
-# get_densities
+# get_sample_densities
 
 ```{eval-rst}
-.. autoclass:: imbal.regression.get_densities
+.. autoclass:: imbal.regression.get_sample_densities
 ```
 
 ## Comparison of Methods in One Dimension
 
 The interpolations and absolute tolerance estimation methods
-exist for the `generate_weights`, which can decrease the
+exist for the `generate_sample_weights`, which can decrease the
 amount of computation time required to compute density values, at 
 the cost of a small amount of error in these values. Below is a
 comparison of these estimation techniques with the regular

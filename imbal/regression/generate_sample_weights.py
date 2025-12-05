@@ -6,7 +6,7 @@ from sklearn.neighbors import KernelDensity
 from imbal.util.backend.sample_weighting import get_label_bin_bounds
 from scipy.interpolate import RegularGridInterpolator
 
-def get_densities(
+def get_sample_densities(
         labels,
         bandwidth,
         interpolation_method=None,
@@ -170,7 +170,7 @@ def get_densities(
     else:
         return densities
 
-def generate_weights(
+def generate_sample_weights(
         densities,
         density_mapping=None
     ):

@@ -4,9 +4,9 @@ def balanced_fit(
     model,
     x=None,
     y=None,
-    compile_parameters=None,
     sample_weights=None,
     sample_densities=None,
+    compile_parameters=None,
     batch_size=32,
     epochs=1,
     validation_data=None,
@@ -23,14 +23,14 @@ def balanced_fit(
             A NumPy array of data points, arranged as a column vector
         y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
+        sample_weights: Optional, default :code:`None`. A Numpy array of weights. Must be specified
+            if :code:`sample_densities` is not specified.
+        sample_densities: Optional, default :code:`None`. A Numpy array of densities. Must be specified
+            if :code:`sample_weights` is not specified.
         compile_parameters: Optional, default :code:`None`. A :doc:`ModelCompileParameters </imbal/util/model_compile_parameters>`
             object, or a dictionary mapping `Tensorflow model.compile parameters <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             to their corresponding values. If set to :code:`None`, the default `model.compile <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
             parameters will be used.
-        sample_densities: Optional, default :code:`None`. A Numpy array of densities. Must be specified
-            if :code:`sample_weights` is not specified.
-        sample_weights: Optional, default :code:`None`. A Numpy array of weights. Must be specified
-            if :code:`sample_densities` is not specified.
         batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             The batch size to use during training.
         epochs: Optional, default :code:`1` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).

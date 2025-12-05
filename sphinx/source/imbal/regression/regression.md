@@ -6,8 +6,8 @@
 
 ## Functions:
 - [split](split.md)
-- [get_densities](get_densities.md)
-- [generate_weights](generate_weights.md)
+- [get_sample_densities](get_sample_densities.md)
+- [generate_sample_weights](generate_sample_weights.md)
 - [plot_kde_1d](plot_kde_1d.md)
 - [fit_kde](fit_kde.md)
 - [tsne_visualization](tsne_visualization.md)
@@ -26,8 +26,8 @@
 
     DatasetWithBatching <dataset_with_batching>
     split <split>
-    get_densities <get_densities>
-    generate_weights <generate_weights>
+    get_sample_densities <get_sample_densities>
+    generate_sample_weights <generate_sample_weights>
     plot_kde_1d <plot_kde_1d>
     fit_kde <fit_kde>
     tsne_visualization <tsne_visualization>

@@ -1,8 +1,8 @@
 from .split import split
 from .dataset_with_batching import DatasetWithBatching
-from .generate_weights import (
-    get_densities,
-    generate_weights
+from .generate_sample_weights import (
+    get_sample_densities,
+    generate_sample_weights
 )
 from .tsne_visualization import tsne_visualization
 from .kde import (
