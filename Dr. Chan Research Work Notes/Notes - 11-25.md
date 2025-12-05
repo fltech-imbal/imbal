@@ -423,14 +423,45 @@
 SEP-EC
 - regular
 	- Time: 10.63
-	- Common MSE: 0.02482
-	- Rare MSE: 1.96580
+	- Common MSE: 0.01533
+	- Rare MSE: 0.89194
 - balanced
 	- Time: 35.35
-	- Common MSE: 0.11810
-	- Rare MSE: 2.86728
+	- Common MSE: 0.08341
+	- Rare MSE: 0.37770
 - decoupled
 	- Time: 29.30
-	- Common MSE: 0.06089
-	- Rare MSE: 2.59575
+	- Common MSE: 0.05310
+	- Rare MSE: 0.55336
 - Also tried with SARCOS, got similar results in terms of relative performance and MSE
+
+# 12/3/25
+## Tasks:
+- See 11/28 email, warning if sample weights and densities are provided for `regression.balanced_fit`
+- Make sure ordering for parameters in documentation matches function
+	- class weights before sample weights
+	- sample weights before densities
+- `generate_weights` $\rightarrow$ `generate_sample_weights`
+- `get_densities` $\rightarrow$ `get_sample_densities`
+- make sure docstrings have `class_weights` and `sample_densities`, etc...
+- Row/column issue with MSE... rerun all three and update tables and figures
+- "Frequent" instead of "common" in documentation
+- F1score
+	- Split predictions and labels into one-hot vectors
+		- Predictions sum to 1, 1 - prediction to get "confidence" for 0 class
+	- Get F1score for each class, report rare and frequent F1
+		- [See documentation](https://www.tensorflow.org/api_docs/python/tf/keras/metrics/F1Score)
+- AUC
+	- Should be done correctly already
+		- 1 is rare, 0 is frequent
+	- Use toy data if struggling
+	- Just confirm
+- Begin looking at autoencoder in regression case
+	- Look at model structure and build out decoder
+	- Use autoencoder for stage 1, then freeze and swap in class
+
+![[Pasted image 20251203122413.png]]
+
+2 branches, loss for each branch (MSE for autoencoder branch)
+- Don't worry about interface for now. Functional prototype first, interface/wrapper later.
+- Decoupled/balanced fit takes priority

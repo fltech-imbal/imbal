@@ -20,7 +20,7 @@ def read_csv_to_list_of_lists(filepath):
             data.append(row)
     return data
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
 def safe_float(x):
@@ -214,9 +214,11 @@ imbal.regression.tsne_visualization(
 )
 
 
+predictions = predictions.reshape(-1,)
+
 common_range = (-1, 1)
 
-mask = (y_test > common_range[0]) & (y_test < common_range[1])
+mask = (y_test >= common_range[0]) & (y_test <= common_range[1])
 rare_mask = (y_test < common_range[0]) | (y_test > common_range[1])
 common_predictions = predictions[mask]
 rare_predictions = predictions[rare_mask]

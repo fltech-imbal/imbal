@@ -29,7 +29,7 @@ def balanced_fit(
             parameters will be used.
         sample_densities: Optional, default :code:`None`. A Numpy array of densities. Must be specified
             if :code:`sample_weights` is not specified.
-        sample_weights: Optional, default :code:`None. A Numpy array of weights. Must be specified
+        sample_weights: Optional, default :code:`None`. A Numpy array of weights. Must be specified
             if :code:`sample_densities` is not specified.
         batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             The batch size to use during training.
