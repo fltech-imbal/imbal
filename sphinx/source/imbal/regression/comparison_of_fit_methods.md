@@ -27,10 +27,10 @@ fit of the dataset shown below, which contains 16,720 data points.
 <div style="display: flex; max-width: 100%; width:650px">
 <img alt="test"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/fit-comparison-.png"/>
+src="../../_static/regression/decoupled_fit/fit-comparison--ae-False.png"/>
 <img alt="test 2"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/tsne_visualization-.png"/>
+src="../../_static/regression/decoupled_fit/tsne_visualization--ae-False.png"/>
 </div>
 
 ### Balanced Fit
@@ -59,10 +59,10 @@ src="../../_static/regression/decoupled_fit/tsne_visualization-.png"/>
 <div style="display: flex; max-width: 100%; width:650px">
 <img alt="test"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/fit-comparison-balanced.png"/>
+src="../../_static/regression/decoupled_fit/fit-comparison-balanced-ae-False.png"/>
 <img alt="test 2"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/tsne_visualization-balanced.png"/>
+src="../../_static/regression/decoupled_fit/tsne_visualization-balanced-ae-False.png"/>
 </div>
 
 ### Decoupled Fit
@@ -93,10 +93,10 @@ src="../../_static/regression/decoupled_fit/tsne_visualization-balanced.png"/>
 <div style="display: flex; max-width: 100%; width:650px">
 <img alt="test"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/fit-comparison-decoupled.png"/>
+src="../../_static/regression/decoupled_fit/fit-comparison-decoupled-ae-False.png"/>
 <img alt="test 2"
 style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/tsne_visualization-decoupled.png"/>
+src="../../_static/regression/decoupled_fit/tsne_visualization-decoupled-ae-False.png"/>
 </div>
 
 ### Comparison of Performance
@@ -107,6 +107,52 @@ falls outside of this range.
 
 | Method    | Time (s) | Frequent Sample MSE | Rare Sample MSE |
 |-----------|----------|---------------------|-----------------| 
-| Regular   | $10.63$  | $0.0159$            | $1.0796$        |
-| Balanced  | $35.35$  | $0.0833$            | $0.2215$        |
-| Decoupled | $29.30$  | $0.0434$            | $0.5567$        |
+| Regular   | $69.2$   | $0.0052$            | $0.1798$        |
+| Balanced  | $100.1$  | $0.0170$            | $0.0581$        |
+| Decoupled | $117.2$  | $0.0077$            | $0.0789$        |
+
+## Inclusion of Autoencoder
+
+### Regular Fit with Autoencoder
+
+<div style="display: flex; max-width: 100%; width:650px">
+<img alt="test"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/fit-comparison--ae-True.png"/>
+<img alt="test 2"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/tsne_visualization--ae-True.png"/>
+</div>
+
+### Balanced Fit with Autoencoder
+
+<div style="display: flex; max-width: 100%; width:650px">
+<img alt="test"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/fit-comparison-balanced-ae-True.png"/>
+<img alt="test 2"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/tsne_visualization-balanced-ae-True.png"/>
+</div>
+
+### Decoupled Fit with Autoencoder
+
+<div style="display: flex; max-width: 100%; width:650px">
+<img alt="test"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/fit-comparison-decoupled-ae-True.png"/>
+<img alt="test 2"
+style="flex: 1; max-width: 50%;"
+src="../../_static/regression/decoupled_fit/tsne_visualization-decoupled-ae-True.png"/>
+</div>
+
+### Comparison of Methods
+
+| Method    | Autoencoder? | Time (s) | Frequent Sample MSE | Rare Sample MSE |
+|-----------|--------------|----------|---------------------|-----------------|
+| Regular   | No           | $69.2$   | $0.0052$            | $0.1797$        |
+| Regular   | Yes          | $92.2$   | $0.0081$            | $0.1968$        |
+| Balanced  | No           | $100.1$  | $0.0170$            | $0.0581$        |
+| Balanced  | Yes          | $143.6$  | $0.0212$            | $0.0456$        |
+| Decoupled | No           | $117.2$  | $0.0077$            | $0.0789$        |
+| Decoupled | Yes          | $120.0$  | $0.0124$            | $0.1537$        |

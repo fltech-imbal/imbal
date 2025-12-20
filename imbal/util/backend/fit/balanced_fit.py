@@ -1,6 +1,8 @@
 from imbal import classification, regression, util
 from imbal.util.backend.tools import safe_object_unwrap
 import warnings
+from imbal.util.backend.fit.generate_decoder_branch import generate_decoder_branch as generate_branch
+from imbal.util.backend.fit.generate_decoder_branch import mse_reconstruction_loss
 
 def balanced_fit(
     model,
@@ -15,12 +17,42 @@ def balanced_fit(
     validation_data=None,
     shuffle=True,
     mode='classification',
-    stratify_batches=True
+    generate_decoder_branch=False,
+    representation_layer_index=-3,
+    stratify_batches=True,
+    multi_input=False,
+    multi_output=False,
+    output_label_index=0
 ):
 
+    compiling_model = model
     compile_parameters = safe_object_unwrap(compile_parameters, util.ModelCompileParameters)
+    extended_parameters = compile_parameters.copy()
 
-    model.compile(**compile_parameters)
+    if generate_decoder_branch:
+        compiling_model, _ = generate_branch(compiling_model, representation_layer_index)
+        model_loss = compile_parameters.get('loss', None)
+        if model_loss is None:
+            extended_parameters['loss'] = mse_reconstruction_loss
+        else:
+            extended_parameters['loss'] = [compile_parameters['loss'], mse_reconstruction_loss]
+
+        model_metrics = compile_parameters.get('metrics', None)
+        if model_metrics is None:
+            extended_parameters['metrics'] = ['mse']
+        else:
+            if isinstance(model_metrics[0], list) or isinstance(model_metrics[0], tuple):
+                extended_parameters['metrics'] = compile_parameters['metrics'] + [['mse']]
+            else:
+                extended_parameters['metrics'] = [compile_parameters['metrics']] + [['mse']]
+
+        if multi_output:
+            y.append(x)
+        else:
+            y = [y, x]
+
+        multi_output = True
+
 
     dataset = x
     if mode == 'classification':
@@ -28,7 +60,11 @@ def balanced_fit(
             warnings.warn('Both sample_weights and class_weights have been provided' +
                           'to balanced_fit. class_weights will be ignored.')
         if sample_weights is None:
-            sample_weights = classification.generate_sample_weights(y, class_weights=class_weights)
+            if multi_output:
+                sample_weights = classification.generate_sample_weights(y[output_label_index],
+                                                                        class_weights=class_weights)
+            else:
+                sample_weights = classification.generate_sample_weights(y, class_weights=class_weights)
         if stratify_batches:
             dataset = classification.DatasetWithBatching(
                 x,
@@ -36,6 +72,8 @@ def balanced_fit(
                 sample_weights=sample_weights,
                 batch_size=batch_size,
                 shuffle=shuffle,
+                multi_input=multi_input,
+                multi_output=multi_output
             )
     else:
         if sample_weights is not None and sample_densities is not None:
@@ -51,14 +89,22 @@ def balanced_fit(
                 x,
                 y,
                 sample_weights=sample_weights,
+                output_label_index=output_label_index,
                 batch_size=batch_size,
                 shuffle=shuffle,
+                multi_input=multi_input,
+                multi_output=multi_output
             )
 
-    model.fit(
-        x=dataset if stratify_batches else x,
+
+    compiling_model.compile(**extended_parameters)
+
+    compiling_model.fit(
+        x=dataset,
         y=None if stratify_batches else y,
         sample_weight=None if stratify_batches else sample_weights,
         epochs=epochs,
         validation_data=validation_data
     )
+
+    model.compile(**compile_parameters)
