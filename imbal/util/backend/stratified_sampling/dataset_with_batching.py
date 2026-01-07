@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow import Tensor
 from math import ceil
 from imbal.util.backend.constants import ModelType
 
@@ -168,6 +167,28 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         3
 
     """
+
+    def _rebuild_batchable(self):
+        if self._multi_input:
+            self._batchable_data = [[] for _ in range(len(self._data_by_class[0]))]
+            for data_class in self._data_by_class:
+                for i in range(len(data_class)):
+                    self._batchable_data[i].extend(data_class[i])
+            self._batchable_data = [np.asarray(x) for x in self._batchable_data]
+        else:
+            self._batchable_data = np.concatenate(self._data_by_class)
+
+        if self._multi_output:
+            self._batchable_labels = [[] for _ in range(len(self._data_labels[0]))]
+            for data_labels in self._data_labels:
+                for i in range(len(data_labels)):
+                    self._batchable_labels[i].extend(data_labels[i])
+            self._batchable_labels = [np.asarray(y) for y in self._batchable_labels]
+        else:
+            self._batchable_labels = np.concatenate(self._data_labels)
+
+        self._batchable_weights = np.concatenate(self._data_weights)
+
     def __init__(self,
         x_set,
         y_set,
@@ -178,12 +199,15 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         shuffle=True,
         mode=ModelType.CLASSIFICATION,
         sort='descending',
+        multi_input=False,
+        multi_output=False,
+        output_label_index=0,
         **kwargs
     ) -> None:
         super(DatasetWithBatching, self).__init__(**kwargs)
         # Declare sampler attributes
-        self._x_set : Tensor = tf.constant(x_set)
-        self._y_set : Tensor = tf.constant(y_set)
+        self._x_set = x_set
+        self._y_set = y_set
         self._sample_weights = None
         self._seed = seed
         self._data_by_class = []
@@ -192,92 +216,138 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._shuffle = shuffle
         self._mode = mode
         self._sort = sort
-        self._was_2d = False
+        self._multi_input = multi_input
+        self._multi_output = multi_output
+        self._output_label_index = output_label_index
 
-        if self._y_set.ndim == 1:
-            self._comp_values = self._y_set
-        elif self._y_set.ndim == 2:
-            if self._y_set.shape[1] > 1:
-                self._comp_values = tf.argmax(self._y_set, axis=1, output_type=tf.int32)
+
+        if multi_input:
+            self._num_samples = len(self._x_set[0])
+        else:
+            self._num_samples = len(self._x_set)
+
+        if multi_output:
+            output_labels = self._y_set[self._output_label_index]
+        else:
+            output_labels = self._y_set
+
+        if output_labels.ndim == 1:
+            self._comp_values = output_labels
+        elif output_labels.ndim == 2:
+            if output_labels.shape[1] > 1:
+                self._comp_values = np.argmax(output_labels, axis=1).astype(np.int32)
             else:
-                self._y_set = tf.reshape(self._y_set, (-1))
-                self._was_2d = True
-                self._comp_values = self._y_set
+                # if multi_output:
+                #     self._y_set[self._output_label_index] = output_labels
+                # else:
+                #     self._y_set = output_labels
+                self._comp_values = np.reshape(output_labels, (-1))
         else:
             raise ValueError('labels must be scalar values, or one-hot vectors')
 
         # Make sure num_batches is set (num_batches is easier to work with than batch_size)
         if num_batches is None:
             # Compute num_batches from batch_size and dataset size
-            self._num_batches = int(np.ceil(x_set.shape[0] / batch_size))
+            self._num_batches = int(np.ceil(self._num_samples / batch_size))
         else:
             self._num_batches = num_batches
 
         if sample_weights is None:
-            self._sample_weights = np.ones([x_set.shape[0]])
+            self._sample_weights = np.ones([self._num_samples])
         else:
-            self._sample_weights = tf.reshape(tf.constant(sample_weights), (-1,))
+            self._sample_weights = np.reshape(sample_weights, (-1,))
 
-        if not (self._x_set.shape[0] == self._comp_values.shape[0] and self._x_set.shape[0] == self._sample_weights.shape[0]):
+        if not (self._num_samples == self._comp_values.shape[0] and self._num_samples == self._sample_weights.shape[0]):
             raise ValueError("Number of entries in data, labels, and weights must be equal")
 
         if self._mode == ModelType.REGRESSION:
+            sort_order = np.argsort(self._comp_values)
             if self._sort == 'descending':
-                sort_order = tf.argsort(self._comp_values, direction="DESCENDING")
+                sort_order = sort_order[::-1]
+
+            if multi_input:
+                self._x_set = [x[sort_order] for x in self._x_set]
             else:
-                sort_order = tf.argsort(self._comp_values)
+                self._x_set = self._x_set[sort_order]
 
-            self._x_set = tf.gather(self._x_set, sort_order)
-            self._y_set = tf.gather(self._y_set, sort_order)
-            self._sample_weights = tf.gather(self._sample_weights, sort_order)
+            if multi_output:
+                self._y_set = [y[sort_order] for y in self._y_set]
+                unique_counts = [self._num_batches] * (self._y_set[self._output_label_index].shape[0] // self._num_batches) + [self._y_set[self._output_label_index].shape[0] % self._num_batches]
+            else:
+                self._y_set = self._y_set[sort_order]
+                unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
 
-            unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
+            self._sample_weights = self._sample_weights[sort_order]
+
+
             unique_classes = [1] * len(unique_counts)
         else:
             # Get a list of all labels in data, along with how many of each label
-            unique_classes, _, unique_counts = tf.unique_with_counts(self._comp_values)
-            unique_classes, unique_counts = unique_classes.numpy(), unique_counts.numpy()
+            unique_classes, unique_counts = np.unique(self._comp_values, return_counts=True)
 
         for idx, (label, count) in enumerate(zip(unique_classes, unique_counts)):
-            duplicate_factor = int(np.ceil(self._num_batches / count)) if mode == ModelType.CLASSIFICATION else 1
-
+            duplicate_factor = int(np.ceil(self._num_batches / count)) if self._mode == ModelType.CLASSIFICATION else 1
+            label_mask = self._comp_values == label
             if self._mode == ModelType.REGRESSION:
-                class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
+                if multi_input:
+                    class_data = [x[idx * self._num_batches:idx * self._num_batches + count] for x in self._x_set]
+                    class_samples = len(class_data[0])
+                else:
+                    class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
+                    class_samples = len(class_data)
                 class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
             else:
-                class_data = tf.boolean_mask(self._x_set, self._comp_values == label, axis=0)
-                class_weights = tf.boolean_mask(self._sample_weights, self._comp_values == label, axis=0) / duplicate_factor
+                if multi_input:
+                    class_data = [x[label_mask] for x in self._x_set]
+                    class_samples = len(class_data[0])
+                else:
+                    class_data = self._x_set[label_mask]
+                    class_samples = len(class_data)
+                class_weights = self._sample_weights[label_mask] / duplicate_factor
             if self._shuffle:
-                indices = tf.random.experimental.stateless_shuffle(tf.range(class_data.shape[0]),
-                                                                   seed=[self._seed + idx, self._seed + idx])
+                rng = np.random.default_rng(self._seed + idx)
+                shuffle_indices = rng.permutation(class_samples)
             else:
-                indices = tf.range(class_data.shape[0])
+                shuffle_indices = np.arange(class_samples)
 
-            class_data = tf.gather(class_data, indices)
-            class_weights = tf.gather(class_weights, indices)
+            if multi_input:
+                class_data = [x[shuffle_indices] for x in class_data]
+            else:
+                class_data = class_data[shuffle_indices]
 
-            self._data_by_class.append(tf.tile(class_data, tf.constant([duplicate_factor] + [1] * (self._x_set.ndim - 1), dtype=tf.int32)))
-            self._data_weights.append(tf.tile(class_weights, tf.constant([duplicate_factor])))
+            class_weights = class_weights[shuffle_indices]
+
+            if multi_input:
+                self._data_by_class.append([np.tile(x, [duplicate_factor] + [1] * (x.ndim - 1)) for x in class_data])
+            else:
+                self._data_by_class.append(np.tile(class_data, [duplicate_factor] + [1] * (self._x_set.ndim - 1)))
+            self._data_weights.append(np.tile(class_weights, [duplicate_factor]))
 
             if self._mode == ModelType.REGRESSION:
-                class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
-                class_labels = tf.gather(class_labels, indices)
-                self._data_labels.append(tf.tile(class_labels, tf.constant([duplicate_factor])))
+                if multi_output:
+                    class_labels = [y[idx * self._num_batches:idx * self._num_batches + count] for y in self._y_set]
+                    class_labels = [y[shuffle_indices] for y in class_labels]
+                    self._data_labels.append(class_labels * duplicate_factor)
+                else:
+                    class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
+                    class_labels = class_labels[shuffle_indices]
+                    self._data_labels.append(np.tile(class_labels, [duplicate_factor]))
             else:
-                if self._y_set.ndim == 1:
-                    label_value = label
-                    labels_block = tf.tile([label_value], [count])
-                    self._data_labels.append(tf.tile(labels_block, [duplicate_factor]))
-                if self._y_set.ndim == 2:
-                    label_value = tf.one_hot(label, self._y_set.shape[1])
-                    labels_block = tf.tile([label_value], [count, 1])
-                    self._data_labels.append(tf.tile(labels_block, [duplicate_factor, 1]))
+                if multi_output:
+                    class_labels = [y[label_mask][shuffle_indices] for y in self._y_set]
+                    self._data_labels.append([np.tile(y, [duplicate_factor] + [1] * (y.ndim - 1)) for y in class_labels])
+                else:
+                    class_labels = np.tile([label], [count*duplicate_factor] + [1] * (self._y_set.ndim - 1))
+                    self._data_labels.append(class_labels)
 
         self._seed += self._num_batches
 
-        self._batchable_data = tf.concat(self._data_by_class, 0)
-        self._batchable_labels = tf.concat(self._data_labels, 0)
-        self._batchable_weights = tf.concat(self._data_weights, 0)
+        self._rebuild_batchable()
+
+        if multi_input:
+            self._num_samples = len(self._batchable_data[0])
+        else:
+            self._num_samples = len(self._batchable_data)
 
     def __len__(self) -> int:
         return self._num_batches
@@ -286,21 +356,26 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         if idx < 0 or idx >= self._num_batches:
             raise IndexError('Index out of range')
 
-        batch_size = ceil((self._batchable_data.shape[0] - idx) / self._num_batches)
-
+        batch_size = ceil((self._num_samples - idx) / self._num_batches)
         if self._shuffle:
-            indices = tf.random.experimental.stateless_shuffle(tf.range(batch_size),
-                                                               seed=[self._seed + idx, self._seed + idx])
+            rng = np.random.default_rng(self._seed + idx)
+            shuffle_indices = rng.permutation(batch_size)
         else:
-            indices = tf.range(batch_size)
+            shuffle_indices = np.arange(batch_size)
 
-        labels = tf.gather(self._batchable_labels[idx::self._num_batches], indices)
-        if self._was_2d:
-            labels = tf.reshape(labels, (-1, 1))
+        if self._multi_output:
+            labels = tuple([y[idx::self._num_batches][shuffle_indices] for y in self._batchable_labels])
+        else:
+            labels = self._batchable_labels[idx::self._num_batches][shuffle_indices]
 
-        return (tf.gather(self._batchable_data[idx::self._num_batches], indices),
+        if self._multi_input:
+            data = tuple([x[idx::self._num_batches][shuffle_indices] for x in self._batchable_data])
+        else:
+            data = self._batchable_data[idx::self._num_batches][shuffle_indices]
+
+        return (data,
             labels,
-            tf.reshape(tf.gather(self._batchable_weights[idx::self._num_batches], indices), (-1, 1)))
+            np.reshape(self._batchable_weights[idx::self._num_batches][shuffle_indices], (-1, 1)))
 
     def on_epoch_end(self) -> None:
         """
@@ -312,15 +387,23 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         if not self._shuffle:
             return
         for i in range(len(self._data_by_class)):
-            indices = tf.random.experimental.stateless_shuffle(tf.range(len(self._data_by_class[i])),
-                                                     seed=[self._seed + i, self._seed + i])
-            self._data_by_class[i] = tf.gather(self._data_by_class[i], indices)
-            self._data_weights[i] = tf.gather(self._data_weights[i], indices)
-            if self._mode == ModelType.REGRESSION:
-                self._data_labels[i] = tf.gather(self._data_labels[i], indices)
+            rng = np.random.default_rng(self._seed + i)
+            indices = rng.permutation(len(self._data_by_class[i]))
 
-        self._batchable_data = tf.concat(self._data_by_class, 0)
-        self._batchable_weights = tf.concat(self._data_weights, 0)
-        if self._mode == ModelType.REGRESSION:
-            self._batchable_labels = tf.concat(self._data_labels, 0)
+            if self._multi_input:
+                for j in range(len(self._data_by_class[i])):
+                    self._data_by_class[i][j] = self._data_by_class[i][j][indices]
+            else:
+                self._data_by_class[i] = self._data_by_class[i][indices]
+
+            if self._multi_output:
+                for j in range(len(self._data_labels[i])):
+                    self._data_labels[i][j] = self._data_labels[i][j][indices]
+            else:
+                self._data_labels[i] = self._data_labels[i][indices]
+
+            self._data_weights[i] = self._data_weights[i][indices]
+
+        self._rebuild_batchable()
+
         self._seed += self._num_batches

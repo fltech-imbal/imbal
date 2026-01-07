@@ -3,6 +3,7 @@ from tensorflow.keras import layers
 import numpy as np
 from keras.utils import to_categorical
 import time
+import tensorflow as tf
 
 MODE = 'decoupled'
 FILTER = 'binary'
@@ -123,11 +124,12 @@ epochs = 30
 print('number of layers', len(model.layers))
 
 auc = keras.metrics.AUC(multi_label=True)
+f1 = tf.keras.metrics.F1Score()
 
 parameters = imbal.classification.wrap_model_compile_parameters(
     loss="categorical_crossentropy",
     optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-    metrics=["accuracy", 'F1Score', auc]
+    metrics=["accuracy", f1, auc]
 )
 
 start = time.time()
@@ -198,8 +200,39 @@ print(y_test[:20])
 print(predictions[:20])
 print(f1_score.result())
 
+auroc = tf.keras.metrics.AUC(num_thresholds=2000)
+print(y_test_labels[:20])
+print(predictions[:, 1].reshape(-1, 1)[:20])
+auroc.update_state(y_test_labels, predictions[:, 1].reshape(-1, 1))
+print(auroc.result())
 
+print(np.max(predictions[y_test_labels == 0][:, 1]))
+print(predictions[y_test_labels == 1][:20, 1])
 
+f1_score = tf.keras.metrics.F1Score(threshold=np.max(predictions[y_test_labels == 0][:, 1])+.005)
+f1_score.update_state(y_test, predictions)
+print('adjusted f1')
+print(f1_score.result())
 
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
 
+y_scores = predictions[:, 1]
 
+fpr, tpr, thresholds = roc_curve(y_test_labels, y_scores)
+
+roc_auc = auc(fpr, tpr)
+print("sklearn AUROC:", roc_auc)
+
+plt.figure(figsize=(7, 6))
+plt.plot(fpr, tpr, linewidth=2, label=f"ROC Curve (AUC = {roc_auc:.4f})")
+plt.plot([0, 1], [0, 1], linestyle="--", linewidth=1)  # baseline diagonal
+
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("AUROC Curve")
+plt.legend(loc="lower right")
+plt.grid(True)
+
+plt.savefig(f'roc-curve-{MODE}.png', dpi=300)
+plt.show()

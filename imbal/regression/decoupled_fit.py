@@ -9,16 +9,26 @@ def decoupled_fit(
     compile_parameters=None,
     stage_one_compile_parameters=None,
     stage_two_compile_parameters=None,
-    batch_size=32,
-    epochs=1,
+    representation_layer_index=-3,
     validation_data=None,
+    epochs=1,
+    batch_size=32,
     shuffle=True,
-    representation_layer_index=-2,
-    aed_for_representation=True
+    stratify_batches=True,
+    multi_input=False,
+    multi_output=False,
+    output_label_index=0,
+    generate_decoder_branch=False
 ):
     """
     Performs a decoupled fit on the provided model, as described in
     `this paper by Kang et al. (ICLR 2020) <https://arxiv.org/abs/1910.09217>`_.
+
+    Includes the ability to optionally generate a decoder branch extending from the provided model,
+    which aids in achieving a better representation space, usually resulting in better performance
+    on imbalanced data. This feature, enabled using :code:`generate_decoder_branch`, is off by
+    default due to its experimental nature, but we recommend using it if your model fits the
+    anticipated structure (see :doc:`imbal.util.backend.generate_decoder_branch </imbal/util/backend/generate_decoder_branch>` for more details).
 
     Args:
         model: The model to perform the decoupled fit on.
@@ -42,22 +52,37 @@ def decoupled_fit(
             to their corresponding values. These parameters are used to compile the model
             during the second (classifier learning) stage of the decoupled fit.  If set to :code:`None`,
             will be overriden by the value of :code:`compile_parameters`.
-        batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-            The batch size to use during training.
+        representation_layer_index: Optional, default :code:`-3`. The layer from which the weights of all layers prior are frozen during
+            the stage of the decoupled training. Also, when :code:`generated_decoder_branch` is :code:`True`, the index of
+            the layer from which the decoder branch in generated. It is recommended that this layer is no later than the
+            third to last layer of the model, to help ensure that the remaining layers in the classifier portion of the
+            model may allow for non-linear relationships to be learned.
+        validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            The data used to validate the model during training.
+            See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
         epochs: Optional, default :code:`1` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             The number of epochs to train for. If an :code:`int`,
             the provided number of epochs will be used during the first stage, and halved for the second stage.
             If a tuple or list of length 2, the value in the first index will be used as the number of
             epochs in the first stage of training, and the second index for the number of epochs
             in the second stage of training.
-        validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-            The data used to validate the model during training.
-            See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
+        batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            The batch size to use during training.
         shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             Whether to shuffle the data before each epoch.
-        representation_layer_index: Optional, default :code:`-2`. The index of the representation layer
-            in the provided model's :code:`model.layers` list.
-        aed_for_representation: Optional, default :code:`True`. TODO.
+        stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
+            See :doc:`DatasetWithBatching </imbal/regression/dataset_with_batching>` for details.
+        multi_input: Optional, default :code:`False`. Whether mutiple input values are used per sample (ex. an
+            image and some tabular data). Used only in branching models.
+        multi_output: Optional, default :code:`False`. Whether mutiple output values are generated per sample (ex. an
+            image and some tabular data). Used only in branching models.
+        output_label_index: Optional, default :code:`0`. The index of the set of output data within the
+            list of provided output data that contains the class labels for each sample.
+            Only used when :code:`multi_output` is :code:`True`.
+        generate_decoder_branch: Optional, default :code:`False`. When set to :code:`True`, an extended version of
+            the provided model containing a decoder branch is generated and used for training, often yielding
+            better training results (see :doc:`Comparison of Fit Methods </imbal/regression/comparison_of_fit_methods>`).
+            Decoder generation is experimental and may not always be possible depending on model structure.
 
     Returns:
         :code:`None`
@@ -102,6 +127,10 @@ def decoupled_fit(
         validation_data=validation_data,
         shuffle=shuffle,
         representation_layer_index=representation_layer_index,
-        aed_for_representation=aed_for_representation,
-        mode='regression'
+        generate_decoder_branch=generate_decoder_branch,
+        mode='regression',
+        stratify_batches=stratify_batches,
+        multi_input=multi_input,
+        multi_output=multi_output,
+        output_label_index=output_label_index
     )
