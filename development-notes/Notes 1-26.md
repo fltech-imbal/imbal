@@ -72,3 +72,6 @@ the end of Spring)
 
 ![[extended-model.png]]
 # 1/13/26
+
+## Tasks:
+- Send generated web pages in `.zip` file to Dan
