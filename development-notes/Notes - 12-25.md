@@ -312,13 +312,13 @@
 - Get rid of `multi_input` and `multi_output` from `decoupled_fit` and `balanced_fit`
 	- For decoupled fit, a separate function needs to be created to handle the second stage balanced fit for AE
 	- `DatasetWithBatching` should also not have these, but internally have a `DatasetWithBatching` that supports it for use during AE training
+		- New class, as a subclass of `DatasetWithBatching` to handle the additional outputs needed for AE
 - For `util.generate_ae_branch`, explain branch generation algorithm $\checkmark$
 	- Code example for decoder
 	- Before and after of model structure (use `tf.keras.utils.plot_model` for documentation?)
 	- Add developer parameter for `generate_decoder_branch` to output before and after plots
 ## For later...
 - *Medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object
-
 ## Notes:
 - A chance to go back over/clean up/optimize `DatasetWithBatching` code would be nice
 - Lots of refactoring will be necessary in the future
