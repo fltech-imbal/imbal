@@ -1,4 +1,4 @@
 .idea
 .venv
-sphinx/build
+doc/build
 stl10_binary
