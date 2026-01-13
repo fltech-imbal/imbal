@@ -11,6 +11,7 @@ from .sample_weighting import (
 )
 from .stratified_sampling import (
     DatasetWithBatching,
+    MultiDatasetWithBatching,
     split
 )
 

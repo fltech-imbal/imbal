@@ -1,3 +1,4 @@
+import imbal
 from imbal import classification, regression, util
 from imbal.util.backend.tools import safe_object_unwrap
 import warnings
@@ -19,10 +20,7 @@ def balanced_fit(
     mode='classification',
     generate_decoder_branch=False,
     representation_layer_index=-3,
-    stratify_batches=True,
-    multi_input=False,
-    multi_output=False,
-    output_label_index=0
+    stratify_batches=True
 ):
 
     compiling_model = model
@@ -46,13 +44,10 @@ def balanced_fit(
             else:
                 extended_parameters['metrics'] = [compile_parameters['metrics']] + [['mse']]
 
-        if multi_output:
-            y.append(x)
-        else:
-            y = [y, x]
+        y = [y, x]
 
-        multi_output = True
 
+    has_branch = isinstance(y, list) and len(y) == 2
 
     dataset = x
     if mode == 'classification':
@@ -60,21 +55,30 @@ def balanced_fit(
             warnings.warn('Both sample_weights and class_weights have been provided' +
                           'to balanced_fit. class_weights will be ignored.')
         if sample_weights is None:
-            if multi_output:
-                sample_weights = classification.generate_sample_weights(y[output_label_index],
-                                                                        class_weights=class_weights)
+            if has_branch:
+                sample_weights = classification.generate_sample_weights(y[0], class_weights=class_weights)
             else:
                 sample_weights = classification.generate_sample_weights(y, class_weights=class_weights)
         if stratify_batches:
-            dataset = classification.DatasetWithBatching(
-                x,
-                y,
-                sample_weights=sample_weights,
-                batch_size=batch_size,
-                shuffle=shuffle,
-                multi_input=multi_input,
-                multi_output=multi_output
-            )
+            if has_branch:
+                dataset = imbal.util.backend.MultiDatasetWithBatching(
+                    x,
+                    y,
+                    sample_weights=sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle,
+                    multi_output=True,
+                    output_label_index=0,
+                    mode='classification'
+                )
+            else:
+                dataset = classification.DatasetWithBatching(
+                    x,
+                    y,
+                    sample_weights=sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle
+                )
     else:
         if sample_weights is not None and sample_densities is not None:
             warnings.warn('Both sample_weights and sample_densities have been provided' +
@@ -85,16 +89,25 @@ def balanced_fit(
             sample_weights = regression.generate_sample_weights(sample_densities)
 
         if stratify_batches:
-            dataset = regression.DatasetWithBatching(
-                x,
-                y,
-                sample_weights=sample_weights,
-                output_label_index=output_label_index,
-                batch_size=batch_size,
-                shuffle=shuffle,
-                multi_input=multi_input,
-                multi_output=multi_output
-            )
+            if has_branch:
+                dataset = imbal.util.backend.MultiDatasetWithBatching(
+                    x,
+                    y,
+                    sample_weights=sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle,
+                    multi_output=True,
+                    output_label_index=0,
+                    mode='regression'
+                )
+            else:
+                dataset = regression.DatasetWithBatching(
+                    x,
+                    y,
+                    sample_weights=sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle
+                )
 
 
     compiling_model.compile(**extended_parameters)

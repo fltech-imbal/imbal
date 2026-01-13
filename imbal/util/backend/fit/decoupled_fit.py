@@ -24,9 +24,6 @@ def decoupled_fit(
     representation_layer_index=-3,
     stratify_batches=True,
     generate_decoder_branch=False,
-    multi_input=False,
-    multi_output=False,
-    output_label_index=0,
     mode='classification'
 ):
 
@@ -74,12 +71,7 @@ def decoupled_fit(
                 stage_one_compile_parameters['metrics'] = [compile_parameters['metrics']] + [['mse']]
                 stage_two_compile_parameters['metrics'] = [compile_parameters['metrics']] + [['mse']]
 
-        if multi_output:
-            y.append(x)
-        else:
-            y = [y, x]
-
-        multi_output = True
+        y = [y, x]
         generate_decoder_branch = False
 
 
@@ -134,9 +126,6 @@ def decoupled_fit(
         sample_weights=sample_weights,
         sample_densities=sample_densities,
         class_weights=class_weights,
-        multi_input=multi_input,
-        multi_output=multi_output,
-        output_label_index=output_label_index,
         generate_decoder_branch=generate_decoder_branch,
     )
 

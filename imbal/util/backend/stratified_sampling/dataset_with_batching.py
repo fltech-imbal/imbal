@@ -169,23 +169,8 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
     """
 
     def _rebuild_batchable(self):
-        if self._multi_input:
-            self._batchable_data = [[] for _ in range(len(self._data_by_class[0]))]
-            for data_class in self._data_by_class:
-                for i in range(len(data_class)):
-                    self._batchable_data[i].extend(data_class[i])
-            self._batchable_data = [np.asarray(x) for x in self._batchable_data]
-        else:
-            self._batchable_data = np.concatenate(self._data_by_class)
-
-        if self._multi_output:
-            self._batchable_labels = [[] for _ in range(len(self._data_labels[0]))]
-            for data_labels in self._data_labels:
-                for i in range(len(data_labels)):
-                    self._batchable_labels[i].extend(data_labels[i])
-            self._batchable_labels = [np.asarray(y) for y in self._batchable_labels]
-        else:
-            self._batchable_labels = np.concatenate(self._data_labels)
+        self._batchable_data = np.concatenate(self._data_by_class)
+        self._batchable_labels = np.concatenate(self._data_labels)
 
         self._batchable_weights = np.concatenate(self._data_weights)
 
@@ -199,9 +184,6 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         shuffle=True,
         mode=ModelType.CLASSIFICATION,
         sort='descending',
-        multi_input=False,
-        multi_output=False,
-        output_label_index=0,
         **kwargs
     ) -> None:
         super(DatasetWithBatching, self).__init__(**kwargs)
@@ -216,20 +198,11 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._shuffle = shuffle
         self._mode = mode
         self._sort = sort
-        self._multi_input = multi_input
-        self._multi_output = multi_output
-        self._output_label_index = output_label_index
 
 
-        if multi_input:
-            self._num_samples = len(self._x_set[0])
-        else:
-            self._num_samples = len(self._x_set)
+        self._num_samples = len(self._x_set)
 
-        if multi_output:
-            output_labels = self._y_set[self._output_label_index]
-        else:
-            output_labels = self._y_set
+        output_labels = self._y_set
 
         if output_labels.ndim == 1:
             self._comp_values = output_labels
@@ -237,10 +210,6 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             if output_labels.shape[1] > 1:
                 self._comp_values = np.argmax(output_labels, axis=1).astype(np.int32)
             else:
-                # if multi_output:
-                #     self._y_set[self._output_label_index] = output_labels
-                # else:
-                #     self._y_set = output_labels
                 self._comp_values = np.reshape(output_labels, (-1))
         else:
             raise ValueError('labels must be scalar values, or one-hot vectors')
@@ -265,17 +234,10 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             if self._sort == 'descending':
                 sort_order = sort_order[::-1]
 
-            if multi_input:
-                self._x_set = [x[sort_order] for x in self._x_set]
-            else:
-                self._x_set = self._x_set[sort_order]
+            self._x_set = self._x_set[sort_order]
 
-            if multi_output:
-                self._y_set = [y[sort_order] for y in self._y_set]
-                unique_counts = [self._num_batches] * (self._y_set[self._output_label_index].shape[0] // self._num_batches) + [self._y_set[self._output_label_index].shape[0] % self._num_batches]
-            else:
-                self._y_set = self._y_set[sort_order]
-                unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
+            self._y_set = self._y_set[sort_order]
+            unique_counts = [self._num_batches] * (self._y_set.shape[0] // self._num_batches) + [self._y_set.shape[0] % self._num_batches]
 
             self._sample_weights = self._sample_weights[sort_order]
 
@@ -289,20 +251,12 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             duplicate_factor = int(np.ceil(self._num_batches / count)) if self._mode == ModelType.CLASSIFICATION else 1
             label_mask = self._comp_values == label
             if self._mode == ModelType.REGRESSION:
-                if multi_input:
-                    class_data = [x[idx * self._num_batches:idx * self._num_batches + count] for x in self._x_set]
-                    class_samples = len(class_data[0])
-                else:
-                    class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
-                    class_samples = len(class_data)
+                class_data = self._x_set[idx*self._num_batches:idx*self._num_batches+count]
+                class_samples = len(class_data)
                 class_weights = self._sample_weights[idx*self._num_batches:idx*self._num_batches+count] / duplicate_factor
             else:
-                if multi_input:
-                    class_data = [x[label_mask] for x in self._x_set]
-                    class_samples = len(class_data[0])
-                else:
-                    class_data = self._x_set[label_mask]
-                    class_samples = len(class_data)
+                class_data = self._x_set[label_mask]
+                class_samples = len(class_data)
                 class_weights = self._sample_weights[label_mask] / duplicate_factor
             if self._shuffle:
                 rng = np.random.default_rng(self._seed + idx)
@@ -310,44 +264,26 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             else:
                 shuffle_indices = np.arange(class_samples)
 
-            if multi_input:
-                class_data = [x[shuffle_indices] for x in class_data]
-            else:
-                class_data = class_data[shuffle_indices]
+            class_data = class_data[shuffle_indices]
 
             class_weights = class_weights[shuffle_indices]
 
-            if multi_input:
-                self._data_by_class.append([np.tile(x, [duplicate_factor] + [1] * (x.ndim - 1)) for x in class_data])
-            else:
-                self._data_by_class.append(np.tile(class_data, [duplicate_factor] + [1] * (self._x_set.ndim - 1)))
+            self._data_by_class.append(np.tile(class_data, [duplicate_factor] + [1] * (self._x_set.ndim - 1)))
             self._data_weights.append(np.tile(class_weights, [duplicate_factor]))
 
             if self._mode == ModelType.REGRESSION:
-                if multi_output:
-                    class_labels = [y[idx * self._num_batches:idx * self._num_batches + count] for y in self._y_set]
-                    class_labels = [y[shuffle_indices] for y in class_labels]
-                    self._data_labels.append(class_labels * duplicate_factor)
-                else:
-                    class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
-                    class_labels = class_labels[shuffle_indices]
-                    self._data_labels.append(np.tile(class_labels, [duplicate_factor]))
+                class_labels = self._y_set[idx*self._num_batches:idx*self._num_batches+count]
+                class_labels = class_labels[shuffle_indices]
+                self._data_labels.append(np.tile(class_labels, [duplicate_factor]))
             else:
-                if multi_output:
-                    class_labels = [y[label_mask][shuffle_indices] for y in self._y_set]
-                    self._data_labels.append([np.tile(y, [duplicate_factor] + [1] * (y.ndim - 1)) for y in class_labels])
-                else:
-                    class_labels = np.tile([label], [count*duplicate_factor] + [1] * (self._y_set.ndim - 1))
-                    self._data_labels.append(class_labels)
+                class_labels = np.tile([label], [count*duplicate_factor] + [1] * (self._y_set.ndim - 1))
+                self._data_labels.append(class_labels)
 
         self._seed += self._num_batches
 
         self._rebuild_batchable()
 
-        if multi_input:
-            self._num_samples = len(self._batchable_data[0])
-        else:
-            self._num_samples = len(self._batchable_data)
+        self._num_samples = len(self._batchable_data)
 
     def __len__(self) -> int:
         return self._num_batches
@@ -363,15 +299,9 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         else:
             shuffle_indices = np.arange(batch_size)
 
-        if self._multi_output:
-            labels = tuple([y[idx::self._num_batches][shuffle_indices] for y in self._batchable_labels])
-        else:
-            labels = self._batchable_labels[idx::self._num_batches][shuffle_indices]
+        labels = self._batchable_labels[idx::self._num_batches][shuffle_indices]
 
-        if self._multi_input:
-            data = tuple([x[idx::self._num_batches][shuffle_indices] for x in self._batchable_data])
-        else:
-            data = self._batchable_data[idx::self._num_batches][shuffle_indices]
+        data = self._batchable_data[idx::self._num_batches][shuffle_indices]
 
         return (data,
             labels,
@@ -390,18 +320,8 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
             rng = np.random.default_rng(self._seed + i)
             indices = rng.permutation(len(self._data_by_class[i]))
 
-            if self._multi_input:
-                for j in range(len(self._data_by_class[i])):
-                    self._data_by_class[i][j] = self._data_by_class[i][j][indices]
-            else:
-                self._data_by_class[i] = self._data_by_class[i][indices]
-
-            if self._multi_output:
-                for j in range(len(self._data_labels[i])):
-                    self._data_labels[i][j] = self._data_labels[i][j][indices]
-            else:
-                self._data_labels[i] = self._data_labels[i][indices]
-
+            self._data_by_class[i] = self._data_by_class[i][indices]
+            self._data_labels[i] = self._data_labels[i][indices]
             self._data_weights[i] = self._data_weights[i][indices]
 
         self._rebuild_batchable()

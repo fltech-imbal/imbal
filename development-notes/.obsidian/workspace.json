@@ -22,7 +22,7 @@
             }
           },
           {
-            "id": "0a2647373adccbc2",
+            "id": "c7d0580a2a922197",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -184,14 +184,18 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "0a2647373adccbc2",
+  "active": "c7d0580a2a922197",
   "lastOpenFiles": [
-    "Untitled.md",
+    "Images/extended-model.png",
     "Notes 1-26.md",
+    "Images/model.png",
+    "Original PDF.pdf",
+    "Fall 2025 Notes/Notes - 9-25.md",
+    "Fall 2025 Notes/Notes - 10-25.md",
+    "Untitled.md",
     "Fall 2025 Notes/Notes - 12-25.md",
     "Fall 2025 Notes/Notes - 8-25.md",
     "Fall 2025 Notes",
-    "Original PDF.pdf",
     "Images/Pasted image 20251219124107.png",
     "Images/confusion-matrix--high.png",
     "Images/roc-curve--low.png",
@@ -200,11 +204,7 @@
     "Images/tsne_visualization-balanced-ae-True.png",
     "Images/tsne_visualization-balanced-ae-False 1.png",
     "Images/fit-comparison-balanced-ae-False 1.png",
-    "Images/fit-comparison-decoupled-ae-True.png",
-    "Images/tsne_visualization-decoupled-ae-True.png",
     "Fall 2025 Notes/Notes - 11-25.md",
-    "Fall 2025 Notes/Notes - 9-25.md",
-    "Fall 2025 Notes/Notes - 10-25.md",
     "mini-pipeline-demo.py",
     "Images",
     "Notes (Old)/Dr. Chan Meeting 8-18-25.md",
@@ -226,7 +226,6 @@
     "Evaluation Metrics/AUROC.md",
     "Evaluation Metrics/Expected Correct.md",
     "Evaluation Metrics/Expected True Negative.md",
-    "Evaluation Metrics",
-    "Welcome.md"
+    "Evaluation Metrics"
   ]
 }

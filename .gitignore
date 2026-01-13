@@ -1,4 +1,4 @@
 .idea
 .venv
-doc/build
+docs/build
 stl10_binary
