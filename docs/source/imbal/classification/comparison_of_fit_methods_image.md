@@ -1,6 +1,6 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit
+# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Image Data
 
-Below is a comparison of [decoupled fit](decoupled_fit.md) and [balanced fit](balanced_fit.md)
+Below is a comparison of [decoupled fit](cRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
 fit of a subset of the [CIFAR10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html), picking on the dogs and airplane classes,
 in two different data imbalance scenarios.

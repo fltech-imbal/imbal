@@ -1,4 +1,4 @@
-# Comparison of Autoencoder: Regular vs. Balanced vs. Decoupled Fit
+# Comparison of Autoencoder: Regular vs. Balanced vs. Decoupled Fit on Image Data
 
 
 

@@ -25,7 +25,7 @@
 - Get rid of `multi_input` and `multi_output` from `decoupled_fit` and `balanced_fit` $\checkmark$
 	- For decoupled fit, a separate function needs to be created to handle the second stage balanced fit for AE $\checkmark$
 		- *Resolved without separate function*
-	- `DatasetWithBatching` should also not have these, but internally have a  `DatasetWithBatching` that supports it for use during AE training $\checkmark$
+	- `DatasetWithBatching` should also not have these, but internally have a `DatasetWithBatching` that supports it for use during AE training $\checkmark$
 		- New class, as a subclass of `DatasetWithBatching` to handle the additional outputs needed for AE $\checkmark$
 - For `util.generate_ae_branch`, explain branch generation algorithm $\checkmark$
 	- Code example for decoder $\times$
@@ -37,13 +37,11 @@
 - Make package installable via pip
 	- At which point, change `imbal` folder to `src`
 ## Notes:
-- A chance to go back over/clean up/optimize `DatasetWithBatching` code would be nice
+- A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
 - Lots of refactoring will be necessary in the future
 
 **High priority:** functionalities (with AE)  
-  
 **Medium priority:** re-factoring to make a subclass of Model.  
-  
 **Low priority:** pip after the implementation is more stable (maybe near  
 the end of Spring)
 
@@ -68,10 +66,123 @@ the end of Spring)
 		- common - 5.29326
 		- rare - 0.71710
 
-![[model.png]]
+![[model.png|400]]
 
 ![[extended-model.png]]
 # 1/13/26
-
 ## Tasks:
-- Send generated web pages in `.zip` file to Dan
+- Send generated web pages in `.zip` file to Dan $\checkmark$
+- For regression documentation, image regression using MNIST and treating labels as continuous values. $\checkmark$
+- For classification documentation, SEP-C needs to be redone with $ln(10)$ as peak intensity for positive/negative, generate confusion matrix/TSNE/AUROC $\checkmark$
+- Change `decoupled_fit` to `cRT_fit` on classification `rRT_fit` for regression $\checkmark$
+- Double check all common layers can be translated in autoencoder $\times$
+- *With spare time, medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\times$
+## For later...
+- Documentation on web URL (readthedocs?)
+- Make package installable via pip
+	- At which point, change `imbal` folder to `src`
+### For Friday...
+- Read paper in email
+- ON A WEBSITE (obsidian WikiMaker)
+	- Title, publication venue, year, link
+	- 1 paragraph summary of technique
+## Notes:
+- A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
+- Lots of refactoring will be necessary in the future
+
+**High priority:** functionalities (with AE)  
+**Medium priority:** re-factoring to make a subclass of Model.  
+**Low priority:** pip after the implementation is more stable (maybe near  
+the end of Spring)
+#### w/o AE
+- regular
+	- time - 60.96
+	- F1 - 0.064
+	- AUC - 0.864451476793249
+	- epochs - 2000
+- balanced 
+	- time - 66.11
+	- F1 - 0.06349205
+	- AUC - 0.739451476793249
+	- epochs - 2000
+- decoupled
+	- time - 91.34
+	- F1 - 0.06349205
+	- AUC - 0.875
+	- epochs - 2000/1000
+#### w/ AE
+- regular
+	- time - 71.71
+	- F1 - 0.04799999
+	- AUC - 0.12763713080168776
+- balanced 
+	- time - 69.06
+	- F1 - 0.064
+	- AUC - 0.7948312236286921
+- decoupled
+	- time - 106.27
+	- F1 - 0.07111111
+	- AUC - 0.8433544303797469
+
+## Regression
+#### w/o AE
+- Regular
+	- Time - 85.31
+	- frequent - 0.49290
+	- rare - 9.38969
+- balanced
+	- time - 80.95
+	- frequent - 1.87644
+	- rare - 2.39045
+- decoupled
+	- time - 111.84
+	- frequent - 1.65914
+	- rare - 3.64001
+#### w/ AE
+- Regular
+	- Time - 220.24
+	- frequent - 0.24541
+	- rare - 4.76394
+- balanced
+	- time - 235.87
+	- frequent - 0.60429
+	- rare - 2.69737
+- decoupled
+	- time - 268.00
+	- frequent - 0.24228
+	- rare - 4.82185
+
+# 1/15/26
+## Tasks:
+- For classification, no KDE curve on data distribution plot
+- Use log-scale for y axis to make sparse data more noticeable
+- Are the F1 scores in documentation consistent with confusion matrix (remember TF expected shape for F1)
+- In local KDE approximation, tests for unsigned Numpy and Keras types for labels
+	- For each bit size
+	- cast to respective size
+	- Throw warning if negative values appear when converting from unsigned to signed
+		- In comment for warning, include examples that can cause the problem (!!!)
+- In MNIST regression documentation, swap "Class 0/9" for "Digit 0/9"
+- Instead of linear proportions for MNIST, exponential (halving each time)
+- https://ibug.doc.ic.ac.uk/resources/agedb/ Obtain and use `AgeDB` for image regression documentation
+	- If necessary, downsample / stratified sample to reduce dataset size (if resolution is too high)
+- Double check all common layers can be translated in autoencoder $\times$
+- *With spare time, medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\times$
+## For later...
+- Documentation on web URL (readthedocs?)
+- Make package installable via pip
+	- At which point, change `imbal` folder to `src`
+### For Friday...
+- Read paper in email
+- ON A WEBSITE (obsidian WikiMaker)
+	- Title, publication venue, year, link
+	- 1 paragraph summary of technique
+
+## Notes:
+- A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
+- Lots of refactoring will be necessary in the future
+
+**High priority:** functionalities (with AE)  
+**Medium priority:** re-factoring to make a subclass of Model.  
+**Low priority:** pip after the implementation is more stable (maybe near  
+the end of Spring)

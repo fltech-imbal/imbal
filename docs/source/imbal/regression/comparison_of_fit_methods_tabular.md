@@ -1,6 +1,6 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit
+# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data
 
-Below is a comparison of [decoupled fit](decoupled_fit.md) and [balanced fit](balanced_fit.md)
+Below is a comparison of [decoupled fit](rRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
 fit of the dataset shown below, which contains 16,720 data points.
 
