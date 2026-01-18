@@ -23,7 +23,7 @@ def read_csv_to_list_of_lists(filepath):
             data.append(row)
     return data
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
 def safe_float(x):
@@ -85,6 +85,9 @@ num_data = x_combined.shape[0]
 split_index = int(num_data * TRAIN_SPLIT)
 x_train, x_test = x_combined[:split_index], x_combined[split_index:]
 y_train, y_test = y_combined[:split_index], y_combined[split_index:]
+import math
+y_train = (y_train >= math.log(10)).astype(int)
+y_test = (y_test >= math.log(10)).astype(int)
 print('x_train', x_train.shape)
 print('y_train',y_train.shape)
 print('x_test',x_test.shape)
@@ -117,7 +120,7 @@ x = layers.Dense(16, activation='relu')(x)
 x = layers.Dense(16, activation='relu')(x)
 x = layers.Dense(16, activation='relu')(x)
 x = layers.Dense(16, activation='relu')(x)
-output = layers.Dense(1)(x)
+output = layers.Dense(1, activation='sigmoid')(x)
 
 model = keras.Model(inputs=inputs, outputs=output)
 
@@ -126,16 +129,16 @@ model.summary()
 import imbal
 
 batch_size = 512
-epochs = 4000
+epochs = 2000
 
 print('number of layers', len(model.layers))
 
 auc = keras.metrics.AUC(multi_label=True)
 
 parameters = imbal.classification.wrap_model_compile_parameters(
-    loss="mse",
+    loss="binary_crossentropy",
     optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-    metrics=["mse"]
+    metrics=["accuracy"]
 )
 BIN_COUNT=64
 
@@ -159,7 +162,7 @@ if MODE == 'decoupled':
         bandwidth
     )
 
-    imbal.regression.decoupled_fit(
+    imbal.regression.rRT_fit(
         model,
         x_train,
         y_train,
@@ -229,34 +232,34 @@ predictions = model.predict(x_test)
 
 import matplotlib.pyplot as plt
 
-kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
-imbal.regression.plot_kde_1d(
-    y_combined,
-    kde_bandwidth,
-    bin_count=BIN_COUNT,
-    save_figure='sep-ec-kde-curve.png'
-)
+# kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
+# imbal.regression.plot_kde_1d(
+#     y_combined,
+#     kde_bandwidth,
+#     bin_count=BIN_COUNT,
+#     save_figure='sep-ec-kde-curve.png'
+# )
 
 
-plt.scatter(y_test, predictions)
-plt.plot([-10, 10],[-10, 10], linestyle='--', color='red')
-plt.xlabel('Data label')
-plt.ylabel('Prediction')
-plt.xlim(-2, 2)
-plt.ylim(-2, 2)
-plt.savefig(f'fit-comparison-{MODE}-ae-{AE}.png')
-plt.show()
+# plt.scatter(y_test, predictions)
+# plt.plot([-10, 10],[-10, 10], linestyle='--', color='red')
+# plt.xlabel('Data label')
+# plt.ylabel('Prediction')
+# plt.xlim(-2, 2)
+# plt.ylim(-2, 2)
+# plt.savefig(f'fit-comparison-{MODE}-ae-{AE}.png')
+# plt.show()
+#
+# plt.scatter(y_test, predictions)
+# plt.plot([-10, 10],[-10, 10], linestyle='--', color='red')
+# plt.xlabel('Data label')
+# plt.ylabel('Prediction')
+# plt.xlim(-2, 2)
+# plt.ylim(np.min(predictions)*1.05, np.max(predictions)*1.05)
+# plt.show()
 
-plt.scatter(y_test, predictions)
-plt.plot([-10, 10],[-10, 10], linestyle='--', color='red')
-plt.xlabel('Data label')
-plt.ylabel('Prediction')
-plt.xlim(-2, 2)
-plt.ylim(np.min(predictions)*1.05, np.max(predictions)*1.05)
-plt.show()
 
-
-imbal.regression.tsne_visualization(
+imbal.classification.tsne_visualization(
     model,
     x_test,
     y_test,
@@ -266,21 +269,88 @@ imbal.regression.tsne_visualization(
 
 predictions = predictions.reshape(-1,)
 
-common_range = (-1, 1)
+# mask = (y_test >= common_range[0]) & (y_test <= common_range[1])
+# rare_mask = (y_test < common_range[0]) | (y_test > common_range[1])
+# common_predictions = predictions[mask]
+# rare_predictions = predictions[rare_mask]
+#
+# common_labels = y_test[mask]
+# rare_labels = y_test[rare_mask]
+#
+# mse_common = np.mean(np.square(common_predictions - common_labels))
+# mse_rare = np.mean(np.square(rare_predictions - rare_labels))
+#
+# print('common', f'{mse_common:.5f}')
+# print('rare', f'{mse_rare:.5f}')
 
-mask = (y_test >= common_range[0]) & (y_test <= common_range[1])
-rare_mask = (y_test < common_range[0]) | (y_test > common_range[1])
-common_predictions = predictions[mask]
-rare_predictions = predictions[rare_mask]
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 
-common_labels = y_test[mask]
-rare_labels = y_test[rare_mask]
+y_test_labels = y_test
+predictions_labels = (predictions >= 0.5).astype(int)
 
-mse_common = np.mean(np.square(common_predictions - common_labels))
-mse_rare = np.mean(np.square(rare_predictions - rare_labels))
+cm = confusion_matrix(y_test_labels, predictions_labels)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Negative", "Positive"])
+disp.plot()
+plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}.png')
+plt.show()
 
-print('common', f'{mse_common:.5f}')
-print('rare', f'{mse_rare:.5f}')
+import tensorflow as tf
+f1_score = tf.keras.metrics.F1Score()
+f1_score.update_state(y_test_labels.reshape(-1, 1), predictions.reshape(-1, 1))
+
+auroc = tf.keras.metrics.AUC(num_thresholds=2000)
+print(y_test_labels.shape)
+print(y_test_labels[:20])
+print(predictions.shape)
+auroc.update_state(y_test_labels, predictions)
+print(auroc.result())
+
+print(np.max(predictions[y_test_labels == 0]))
+print(predictions[y_test_labels == 1][:20])
+
+from sklearn.metrics import roc_curve, auc
+import matplotlib.pyplot as plt
+
+y_scores = predictions
+
+fpr, tpr, thresholds = roc_curve(y_test_labels, y_scores, drop_intermediate=False)
+roc_auc = auc(fpr, tpr)
+print("sklearn AUROC:", roc_auc)
+
+plt.figure(figsize=(7, 6))
+import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+import numpy as np
+
+points = np.array([fpr, tpr]).T.reshape(-1, 1, 2)
+segments = np.concatenate([points[:-1], points[1:]], axis=1)
+norm_thresholds = thresholds
+
+lc = LineCollection(
+    segments,
+    cmap='viridis',
+    norm= plt.Normalize(vmin=0, vmax=1)
+)
+lc.set_array(norm_thresholds)
+lc.set_linewidth(2)
+
+fig, ax = plt.subplots(figsize=(7, 6))
+ax.add_collection(lc)
+plt.plot([0, 1], [0, 1], linestyle="--", linewidth=1)
+
+plt.xlabel("False Positive Rate")
+plt.ylabel("True Positive Rate")
+plt.title("AUROC Curve")
+plt.legend(loc="lower right")
+plt.grid(True)
+cbar = plt.colorbar(lc, ax=ax)
+cbar.set_label("Decision Threshold")
+
+plt.savefig(f'roc-curve-{MODE}-ae-{AE}.png')
+plt.show()
+
+print(f1_score.result())
 
 
 

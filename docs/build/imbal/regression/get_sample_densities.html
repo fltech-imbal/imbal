@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>get_sample_densities &#8212; imbal  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/regression/get_sample_densities';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="generate_sample_weights" href="generate_sample_weights.html" />
+    <link rel="prev" title="split" href="split.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">imbal  documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../metrics/metrics.html">
+    Metrics
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../classification/classification.html">
+    Classification
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="regression.html">
+    Regression
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../util/util.html">
+    Util
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../metrics/metrics.html">
+    Metrics
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../classification/classification.html">
+    Classification
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="regression.html">
+    Regression
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../util/util.html">
+    Util
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dataset_with_batching.html">DatasetWithBatching</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split.html">split</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">get_sample_densities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="generate_sample_weights.html">generate_sample_weights</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plot_kde_1d.html">plot_kde_1d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fit_kde.html">fit_kde</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="balanced_fit.html">balanced_fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compile_parameters.html">compile_parameters</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="regression.html" class="nav-link">Regression</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">get_sample_densities</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="get-sample-densities">
+<h1>get_sample_densities<a class="headerlink" href="#get-sample-densities" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="imbal.regression.get_sample_densities">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">get_sample_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.get_sample_densities" title="Link to this definition">#</a></dt>
+<dd><p>Bases:</p>
+<p>This function exists as a means of extracting densities from a scitkit-learn
+<code class="code docutils literal notranslate"><span class="pre">KernelDensity</span></code> object. As a part of this function, some approaches to
+improve time efficiency for KDE sampling have been included, which can
+cost at the cost of a small error in the desnity values sampled.</p>
+<p>Kernel density estimatinon is defined as:</p>
+<div class="math notranslate nohighlight">
+\[\hat{f}_h(x)=\frac{1}{n}\sum_{i=1}^{n}K_h(x-x_i)\]</div>
+<p>By definition, to compute the KDE of a single point, we require a summation of the
+density kernel centered at each known data point. Therefore, computing the KDE
+for a single label is an <span class="math notranslate nohighlight">\(O(n)\)</span> operation, and computing the KDE for each
+label is an <span class="math notranslate nohighlight">\(O(n^2)\)</span> operation. This means retreiving the densities
+for a large dataset will take a long time. To combat this, <code class="code docutils literal notranslate"><span class="pre">get_densities</span></code>
+implements some approximation methods to reduce compute time.</p>
+<p>The first of these approximation methods is allowing some absolute tolerance for the
+error of each KDE value (See: <code class="code docutils literal notranslate"><span class="pre">atol</span></code>). This method is motivated by the fact
+that points that are far from one another contribute very little to each of their
+respective KDEs. By ignoring points far away from each point in the KDE calculation,
+we can achieve a faster KDE calculation while ensuring a maximum possible error.</p>
+<p>For one dimensional data, we use a
+custom implementation that tends to yeilds results faster, which is implemented as follows:</p>
+<ul class="simple">
+<li><p>We define <span class="math notranslate nohighlight">\(\delta\)</span> such that <span class="math notranslate nohighlight">\(K(\delta) = \text{atol}\)</span>, where <span class="math notranslate nohighlight">\(K\)</span> is the
+Gaussian kernel. Or in other words, <span class="math notranslate nohighlight">\(\delta\)</span> is equal to the distance from the center
+of the Gaussian kernel which will produce a density value of <code class="code docutils literal notranslate"><span class="pre">atol</span></code> (Concretely,
+<span class="math notranslate nohighlight">\(\delta = K^{-1}(\text{atol})\)</span>). Points beyond this
+distance <span class="math notranslate nohighlight">\(\delta\)</span> will produce a density less than <code class="code docutils literal notranslate"><span class="pre">atol</span></code>.</p></li>
+<li><p>We sort the data, then iterate through the list of data points. From the current point, <span class="math notranslate nohighlight">\(p\)</span>,
+we find all points <span class="math notranslate nohighlight">\(x \in [p - \delta, p + \delta]\)</span></p></li>
+<li><p>For each point, we can determine a localized KDE estimate using only the points that fall within the
+delta range, that normalize the local KDE to the same scale as the full KDE.</p></li>
+</ul>
+<p>The result of this method is an apporixmation of the full KDE, such that each approximated point has an
+error no greater than <span class="math notranslate nohighlight">\(\text{atol}/n\)</span>, therefore the total error is no more than <code class="code docutils literal notranslate"><span class="pre">atol</span></code>.</p>
+<p>By working with the points in ascending order, the delta bounds
+for each point can be found in <span class="math notranslate nohighlight">\(O(1)\)</span> amortized time. We use this method as opposed to a binary
+search to find the bounds for each point, which would be an <span class="math notranslate nohighlight">\(O(log(n))\)</span> operation per point.</p>
+<p>For multidimensional data, we leverage <code class="code docutils literal notranslate"><span class="pre">scikit-learn</span></code>’s built-in atol for KDEs, which
+utilizes a <code class="code docutils literal notranslate"><span class="pre">KDTree</span></code> to find its tolerance bounds. This way, the gains in computational
+performance can still be utilized for one dimensional data, without sacrificing loss of generality.</p>
+<p>The second approximation method is an interpolation method. This method works by sampling
+evenly spaced points across the span of the provided dataset from the KDE, then using
+one of <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html">scipy’s RegularGridInterpolator interpolation methods</a>
+to extrapolate the density values for the dataset. This method tends to be faster
+than using an absolute tolerance, at the cost of sometimes yielding less accurate results
+(with no guarentee of some maximum error).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bandwidth</strong> – The bandwidth that should be used to generate the KDE used for densit sampling</p></li>
+<li><p><strong>labels</strong> – A NumPy array of labels, arranged as a column vector</p></li>
+<li><p><strong>interpolation_method</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. When not set as <code class="code docutils literal notranslate"><span class="pre">None</span></code>, will
+be passed to a <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html">scipy RegularGridInterpolator</a>
+as the method that should be used to interpolate between sampled points.</p></li>
+<li><p><strong>interpolation_samples</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The number of points to be sampled from the density distribution for interpolation.
+When set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, this value is computed as <code class="code docutils literal notranslate"><span class="pre">labels.shape[0]</span> <span class="pre">/</span> <span class="pre">10</span></code>. If KDE was generated
+using <code class="code docutils literal notranslate"><span class="pre">imbal.regression.fit_kde</span></code>, <code class="code docutils literal notranslate"><span class="pre">steps_per_bin*bin_count</span></code> tends to be a good
+value for <code class="code docutils literal notranslate"><span class="pre">distribution_samples</span></code>. This parameter is ignored when <code class="code docutils literal notranslate"><span class="pre">interpolation_method</span></code> is set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>atol</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">1e-4</span></code>. The maximum absolute error for each sample in the
+KDE.</p></li>
+<li><p><strong>return_interpolation_samples</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code> If set to true, returns a tuple
+containing the list of x and y coordinates used to generate the optimized KDE. Mainly
+used for visualization.</p></li>
+<li><p><strong>padding_factor</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">0.01</span></code>. Used to add a small padding to
+the data range used for binning for the histogram. See <a class="reference internal" href="fit_kde.html"><span class="doc">imbal.regression.fit_kde</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A NumPy array of densities, arranged as a column vector</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">bin_count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_densities</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">kde_bandwidth</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">densities</span><span class="p">)</span>
+<span class="go">[[1.0930867], [1.0930867], [1.0930867], [1.0930867], [1.0930867],</span>
+<span class="go"> [1.0930867], [0.5465676], [0.5465676], [0.5465676], [0.1821784]]</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Local Approximation Example</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">bin_count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local_approx_densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_densities</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">labels</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">kde_bandwidth</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For this example dataset, small errors are found in some densities</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">local_approx_densities</span><span class="p">)</span>
+<span class="go">[[1.0930705], [1.0930705], [1.0930705], [1.0930705], [1.0930705],</span>
+<span class="go"> [1.0930705], [0.5465353], [0.5465353], [0.5465353], [0.1821784]]</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Linear Interpolation Example</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">bin_count</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">linear_interpolation_densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_densities</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">labels</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">kde_bandwidth</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">interpolation_method</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">interpolation_samples</span><span class="o">=</span><span class="mi">5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># For this example dataset, small errors are found in all densities</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">linear_interpolation_densities</span><span class="p">)</span>
+<span class="go">[[1.0392918], [1.0392918], [1.0392918], [1.0392918], [1.0392918],</span>
+<span class="go"> [1.0392918], [0.5255651], [0.5255651], [0.5255651], [0.1687906]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<section id="comparison-of-methods-in-one-dimension">
+<h2>Comparison of Methods in One Dimension<a class="headerlink" href="#comparison-of-methods-in-one-dimension" title="Link to this heading">#</a></h2>
+<p>The interpolations and absolute tolerance estimation methods
+exist for the <code class="docutils literal notranslate"><span class="pre">generate_sample_weights</span></code>, which can decrease the
+amount of computation time required to compute density values, at
+the cost of a small amount of error in these values. Below is a
+comparison of these estimation techniques with the regular
+full KDE computation across three different datasets.</p>
+<section id="datasets">
+<h3>Datasets<a class="headerlink" href="#datasets" title="Link to this heading">#</a></h3>
+<p>For these comparisons, we have made use of three datasets, shown below. These
+datasets capture several scenarios for imbalanced data.</p>
+<section id="dataset-1-44-485-data-points">
+<h4>Dataset 1 (44,485 data points)<a class="headerlink" href="#dataset-1-44-485-data-points" title="Link to this heading">#</a></h4>
+<p><img alt="A histogram showing the data distribution for the first dataset" src="/_static/regression/get_densities/dataset-1.png"
+style="width: 450px"
+/></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>KDE Optimization Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Regular</p></td>
+<td><p>7.41</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linear Approximation (320 bins)</p></td>
+<td><p>0.25</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.88*10^{-4}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.152\%\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Local Approximation (atol=1e-4)</p></td>
+<td><p>3.67</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.46*10^{-6}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="dataset-2-1-531-data-points">
+<h4>Dataset 2 (1,531 data points)<a class="headerlink" href="#dataset-2-1-531-data-points" title="Link to this heading">#</a></h4>
+<p><img alt="A histogram showing the data distribution for the second dataset" src="/_static/regression/get_densities/dataset-2.png"
+style="width: 450px"
+/></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>KDE Optimization Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Regular</p></td>
+<td><p>0.018</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linear Approximation (320 bins)</p></td>
+<td><p>0.0029</p></td>
+<td><p><span class="math notranslate nohighlight">\(2.00*10^{-2}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.55\%\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Local Approximation (atol=1e-4)</p></td>
+<td><p>0.012</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.88*10^{-10}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="dataset-3-16-720-data-points">
+<h4>Dataset 3 (16,720 data points)<a class="headerlink" href="#dataset-3-16-720-data-points" title="Link to this heading">#</a></h4>
+<p><img alt="A histogram showing the data distribution for the third dataset" src="/_static/regression/get_densities/dataset-3.png"
+style="width: 450px"
+/></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>KDE Optimization Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Regular</p></td>
+<td><p>1.22</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linear Approximation (320 bins)</p></td>
+<td><p>0.064</p></td>
+<td><p><span class="math notranslate nohighlight">\(4.81*10^{-3}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.156\%\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Local Approximation (atol=1e-4)</p></td>
+<td><p>1.12</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.84*10^{-7}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="argument-for-improved-1d-case">
+<h3>Argument for Improved 1D Case<a class="headerlink" href="#argument-for-improved-1d-case" title="Link to this heading">#</a></h3>
+<p>For data in one-dimension, we have manually implemented local approximation with absolute tolerance
+in a way that bypasses the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> <code class="docutils literal notranslate"><span class="pre">KernelDensity</span></code> object, avoiding some of the overhead
+it introduces to work in a general n-dimensional case. Our implementation results in significant
+time improvements across all datasets, as shown below. All tests in the table shown below were
+performed with an <code class="docutils literal notranslate"><span class="pre">atol</span></code> value of <code class="docutils literal notranslate"><span class="pre">1e-4</span></code>, with no interpolation.</p>
+<section id="dataset-1">
+<h4>Dataset 1<a class="headerlink" href="#dataset-1" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scitkit-learn</span></code></p></td>
+<td><p>23.0</p></td>
+<td><p><span class="math notranslate nohighlight">\(2.71*10^{-5}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.003\%\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imbal</span></code></p></td>
+<td><p>3.67</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.46*10^{-6}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="dataset-2">
+<h4>Dataset 2<a class="headerlink" href="#dataset-2" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scitkit-learn</span></code></p></td>
+<td><p>0.057</p></td>
+<td><p><span class="math notranslate nohighlight">\(1.70*10^{-5}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imbal</span></code></p></td>
+<td><p>0.012</p></td>
+<td><p><span class="math notranslate nohighlight">\(5.88*10^{-10}\)</span></p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="dataset-3">
+<h4>Dataset 3<a class="headerlink" href="#dataset-3" title="Link to this heading">#</a></h4>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Compute Time (sec)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">scitkit-learn</span></code></p></td>
+<td><p>6.21</p></td>
+<td><p><span class="math notranslate nohighlight">\(2.25*10^{-5}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.003\%\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">imbal</span></code></p></td>
+<td><p>1.124*10^{-7}$</p></td>
+<td><p>~<span class="math notranslate nohighlight">\(0\%\)</span></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="comparison-of-methods-in-two-dimensions">
+<h3>Comparison of Methods in Two Dimensions<a class="headerlink" href="#comparison-of-methods-in-two-dimensions" title="Link to this heading">#</a></h3>
+<p>For testing of the different estimation methods in two dimensions, we made use of a
+“toy” 2D gaussian dataset with a mean of <span class="math notranslate nohighlight">\(0\)</span> and a covariance of <span class="math notranslate nohighlight">\(\begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0.15 \end{bmatrix}\)</span>.</p>
+<section id="true-distribution-left-vs-kde-right">
+<h4>True Distribution (left) vs KDE (right)<a class="headerlink" href="#true-distribution-left-vs-kde-right" title="Link to this heading">#</a></h4>
+<p><img alt="A histogram showing the data distribution for the 2d toy dataset" src="/_static/regression/get_densities/multidim-kde-comparison.png"
+style="width:100%"
+/></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Time (s)</p></th>
+<th class="head"><p>MAE</p></th>
+<th class="head"><p>MAPE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Regular</p></td>
+<td><p>3.41</p></td>
+<td><p>n/a</p></td>
+<td><p>n/a</p></td>
+</tr>
+<tr class="row-odd"><td><p>Local Approximation (atol=1e-4)</p></td>
+<td><p>0.78</p></td>
+<td><p><span class="math notranslate nohighlight">\(3.83*10^{-5}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.04\%\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Linear Interpolation (64 bins/dim)</p></td>
+<td><p>0.42</p></td>
+<td><p><span class="math notranslate nohighlight">\(2.21*10^{-3}\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(1.43\%\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="split.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">split</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="generate_sample_weights.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">generate_sample_weights</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.get_sample_densities"><code class="docutils literal notranslate"><span class="pre">get_sample_densities</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-methods-in-one-dimension">Comparison of Methods in One Dimension</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datasets">Datasets</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-1-44-485-data-points">Dataset 1 (44,485 data points)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-2-1-531-data-points">Dataset 2 (1,531 data points)</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-3-16-720-data-points">Dataset 3 (16,720 data points)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#argument-for-improved-1d-case">Argument for Improved 1D Case</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-1">Dataset 1</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-2">Dataset 2</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-3">Dataset 3</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-methods-in-two-dimensions">Comparison of Methods in Two Dimensions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#true-distribution-left-vs-kde-right">True Distribution (left) vs KDE (right)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/imbal/regression/get_sample_densities.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

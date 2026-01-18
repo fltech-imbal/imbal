@@ -1,0 +1,26 @@
+# LIME Model Explanation
+
+Our LIME model explanation implementations are a wrapper around the original *Local Interpretable
+Model-Agnostic Explanations* (LIME) implementation, which can be found
+[on this GitHub repository](https://github.com/marcotcr/lime). The full LIME documentation
+can be found [here](https://lime-ml.readthedocs.io/en/latest/), and the original research
+paper can be found [here](https://arxiv.org/abs/1602.04938).
+These resources should be used as reference over our documentation wherever an explanation of the
+inner functionalities of LIME are necessary. Our goal is not to provide significant
+expansions to LIME's original functionalities, nor provide further insight into LIME's
+inner workings, but rather to simply provide a simpler, more streamlined interface
+for some of LIME's functionalities.
+
+At the moment, our package does not implement wrappers for LIME's text classification
+capabilities. The main goal of this package is to be used for space research applications,
+and we felt that this field would have little use for this capability, though we may
+add these wrappers later on.
+
+Additionally, at this time we do not support explanations for image-based regression models, as
+LIME does not inherently support this type of explanation by default. We may implement
+this capability at a later date.
+
+Below is a list of the functions we have implement which utilize LIME's capabilities:
+- [imbal.classification.lime_explain_image_sample](../imbal/classification/lime_explain_image_sample.md)
+- [imbal.classification.lime_explain_tabular_sample](../imbal/classification/lime_explain_tabular_sample.md)
+- [imbal.regression.lime_explain_tabular_sample](../imbal/regression/lime_explain_tabular_sample.md)

@@ -1,6 +1,6 @@
 import imbal
 
-def decoupled_fit(
+def cRT_fit(
     model,
     x=None,
     y=None,
@@ -18,7 +18,8 @@ def decoupled_fit(
     representation_layer_index=-3,
 ):
     """
-    Performs a decoupled fit on the provided model, as described in
+    Performs a decoupled fit on the provided model, based on the
+    classifier re-training (cRT) method as described in
     `this paper by Kang et al. (ICLR 2020) <https://arxiv.org/abs/1910.09217>`_.
 
     Includes the ability to optionally generate a decoder branch extending from the provided model,

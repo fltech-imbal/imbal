@@ -77,13 +77,13 @@ def balanced_fit(
         >>> import imbal
         >>> import keras
 
-        >>> parameters = imbal.regression.compile_parameters(
+        >>> parameters = imbal.classification.compile_parameters(
         >>>     loss="categorical_crossentropy",
         >>>     optimizer=keras.optimizers.Adam(),
         >>>     metrics=["accuracy"]
         >>> )
 
-        >>> imbal.regression.balanced_fit(
+        >>> imbal.classification.balanced_fit(
         >>>     model,
         >>>     x_train,
         >>>     y_train,

@@ -210,7 +210,7 @@ def generate_sample_weights(
     """
     if density_mapping is None:
         # Use uniform mapping for weights
-        weights = 1 /np.array(densities)
+        weights = 1 / np.array(densities)
     else:
         # Use function mapping for weights
         vectorized_function = np.vectorize(density_mapping)
@@ -225,17 +225,16 @@ def _local_kde_approximation(
         kde,
         atol=0
 ):
-    labels = labels.reshape(-1, )
+    labels = labels.reshape(-1, ).astype(np.float32)
     sort_indices = np.argsort(labels)
     sorted_labels = labels[sort_indices]
     inverse_sort = np.argsort(sort_indices)
     bandwidth = kde.bandwidth_
     inverse_gaussian = lambda x: sqrt(-2 * log(x * (bandwidth * sqrt(2 * pi)))) * bandwidth
-    atol_by_n = atol / labels.shape[0]
     if atol == 0:
         delta = np.max(labels) - np.min(labels)
     else:
-        delta = inverse_gaussian(atol) # atol_by_n or atol?
+        delta = inverse_gaussian(atol)
     sample_densities = []
     low_index = 0
     high_index = 0
