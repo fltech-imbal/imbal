@@ -30,6 +30,7 @@
 - For `util.generate_ae_branch`, explain branch generation algorithm $\checkmark$
 	- Code example for decoder $\times$
 	- Before and after of model structure (use `tf.keras.utils.plot_model` for documentation?) $\checkmark$
+		- **NOTE: THIS HAD A LINUX PACKAGE DEPENDANCY TO WORK `sudo apt-get install graphviz`**.
 	- Add developer parameter for `generate_decoder_branch` to output before and after plots $\times$
 ## For later...
 - *Medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object
