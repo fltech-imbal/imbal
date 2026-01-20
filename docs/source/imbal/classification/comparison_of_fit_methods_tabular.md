@@ -134,9 +134,9 @@ falls outside of this range.
 
 | Method    | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
 |-----------|----------|-------------------------------------|----------|
-| Regular   | $60.96$  | $0.0640$                            | $0.844$* |
-| Balanced  | $66.11$  | $0.0635$                            | $0.739$  |
-| Decoupled | $91.34$  | $0.0635$                            | $0.875$* |
+| Regular   | $38.36$  | $0.0$                               | $0.883$* |
+| Balanced  | $41.34$  | $0.500$                             | $0.537$  |
+| Decoupled | $57.93$  | $0.625$                             | $0.858$  |
 
 *Some examples have a high AUC, but low F1 score. This is because F1 score
 is calculated with a decision threshold of 0.5, while some models can achieve

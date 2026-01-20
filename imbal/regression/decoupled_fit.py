@@ -15,7 +15,7 @@ def rRT_fit(
     shuffle=True,
     stratify_batches=True,
     generate_decoder_branch=False,
-    representation_layer_index=-3,
+    representation_layer_index=-2,
 ):
     """
     Performs a decoupled fit, or a regression re-training (rRT), on the provided model
@@ -69,11 +69,9 @@ def rRT_fit(
             the provided model containing a decoder branch is generated and used for training, often yielding
             better training results (see :doc:`Comparison of Fit Methods </imbal/regression/comparison_of_fit_methods>`).
             Decoder generation is experimental and may not always be possible depending on model structure.
-        representation_layer_index: Optional, default :code:`-3`. The layer from which the weights of all layers prior are frozen during
+        representation_layer_index: Optional, default :code:`-2`. The layer from which the weights of all layers prior are frozen during
             the stage of the decoupled training. Also, when :code:`generated_decoder_branch` is :code:`True`, the index of
-            the layer from which the decoder branch in generated. It is recommended that this layer is no later than the
-            third to last layer of the model, to help ensure that the remaining layers in the classifier portion of the
-            model may allow for non-linear relationships to be learned.
+            the layer from which the decoder branch in generated.
 
     Returns:
         :code:`None`

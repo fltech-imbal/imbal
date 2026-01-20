@@ -155,29 +155,30 @@ the end of Spring)
 
 # 1/15/26
 ## Tasks:
-- For classification, no KDE curve on data distribution plot
-- Use log-scale for y axis to make sparse data more noticeable
-- Are the F1 scores in documentation consistent with confusion matrix (remember TF expected shape for F1)
-- In local KDE approximation, tests for unsigned Numpy and Keras types for labels
-	- For each bit size
-	- cast to respective size
-	- Throw warning if negative values appear when converting from unsigned to signed
-		- In comment for warning, include examples that can cause the problem (!!!)
-- In MNIST regression documentation, swap "Class 0/9" for "Digit 0/9"
-- Instead of linear proportions for MNIST, exponential (halving each time)
-- https://ibug.doc.ic.ac.uk/resources/agedb/ Obtain and use `AgeDB` for image regression documentation
-	- If necessary, downsample / stratified sample to reduce dataset size (if resolution is too high)
+- For classification, no KDE curve on data distribution plot $\checkmark$
+- Use log-scale for y axis to make sparse data more noticeable $\checkmark$
+- Are the F1 scores in documentation consistent with confusion matrix (remember TF expected shape for F1) $\checkmark$
+	- Need to re-run all test, get new F1Scores, AUCs, plots $\checkmark$
+- In local KDE approximation, tests for unsigned Numpy and Keras types for labels $\checkmark$
+	- For each bit size $\checkmark$
+	- cast to respective size $\checkmark$
+	- Throw warning if negative values appear when converting from unsigned to signed $\checkmark$
+		- In comment for warning, include examples that can cause the problem (!!!) $\checkmark$
+- In MNIST regression documentation, swap "Class 0/9" for "Digit 0/9" $\checkmark$
+- Instead of linear proportions for MNIST, exponential (halving each time) $\times$
+	- Need to re-run tests, get new stats/plots $\times$
+- https://ibug.doc.ic.ac.uk/resources/agedb/ Obtain and use `AgeDB` for image regression documentation $\checkmark$
+	- Reached out, waiting for response $\cdots$
+	- If necessary, downsample / stratified sample to reduce dataset size (if resolution is too high) $\cdots$
+- redo default layer for cRT/rRT (see email) $\checkmark$
+	- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.` $\times$
 - Double check all common layers can be translated in autoencoder $\times$
 - *With spare time, medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\times$
+
 ## For later...
 - Documentation on web URL (readthedocs?)
 - Make package installable via pip
 	- At which point, change `imbal` folder to `src`
-### For Friday...
-- Read paper in email
-- ON A WEBSITE (obsidian WikiMaker)
-	- Title, publication venue, year, link
-	- 1 paragraph summary of technique
 
 ## Notes:
 - A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
@@ -187,3 +188,31 @@ the end of Spring)
 **Medium priority:** re-factoring to make a subclass of Model.  
 **Low priority:** pip after the implementation is more stable (maybe near  
 the end of Spring)
+
+## Tabular Classification
+### w/o AE
+regular
+- time - 38.36
+- f1 - 0.0
+- auc - 0.883
+balanced
+- time - 41.34
+- f1 - 0.5
+- auc - 0.537
+decoupled
+- time - 57.93
+- f1 - 0.625
+- auc - 0.858
+### w/ AE
+regular
+- time - 49.71
+- f1 - 0.0
+- auc - 0.094
+balanced
+- time - 51.31
+- f1 - 0.625
+- auc - 0.832
+decoupled
+ - time - 72.42
+ - f1 - 0.0
+ - auc - 0.866

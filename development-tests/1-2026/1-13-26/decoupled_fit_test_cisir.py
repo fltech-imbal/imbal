@@ -4,9 +4,9 @@ import numpy as np
 import time
 import os, csv
 
-MODE = 'decoupled'
+MODE = ''
 FILTER = ''
-AE = True
+AE = False
 
 
 
@@ -23,7 +23,7 @@ def read_csv_to_list_of_lists(filepath):
             data.append(row)
     return data
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
 def safe_float(x):
@@ -232,13 +232,13 @@ predictions = model.predict(x_test)
 
 import matplotlib.pyplot as plt
 
-# kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
-# imbal.regression.plot_kde_1d(
-#     y_combined,
-#     kde_bandwidth,
-#     bin_count=BIN_COUNT,
-#     save_figure='sep-ec-kde-curve.png'
-# )
+kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
+imbal.regression.plot_kde_1d(
+    y_combined,
+    kde_bandwidth,
+    bin_count=BIN_COUNT,
+    save_figure='sep-ec-kde-curve.png'
+)
 
 
 # plt.scatter(y_test, predictions)
@@ -296,7 +296,7 @@ plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}.png')
 plt.show()
 
 import tensorflow as tf
-f1_score = tf.keras.metrics.F1Score()
+f1_score = tf.keras.metrics.F1Score(threshold=0.5)
 f1_score.update_state(y_test_labels.reshape(-1, 1), predictions.reshape(-1, 1))
 
 auroc = tf.keras.metrics.AUC(num_thresholds=2000)

@@ -290,7 +290,7 @@
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="decoupled_fit.html">decoupled_fit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rRT_fit.html">rRT_fit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="balanced_fit.html">balanced_fit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="compile_parameters.html">compile_parameters</a></li>
 </ul>
@@ -363,7 +363,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>labels</strong> – A NumPy array of labels, arranged as a column vector</p></li>
-<li><p><strong>kde</strong> – A scikit-learn KernelDensity object.</p></li>
+<li><p><strong>bandwidth</strong> – A float representing the bandwidth for the KDE kernel.</p></li>
 <li><p><strong>average_samples_per_bin</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">100</span></code>. Determines the
 number of bins used for histogram-based KDE approximation by the number of datapoints. For
 example, a dataset with 14500 data points with <code class="code docutils literal notranslate"><span class="pre">average_samples_per_bin</span></code> set to <code class="code docutils literal notranslate"><span class="pre">100</span></code>
@@ -381,6 +381,12 @@ passed, the figure will be written to the <code class="code docutils literal not
 being immediately displayed.</p></li>
 <li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The path where the figure should
 be saved to on the local system, as a string. Only saves is not set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>show_bandwidth</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to show the KDE bandwidth
+in the title of the plot.</p></li>
+<li><p><strong>show_bin_count</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to show the number of bins
+in the title of the plot</p></li>
+<li><p><strong>show_extreme_frequencies</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. Whether to show the
+frequency of the highest and lowest bins on the plot.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

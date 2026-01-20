@@ -35,7 +35,7 @@ src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-decoupled-a
 
 ### Comparison of Methods
 
-| Method    | Autoencoder? | Time (s) | Frequent Sample MSE  (Class 0) | Rare Sample MSE  (Class 9) |
+| Method    | Autoencoder? | Time (s) | Frequent Sample MSE  (Digit 0) | Rare Sample MSE  (Digit 9) |
 |-----------|--------------|----------|--------------------------------|----------------------------|
 | Regular   | No           | $85.31$  | $0.4929$                       | $9.3896$                   |
 | Regular   | Yes          | $220.24$ | $0.2454$                       | $4.7639$                   |

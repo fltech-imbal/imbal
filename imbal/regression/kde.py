@@ -158,7 +158,7 @@ def plot_kde_1d(
 
     Args:
         labels: A NumPy array of labels, arranged as a column vector
-        kde: A scikit-learn KernelDensity object.
+        bandwidth: A float representing the bandwidth for the KDE kernel.
         average_samples_per_bin: Optional, default :code:`100`. Determines the
             number of bins used for histogram-based KDE approximation by the number of datapoints. For
             example, a dataset with 14500 data points with :code:`average_samples_per_bin` set to :code:`100`
@@ -176,6 +176,12 @@ def plot_kde_1d(
             being immediately displayed.
         save_figure: Optional, default :code:`None`. The path where the figure should
             be saved to on the local system, as a string. Only saves is not set to :code:`None`.
+        show_bandwidth: Optional, default :code:`True`. Whether to show the KDE bandwidth
+            in the title of the plot.
+        show_bin_count: Optional, default :code:`True`. Whether to show the number of bins
+            in the title of the plot
+        show_extreme_frequencies: Optional, default :code:`False`. Whether to show the
+            frequency of the highest and lowest bins on the plot.
 
     Returns:
         :code:`None`
@@ -195,6 +201,7 @@ def plot_kde_1d(
         >>> )
 
     """
+
     bin_count = calculate_bin_count(labels, bin_count, average_samples_per_bin)
     labels = np.sort(labels.reshape(-1, ))
     high_freq_bin_count, high_freq_bin_index, low_freq_bin_count, low_freq_bin_index = _determine_high_low_freq_bins(labels,

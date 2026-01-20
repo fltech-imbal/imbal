@@ -62,13 +62,13 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-decoupled-ae-Tru
 
 ### Comparison of Methods
 
-| Method    | Autoencoder? | Time (s) | Rare Class F1 Score (threshold=0.5)  | AUC     |
-|-----------|--------------|----------|--------------------------------------|---------|
-| Regular   | No           | $60.96$  | $0.0640$                             | $0.844$ |
-| Regular   | Yes          | $71.71$  | $0.0480$                             | $0.127$ |
-| Balanced  | No           | $66.11$  | $0.0635$                             | $0.739$ |
-| Balanced  | Yes          | $69.06$  | $0.064$                              | $0.795$ |
-| Decoupled | No           | $91.34$  | $0.0635$                             | $0.875$ |
-| Decoupled | Yes          | $106.27$ | $0.0711$                             | $0.843$ |
+| Method    | Autoencoder? | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC     |
+|-----------|--------------|----------|-------------------------------------|---------|
+| Regular   | No           | $38.36$  | $0.0$                               | $0.883$ |
+| Regular   | Yes          | $49.71$  | $0.0$                               | $0.094$ |
+| Balanced  | No           | $41.34$  | $0.500$                             | $0.537$ |
+| Balanced  | Yes          | $51.31$  | $0.625$                             | $0.832$ |
+| Decoupled | No           | $57.93$  | $0.625$                             | $0.858$ |
+| Decoupled | Yes          | $72.42$  | $0.0$                               | $0.866$ |
 
 See also: [Comparison of Fit Methods](comparison_of_fit_methods_tabular.md)

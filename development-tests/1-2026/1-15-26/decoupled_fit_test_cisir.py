@@ -201,13 +201,13 @@ predictions = model.predict(x_test)
 import matplotlib.pyplot as plt
 
 BIN_COUNT = 64
-# kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
-# imbal.regression.plot_kde_1d(
-#     y_combined,
-#     kde_bandwidth,
-#     bin_count=BIN_COUNT,
-#     save_figure='sep-ec-kde-curve.png'
-# )
+kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
+imbal.regression.plot_kde_1d(
+    y_combined,
+    kde_bandwidth,
+    bin_count=BIN_COUNT,
+    save_figure='sep-ec-kde-curve.png'
+)
 
 predictions = predictions.reshape(-1, 1)
 print(y_test)

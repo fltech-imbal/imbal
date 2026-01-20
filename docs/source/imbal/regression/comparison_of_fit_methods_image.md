@@ -102,7 +102,7 @@ For the table below, common samples refer to samples whose label
 falls in the range $[-1, 1]$, and rare samples are those whose label
 falls outside of this range.
 
-| Method    | Time (s) | Frequent Sample MSE (Class 0) | Rare Sample MSE (Class 9) |
+| Method    | Time (s) | Frequent Sample MSE (Digit 0) | Rare Sample MSE (Digit 9) |
 |-----------|----------|-------------------------------|---------------------------| 
 | Regular   | $85.31$  | $0.4929$                      | $9.3896$                  |
 | Balanced  | $80.95$  | $1.8764$                      | $2.3904$                  |
