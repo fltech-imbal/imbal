@@ -1,43 +1,45 @@
 import imbal.regression as imbal
 def labels_to_kde_weights(
-        labels,
-        optimization=None,
-        steps_per_bin=10,
-        bin_count=64,
-        average_samples_per_bin=None,
-        padding_factor=0.01,
-        plot_kde=False,
-        save_figure=None,
-        use_axes=None,
-        bandwidth='mse',
-        fine_search = 10,
-        tolerance = 1e-3,
-        return_kde=False
+    labels,
+    interpolation_method=None,
+    interpolation_samples=None,
+    atol=0,
+    steps_per_bin=10,
+    bin_count=64,
+    average_samples_per_bin=None,
+    padding_factor=0.01,
+    plot_kde=False,
+    save_figure=None,
+    use_axes=None,
+    fit_method='kl_divergence',
+    num_candidates = 10,
+    tolerance = 1e-3,
+    return_kde=False
 ):
     kde = imbal.kde.fit_kde(
         labels,
-        bandwidth=bandwidth,
+        fit_method=fit_method,
         bin_count=bin_count,
         steps_per_bin=steps_per_bin,
         average_samples_per_bin=average_samples_per_bin,
         padding_factor=padding_factor,
-        fine_search=fine_search,
+        num_candidates=num_candidates,
         tolerance=tolerance,
     )
 
-    weights, approx = imbal.generate_weights(
+    weights, approx = imbal.get_sample_densities(
         labels,
-        density_mapping=kde,
-        bin_count=bin_count,
-        optimization=optimization,
-        return_optimization=True,
-        steps_per_bin=steps_per_bin,
+        bandwidth=kde,
+        atol=atol,
+        interpolation_method=interpolation_method,
+        return_interpolation_samples=True,
+        interpolation_samples=interpolation_samples,
         padding_factor=padding_factor
     )
 
 
     if plot_kde or use_axes or save_figure:
-        imbal.kde.plot_kde(
+        imbal.kde.plot_kde_1d(
             labels,
             kde,
             bin_count=bin_count,

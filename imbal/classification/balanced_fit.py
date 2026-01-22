@@ -14,6 +14,7 @@ def balanced_fit(
     stratify_batches=True,
     generate_decoder_branch=False,
     representation_layer_index=-3,
+    **kwargs
 ):
     """
     Performs a class-balanced fit, where each class is equally weighted during
@@ -108,4 +109,5 @@ def balanced_fit(
         generate_decoder_branch=generate_decoder_branch,
         stratify_batches=stratify_batches,
         representation_layer_index=representation_layer_index,
+        **kwargs
     )

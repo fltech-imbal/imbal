@@ -24,7 +24,8 @@ def decoupled_fit(
     representation_layer_index=-3,
     stratify_batches=True,
     generate_decoder_branch=False,
-    mode='classification'
+    mode='classification',
+    **kwargs
 ):
 
     compiling_model = model
@@ -83,7 +84,8 @@ def decoupled_fit(
         batch_size=batch_size,
         epochs=first_train_epochs,
         validation_data=validation_data,
-        shuffle=shuffle
+        shuffle=shuffle,
+        **kwargs
     )
 
     representation_layer_index = positive_model_layer_index(compiling_model, representation_layer_index)
@@ -127,6 +129,7 @@ def decoupled_fit(
         sample_densities=sample_densities,
         class_weights=class_weights,
         generate_decoder_branch=generate_decoder_branch,
+        **kwargs
     )
 
     model.compile(**compile_parameters)

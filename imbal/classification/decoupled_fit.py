@@ -16,6 +16,7 @@ def cRT_fit(
     stratify_batches=True,
     generate_decoder_branch=False,
     representation_layer_index=-2,
+    **kwargs
 ):
     """
     Performs a decoupled fit on the provided model, based on the
@@ -122,5 +123,6 @@ def cRT_fit(
         representation_layer_index=representation_layer_index,
         generate_decoder_branch=generate_decoder_branch,
         mode='classification',
-        stratify_batches=stratify_batches
+        stratify_batches=stratify_batches,
+        **kwargs
     )

@@ -255,14 +255,14 @@ decoupled
 	- Simplify models to do this
 - Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\checkmark$
 	- Started, a LOT of questions (see below)
-- Make sure names/code examples are consistent throughout documentation $\times$
+- Make sure names/code examples are consistent throughout documentation $\checkmark$
 - `representation_layer_index` over `latent_layer_index` for TSNE $\checkmark$
 - `AgeDB` access as of this morning $\checkmark$
 ## Notes:
 - A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
 - Lots of refactoring will be necessary in the future
 
-**High priority:** functionalities (with AE)  
+**High priority:** functionalities (with AE) $\checkmark$
 **Medium priority:** re-factoring to make a subclass of Model.  
 **Low priority:** pip after the implementation is more stable (maybe near  
 the end of Spring)
@@ -273,3 +273,13 @@ the end of Spring)
 	- Alternatively, we could extend `model.compile` to receive these True/False arguments?
 		- Could be beneficial, as certain things, such as generating the decoder branch, require the model to be recompiled anyways. We could prevent recompilation by generating the branch before the model is compiled the first time.
 - When going through documentation, should `SimpleDataset` be scrapped? It seems redundant at this point
+- There exists a wrapper function `labels_to_kde_weights` that has gone unused, is undocumented, and will likely be redundant with how `balanced_fit` and `decoulped_fit`/`cRT_fit`/`rRT_fit` are being re-implemented. Remove it?
+
+# 1/22/26
+
+## Tasks:
+- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.`
+	- Image/tabular classification/regression for cRT/rRT fit w/o AE, comparing second and third to last layer as representation layer.
+	- Simplify models to do this
+- Refactoring decoupled/balanced fit from functions to wrapping around TF model object
+- Update `balanced_fit` and `decoupled_fit` to return model history

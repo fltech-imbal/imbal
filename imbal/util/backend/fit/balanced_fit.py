@@ -20,7 +20,8 @@ def balanced_fit(
     mode='classification',
     generate_decoder_branch=False,
     representation_layer_index=-3,
-    stratify_batches=True
+    stratify_batches=True,
+    **kwargs
 ):
 
     compiling_model = model
@@ -117,7 +118,8 @@ def balanced_fit(
         y=None if stratify_batches else y,
         sample_weight=None if stratify_batches else sample_weights,
         epochs=epochs,
-        validation_data=validation_data
+        validation_data=validation_data,
+        **kwargs
     )
 
     model.compile(**compile_parameters)

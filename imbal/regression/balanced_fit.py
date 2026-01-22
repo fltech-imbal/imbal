@@ -13,7 +13,8 @@ def balanced_fit(
     shuffle=True,
     stratify_batches=True,
     generate_decoder_branch=False,
-    representation_layer_index=-3
+    representation_layer_index=-3,
+    **kwargs
 ):
     """
     Performs a balanced fit based on user-provided densities or weights.
@@ -114,5 +115,6 @@ def balanced_fit(
         mode='regression',
         stratify_batches=stratify_batches,
         generate_decoder_branch=generate_decoder_branch,
-        representation_layer_index=representation_layer_index
+        representation_layer_index=representation_layer_index,
+        **kwargs
     )

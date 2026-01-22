@@ -16,6 +16,7 @@ def rRT_fit(
     stratify_batches=True,
     generate_decoder_branch=False,
     representation_layer_index=-2,
+    **kwargs
 ):
     """
     Performs a decoupled fit, or a regression re-training (rRT), on the provided model
@@ -118,5 +119,6 @@ def rRT_fit(
         representation_layer_index=representation_layer_index,
         generate_decoder_branch=generate_decoder_branch,
         stratify_batches=stratify_batches,
-        mode='regression'
+        mode='regression',
+        **kwargs
     )
