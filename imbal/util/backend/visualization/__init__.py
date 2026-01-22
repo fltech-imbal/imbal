@@ -9,7 +9,7 @@ def generate_tsne_visualization(
         model,
         data,
         labels,
-        latent_layer_index=-2,
+        representation_layer_index=-2,
         gradient=None,
         mode='classification',
         save_figure=None,
@@ -21,12 +21,12 @@ def generate_tsne_visualization(
         marker=None
 ):
 
-    if latent_layer_index < 0:
-        latent_layer_index =  len(model.layers) + latent_layer_index
+    if representation_layer_index < 0:
+        representation_layer_index =  len(model.layers) + representation_layer_index
 
     found_layer, found_index = util.get_representation_layer_index(
         model,
-        desired_layer_index=latent_layer_index
+        desired_layer_index=representation_layer_index
     )
 
     intermediate_model = keras.Model(inputs=model.input,

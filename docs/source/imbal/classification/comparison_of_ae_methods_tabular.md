@@ -1,4 +1,4 @@
-# Comparison of Autoencoder: Regular vs. Balanced vs. Decoupled Fit on Tabular Data
+# Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Tabular Data
 
 ### Regular Fit with Autoencoder
 
@@ -40,7 +40,7 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-balanced-ae-True
 </div>  
 </div>
 
-### Decoupled Fit with Autoencoder
+### cRT Fit with Autoencoder
 
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
@@ -62,13 +62,13 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-decoupled-ae-Tru
 
 ### Comparison of Methods
 
-| Method    | Autoencoder? | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC     |
-|-----------|--------------|----------|-------------------------------------|---------|
-| Regular   | No           | $38.36$  | $0.0$                               | $0.883$ |
-| Regular   | Yes          | $49.71$  | $0.0$                               | $0.094$ |
-| Balanced  | No           | $41.34$  | $0.500$                             | $0.537$ |
-| Balanced  | Yes          | $51.31$  | $0.625$                             | $0.832$ |
-| Decoupled | No           | $57.93$  | $0.625$                             | $0.858$ |
-| Decoupled | Yes          | $72.42$  | $0.0$                               | $0.866$ |
+| Method   | Autoencoder? | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC     |
+|----------|--------------|----------|-------------------------------------|---------|
+| Regular  | No           | $38.36$  | $0.0$                               | $0.883$ |
+| Regular  | Yes          | $49.71$  | $0.0$                               | $0.094$ |
+| Balanced | No           | $41.34$  | $0.500$                             | $0.537$ |
+| Balanced | Yes          | $51.31$  | $0.625$                             | $0.832$ |
+| cRT      | No           | $57.93$  | $0.625$                             | $0.858$ |
+| cRT      | Yes          | $72.42$  | $0.0$                               | $0.866$ |
 
 See also: [Comparison of Fit Methods](comparison_of_fit_methods_tabular.md)

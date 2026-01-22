@@ -94,13 +94,15 @@ def cRT_fit(
         >>>     metrics=["accuracy"]
         >>> )
 
-        >>> imbal.classification.decoupled_fit(
+        >>> # For example, the models representation layer is the fourth from the end...
+        >>> imbal.classification.cRT_fit(
         >>>     model,
         >>>     x_train,
         >>>     y_train,
         >>>     compile_parameters=parameters,
         >>>     epochs=10,
         >>>     batch_size=512
+        >>>     representation_layer_index=-4,
         >>> )
 
     """

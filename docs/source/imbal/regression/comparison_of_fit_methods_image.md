@@ -1,4 +1,4 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Image Data
+# Comparison of Methods: Regular vs. Balanced vs. rRT Fit on Image Data
 
 Below is a comparison of [decoupled fit](rRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit of the MNIST data set, altered so that
@@ -62,7 +62,7 @@ style="flex: 1; max-width: 50%;"
 src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-balanced-ae-False.png"/>
 </div>
 
-### Decoupled Fit
+### rRT Fit
 
 ```python
     compile_parameters = imbal.classification.wrap_model_compile_parameters(
@@ -75,7 +75,7 @@ src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-balanced-ae
         bin_count=BIN_COUNT
     )
     
-    imbal.regression.decoupled_fit(
+    imbal.regression.rRT_fit(
         model,
         x_train,
         y_train,
@@ -102,10 +102,10 @@ For the table below, common samples refer to samples whose label
 falls in the range $[-1, 1]$, and rare samples are those whose label
 falls outside of this range.
 
-| Method    | Time (s) | Frequent Sample MSE (Digit 0) | Rare Sample MSE (Digit 9) |
-|-----------|----------|-------------------------------|---------------------------| 
-| Regular   | $85.31$  | $0.4929$                      | $9.3896$                  |
-| Balanced  | $80.95$  | $1.8764$                      | $2.3904$                  |
-| Decoupled | $111.84$ | $1.6591$                      | $3.6400$                  |
+| Method   | Time (s) | Frequent Sample MSE (Digit 0) | Rare Sample MSE (Digit 9) |
+|----------|----------|-------------------------------|---------------------------| 
+| Regular  | $85.31$  | $0.4929$                      | $9.3896$                  |
+| Balanced | $80.95$  | $1.8764$                      | $2.3904$                  |
+| rRT      | $111.84$ | $1.6591$                      | $3.6400$                  |
 
 See also: [Comparison of Autoencoder Methods](comparison_of_ae_methods_image.md)

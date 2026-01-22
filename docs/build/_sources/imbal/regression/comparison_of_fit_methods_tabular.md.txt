@@ -1,4 +1,4 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data
+# Comparison of Methods: Regular vs. Balanced vs. rRT Fit on Tabular Data
 
 Below is a comparison of [decoupled fit](rRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
@@ -65,7 +65,7 @@ style="flex: 1; max-width: 50%;"
 src="../../_static/regression/decoupled_fit/tsne_visualization-balanced-ae-False.png"/>
 </div>
 
-### Decoupled Fit
+### rRT Fit
 
 ```python
     compile_parameters = imbal.classification.wrap_model_compile_parameters(
@@ -78,7 +78,7 @@ src="../../_static/regression/decoupled_fit/tsne_visualization-balanced-ae-False
         bin_count=BIN_COUNT
     )
     
-    imbal.regression.decoupled_fit(
+    imbal.regression.rRT_fit(
         model,
         x_train,
         y_train,
@@ -105,10 +105,10 @@ For the table below, common samples refer to samples whose label
 falls in the range $[-1, 1]$, and rare samples are those whose label
 falls outside of this range.
 
-| Method    | Time (s) | Frequent Sample MSE | Rare Sample MSE |
-|-----------|----------|---------------------|-----------------| 
-| Regular   | $69.2$   | $0.0052$            | $0.1798$        |
-| Balanced  | $100.1$  | $0.0170$            | $0.0581$        |
-| Decoupled | $117.2$  | $0.0077$            | $0.0789$        |
+| Method   | Time (s) | Frequent Sample MSE | Rare Sample MSE |
+|----------|----------|---------------------|-----------------| 
+| Regular  | $69.2$   | $0.0052$            | $0.1798$        |
+| Balanced | $100.1$  | $0.0170$            | $0.0581$        |
+| rRT      | $117.2$  | $0.0077$            | $0.0789$        |
 
 See also: [Comparison of Autoencoder Methods](comparison_of_ae_methods_tabular.md)

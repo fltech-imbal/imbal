@@ -165,13 +165,14 @@ the end of Spring)
 	- Throw warning if negative values appear when converting from unsigned to signed $\checkmark$
 		- In comment for warning, include examples that can cause the problem (!!!) $\checkmark$
 - In MNIST regression documentation, swap "Class 0/9" for "Digit 0/9" $\checkmark$
-- Instead of linear proportions for MNIST, exponential (halving each time) $\times$
-	- Need to re-run tests, get new stats/plots $\times$
+- Instead of linear proportions for MNIST, exponential (halving each time) $\checkmark$
+	- Need to re-run tests, get new stats/plots $\checkmark$
 - https://ibug.doc.ic.ac.uk/resources/agedb/ Obtain and use `AgeDB` for image regression documentation $\checkmark$
 	- Reached out, waiting for response $\cdots$
 	- If necessary, downsample / stratified sample to reduce dataset size (if resolution is too high) $\cdots$
 - redo default layer for cRT/rRT (see email) $\checkmark$
-	- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.` $\times$
+	- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.` $\checkmark$
+		- Compare performance... in what manner?
 - Double check all common layers can be translated in autoencoder $\times$
 - *With spare time, medium priority:* Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\times$
 
@@ -216,3 +217,59 @@ decoupled
  - time - 72.42
  - f1 - 0.0
  - auc - 0.866
+
+## MNIST
+#### w/o AE
+regular
+- time - 74.84
+- frequent - 0.11985
+- rare - 9.41916
+balanced
+- time - 76.61
+- frequent - 0.97934
+- rare - 5.09938
+decoupled
+- time - 91.47
+- frequent - 1.17429
+- rare - 3.90605
+#### w/ AE
+regular
+- time - 116.24
+- frequent - 0.13282
+- rare - 9.89732
+balanced
+- time - 127.20
+- frequent - 0.84396
+- rare - 4.42349
+decoupled
+- time - 145.43
+- frequent - 0.11277
+- rare - 10.02015
+
+## Tasks
+- For classification, no KDE curve on data distribution plot $\checkmark$
+	- Use log-scale for y axis to make sparse data more noticeable $\checkmark$
+- In documentation, `decoupled_fit` to `cRT_fit`/`rRT_fit` $\checkmark$
+- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.`
+	- Image/tabular classification/regression for cRT/rRT fit w/o AE, comparing second and third to last layer as representation layer.
+	- Simplify models to do this
+- Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\checkmark$
+	- Started, a LOT of questions (see below)
+- Make sure names/code examples are consistent throughout documentation $\times$
+- `representation_layer_index` over `latent_layer_index` for TSNE $\checkmark$
+- `AgeDB` access as of this morning $\checkmark$
+## Notes:
+- A chance to go back over/clean up/optimize `DatasetWithBatching` and `MultiDatasetWithBatching` code would be nice
+- Lots of refactoring will be necessary in the future
+
+**High priority:** functionalities (with AE)  
+**Medium priority:** re-factoring to make a subclass of Model.  
+**Low priority:** pip after the implementation is more stable (maybe near  
+the end of Spring)
+
+## Questions about TF model refactoring
+- Batch stratification, decoder branch generation, representation layer index... should these be set in `fit`/`balanced_fit`/`cRT_fit`/`rRT_fit`, or set with setting functions (i.e. `set_batch_stratification(True)`) 
+	- Separating into individual flags would likely make things easier from an implementation perspective (otherwise a lot of if-else within the fit functions for handling this, when some of these things can be handled before fit is called)
+	- Alternatively, we could extend `model.compile` to receive these True/False arguments?
+		- Could be beneficial, as certain things, such as generating the decoder branch, require the model to be recompiled anyways. We could prevent recompilation by generating the branch before the model is compiled the first time.
+- When going through documentation, should `SimpleDataset` be scrapped? It seems redundant at this point

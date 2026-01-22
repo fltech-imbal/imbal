@@ -40,7 +40,7 @@ def split(
             >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]).reshape(-1,1)
             >>> weights = (np.ones(21) / 21).reshape(-1, 1)
 
-            >>> train_set, test_set = split(data, labels, weights, test_size=0.20)
+            >>> train_set, test_set = imbal.classification.split(data, labels, weights, test_size=0.20)
             # SimpleDataset.get_unzipped returns data, labels, and weights separately
             >>> x_train, y_train, w_train = train_set.get_unzipped()
             >>> x_test, y_test, w_test = test_set.get_unzipped()

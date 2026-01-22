@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data &#8212; imbal  documentation</title>
+    <title>Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Tabular Data &#8212; imbal  documentation</title>
   
   
   
@@ -310,7 +310,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Tabular Data</span></li>
   </ul>
 </nav>
 </div>
@@ -327,8 +327,8 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="comparison-of-methods-regular-vs-balanced-vs-decoupled-fit-on-tabular-data">
-<h1>Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data<a class="headerlink" href="#comparison-of-methods-regular-vs-balanced-vs-decoupled-fit-on-tabular-data" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="comparison-of-methods-regular-vs-balanced-vs-crt-fit-on-tabular-data">
+<h1>Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Tabular Data<a class="headerlink" href="#comparison-of-methods-regular-vs-balanced-vs-crt-fit-on-tabular-data" title="Link to this heading">#</a></h1>
 <p>Below is a comparison of <a class="reference internal" href="cRT_fit.html"><span class="std std-doc">decoupled fit</span></a> and <a class="reference internal" href="balanced_fit.html"><span class="std std-doc">balanced fit</span></a>
 to a standard, unbalanced fit, and a weight-balanced
 fit of the dataset shown below, which contains 1,531 data points.</p>
@@ -409,8 +409,8 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-balanced-ae-Fals
 </div>  
 </div>
 </section>
-<section id="decoupled-fit">
-<h2>Decoupled Fit<a class="headerlink" href="#decoupled-fit" title="Link to this heading">#</a></h2>
+<section id="crt-fit">
+<h2>cRT Fit<a class="headerlink" href="#crt-fit" title="Link to this heading">#</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="n">compile_parameters</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">wrap_model_compile_parameters</span><span class="p">(</span>
         <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
         <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">2e-5</span><span class="p">),</span>
@@ -421,7 +421,7 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-balanced-ae-Fals
         <span class="n">bin_count</span><span class="o">=</span><span class="n">BIN_COUNT</span>
     <span class="p">)</span>
     
-    <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">decoupled_fit</span><span class="p">(</span>
+    <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">cRT_fit</span><span class="p">(</span>
         <span class="n">model</span><span class="p">,</span>
         <span class="n">x_train</span><span class="p">,</span>
         <span class="n">y_train</span><span class="p">,</span>
@@ -466,19 +466,19 @@ falls outside of this range.</p>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Regular</p></td>
-<td><p><span class="math notranslate nohighlight">\(60.96\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.0640\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.844\)</span>*</p></td>
+<td><p><span class="math notranslate nohighlight">\(38.36\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.883\)</span>*</p></td>
 </tr>
 <tr class="row-odd"><td><p>Balanced</p></td>
-<td><p><span class="math notranslate nohighlight">\(66.11\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.0635\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.739\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(41.34\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.500\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.537\)</span></p></td>
 </tr>
-<tr class="row-even"><td><p>Decoupled</p></td>
-<td><p><span class="math notranslate nohighlight">\(91.34\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.0635\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.875\)</span>*</p></td>
+<tr class="row-even"><td><p>cRT</p></td>
+<td><p><span class="math notranslate nohighlight">\(57.93\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.625\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0.858\)</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -526,7 +526,7 @@ allowing for a AUROC close to 1.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-distribution">Data Distribution</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-fit">Regular Fit</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#balanced-fit">Balanced Fit</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decoupled-fit">Decoupled Fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#crt-fit">cRT Fit</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-performance">Comparison of Performance</a></li>
 </ul>
   </nav></div>

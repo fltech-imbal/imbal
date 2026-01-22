@@ -228,22 +228,29 @@ def _local_kde_approximation(
         kde,
         atol=0
 ):
+
+    unsigned_conversion = False
     # Ensure data is of proper type (labels must be signed data)
     if labels.dtype == np.uint8 or labels.dtype == np.ubyte:
         labels = labels.astype(np.int8)
+        unsigned_conversion = True
     elif labels.dtype == np.uint16 or labels.dtype == np.ushort:
         labels = labels.astype(np.int16)
+        unsigned_conversion = True
     elif labels.dtype == np.uint32 or labels.dtype == np.uintc:
         labels = labels.astype(np.int32)
+        unsigned_conversion = True
     elif labels.dtype == np.uint64 or labels.dtype == np.ulong:
         labels = labels.astype(np.int64)
+        unsigned_conversion = True
     elif labels.dtype == tf.uint8:
         labels = labels.astype(tf.int8)
+        unsigned_conversion = True
 
     # Example of where this fails
     # Regression problem with uint8 values: [0, 20, 200, 185, 40]
     # Converting to int8 values yields: [0, 20, -56, -71, 40]
-    if min(labels) < 0:
+    if unsigned_conversion and min(labels) < 0:
         raise ValueError("When getting sample densities using imbal's custom KDE approximation, data should be passed as a signed type."
                       " Failed to successfully cast from an unsigned type to a signed type (negative values appeared).")
 

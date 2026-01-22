@@ -4,7 +4,7 @@
 .. autoclass:: imbal.regression.rRT_fit
 ```
 
-## Comparison of Decoupled Fit With Other Methods
+## Comparison of rRT Fit With Other Methods
 
-- A comparison of the performance of decoupled fit with other methods can be found [here](comparison_of_fit_methods_tabular.md).
-- A comparison of the performance of decoupled fit with autoencoder generation compared to other methods can be found [here](comparison_of_ae_methods_tabular.md).
+- A comparison of the performance of rRT fit with other methods can be found [here](comparison_of_fit_methods_tabular.md).
+- A comparison of the performance of rRT fit with autoencoder generation compared to other methods can be found [here](comparison_of_ae_methods_tabular.md).

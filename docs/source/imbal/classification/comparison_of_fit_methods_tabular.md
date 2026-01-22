@@ -1,4 +1,4 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Tabular Data
+# Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Tabular Data
 
 Below is a comparison of [decoupled fit](cRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
@@ -83,7 +83,7 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-balanced-ae-Fals
 </div>  
 </div>
 
-### Decoupled Fit
+### cRT Fit
 
 ```python
     compile_parameters = imbal.classification.wrap_model_compile_parameters(
@@ -96,7 +96,7 @@ src="../../_static/classification/decoupled_fit/sep-c/roc-curve-balanced-ae-Fals
         bin_count=BIN_COUNT
     )
     
-    imbal.regression.decoupled_fit(
+    imbal.regression.cRT_fit(
         model,
         x_train,
         y_train,
@@ -132,11 +132,11 @@ For the table below, common samples refer to samples whose label
 falls in the range $[-1, 1]$, and rare samples are those whose label
 falls outside of this range.
 
-| Method    | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
-|-----------|----------|-------------------------------------|----------|
-| Regular   | $38.36$  | $0.0$                               | $0.883$* |
-| Balanced  | $41.34$  | $0.500$                             | $0.537$  |
-| Decoupled | $57.93$  | $0.625$                             | $0.858$  |
+| Method   | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
+|----------|----------|-------------------------------------|----------|
+| Regular  | $38.36$  | $0.0$                               | $0.883$* |
+| Balanced | $41.34$  | $0.500$                             | $0.537$  |
+| cRT      | $57.93$  | $0.625$                             | $0.858$  |
 
 *Some examples have a high AUC, but low F1 score. This is because F1 score
 is calculated with a decision threshold of 0.5, while some models can achieve

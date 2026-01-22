@@ -4,7 +4,7 @@ def tsne_visualization(
     model,
     data,
     labels,
-    latent_layer_index=-2,
+    representation_layer_index=-2,
     perplexity=30,
     save_figure=None,
     s=None,
@@ -26,7 +26,7 @@ def tsne_visualization(
         model: The PyTorch model whose representation space you wish to visualize.
         data: The data whose representation you wish to visualize, as a column vector.
         labels: The corresponding labels for the provided data, as a column vector.
-        latent_layer_index: Optional, default :math:`2`. The index of the layer of your
+        representation_layer_index: Optional, default :math:`2`. The index of the layer of your
             model to extract the representation from. Defaults to the second to last
             layer of the provided model.
         perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
@@ -62,7 +62,7 @@ def tsne_visualization(
         model,
         data,
         labels,
-        latent_layer_index=latent_layer_index,
+        representation_layer_index=representation_layer_index,
         save_figure=save_figure,
         perplexity=perplexity,
         mode='classification',

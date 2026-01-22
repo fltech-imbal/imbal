@@ -41,7 +41,7 @@ def generate_sample_weights(
         >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]).reshape(-1,1)
         >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1]).reshape(-1,1)
 
-        >>> weights = imbal.classification.generate_weights(labels, { 0: 0.6, 1: 0.4 })
+        >>> weights = imbal.classification.generate_sample_weights(labels, { 0: 0.6, 1: 0.4 })
 
         >>> print(weights)
         [0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.0 2.0]
@@ -54,7 +54,7 @@ def generate_sample_weights(
         >>> data = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]).reshape(-1,1)
         >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2]).reshape(-1,1)
 
-        >>> weights = imbal.classification.generate_weights(labels, { 0: 0.4, 1: 0.3, 2: 0.3 })
+        >>> weights = imbal.classification.generate_sample_weights(labels, { 0: 0.4, 1: 0.3, 2: 0.3 })
 
         >>> print(weights)
         [0.65 0.65 0.65 0.65 0.65 0.65 0.65 0.65 1.3 1.3 1.3 1.95 1.95]

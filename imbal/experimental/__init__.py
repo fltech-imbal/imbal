@@ -1,1 +1,2 @@
 from .optimize_confusion_metric_callback import OptimizeConfusionMetricCallback
+from .model import Model

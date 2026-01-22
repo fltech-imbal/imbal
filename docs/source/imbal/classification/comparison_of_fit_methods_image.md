@@ -1,4 +1,4 @@
-# Comparison of Methods: Regular vs. Balanced vs. Decoupled Fit on Image Data
+# Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Image Data
 
 Below is a comparison of [decoupled fit](cRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
@@ -88,7 +88,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-balanced-low.png"/>
 </div>  
 </div>
 
-### Decoupled Fit
+### cRT Fit
 
 ```python
     parameters = imbal.classification.wrap_model_compile_parameters(
@@ -107,7 +107,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-balanced-low.png"/>
     )
 ```
 
-#### Decoupled Fit Results
+#### cRT Fit Results
     
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
@@ -133,7 +133,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-decoupled-low.png"/>
 |-----------|----------|-------------------------------------|----------|
 | Regular   | $9.95$   | $0.0$                               | $0.865$* |
 | Balanced  | $13.24$  | $0.240$                             | $0.864$  |
-| Decoupled | $14.05$  | $0.211$                             | $0.848$  |
+| cRT | $14.05$  | $0.211$                             | $0.848$  |
 
 *Some examples have a high AUC, but low F1 score. This is because F1 score
 is calculated with a decision threshold of 0.5, while some models can achieve
@@ -219,7 +219,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-balanced-high.png"/>
 </div>  
 </div>
 
-### Decoupled Fit
+### cRT Fit
 
 ```python
     parameters = imbal.classification.wrap_model_compile_parameters(
@@ -228,7 +228,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-balanced-high.png"/>
         metrics=["accuracy", 'F1Score', auc]
     )
 
-    imbal.classification.decoupled_fit(
+    imbal.classification.cRT_fit(
         model,
         x_train,
         y_train,
@@ -238,7 +238,7 @@ src="../../_static/classification/decoupled_fit/roc-curve-balanced-high.png"/>
     )
 ```
 
-#### Decoupled Fit Results
+#### cRT Fit Results
     
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
@@ -260,11 +260,11 @@ src="../../_static/classification/decoupled_fit/roc-curve-decoupled-high.png"/>
 
 ### Comparison of Performance
 
-| Method    | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
-|-----------|----------|-------------------------------------|----------|
-| Regular   | $9.95$   | $0.0$                               | $0.844$* |
-| Balanced  | $13.24$  | $0.092$                             | $0.855$  |
-| Decoupled | $14.05$  | $0.079$                             | $0.836$  |
+| Method   | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
+|----------|----------|-------------------------------------|----------|
+| Regular  | $9.95$   | $0.0$                               | $0.844$* |
+| Balanced | $13.24$  | $0.092$                             | $0.855$  |
+| cRT      | $14.05$  | $0.079$                             | $0.836$  |
 
 *Some examples have a high AUC, but low F1 score. This is because F1 score
 is calculated with a decision threshold of 0.5, while some models can achieve
