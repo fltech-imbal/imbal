@@ -1,4 +1,4 @@
-from .fit import decoupled_fit, balanced_fit, generate_decoder_branch, mse_reconstruction_loss
+from .model import Model
 from .constants import ModelType
 from .explanation import (
     shap_explain_tabular_sample,

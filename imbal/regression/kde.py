@@ -7,14 +7,14 @@ import itertools
 from math import floor
 
 def fit_kde(
-        labels,
-        fit_method='kl_divergence',
-        average_samples_per_bin=100,
-        bin_count=None,
-        steps_per_bin = 10,
-        num_candidates = 10,
-        tolerance = 0,
-        padding_factor=0.01
+    labels,
+    fit_method='kl_divergence',
+    average_samples_per_bin=100,
+    bin_count=None,
+    steps_per_bin = 10,
+    num_candidates = 10,
+    tolerance = 0,
+    padding_factor=0.01
 ):
     """
     Determine the bandwidth which generates a KDE curve that best fits

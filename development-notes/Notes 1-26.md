@@ -270,16 +270,39 @@ the end of Spring)
 ## Questions about TF model refactoring
 - Batch stratification, decoder branch generation, representation layer index... should these be set in `fit`/`balanced_fit`/`cRT_fit`/`rRT_fit`, or set with setting functions (i.e. `set_batch_stratification(True)`) 
 	- Separating into individual flags would likely make things easier from an implementation perspective (otherwise a lot of if-else within the fit functions for handling this, when some of these things can be handled before fit is called)
-	- Alternatively, we could extend `model.compile` to receive these True/False arguments?
+	- Alternatively, we could extend `model.compile` to receive these True/False arguments? $\checkmark$
 		- Could be beneficial, as certain things, such as generating the decoder branch, require the model to be recompiled anyways. We could prevent recompilation by generating the branch before the model is compiled the first time.
-- When going through documentation, should `SimpleDataset` be scrapped? It seems redundant at this point
 - There exists a wrapper function `labels_to_kde_weights` that has gone unused, is undocumented, and will likely be redundant with how `balanced_fit` and `decoulped_fit`/`cRT_fit`/`rRT_fit` are being re-implemented. Remove it?
-
+- Documentation structure
 # 1/22/26
-
 ## Tasks:
-- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.`
+- Refactoring decoupled/balanced fit from functions to wrapping around TF model object $\checkmark$
+- Update `balanced_fit` and `decoupled_fit` to return model history $\checkmark$
+	- Decoupled returns a separate history for each stage $\checkmark$
+- Backend `decoupled_fit` to `RT_fit` $\checkmark$
+- Extend `model.compile` to have batch stratification, decoder branch generation, representation layer index $\checkmark$
+	- Big changes for all fit functions $\checkmark$
+- Remove `label_to_kde_weights` $\checkmark$
+- - `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.`
 	- Image/tabular classification/regression for cRT/rRT fit w/o AE, comparing second and third to last layer as representation layer.
 	- Simplify models to do this
-- Refactoring decoupled/balanced fit from functions to wrapping around TF model object
-- Update `balanced_fit` and `decoupled_fit` to return model history
+	- SEP-C for regression, `AgeDB` for classification
+- Tracking version number with GitHub? `0.2.0`? $\checkmark$
+	- As I thought, there are not built-in GitHub tools to track version number without using things like Releases.
+
+## Notes:
+- Functions\classes removed with introduction of `Model` objects
+	- `imbal.util.backend.balanced_fit`
+	- `imbal.util.backend.RT_fit`
+	- `imbal.util.backend.generate_decoder_branch`
+	- `imbal.regression.rRT_fit`
+	- `imbal.regression.balanced_fit`
+	- `imbal.classification.cRT_fit`
+	- `imbal.classification.balanced_fit`
+	- `imbal.util.ModelCompileParameters`
+	- `imbal.util.wrap_model_compile_parameters`
+	- `imbal.classification.wrap_model_compile_parameters`
+	- `imbal.regression.wrap_model_compile_parameters`
+
+## Questions:
+- When going through documentation, should `SimpleDataset` be scrapped? It seems redundant at this point

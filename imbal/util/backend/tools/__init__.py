@@ -1,3 +1,5 @@
+import numpy as np
+
 def positive_model_layer_index(
     model,
     desired_index
@@ -18,3 +20,6 @@ def safe_object_unwrap(obj, obj_type):
         return {}
     else:
         return obj
+
+def is_list_like(obj):
+    return isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, np.ndarray)

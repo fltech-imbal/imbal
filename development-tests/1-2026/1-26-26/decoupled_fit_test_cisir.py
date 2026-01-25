@@ -1,15 +1,17 @@
 import keras
 from tensorflow.keras import layers
 import numpy as np
-import time
-import os, csv
+import os, csv, math, time, imbal
+
+MODEL_TASK = 'regression'
 
 MODE = ''
-FILTER = ''
+STRATIFY = False
 AE = False
+GEN_OUTPUT = False
 
 num_classes = 10
-REPRESENTATION_LAYER_INDEX = -6
+REPRESENTATION_LAYER_INDEX = -2
 DATASET_PERCENTAGE = 0.8
 TRAIN_SPLIT = 0.8
 
@@ -68,9 +70,6 @@ x_combined = scaler.fit_transform(x_combined)
 # x_combined = data[:, :NUM_FEATURES].astype(float)
 # x_combined = scaler.fit_transform(x_combined)
 
-
-
-
 print(x_combined.shape)
 print(y_combined.shape)
 
@@ -83,9 +82,9 @@ num_data = x_combined.shape[0]
 split_index = int(num_data * TRAIN_SPLIT)
 x_train, x_test = x_combined[:split_index], x_combined[split_index:]
 y_train, y_test = y_combined[:split_index], y_combined[split_index:]
-import math
-y_train = (y_train >= math.log(10)).astype(int)
-y_test = (y_test >= math.log(10)).astype(int)
+if MODEL_TASK == 'classification':
+    y_train = (y_train >= math.log(10)).astype(int)
+    y_test = (y_test >= math.log(10)).astype(int)
 print('x_train', x_train.shape)
 print('y_train',y_train.shape)
 print('x_test',x_test.shape)
@@ -99,45 +98,37 @@ for i in range(num_classes):
     class_split.append(len(y_train[y_train == i]))
 print('distribution', class_split)
 
-# y_train = to_categorical(y_train, num_classes if FILTER != 'binary' else 2)
-# y_test = to_categorical(y_test, num_classes if FILTER != 'binary' else 2)
-
 input_shape = (NUM_FEATURES,)
 
 inputs = keras.Input(shape=input_shape)
-x = layers.Dense(64, activation='relu')(inputs)
-x = layers.Dense(64, activation='relu')(x)
-x = layers.Dense(64, activation='relu')(x)
-x = layers.Dense(64, activation='relu')(x)
-x = layers.Dense(32, activation='relu')(x)
-x = layers.Dense(32, activation='relu')(x)
-x = layers.Dense(32, activation='relu')(x)
-x = layers.Dense(32, activation='relu')(x)
+x = layers.Dense(18, activation='relu')(inputs)
+x = layers.Dense(9, activation='relu')(x)
+x = layers.Dense(5, activation='relu')(x)
 x = layers.Flatten()(x)
-x = layers.Dense(16, activation='relu')(x)
-x = layers.Dense(16, activation='relu')(x)
-x = layers.Dense(16, activation='relu')(x)
-x = layers.Dense(16, activation='relu')(x)
-output = layers.Dense(1, activation='sigmoid')(x)
+output = layers.Dense(1, activation='sigmoid' if MODEL_TASK == 'classification' else 'linear')(x)
 
-from imbal.experimental import Model as ImbalModel
-model = keras.Model(inputs=inputs, outputs=output)
+model = (
+    imbal.classification.Model(inputs=inputs, outputs=output)
+    if MODEL_TASK == 'classification'
+    else imbal.regression.Model(inputs=inputs, outputs=output)
+)
 
 model.summary()
 
-import imbal
-
 batch_size = 512
-epochs = 800
+epochs = 200
 
 print('number of layers', len(model.layers))
 
 auc = keras.metrics.AUC(multi_label=True)
 
-parameters = imbal.classification.wrap_model_compile_parameters(
-    loss="binary_crossentropy",
-    optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-    metrics=["accuracy"]
+model.compile(
+    loss="binary_crossentropy" if MODEL_TASK == 'classification' else 'mse',
+    optimizer=keras.optimizers.Adam(learning_rate=5e-5),
+    metrics=["accuracy" if MODEL_TASK == 'classification' else "mse"],
+    stratify_batches=STRATIFY,
+    generate_decoder_branch=AE,
+    representation_layer_index=REPRESENTATION_LAYER_INDEX
 )
 BIN_COUNT=64
 
@@ -150,6 +141,8 @@ densities = imbal.regression.get_sample_densities(
     kde_bandwidth,
 )
 
+history = None
+
 start = time.time()
 if MODE == 'decoupled':
     bandwidth = imbal.regression.fit_kde(
@@ -160,17 +153,14 @@ if MODE == 'decoupled':
         y_train,
         bandwidth
     )
+    weights = imbal.regression.generate_sample_weights(densities)
 
-    imbal.regression.rRT_fit(
-        model,
+    history, _ = model.decoupled_fit(
         x_train,
         y_train,
-        compile_parameters=parameters,
-        sample_densities=densities,
+        sample_weight=weights,
         epochs=epochs,
-        batch_size=batch_size,
-        generate_decoder_branch=AE,
-        representation_layer_index=REPRESENTATION_LAYER_INDEX,
+        batch_size=batch_size
     )
 
 elif MODE == 'balanced':
@@ -182,42 +172,22 @@ elif MODE == 'balanced':
         y_train,
         bandwidth
     )
+    weights = imbal.regression.generate_sample_weights(densities)
 
-    imbal.regression.balanced_fit(
-        model,
+    history = model.balanced_fit(
         x_train,
         y_train,
-        sample_densities=densities,
-        compile_parameters=parameters,
+        sample_weight=weights,
         epochs=epochs,
         batch_size=batch_size,
-        generate_decoder_branch=AE,
-        representation_layer_index=REPRESENTATION_LAYER_INDEX
     )
 else:
-    if AE:
-        extended_model, _ = imbal.util.backend.fit.generate_decoder_branch(model, REPRESENTATION_LAYER_INDEX)
-        extended_parameters = imbal.classification.wrap_model_compile_parameters(
-            loss=["mse", 'mse'],
-            optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-            metrics=[["mse"], ['mse']]
-        )
-        extended_model.compile(**extended_parameters.to_dict())
-        extended_model.fit(
-            x_train,
-            [y_train, x_train],
-            batch_size=batch_size,
-            epochs=epochs
-        )
-        model.compile(**parameters.to_dict())
-    else:
-        model.compile(**parameters.to_dict())
-        model.fit(
-            x_train,
-            y_train,
-            batch_size=batch_size,
-            epochs=epochs
-        )
+    history = model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=epochs
+    )
 
 end = time.time()
 
@@ -228,15 +198,12 @@ model.evaluate(x_test, y_test)
 
 predictions = model.predict(x_test)
 
-
-import matplotlib.pyplot as plt
-
 kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
 imbal.regression.plot_kde_1d(
     y_combined,
     kde_bandwidth,
     bin_count=BIN_COUNT,
-    save_figure='sep-ec-kde-curve.png'
+    save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None
 )
 
 
@@ -258,13 +225,22 @@ imbal.regression.plot_kde_1d(
 # plt.show()
 
 
-imbal.classification.tsne_visualization(
-    model,
-    x_test,
-    y_test,
-    latent_layer_index=REPRESENTATION_LAYER_INDEX,
-    save_figure=f'tsne_visualization-{MODE}-ae-{AE}.png',
-)
+if MODEL_TASK == 'classification':
+    imbal.classification.tsne_visualization(
+        model,
+        x_test,
+        y_test,
+        representation_layer_index=REPRESENTATION_LAYER_INDEX,
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}.png' if GEN_OUTPUT else None,
+    )
+else:
+    imbal.regression.tsne_visualization(
+        model,
+        x_test,
+        y_test,
+        representation_layer_index=REPRESENTATION_LAYER_INDEX,
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}.png' if GEN_OUTPUT else None,
+    )
 
 
 predictions = predictions.reshape(-1,)
@@ -289,68 +265,73 @@ import matplotlib.pyplot as plt
 y_test_labels = y_test
 predictions_labels = (predictions >= 0.5).astype(int)
 
-cm = confusion_matrix(y_test_labels, predictions_labels)
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Negative", "Positive"])
-disp.plot()
-plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}.png')
-plt.show()
+if MODEL_TASK == 'classification':
+    cm = confusion_matrix(y_test_labels, predictions_labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Negative", "Positive"])
+    disp.plot()
+    if GEN_OUTPUT:
+        plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}.png')
+    plt.show()
 
-import tensorflow as tf
-f1_score = tf.keras.metrics.F1Score(threshold=0.5)
-f1_score.update_state(y_test_labels.reshape(-1, 1), predictions.reshape(-1, 1))
+    import tensorflow as tf
+    f1_score = tf.keras.metrics.F1Score(threshold=0.5)
+    f1_score.update_state(y_test_labels.reshape(-1, 1), predictions.reshape(-1, 1))
 
-auroc = tf.keras.metrics.AUC(num_thresholds=2000)
-print(y_test_labels.shape)
-print(y_test_labels[:20])
-print(predictions.shape)
-auroc.update_state(y_test_labels, predictions)
-print(auroc.result())
+    auroc = tf.keras.metrics.AUC(num_thresholds=2000)
+    print(y_test_labels.shape)
+    print(y_test_labels[:20])
+    print(predictions.shape)
+    auroc.update_state(y_test_labels, predictions)
+    print(auroc.result())
 
-print(np.max(predictions[y_test_labels == 0]))
-print(predictions[y_test_labels == 1][:20])
+    print(np.max(predictions[y_test_labels == 0]))
+    print(predictions[y_test_labels == 1][:20])
 
-from sklearn.metrics import roc_curve, auc
-import matplotlib.pyplot as plt
+    from sklearn.metrics import roc_curve, auc
+    import matplotlib.pyplot as plt
 
-y_scores = predictions
+    y_scores = predictions
 
-fpr, tpr, thresholds = roc_curve(y_test_labels, y_scores, drop_intermediate=False)
-roc_auc = auc(fpr, tpr)
-print("sklearn AUROC:", roc_auc)
+    fpr, tpr, thresholds = roc_curve(y_test_labels, y_scores, drop_intermediate=False)
+    roc_auc = auc(fpr, tpr)
+    print("sklearn AUROC:", roc_auc)
 
-plt.figure(figsize=(7, 6))
-import matplotlib.pyplot as plt
-from matplotlib.collections import LineCollection
-import numpy as np
+    plt.figure(figsize=(7, 6))
+    import matplotlib.pyplot as plt
+    from matplotlib.collections import LineCollection
+    import numpy as np
 
-points = np.array([fpr, tpr]).T.reshape(-1, 1, 2)
-segments = np.concatenate([points[:-1], points[1:]], axis=1)
-norm_thresholds = thresholds
+    points = np.array([fpr, tpr]).T.reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+    norm_thresholds = thresholds
 
-lc = LineCollection(
-    segments,
-    cmap='viridis',
-    norm= plt.Normalize(vmin=0, vmax=1)
-)
-lc.set_array(norm_thresholds)
-lc.set_linewidth(2)
+    lc = LineCollection(
+        segments,
+        cmap='viridis',
+        norm= plt.Normalize(vmin=0, vmax=1)
+    )
+    lc.set_array(norm_thresholds)
+    lc.set_linewidth(2)
 
-fig, ax = plt.subplots(figsize=(7, 6))
-ax.add_collection(lc)
-plt.plot([0, 1], [0, 1], linestyle="--", linewidth=1)
+    fig, ax = plt.subplots(figsize=(7, 6))
+    ax.add_collection(lc)
+    plt.plot([0, 1], [0, 1], linestyle="--", linewidth=1)
 
-plt.xlabel("False Positive Rate")
-plt.ylabel("True Positive Rate")
-plt.title("AUROC Curve")
-plt.legend(loc="lower right")
-plt.grid(True)
-cbar = plt.colorbar(lc, ax=ax)
-cbar.set_label("Decision Threshold")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("AUROC Curve")
+    plt.legend(loc="lower right")
+    plt.grid(True)
+    cbar = plt.colorbar(lc, ax=ax)
+    cbar.set_label("Decision Threshold")
 
-plt.savefig(f'roc-curve-{MODE}-ae-{AE}.png')
-plt.show()
+    if GEN_OUTPUT:
+        plt.savefig(f'roc-curve-{MODE}-ae-{AE}.png')
+    plt.show()
 
-print(f1_score.result())
+    print(f1_score.result())
+
+print(history.history['loss'])
 
 
 
