@@ -377,12 +377,29 @@ Note: For all tests below, batches are stratified
 ---
 # 1/27/26
 ## Tasks
-- Can Keras/TensorFlow combine multiple outputs/losses into a single loss
+- Can Keras/TensorFlow combine multiple outputs/losses into a single loss $\checkmark$ (answer found below)
+	- Keras does not have a way to have a loss function that "takes in" multiple output branches
+	- Individual branch losses can be weighted using `loss_weights`
+	- A Keras [Callback](https://www.tensorflow.org/api_docs/python/tf/keras/callbacks/Callback) can be used to *track* multiple loss values at once, and manipulate them as needed
 - Decoupled with AE, use AE model for first stage, original model for second stage
 	- `StopGradient`?
-- Reimplement second stage compile?
-	-  Setters in `Model` for overrides of compile parameters and fit parameters
+- Reimplement second stage compile? $\checkmark$
+	-  Setters in `Model` for overrides of compile parameters and fit parameters $\checkmark$
 - Documentation overhaul
-- Comment for 2nd stage decoupled fit: `In the future, potentiall only second stage history is returned (final model history, not "temporary" model history)`
-- `generate_sample_weights` for regression can override function? Should be.
-- Use built-in early stopping for every entry on table
+- Comment for 2nd stage decoupled fit: `In the future, potentiall only second stage history is returned (final model history, not "temporary" model history)` $\checkmark$
+- `generate_sample_weights` for regression can override function? Should be. $\checkmark$
+- Use built-in early stopping for every entry on table $\checkmark$
+
+## Notes:
+- **ISSUE:** Stratified batching is currently incompatible with the `validation_split` parameter
+	- This is not necessarily an issue, as all `Dataset` objects are incompatible with `validation_split`, however, we are also supposed to be "hiding" stratified batching from the user
+	- Potential solution, automatically split when lists are provided and stratified batches is desired
+- **Fixed bug:** Stratified split (for `train`/`val` splitting) was very poorly implemented. I have a much better understanding of how NumPy arrays can/cannot be manipulated now.
+
+
+# 1/29/26
+
+## Tasks
+- Documentation overhaul
+- Decoupled with AE, use AE model for first stage, original model for second stage
+	- `StopGradient`?

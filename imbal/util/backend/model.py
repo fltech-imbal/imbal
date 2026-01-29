@@ -23,6 +23,9 @@ class Model(keras.Model):
         self._extended_model = None
         self._decoder_branch = None
 
+        self._second_stage_compile_kwargs = {}
+        self._second_stage_fit_kwargs = {}
+
     def fit(
         self,
         *args,
@@ -110,9 +113,14 @@ class Model(keras.Model):
             ) if model_metrics
             else ['mse']
         )
-        updated_compile_kwargs
 
         self._extended_model.compile(**updated_compile_kwargs)
+
+    def override_second_stage_compile_parameters(self, **kwargs):
+        self._second_stage_compile_kwargs = kwargs.copy()
+
+    def override_second_stage_fit_parameters(self, **kwargs):
+        self._second_stage_fit_kwargs = kwargs.copy()
 
     def generate_decoder_branch(self):
         """

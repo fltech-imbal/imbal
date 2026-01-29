@@ -89,9 +89,11 @@ def split(
             if w_test is not None:
                 w_test = np.array(w_test)[test_indices]
         if w_train is not None:
-            return SimpleDataset(x_train, y_train, w_train), SimpleDataset(x_test, y_test, w_test)
+            print(1)
+            return (x_train, y_train, w_train), (x_test, y_test, w_test)
         else:
-            return SimpleDataset(x_train, y_train), SimpleDataset(x_test, y_test)
+            print(2)
+            return (x_train, y_train), (x_test, y_test)
     else:
         if shuffle:
             rng = np.random.default_rng(seed)
@@ -110,7 +112,7 @@ def split(
                 random_state=seed,
                 stratify=y_set
             )
-            return SimpleDataset(x_train, y_train), SimpleDataset(x_test, y_test)
+            return (x_train, y_train), (x_test, y_test)
         else:
             x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(
                 x_set,
@@ -121,7 +123,7 @@ def split(
                 random_state=seed,
                 stratify=y_set
             )
-            return SimpleDataset(x_train, y_train, w_train), SimpleDataset(x_test, y_test, w_test)
+            return (x_train, y_train, w_train), (x_test, y_test, w_test)
 
 def _stratified_regression_split(
         x_set,
@@ -129,7 +131,12 @@ def _stratified_regression_split(
         sample_weights,
         test_size=None,
         train_size=None
-) -> list:
+):
+
+    exclude_weights = False
+    if sample_weights is None:
+        exclude_weights = True
+        sample_weights = np.ones(y_set.shape[0])
 
     if train_size is None:
         train_size = 1 - test_size
@@ -155,36 +162,53 @@ def _stratified_regression_split(
     train_split_arrays = []
     test_split_arrays = []
 
-    combined_arrays = np.array([x_set, y_set, sample_weights])
+    combined_arrays = [x_set, y_set, sample_weights]
 
     for i in range(array_length // batch_size):
-        batch = combined_arrays[:, i*batch_size:(i+1)*batch_size]
+        batch = [x[i*batch_size:(i+1)*batch_size] for x in combined_arrays]
         indices = np.arange(batch_size)
         np.random.shuffle(indices)
-        batch = batch[:, indices]
-        train_split_arrays.append(batch[:, :train_per_batch])
-        test_split_arrays.append(batch[:, train_per_batch:])
+        batch = [x[indices] for x in batch]
+        train_split_arrays.append([x[:train_per_batch] for x in batch])
+        test_split_arrays.append([x[train_per_batch:] for x in batch])
 
     if array_length / batch_size != round(array_length / batch_size):
-        batch = combined_arrays[:, array_length // batch_size * batch_size:]
+        batch = [x[array_length // batch_size * batch_size:] for x in combined_arrays]
         partial_batch_size = len(batch[0])
         partial_train = round(partial_batch_size * train_size)
         indices = np.arange(partial_batch_size)
         np.random.shuffle(indices)
-        batch = batch[:, indices]
-        train_split_arrays.append(batch[:, :partial_train])
+        batch = [x[indices] for x in batch]
+        train_split_arrays.append([x[:partial_train] for x in batch])
         if partial_train != partial_batch_size:
-            test_split_arrays.append(batch[:, partial_train:])
+            test_split_arrays.append([x[partial_train:] for x in batch])
 
-    train_split_arrays = np.concatenate(train_split_arrays, axis=1)
-    indices = np.arange(train_split_arrays.shape[1])
+    train_x = [x[0] for x in train_split_arrays]
+    train_y = [x[1] for x in train_split_arrays]
+    train_w = [x[2] for x in train_split_arrays]
+    train_x = np.concatenate(train_x)
+    train_y = np.concatenate(train_y)
+    train_w = np.concatenate(train_w)
+    indices = np.arange(train_x.shape[0])
     np.random.shuffle(indices)
-    train_split_arrays = train_split_arrays[:, indices]
+    train_x = train_x[indices]
+    train_y = train_y[indices]
+    train_w = train_w[indices]
 
-    test_split_arrays = np.concatenate(test_split_arrays, axis=1)
-    indices = np.arange(test_split_arrays.shape[1])
+    test_x = [x[0] for x in test_split_arrays]
+    test_y = [x[1] for x in test_split_arrays]
+    test_w = [x[2] for x in test_split_arrays]
+    test_x = np.concatenate(test_x)
+    test_y = np.concatenate(test_y)
+    test_w = np.concatenate(test_w)
+    indices = np.arange(test_x.shape[0])
     np.random.shuffle(indices)
-    test_split_arrays = test_split_arrays[:, indices]
+    test_x = test_x[indices]
+    test_y = test_y[indices]
+    test_w = test_w[indices]
 
-    return train_split_arrays.tolist() + test_split_arrays.tolist()
+    if exclude_weights:
+        return train_x, train_y, None, test_x, test_y, None
+    else:
+        return train_x, train_y, train_w, test_x, test_y, test_w
         

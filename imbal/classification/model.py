@@ -147,7 +147,7 @@ class Model(backend.Model):
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
 
-        return stage_one_history, stage_two_history
+        return stage_one_history, stage_two_history # In the future, potentially only second stage history is returned
 
     def cRT_fit(
         self,

@@ -2,38 +2,30 @@ import keras
 import tensorflow as tf
 from tensorflow.keras import layers
 import numpy as np
-import os, csv, math, time, imbal
+import os, math, time, imbal
 import matplotlib.pyplot as plt
 
 MODEL_TASK = 'regression'
 
-MODE = ''
-STRATIFY = False
+MODE = 'decoupled'
+STRATIFY = True
 AE = False
 REPRESENTATION_LAYER_INDEX = -4
 GEN_OUTPUT = True
 
 batch_size = 512
-epochs = 60
+epochs = 80
 LEARNING_RATE =2e-4
 
 TRAIN_SPLIT = 0.8
 
-def read_csv_to_list_of_lists(filepath):
-    data = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as csvfile:
-        csv_reader = csv.reader(csvfile)
-        for row in csv_reader:
-            data.append(row)
-    return data
-
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
+PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
 cropped_folder = os.path.join(PATH_START, 'AgeDB/cropped')
 
 print('loading data...')
-y_data = np.load(os.path.join(cropped_folder, 'age_labels.npy'))
+y_data = np.load(os.path.join(cropped_folder, 'age_labels.npy')).reshape(-1)
 x_data = np.load(os.path.join(cropped_folder, 'cropped_resized_images.npy'))
 print('data loaded!')
 
@@ -43,13 +35,23 @@ print(x_data.shape)
 plt.imshow(x_data[0])
 plt.show()
 
+print('min', y_data.min())
+print('max', y_data.max())
+
 y_train = y_data[:round(len(y_data)*TRAIN_SPLIT)]
 y_test = y_data[round(len(y_data)*TRAIN_SPLIT):]
 x_train = x_data[:round(len(x_data)*TRAIN_SPLIT)]
 x_test = x_data[round(len(x_data)*TRAIN_SPLIT):]
 
-y_train = np.array(y_train).reshape(-1, 1)
-y_test = np.array(y_test).reshape(-1, 1)
+y_train = np.array(y_train).reshape(-1)
+y_test = np.array(y_test).reshape(-1)
+
+print(type(x_train))
+
+if MODEL_TASK == 'regression':
+    (x_train, y_train), (x_val, y_val) = imbal.regression.split(x_train, y_train, test_size=0.25)
+else:
+    (x_train, y_train), (x_val, y_val) = imbal.classification.split(x_train, y_train, test_size=0.25)
 
 print('train')
 print(len(x_train))
@@ -93,7 +95,7 @@ model.compile(
     generate_decoder_branch=AE,
     representation_layer_index=REPRESENTATION_LAYER_INDEX
 )
-BIN_COUNT=32
+BIN_COUNT=98
 
 kde_bandwidth = imbal.regression.fit_kde(
     y_train,
@@ -242,7 +244,11 @@ history = fit_function(
     y_train,
     sample_weight=weights,
     batch_size=batch_size,
-    epochs=epochs
+    validation_data=(x_val, y_val),
+    epochs=epochs,
+    callbacks=[
+        keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+    ]
 )
 
 end = time.time()
@@ -254,13 +260,14 @@ model.evaluate(x_test, y_test)
 
 predictions = model.predict(x_test)
 
-kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=BIN_COUNT)
-imbal.regression.plot_kde_1d(
-    y_train,
-    kde_bandwidth,
-    bin_count=BIN_COUNT,
-    save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None,
-)
+# kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=BIN_COUNT)
+# imbal.regression.plot_kde_1d(
+#     y_train,
+#     kde_bandwidth,
+#     bin_count=BIN_COUNT,
+#     save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None,
+#     padding_factor=0.0001
+# )
 
 
 # plt.scatter(y_test, predictions)
@@ -305,7 +312,7 @@ predictions = predictions.reshape(-1,)
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
-y_test_labels = y_test
+y_test_labels = y_test.reshape(-1)
 predictions_labels = (predictions >= 0.5).astype(int)
 
 if MODEL_TASK == 'classification':
@@ -371,23 +378,25 @@ if MODEL_TASK == 'classification':
 
     print(f1_score.result())
 else:
-    y_rare_mask = y_test_labels > math.log(10)
-    y_common_mask = y_test_labels <= math.log(10)
+    y_rare_mask = (y_test_labels <= 18) | (y_test_labels >= 80)
+    y_common_mask = (y_test_labels > 18) & (y_test_labels < 80)
     plt.figure(figsize=(7, 6))
-    plt.plot([-2.5, 8], [-2.5, 8], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
+    plt.plot([-1, 200], [-1, 200], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
     plt.scatter(y_test_labels[y_common_mask], predictions.reshape(-1)[y_common_mask], color="blue", alpha=0.3)
     plt.scatter(y_test_labels[y_rare_mask], predictions.reshape(-1)[y_rare_mask], color="green", alpha=0.3)
-    plt.plot([-10, 10], [math.log(10), math.log(10)], color='red', linestyle="--")
+    plt.plot([-1, 200], [18, 18], color='red', linestyle="--")
+    plt.plot([-1, 200], [80, 80], color='red', linestyle="--")
     plt.xlabel("True Label")
     plt.ylabel("Predicted Label")
-    plt.xlim(-2.5, 8.5)
-    plt.ylim(-2.5, 8.5)
+    plt.xlim(0, 102)
+    plt.ylim(0, 102)
     if GEN_OUTPUT:
         plt.savefig(f'regression-true-pred-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png')
     plt.show()
 
-    mask = y_test <= math.log(10)
-    rare_mask = y_test > math.log(10)
+    mask = (y_test > 18) & (y_test < 80)
+    rare_mask = (y_test <= 18) | (y_test >= 80)
+
     common_predictions = predictions[mask]
     rare_predictions = predictions[rare_mask]
 

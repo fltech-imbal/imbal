@@ -135,18 +135,25 @@ class Model(backend.Model):
             for layer in self._decoder_branch:
                 layer.trainable = False
 
+        second_stage_compile_parameters = self._compile_kwargs.copy()
+        second_stage_compile_parameters.update(self._second_stage_compile_kwargs)
+        training_model.compile(second_stage_compile_parameters)
+
+        second_stage_fit_kwargs = kwargs.copy()
+        second_stage_fit_kwargs['epochs'] = second_train_epochs
+        second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
+
         stage_two_history = training_model.balanced_fit(
             x,
             y,
-            epochs=second_train_epochs,
-            **kwargs
+            **second_stage_fit_kwargs
         )
 
         self.trainable = True
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
 
-        return stage_one_history, stage_two_history
+        return stage_one_history, stage_two_history # In the future, potentially only second stage history is returned
 
     def cRT_fit(
         self,
