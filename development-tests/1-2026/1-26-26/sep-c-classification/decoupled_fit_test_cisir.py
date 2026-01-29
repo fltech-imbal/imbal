@@ -1,17 +1,24 @@
 import keras
+import tensorflow as tf
 from tensorflow.keras import layers
 import numpy as np
 import os, csv, math, time, imbal
 
-MODEL_TASK = 'regression'
+MODEL_TASK = 'classification'
 
-MODE = ''
-STRATIFY = False
-AE = False
-GEN_OUTPUT = False
+MODE = 'decoupled'
+STRATIFY = True
+AE = True
+REPRESENTATION_LAYER_INDEX = -4
+GEN_OUTPUT = True
+
+batch_size = 512
+epochs = 860
+LEARNING_RATE =2e-4
+
 
 num_classes = 10
-REPRESENTATION_LAYER_INDEX = -2
+
 DATASET_PERCENTAGE = 0.8
 TRAIN_SPLIT = 0.8
 
@@ -103,6 +110,7 @@ input_shape = (NUM_FEATURES,)
 inputs = keras.Input(shape=input_shape)
 x = layers.Dense(18, activation='relu')(inputs)
 x = layers.Dense(9, activation='relu')(x)
+x = layers.Flatten()(x)
 x = layers.Dense(5, activation='relu')(x)
 x = layers.Flatten()(x)
 output = layers.Dense(1, activation='sigmoid' if MODEL_TASK == 'classification' else 'linear')(x)
@@ -115,16 +123,13 @@ model = (
 
 model.summary()
 
-batch_size = 512
-epochs = 200
-
 print('number of layers', len(model.layers))
 
 auc = keras.metrics.AUC(multi_label=True)
 
 model.compile(
     loss="binary_crossentropy" if MODEL_TASK == 'classification' else 'mse',
-    optimizer=keras.optimizers.Adam(learning_rate=5e-5),
+    optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
     metrics=["accuracy" if MODEL_TASK == 'classification' else "mse"],
     stratify_batches=STRATIFY,
     generate_decoder_branch=AE,
@@ -141,9 +146,117 @@ densities = imbal.regression.get_sample_densities(
     kde_bandwidth,
 )
 
+fit_function = model.fit
+if MODE == 'balanced':
+    fit_function = model.balanced_fit
+if MODE == 'decoupled':
+    fit_function = model.decoupled_fit
+
+def determine_ideal_epochs(
+    in_model,
+    x,
+    y,
+    sample_weight=None,
+    validation_split=0.2,
+    delta = 0,
+    patience = 10,
+    max_epochs=10000
+):
+
+    in_model.save_weights('initial.weights.h5')
+    TRIALS = 5
+    epochs = 0
+    for i in range(TRIALS):
+
+        common_x_train = x_train[y_train < math.log(10)]
+        rare_x_train = x_train[y_train > math.log(10)]
+        common_y_train = y_train[y_train < math.log(10)]
+        rare_y_train = y_train[y_train > math.log(10)]
+
+        common_permutation = np.random.permutation(len(common_y_train))
+        common_x_train = common_x_train[common_permutation]
+        common_y_train = common_y_train[common_permutation]
+
+        rare_permutation = np.random.permutation(len(rare_y_train))
+        rare_x_train = rare_x_train[rare_permutation]
+        rare_y_train = rare_y_train[rare_permutation]
+
+        common_x_val = common_x_train[round(len(common_x_train)*.8):]
+        common_x_train = common_x_train[:round(len(common_x_train) * .8)]
+        rare_x_val = rare_x_train[round(len(rare_x_train) * .8):]
+        rare_x_train = rare_x_train[:round(len(rare_x_train) * .8)]
+        common_y_val = common_y_train[round(len(common_y_train) * .8):]
+        common_y_train = common_y_train[:round(len(common_y_train) * .8)]
+        rare_y_val = rare_y_train[round(len(rare_y_train) * .8):]
+        rare_y_train = rare_y_train[:round(len(rare_y_train) * .8)]
+
+        final_x_train = np.concatenate((common_x_train, rare_x_train))
+        final_y_train = np.concatenate((common_y_train, rare_y_train))
+        final_x_val = np.concatenate((common_x_val, rare_x_val))
+        final_y_val = np.concatenate((common_y_val, rare_y_val))
+
+        train_permutation = np.random.permutation(len(final_x_train))
+        val_permutation = np.random.permutation(len(final_x_val))
+
+        final_x_train = final_x_train[train_permutation]
+        final_y_train = final_y_train[train_permutation]
+        final_x_val = final_x_val[val_permutation]
+        final_y_val = final_y_val[val_permutation]
+
+        assert len(final_x_train) == len(final_y_train)
+        assert len(final_x_val) == len(final_y_val)
+
+        train_dataset = imbal.classification.DatasetWithBatching(
+            final_x_train,
+            final_y_train,
+            batch_size=batch_size
+        )
+        val_dataset = imbal.classification.DatasetWithBatching(
+            final_x_val,
+            final_y_val,
+            batch_size=batch_size
+        )
+
+
+        stopper = tf.keras.callbacks.EarlyStopping(
+            monitor='val_loss',
+            min_delta=delta,
+            patience=patience
+        )
+        in_model.compile(
+            loss="binary_crossentropy" if MODEL_TASK == 'classification' else 'mse',
+            optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+            metrics=["accuracy" if MODEL_TASK == 'classification' else "mse"],
+            stratify_batches=STRATIFY,
+            generate_decoder_branch=AE,
+            representation_layer_index=REPRESENTATION_LAYER_INDEX
+        )
+        history = in_model.fit(
+            train_dataset,
+            batch_size=batch_size,
+            validation_data=val_dataset,
+            sample_weight=sample_weight,
+            epochs=max_epochs,
+            callbacks=[stopper]
+        )
+        epochs += len(history.history['loss']) - patience
+        in_model.load_weights('initial.weights.h5')
+
+    return round(epochs / TRIALS)
+
+
+# print(f'\n\n\nTESTING\n\n{determine_ideal_epochs(
+#     model,
+#     x_train,
+#     y_train,
+#     patience=20,
+#     delta=0
+# )}\n\n\n')
+
 history = None
 
 start = time.time()
+weights = np.ones(x_train.shape[0])
 if MODE == 'decoupled':
     bandwidth = imbal.regression.fit_kde(
         y_train,
@@ -154,14 +267,6 @@ if MODE == 'decoupled':
         bandwidth
     )
     weights = imbal.regression.generate_sample_weights(densities)
-
-    history, _ = model.decoupled_fit(
-        x_train,
-        y_train,
-        sample_weight=weights,
-        epochs=epochs,
-        batch_size=batch_size
-    )
 
 elif MODE == 'balanced':
     bandwidth = imbal.regression.fit_kde(
@@ -174,20 +279,13 @@ elif MODE == 'balanced':
     )
     weights = imbal.regression.generate_sample_weights(densities)
 
-    history = model.balanced_fit(
-        x_train,
-        y_train,
-        sample_weight=weights,
-        epochs=epochs,
-        batch_size=batch_size,
-    )
-else:
-    history = model.fit(
-        x_train,
-        y_train,
-        batch_size=batch_size,
-        epochs=epochs
-    )
+history = fit_function(
+    x_train,
+    y_train,
+    sample_weight=weights,
+    batch_size=batch_size,
+    epochs=epochs
+)
 
 end = time.time()
 
@@ -231,7 +329,7 @@ if MODEL_TASK == 'classification':
         x_test,
         y_test,
         representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f'tsne_visualization-{MODE}-ae-{AE}.png' if GEN_OUTPUT else None,
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
     )
 else:
     imbal.regression.tsne_visualization(
@@ -239,25 +337,13 @@ else:
         x_test,
         y_test,
         representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f'tsne_visualization-{MODE}-ae-{AE}.png' if GEN_OUTPUT else None,
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
     )
 
 
 predictions = predictions.reshape(-1,)
 
-# mask = (y_test >= common_range[0]) & (y_test <= common_range[1])
-# rare_mask = (y_test < common_range[0]) | (y_test > common_range[1])
-# common_predictions = predictions[mask]
-# rare_predictions = predictions[rare_mask]
-#
-# common_labels = y_test[mask]
-# rare_labels = y_test[rare_mask]
-#
-# mse_common = np.mean(np.square(common_predictions - common_labels))
-# mse_rare = np.mean(np.square(rare_predictions - rare_labels))
-#
-# print('common', f'{mse_common:.5f}')
-# print('rare', f'{mse_rare:.5f}')
+
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
@@ -270,10 +356,9 @@ if MODEL_TASK == 'classification':
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Negative", "Positive"])
     disp.plot()
     if GEN_OUTPUT:
-        plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}.png')
+        plt.savefig(f'confusion-matrix-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png')
     plt.show()
 
-    import tensorflow as tf
     f1_score = tf.keras.metrics.F1Score(threshold=0.5)
     f1_score.update_state(y_test_labels.reshape(-1, 1), predictions.reshape(-1, 1))
 
@@ -326,11 +411,42 @@ if MODEL_TASK == 'classification':
     cbar.set_label("Decision Threshold")
 
     if GEN_OUTPUT:
-        plt.savefig(f'roc-curve-{MODE}-ae-{AE}.png')
+        plt.savefig(f'roc-curve-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png')
     plt.show()
 
     print(f1_score.result())
+else:
+    y_rare_mask = y_test_labels > math.log(10)
+    y_common_mask = y_test_labels <= math.log(10)
+    plt.figure(figsize=(7, 6))
+    plt.plot([-2.5, 8], [-2.5, 8], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
+    plt.scatter(y_test_labels[y_common_mask], predictions.reshape(-1)[y_common_mask], color="blue", alpha=0.3)
+    plt.scatter(y_test_labels[y_rare_mask], predictions.reshape(-1)[y_rare_mask], color="green", alpha=0.3)
+    plt.plot([-10, 10], [math.log(10), math.log(10)], color='red', linestyle="--")
+    plt.xlabel("True Label")
+    plt.ylabel("Predicted Label")
+    plt.xlim(-2.5, 8.5)
+    plt.ylim(-2.5, 8.5)
+    if GEN_OUTPUT:
+        plt.savefig(f'regression-true-pred-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png')
+    plt.show()
 
+    mask = y_test <= math.log(10)
+    rare_mask = y_test > math.log(10)
+    common_predictions = predictions[mask]
+    rare_predictions = predictions[rare_mask]
+
+    common_labels = y_test[mask]
+    rare_labels = y_test[rare_mask]
+
+    mse_common = np.mean(np.square(common_predictions - common_labels))
+    mse_rare = np.mean(np.square(rare_predictions - rare_labels))
+
+    print('common', f'{mse_common:.5f}')
+    print('rare', f'{mse_rare:.5f}')
+
+if MODE == 'decoupled':
+    history = history[0]
 print(history.history['loss'])
 
 

@@ -283,15 +283,14 @@ the end of Spring)
 - Extend `model.compile` to have batch stratification, decoder branch generation, representation layer index $\checkmark$
 	- Big changes for all fit functions $\checkmark$
 - Remove `label_to_kde_weights` $\checkmark$
-- - `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.`
-	- Image/tabular classification/regression for cRT/rRT fit w/o AE, comparing second and third to last layer as representation layer.
-	- Simplify models to do this
-	- SEP-C for regression, `AgeDB` for classification
+- `Besides the default is the second last trainable layer, for the examples, show one can choose another layer such as the third last trainable layer, and compare the performance with default.` $\checkmark$
+	- Image/tabular classification/regression for cRT/rRT fit w/o AE, comparing second and third to last layer as representation layer. $\checkmark$
+	- Simplify models to do this $\checkmark$
+	- SEP-C for tabular, `AgeDB` for image $\checkmark$
 - Tracking version number with GitHub? `0.2.0`? $\checkmark$
 	- As I thought, there are not built-in GitHub tools to track version number without using things like Releases.
-
 ## Notes:
-- Functions\classes removed with introduction of `Model` objects
+- Functions/classes removed with introduction of `Model` objects
 	- `imbal.util.backend.balanced_fit`
 	- `imbal.util.backend.RT_fit`
 	- `imbal.util.backend.generate_decoder_branch`
@@ -303,6 +302,87 @@ the end of Spring)
 	- `imbal.util.wrap_model_compile_parameters`
 	- `imbal.classification.wrap_model_compile_parameters`
 	- `imbal.regression.wrap_model_compile_parameters`
-
+- Additionally, got rid of the following functions/classes, as we decided that the user should handle KDE fit on their end (a decision made a while ago, these things were just left over):
+	- `imbal.util.KDEFitParameters`
+	- `imbal.util.wrap_kde_fit_parameters`
+	
+- How the new `Model` objects work:
+	- instance `imbal.classification.Model` for classification tasks and `imbal.regression.Model` for regression tasks
+	- instead of calling the `balanced_fit` or `cRT_fit/rRT_fit` as a function that takes the model as a parameter, now you just call the respective function on the `Model` object.
+	- You no longer need to pass "wrapped" compile parameters to `cRT_fit/rRT_fit`. Simply just compile the model as you would a standard Keras model with `model.compile()`
+	- The `balacned_fit` and `cRT_fit/rRT_fit` functions no longer take the  `stratify_batches`, `generate_decoder_branch`, and `representation_layer_index` parameters. Instead, those parameters are passed to `model.compile()`, along with your standard parameters (loss function, metrics, optimizer, etc.)
+	- `model.fit()` and `model.balanced_fit()` now return the training history as you suggested. A notable difference is that `model.cRT_fit/rRT_fit()` returns a tuple `(history_one, history_two)`, where each history object corresponds to training during the first and second stages of the decoupled fit.
 ## Questions:
 - When going through documentation, should `SimpleDataset` be scrapped? It seems redundant at this point
+
+---
+Note: For all tests below, batches are stratified
+## Regression on SEP-C
+
+| Method               | Representation Layer | Epochs      | Time (s)  | Frequent MSE | Rare MSE     |
+| -------------------- | -------------------- | ----------- | --------- | ------------ | ------------ |
+| ==Regular w/o AE==   | ==N/A==              | ==860==     | ==65.89== | ==0.30116==  | ==14.74428== |
+| ==Balanced w/o AE==  | ==N/A==              | ==860==     | ==61.57== | ==5.72073==  | ==6.32313==  |
+| ==Decoupled w/o AE== | ==-2==               | ==860/430== | ==98.77== | ==4.60359==  | ==6.67858==  |
+| ==Decoupled w/o AE== | ==-3==               | ==860/430== | ==76.28== | ==2.97698==  | ==6.18235==  |
+| Regular w/ AE        | -2                   | 860         | 48.65     | 0.22234      | 13.98958     |
+| Balanced w/ AE       | -2                   | 860         | 39.32     | 5.39804      | 5.47570      |
+| Decoupled w/ AE      | -2                   | 860/430     | 178.07    | 0.47254      | 8.20019      |
+| Regular w/ AE        | -3                   | 860         | 28.51     | 0.28898      | 17.80652     |
+| Balanced w/ AE       | -3                   | 860         | 28.34     | 4.42195      | 5.85295      |
+| Decoupled w/ AE      | -3                   | 860/430     | 85.34     | 0.52858      | 8.69111      |
+## Classification on SEP-C
+
+| Method           | Representation Layer | Epochs  | Time (s) | Rare F1 | Rare AUROC |
+| ---------------- | -------------------- | ------- | -------- | ------- | ---------- |
+| ==Regular w/o AE==   | ==N/A==                  | ==860==     | ==25.64==    | ==0.0==     | ==0.87869==    |
+| ==Balanced w/o AE==  | ==N/A==                  | ==860==     | ==31.91==    | ==0.53333== | ==0.80379==    |
+| ==Decoupled w/o AE== | ==-2==                   | ==860/430== | ==37.18==    | ==0.57142== | ==0.68565==    |
+| ==Decoupled w/o AE== | ==-3==                   | ==860/430== | ==37.76==    | ==0.62499== | ==0.85126==    |
+| Regular w/ AE    | -2                   | 860     | 28.11    | 0.39999 | 0.80221    |
+| Balanced w/ AE   | -2                   | 860     | 28.92    | 0.58823 | 0.82014    |
+| Decoupled w/ AE  | -2                   | 860/430 | 85.37    | 0.19999 | 0.80590    |
+| Regular w/ AE    | -3                   | 860     | 28.48    | 0.54545 | 0.85126    |
+| Balanced w/ AE   | -3                   | 860     | 28.17    | 0.49999 | 0.75949    |
+| Decoupled w/ AE  | -3                   | 860/430 | 85.75    | 0.61538 | 0.90928    |
+## Regression on `AgeDB`
+
+| Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
+| ---------------- | -------------------- | ------ | -------- | ------- | ---------- |
+| Regular w/o AE   | N/A                  |        |          |         |            |
+| Balanced w/o AE  | N/A                  |        |          |         |            |
+| Decoupled w/o AE | -2                   |        |          |         |            |
+| Decoupled w/o AE | -3                   |        |          |         |            |
+| Regular w/ AE    | -2                   |        |          |         |            |
+| Balanced w/ AE   | -2                   |        |          |         |            |
+| Decoupled w/ AE  | -2                   |        |          |         |            |
+| Regular w/ AE    | -3                   |        |          |         |            |
+| Balanced w/ AE   | -3                   |        |          |         |            |
+| Decoupled w/ AE  | -3                   |        |          |         |            |
+## Classification on `AgeDB`
+
+| Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
+| ---------------- | -------------------- | ------ | -------- | ------- | ---------- |
+| Regular w/o AE   | N/A                  |        |          |         |            |
+| Balanced w/o AE  | N/A                  |        |          |         |            |
+| Decoupled w/o AE | -2                   |        |          |         |            |
+| Decoupled w/o AE | -3                   |        |          |         |            |
+| Regular w/ AE    | -2                   |        |          |         |            |
+| Balanced w/ AE   | -2                   |        |          |         |            |
+| Decoupled w/ AE  | -2                   |        |          |         |            |
+| Regular w/ AE    | -3                   |        |          |         |            |
+| Balanced w/ AE   | -3                   |        |          |         |            |
+| Decoupled w/ AE  | -3                   |        |          |         |            |
+
+---
+# 1/27/26
+## Tasks
+- Can Keras/TensorFlow combine multiple outputs/losses into a single loss
+- Decoupled with AE, use AE model for first stage, original model for second stage
+	- `StopGradient`?
+- Reimplement second stage compile?
+	-  Setters in `Model` for overrides of compile parameters and fit parameters
+- Documentation overhaul
+- Comment for 2nd stage decoupled fit: `In the future, potentiall only second stage history is returned (final model history, not "temporary" model history)`
+- `generate_sample_weights` for regression can override function? Should be.
+- Use built-in early stopping for every entry on table

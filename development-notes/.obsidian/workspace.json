@@ -8,17 +8,17 @@
         "type": "tabs",
         "children": [
           {
-            "id": "10b9777023201082",
+            "id": "8e618089c67b810b",
             "type": "leaf",
             "pinned": true,
             "state": {
               "type": "pdf",
               "state": {
-                "file": "Original PDF.pdf"
+                "file": "Proposal PDF.pdf"
               },
               "pinned": true,
               "icon": "lucide-file-text",
-              "title": "Original PDF"
+              "title": "Proposal PDF"
             }
           },
           {
@@ -184,7 +184,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9cc31fa7d4918164",
+  "active": "880201156760e452",
   "lastOpenFiles": [
     "Proposal PDF.pdf",
     "Notes 1-26.md",

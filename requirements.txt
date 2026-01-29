@@ -1,3 +1,4 @@
+opencv-python
 keras-nightly
 absl-py==2.3.1
 anyio==4.10.0

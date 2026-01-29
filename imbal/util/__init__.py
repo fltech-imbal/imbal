@@ -1,3 +1,2 @@
 from .simple_dataset import SimpleDataset
 from .get_representation_layer_index import get_representation_layer_index
-from .kde_fit_parameters import KDEFitParameters, wrap_kde_fit_parameters
