@@ -5,12 +5,12 @@ import cv2
 
 from PIL import Image
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 PADDING = 10
 ADDITIONAL_TOP_PADDING = 50
-SCALE_FACTOR = 2
+SCALE_FACTOR = 1
 
-print(PATH_START)
+print(os.getcwd())
 age_db_path = os.path.join(PATH_START, 'AgeDB/03_Protocol_Images/03_Protocol_Images')
 save_output_path = os.path.join(PATH_START, 'AgeDB/cropped')
 
@@ -53,6 +53,10 @@ average_dims = np.mean(np.array(image_sizes), axis=0)
 average_y = round(average_dims[0])
 average_x = round(average_dims[1])
 
+# OVERRIDE
+average_y = 112
+average_x = 88
+
 print('resizing images...')
 
 images_resized = np.array([
@@ -61,5 +65,5 @@ images_resized = np.array([
     for img in images
 ])
 
-print('saving resized image pickle...')
+print('saving resized images...')
 np.save(os.path.join(save_output_path, 'cropped_resized_images.npy'), images_resized)

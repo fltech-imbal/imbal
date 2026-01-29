@@ -7,19 +7,20 @@ import matplotlib.pyplot as plt
 
 MODEL_TASK = 'regression'
 
-MODE = 'decoupled'
+MODE = ''
 STRATIFY = True
-AE = False
-REPRESENTATION_LAYER_INDEX = -4
+AE = True
+REPRESENTATION_LAYER_INDEX = -2
 GEN_OUTPUT = True
 
 batch_size = 512
-epochs = 80
+epochs = 800
 LEARNING_RATE =2e-4
+STOPPING_PATIENCE=15
 
 TRAIN_SPLIT = 0.8
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
 cropped_folder = os.path.join(PATH_START, 'AgeDB/cropped')
@@ -60,19 +61,11 @@ print('test')
 print(len(x_test))
 print(y_test.shape)
 
-inputs = keras.Input(shape=(None, None, 3))
-x = layers.Conv2D(32, (3, 3), strides=(2, 2), activation='relu', padding='same')(inputs)
-x = layers.MaxPooling2D((2, 2), padding='same')(x)
-x = layers.Conv2D(64, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
-x = layers.MaxPooling2D((2, 2), padding='same')(x)
-x = layers.Conv2D(128, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
-x = layers.MaxPooling2D((2, 2), padding='same')(x)
-x = layers.Conv2D(256, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
-x = layers.MaxPooling2D((2, 2), padding='same')(x)
-x = layers.GlobalAveragePooling2D()(x)
+inputs = keras.Input(shape=(112, 88, 3))
+x = layers.Conv2D(16, (3, 3), activation='relu', padding='same', strides=(2, 2))(inputs)
+x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
+x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
 x = layers.Flatten()(x)
-x = layers.Dense(64, activation='relu')(x)
-x = layers.Dense(32, activation='relu')(x)
 output = layers.Dense(1, activation='sigmoid' if MODEL_TASK == 'classification' else 'linear')(x)
 
 model = (
@@ -237,6 +230,7 @@ elif MODE == 'balanced':
         y_train,
         bandwidth
     )
+    model.override_second_stage_fit_parameters(callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=STOPPING_PATIENCE)])
     weights = imbal.regression.generate_sample_weights(densities)
 
 history = fit_function(
@@ -247,7 +241,7 @@ history = fit_function(
     validation_data=(x_val, y_val),
     epochs=epochs,
     callbacks=[
-        keras.callbacks.EarlyStopping(monitor='val_loss', patience=5)
+        keras.callbacks.EarlyStopping(monitor='val_loss', patience=STOPPING_PATIENCE)
     ]
 )
 

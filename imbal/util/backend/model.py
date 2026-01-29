@@ -168,11 +168,12 @@ class Model(keras.Model):
         if last_block_end_index != len(reverse_model) - 1:
             ae_blocks.append(reverse_model[last_block_end_index:-1][::-1])
 
-        # print('\n----- FOUND BLOCKS -----\n')  # Debug, delete later
-        # for block in ae_blocks:
-        #     print('----- BLOCK -----')
-        #     for layer in block:
-        #         print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
+        print('\n----- FOUND BLOCKS -----\n')  # Debug, delete later
+        for block in ae_blocks:
+            print('----- BLOCK -----')
+            for layer in block:
+                print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
+        print('\n\n')
 
         # Perform per-layer conversions (i.e. Conv2D to Conv2DTranspose)
         # within each block
@@ -183,7 +184,7 @@ class Model(keras.Model):
             reshape_layer = keras.layers.Reshape(current_input_shape,
                                                  name=f'imbal_auto_generated_ae_safeguard_reshape_block_{block_index}')
             current_ae_block.append(reshape_layer)
-            # print('----- BLOCK -----')  # Debug, delete later
+            print('----- BLOCK -----')  # Debug, delete later
             for layer_index, layer in enumerate(block):
                 new_layer = None
                 config = layer.get_config()
@@ -193,11 +194,18 @@ class Model(keras.Model):
                     config.pop('groups', None)
                     config['filters'] = round(config['filters'] * layer_shape_change)
                     new_layer = keras.layers.Conv2DTranspose(**config)
-                if isinstance(layer, keras.layers.Conv2DTranspose):
+                elif isinstance(layer, keras.layers.Conv2DTranspose):
                     layer_shape_change = layer.input.shape[-1] / layer.output.shape[-1]
                     config['filters'] = round(config['filters'] * layer_shape_change)
                     new_layer = keras.layers.Conv2D(**config)
-                if isinstance(layer, keras.layers.Dense):
+                elif isinstance(layer, keras.layers.MaxPooling2D):
+                    config.pop('groups', None)
+                    config['strides'] = layer.strides
+                    config.pop('pool_size', None)
+                    config['kernel_size'] = layer.pool_size
+                    config['filters'] = round(block[layer_index-1].get_config()['filters'])
+                    new_layer = keras.layers.Conv2DTranspose(**config)
+                elif isinstance(layer, keras.layers.Dense):
                     units = layer.input.shape[-1]
                     config['units'] = units
                     new_layer = keras.layers.Dense(**config)
@@ -210,8 +218,8 @@ class Model(keras.Model):
                 if new_layer is None:
                     raise RuntimeError(f'Unable to perform AE conversion of layer {layer}')
 
-                # print(f'\t{new_layer}')  # Debug, delete later
-                # print(f'\t\t{new_layer.get_config()}')  # Debug, delete later
+                print(f'\t{new_layer}')  # Debug, delete later
+                print(f'\t\t{new_layer.get_config()}')  # Debug, delete later
 
                 current_ae_block.append(new_layer)
             ae_branch_blocks.append(current_ae_block)
@@ -220,20 +228,22 @@ class Model(keras.Model):
         # and normalization layers can sometimes prevent reaching the goal reconstruction)
         refined_last_block = []
         for layer in ae_branch_blocks[-1]:
-            if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer'):
+            if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')\
+                    or isinstance(layer, keras.layers.MaxPooling2D):
                 refined_last_block.append(layer)
         ae_branch_blocks[-1] = refined_last_block
 
-        # print('\n----- AE CONVERSION -----\n')  # Debug, delete later
-        # for block in ae_branch_blocks:
-        #     print('----- BLOCK -----')
-        #     for layer in block:
-        #         print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
+        print('\n----- AE CONVERSION -----\n')  # Debug, delete later
+        for block in ae_branch_blocks:
+            print('----- BLOCK -----')
+            for layer in block:
+                print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
 
         # Connect final layer structure
         ae_layer_list = [layer for block in ae_branch_blocks for layer in block]
         last_layer = self.layers[representation_layer_index]
         for layer in ae_layer_list:
+            print(last_layer.output.shape)
             layer(last_layer.output)
             last_layer = layer
 

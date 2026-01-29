@@ -395,11 +395,9 @@ Note: For all tests below, batches are stratified
 	- This is not necessarily an issue, as all `Dataset` objects are incompatible with `validation_split`, however, we are also supposed to be "hiding" stratified batching from the user
 	- Potential solution, automatically split when lists are provided and stratified batches is desired
 - **Fixed bug:** Stratified split (for `train`/`val` splitting) was very poorly implemented. I have a much better understanding of how NumPy arrays can/cannot be manipulated now.
-
-
 # 1/29/26
-
 ## Tasks
 - Documentation overhaul
+- Refactoring / rewrite of `generate_decoder_branch`
 - Decoupled with AE, use AE model for first stage, original model for second stage
 	- `StopGradient`?
