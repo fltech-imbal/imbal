@@ -99,14 +99,16 @@ class Model(backend.Model):
         else:
             first_train_epochs = epochs
             second_train_epochs = math.ceil(epochs / 2)
-
         if self._generate_decoder_branch:
             training_model = self._extended_model
             y = [y, x]
+            if kwargs.get('validation_data', None) is not None:
+                val_x, val_y = kwargs['validation_data']
+                kwargs['validation_data'] = (val_x, [val_y, val_x])
 
         stage_one_history = training_model.fit(
             x,
-            y,
+            y.reshape(-1),
             epochs=first_train_epochs,
             **kwargs
         )

@@ -319,46 +319,46 @@ the end of Spring)
 Note: For all tests below, batches are stratified
 ## Regression on SEP-C
 
-| Method               | Representation Layer | Epochs      | Time (s)  | Frequent MSE | Rare MSE     |
-| -------------------- | -------------------- | ----------- | --------- | ------------ | ------------ |
-| ==Regular w/o AE==   | ==N/A==              | ==860==     | ==65.89== | ==0.30116==  | ==14.74428== |
-| ==Balanced w/o AE==  | ==N/A==              | ==860==     | ==61.57== | ==5.72073==  | ==6.32313==  |
-| ==Decoupled w/o AE== | ==-2==               | ==860/430== | ==98.77== | ==4.60359==  | ==6.67858==  |
-| ==Decoupled w/o AE== | ==-3==               | ==860/430== | ==76.28== | ==2.97698==  | ==6.18235==  |
-| Regular w/ AE        | -2                   | 860         | 48.65     | 0.22234      | 13.98958     |
-| Balanced w/ AE       | -2                   | 860         | 39.32     | 5.39804      | 5.47570      |
-| Decoupled w/ AE      | -2                   | 860/430     | 178.07    | 0.47254      | 8.20019      |
-| Regular w/ AE        | -3                   | 860         | 28.51     | 0.28898      | 17.80652     |
-| Balanced w/ AE       | -3                   | 860         | 28.34     | 4.42195      | 5.85295      |
-| Decoupled w/ AE      | -3                   | 860/430     | 85.34     | 0.52858      | 8.69111      |
+| Method               | Representation Layer | Epochs | Time (s) | Frequent MSE | Rare MSE |
+| -------------------- | -------------------- | ------ | -------- | ------------ | -------- |
+| ==Regular w/o AE==   | ==N/A==              | 1057   | 66.42    | 0.313        | 17.279   |
+| ==Balanced w/o AE==  | ==N/A==              |        |          |              |          |
+| ==Decoupled w/o AE== | ==-2==               |        |          |              |          |
+| ==Decoupled w/o AE== | ==-3==               |        |          |              |          |
+| Regular w/ AE        | -2                   |        |          |              |          |
+| Balanced w/ AE       | -2                   |        |          |              |          |
+| Decoupled w/ AE      | -2                   |        |          |              |          |
+| Regular w/ AE        | -3                   |        |          |              |          |
+| Balanced w/ AE       | -3                   |        |          |              |          |
+| Decoupled w/ AE      | -3                   |        |          |              |          |
 ## Classification on SEP-C
 
-| Method           | Representation Layer | Epochs  | Time (s) | Rare F1 | Rare AUROC |
-| ---------------- | -------------------- | ------- | -------- | ------- | ---------- |
-| ==Regular w/o AE==   | ==N/A==                  | ==860==     | ==25.64==    | ==0.0==     | ==0.87869==    |
-| ==Balanced w/o AE==  | ==N/A==                  | ==860==     | ==31.91==    | ==0.53333== | ==0.80379==    |
-| ==Decoupled w/o AE== | ==-2==                   | ==860/430== | ==37.18==    | ==0.57142== | ==0.68565==    |
-| ==Decoupled w/o AE== | ==-3==                   | ==860/430== | ==37.76==    | ==0.62499== | ==0.85126==    |
-| Regular w/ AE    | -2                   | 860     | 28.11    | 0.39999 | 0.80221    |
-| Balanced w/ AE   | -2                   | 860     | 28.92    | 0.58823 | 0.82014    |
-| Decoupled w/ AE  | -2                   | 860/430 | 85.37    | 0.19999 | 0.80590    |
-| Regular w/ AE    | -3                   | 860     | 28.48    | 0.54545 | 0.85126    |
-| Balanced w/ AE   | -3                   | 860     | 28.17    | 0.49999 | 0.75949    |
-| Decoupled w/ AE  | -3                   | 860/430 | 85.75    | 0.61538 | 0.90928    |
+| Method               | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
+| -------------------- | -------------------- | ------ | -------- | ------- | ---------- |
+| ==Regular w/o AE==   | ==N/A==              |        |          |         |            |
+| ==Balanced w/o AE==  | ==N/A==              |        |          |         |            |
+| ==Decoupled w/o AE== | ==-2==               |        |          |         |            |
+| ==Decoupled w/o AE== | ==-3==               |        |          |         |            |
+| Regular w/ AE        | -2                   |        |          |         |            |
+| Balanced w/ AE       | -2                   |        |          |         |            |
+| Decoupled w/ AE      | -2                   |        |          |         |            |
+| Regular w/ AE        | -3                   |        |          |         |            |
+| Balanced w/ AE       | -3                   |        |          |         |            |
+| Decoupled w/ AE      | -3                   |        |          |         |            |
 ## Regression on `AgeDB`
 
-| Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
-| ---------------- | -------------------- | ------ | -------- | ------- | ---------- |
-| Regular w/o AE   | N/A                  |        |          |         |            |
-| Balanced w/o AE  | N/A                  |        |          |         |            |
-| Decoupled w/o AE | -2                   |        |          |         |            |
-| Decoupled w/o AE | -3                   |        |          |         |            |
-| Regular w/ AE    | -2                   |        |          |         |            |
-| Balanced w/ AE   | -2                   |        |          |         |            |
-| Decoupled w/ AE  | -2                   |        |          |         |            |
-| Regular w/ AE    | -3                   |        |          |         |            |
-| Balanced w/ AE   | -3                   |        |          |         |            |
-| Decoupled w/ AE  | -3                   |        |          |         |            |
+| Method           | Representation Layer | Epochs | Time (s) | Frequent MSE | Rare MSE |
+| ---------------- | -------------------- | ------ | -------- | ------------ | -------- |
+| Regular w/o AE   | N/A                  |        |          |              |          |
+| Balanced w/o AE  | N/A                  |        |          |              |          |
+| Decoupled w/o AE | -2                   |        |          |              |          |
+| Decoupled w/o AE | -3                   |        |          |              |          |
+| Regular w/ AE    | -2                   |        |          |              |          |
+| Balanced w/ AE   | -2                   |        |          |              |          |
+| Decoupled w/ AE  | -2                   |        |          |              |          |
+| Regular w/ AE    | -3                   |        |          |              |          |
+| Balanced w/ AE   | -3                   |        |          |              |          |
+| Decoupled w/ AE  | -3                   |        |          |              |          |
 ## Classification on `AgeDB`
 
 | Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
@@ -388,16 +388,21 @@ Note: For all tests below, batches are stratified
 - Documentation overhaul
 - Comment for 2nd stage decoupled fit: `In the future, potentiall only second stage history is returned (final model history, not "temporary" model history)` $\checkmark$
 - `generate_sample_weights` for regression can override function? Should be. $\checkmark$
-- Use built-in early stopping for every entry on table $\checkmark$
-
+- Use built-in early stopping for every entry on table 
 ## Notes:
 - **ISSUE:** Stratified batching is currently incompatible with the `validation_split` parameter
 	- This is not necessarily an issue, as all `Dataset` objects are incompatible with `validation_split`, however, we are also supposed to be "hiding" stratified batching from the user
 	- Potential solution, automatically split when lists are provided and stratified batches is desired
-- **Fixed bug:** Stratified split (for `train`/`val` splitting) was very poorly implemented. I have a much better understanding of how NumPy arrays can/cannot be manipulated now.
+- **Fixed bug:** Stratified split (for `train`/`val` splitting) was very poorly implemented. I have a much better understanding of how NumPy arrays can/cannot be manipulated now. 
+
+Need to have a better understanding of loss vs metric with respect to weighting
+
+![[Pasted image 20260129113629.png]]
 # 1/29/26
 ## Tasks
 - Documentation overhaul
 - Refactoring / rewrite of `generate_decoder_branch`
 - Decoupled with AE, use AE model for first stage, original model for second stage
 	- `StopGradient`?
+- Validation sets having sample weights (handle all possible combinations?)
+- Add check for $n' \neq n$ (sum of provided weights does not equal number of samples, in fit functions)
