@@ -2,69 +2,116 @@ import keras
 import tensorflow as tf
 from tensorflow.keras import layers
 import numpy as np
-import os, math, time, imbal
-import matplotlib.pyplot as plt
+import os, csv, math, time, imbal
 
-MODEL_TASK = 'regression'
+MODEL_TASK = 'classification'
 
-MODE = ''
+MODE = 'decoupled'
 STRATIFY = True
 AE = True
-REPRESENTATION_LAYER_INDEX = -2
+REPRESENTATION_LAYER_INDEX = -4
 GEN_OUTPUT = True
 
 batch_size = 512
-epochs = 800
-LEARNING_RATE =5e-4
-STOPPING_PATIENCE=15
+epochs = 860
+LEARNING_RATE =2e-4
 
+
+num_classes = 10
+
+DATASET_PERCENTAGE = 0.8
 TRAIN_SPLIT = 0.8
 
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
+def read_csv_to_list_of_lists(filepath):
+    data = []
+    with open(filepath, 'r', newline='', encoding='utf-8') as csvfile:
+        csv_reader = csv.reader(csvfile)
+        for row in csv_reader:
+            data.append(row)
+    return data
+
+PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
 print(os.getcwd())
 
-cropped_folder = os.path.join(PATH_START, 'AgeDB/cropped')
+def safe_float(x):
+    try:
+        return float(x)
+    except:
+        return 0.0
 
-print('loading data...')
-y_data = np.load(os.path.join(cropped_folder, 'age_labels.npy')).reshape(-1)
-x_data = np.load(os.path.join(cropped_folder, 'cropped_resized_images.npy'))
-print('data loaded!')
+safe_float_vectorized = np.vectorize(safe_float)
 
-print()
-print(y_data.shape)
-print(x_data.shape)
-plt.imshow(x_data[0])
-plt.show()
 
-print('min', y_data.min())
-print('max', y_data.max())
+# from sklearn.preprocessing import StandardScaler
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SARCOS/sarcos_inv_training.csv'))
+# print(data.shape)
+# y_combined = data[1:, -1].astype(float)
+# data = safe_float_vectorized(data).astype(float)
+# scaler = StandardScaler()
+# NUM_FEATURES = data.shape[1] - 1
+# x_combined = data[1:, :NUM_FEATURES].astype(float)
+# # x_combined = scaler.fit_transform(x_combined)
 
-y_train = y_data[:round(len(y_data)*TRAIN_SPLIT)]
-y_test = y_data[round(len(y_data)*TRAIN_SPLIT):]
-x_train = x_data[:round(len(x_data)*TRAIN_SPLIT)]
-x_test = x_data[round(len(x_data)*TRAIN_SPLIT):]
 
-y_train = np.array(y_train).reshape(-1)
-y_test = np.array(y_test).reshape(-1)
+from sklearn.preprocessing import StandardScaler
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-C/sep_10mev_training.csv'))
+print(data.shape)
+data = safe_float_vectorized(data[1:]).astype(float)
+NUM_FEATURES = 22
+y_combined = data[:, NUM_FEATURES].astype(float)
+scaler = StandardScaler()
+x_combined = data[:, :NUM_FEATURES].astype(float)
+x_combined = scaler.fit_transform(x_combined)
 
-print(type(x_train))
 
-if MODEL_TASK == 'regression':
-    (x_train, y_train), (x_val, y_val) = imbal.regression.split(x_train, y_train, test_size=0.25)
-else:
-    (x_train, y_train), (x_val, y_val) = imbal.classification.split(x_train, y_train, test_size=0.25)
+# from sklearn.preprocessing import StandardScaler
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+# for i in range(43):
+#     if os.path.exists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+# print(data.shape)
+# data = safe_float_vectorized(data).astype(float)
+# y_combined = data[:, 182].astype(float)
+# scaler = StandardScaler()
+# NUM_FEATURES = 182
+# x_combined = data[:, :NUM_FEATURES].astype(float)
+# x_combined = scaler.fit_transform(x_combined)
 
-print('train')
-print(len(x_train))
+print(x_combined.shape)
+print(y_combined.shape)
+
+num_data = x_combined.shape[0]
+percent_index = int(num_data * DATASET_PERCENTAGE)
+shuffled_indices = np.random.RandomState(seed=0).permutation(len(x_combined))[:percent_index]
+x_combined = x_combined[shuffled_indices].astype(np.float32)
+y_combined = y_combined[shuffled_indices].astype(np.float32)
+num_data = x_combined.shape[0]
+split_index = int(num_data * TRAIN_SPLIT)
+x_train, x_test = x_combined[:split_index], x_combined[split_index:]
+y_train, y_test = y_combined[:split_index], y_combined[split_index:]
+if MODEL_TASK == 'classification':
+    y_train = (y_train >= math.log(10)).astype(int)
+    y_test = (y_test >= math.log(10)).astype(int)
+print('x_train', x_train.shape)
+print('y_train',y_train.shape)
+print('x_test',x_test.shape)
+print('y_test',y_test.shape)
+
 print(y_train.shape)
-print('test')
-print(len(x_test))
-print(y_test.shape)
+print(x_test.shape)
 
-inputs = keras.Input(shape=(112, 88, 3))
-x = layers.Conv2D(16, (3, 3), activation='relu', padding='same', strides=(2, 2))(inputs)
-x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
-x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
+class_split = []
+for i in range(num_classes):
+    class_split.append(len(y_train[y_train == i]))
+print('distribution', class_split)
+
+input_shape = (NUM_FEATURES,)
+
+inputs = keras.Input(shape=input_shape)
+x = layers.Dense(18, activation='relu')(inputs)
+x = layers.Dense(9, activation='relu')(x)
+x = layers.Flatten()(x)
+x = layers.Dense(5, activation='relu')(x)
 x = layers.Flatten()(x)
 output = layers.Dense(1, activation='sigmoid' if MODEL_TASK == 'classification' else 'linear')(x)
 
@@ -88,7 +135,7 @@ model.compile(
     generate_decoder_branch=AE,
     representation_layer_index=REPRESENTATION_LAYER_INDEX
 )
-BIN_COUNT=98
+BIN_COUNT=64
 
 kde_bandwidth = imbal.regression.fit_kde(
     y_train,
@@ -209,7 +256,7 @@ def determine_ideal_epochs(
 history = None
 
 start = time.time()
-weights = np.ones(len(x_train)).reshape(-1, 1)
+weights = np.ones(x_train.shape[0])
 if MODE == 'decoupled':
     bandwidth = imbal.regression.fit_kde(
         y_train,
@@ -230,7 +277,6 @@ elif MODE == 'balanced':
         y_train,
         bandwidth
     )
-    model.override_second_stage_fit_parameters(callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=STOPPING_PATIENCE)])
     weights = imbal.regression.generate_sample_weights(densities)
 
 history = fit_function(
@@ -238,11 +284,7 @@ history = fit_function(
     y_train,
     sample_weight=weights,
     batch_size=batch_size,
-    validation_data=(x_val, y_val),
-    epochs=epochs,
-    callbacks=[
-        keras.callbacks.EarlyStopping(monitor='val_loss', patience=STOPPING_PATIENCE)
-    ]
+    epochs=epochs
 )
 
 end = time.time()
@@ -254,14 +296,13 @@ model.evaluate(x_test, y_test)
 
 predictions = model.predict(x_test)
 
-# kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=BIN_COUNT)
-# imbal.regression.plot_kde_1d(
-#     y_train,
-#     kde_bandwidth,
-#     bin_count=BIN_COUNT,
-#     save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None,
-#     padding_factor=0.0001
-# )
+kde_bandwidth = imbal.regression.fit_kde(y_combined, bin_count=BIN_COUNT)
+imbal.regression.plot_kde_1d(
+    y_combined,
+    kde_bandwidth,
+    bin_count=BIN_COUNT,
+    save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None
+)
 
 
 # plt.scatter(y_test, predictions)
@@ -288,15 +329,15 @@ if MODEL_TASK == 'classification':
         x_test,
         y_test,
         representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
     )
 else:
     imbal.regression.tsne_visualization(
         model,
         x_test,
-        y_test.reshape(-1),
+        y_test,
         representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None
+        save_figure=f'tsne_visualization-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
     )
 
 
@@ -305,8 +346,9 @@ predictions = predictions.reshape(-1,)
 
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
 
-y_test_labels = y_test.reshape(-1)
+y_test_labels = y_test
 predictions_labels = (predictions >= 0.5).astype(int)
 
 if MODEL_TASK == 'classification':
@@ -340,7 +382,9 @@ if MODEL_TASK == 'classification':
     print("sklearn AUROC:", roc_auc)
 
     plt.figure(figsize=(7, 6))
+    import matplotlib.pyplot as plt
     from matplotlib.collections import LineCollection
+    import numpy as np
 
     points = np.array([fpr, tpr]).T.reshape(-1, 1, 2)
     segments = np.concatenate([points[:-1], points[1:]], axis=1)
@@ -372,25 +416,23 @@ if MODEL_TASK == 'classification':
 
     print(f1_score.result())
 else:
-    y_rare_mask = (y_test_labels <= 18) | (y_test_labels >= 80)
-    y_common_mask = (y_test_labels > 18) & (y_test_labels < 80)
+    y_rare_mask = y_test_labels > math.log(10)
+    y_common_mask = y_test_labels <= math.log(10)
     plt.figure(figsize=(7, 6))
-    plt.plot([-1, 200], [-1, 200], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
+    plt.plot([-2.5, 8], [-2.5, 8], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
     plt.scatter(y_test_labels[y_common_mask], predictions.reshape(-1)[y_common_mask], color="blue", alpha=0.3)
     plt.scatter(y_test_labels[y_rare_mask], predictions.reshape(-1)[y_rare_mask], color="green", alpha=0.3)
-    plt.plot([-1, 200], [18, 18], color='red', linestyle="--")
-    plt.plot([-1, 200], [80, 80], color='red', linestyle="--")
+    plt.plot([-10, 10], [math.log(10), math.log(10)], color='red', linestyle="--")
     plt.xlabel("True Label")
     plt.ylabel("Predicted Label")
-    plt.xlim(0, 102)
-    plt.ylim(0, 102)
+    plt.xlim(-2.5, 8.5)
+    plt.ylim(-2.5, 8.5)
     if GEN_OUTPUT:
         plt.savefig(f'regression-true-pred-{MODE}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png')
     plt.show()
 
-    mask = (y_test > 18) & (y_test < 80)
-    rare_mask = (y_test <= 18) | (y_test >= 80)
-
+    mask = y_test <= math.log(10)
+    rare_mask = y_test > math.log(10)
     common_predictions = predictions[mask]
     rare_predictions = predictions[rare_mask]
 

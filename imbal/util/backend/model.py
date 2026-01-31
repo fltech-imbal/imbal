@@ -14,7 +14,7 @@ class Model(keras.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._compile_kwargs = None
+        self._serialized_compile_kwargs = None
 
         self._generate_decoder_branch = False
         self._stratify_batches = False
@@ -60,7 +60,7 @@ class Model(keras.Model):
         representation_layer_index=None,
         **kwargs
     ):
-        self._compile_kwargs = kwargs
+        self._serialized_compile_kwargs =  serialization_lib.serialize_keras_object(kwargs)
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
         self._stratify_batches = stratify_batches
@@ -97,14 +97,14 @@ class Model(keras.Model):
 
     def _compile_for_decoder_branch(self, **kwargs):
         updated_compile_kwargs = kwargs.copy()
-
-        model_loss = self._compile_kwargs.get('loss', False)
+        deserialized_compile_kwargs = serialization_lib.serialize_keras_object(self._serialized_compile_kwargs)
+        model_loss = deserialized_compile_kwargs.get('loss', False)
         updated_compile_kwargs['loss'] = (
             [updated_compile_kwargs['loss'], mse_reconstruction_loss] if model_loss
             else mse_reconstruction_loss
         )
 
-        model_metrics = self._compile_kwargs.get('metrics', None)
+        model_metrics = deserialized_compile_kwargs.get('metrics', None)
         is_list_like = tools.is_list_like(model_metrics[0])
         updated_compile_kwargs['metrics'] = (
             (

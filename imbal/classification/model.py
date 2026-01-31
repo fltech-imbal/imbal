@@ -25,6 +25,11 @@ class Model(backend.Model):
                 val_x, val_y = kwargs['validation_data']
                 kwargs['validation_data'] = (val_x, [val_y, val_x])
 
+        if (abs(np.sum(sample_weight) - np.sum(sample_weight.shape))) > 10e-3:
+            sample_weight *= np.sum(sample_weight.shape)/np.sum(sample_weight)
+            warnings.warn('Provided weights do not sum to the number of samples. The provided weights'
+                          'will be automatically normalized to sum to the number of samples.')
+
         dataset = x
         if self._stratify_batches:
             if self._generate_decoder_branch:
