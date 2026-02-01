@@ -2,11 +2,10 @@ import tensorflow as tf
 import numpy as np
 import keras, warnings, math
 from keras.src.saving import serialization_lib
-from keras.src.trainers.data_adapters import array_slicing
 from keras.src.trainers.data_adapters import data_adapter_utils
 
+import imbal
 import imbal.util.backend as backend
-from imbal.util import get_representation_layer_index
 from imbal.util.backend.constants import ModelType
 from imbal.util.backend.tools import verify_weight_scale
 
@@ -56,15 +55,13 @@ class Model(keras.Model):
         sample_weight = verify_weight_scale(sample_weight)
 
         if validation_split and validation_data is None:
-            (
+            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
                 x,
                 y,
-                sample_weight,
-            ), validation_data = array_slicing.train_validation_split(
-                (x, y, sample_weight), validation_split=validation_split
+                sample_weights=sample_weight,
+                test_size=validation_split,
             )
             sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            (val_x, val_y, val_sample_weight) = validation_data
             val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
             validation_data = (val_x, val_y, val_sample_weight)
 
@@ -107,11 +104,6 @@ class Model(keras.Model):
             y = None
             sample_weight = None
 
-        print('FIT')
-        print(x.shape)
-        print(np.sum(sample_weight))
-        print(val_x.shape)
-        print(np.sum(val_sample_weight))
         history = keras.Model.fit(
             training_model,
             x=x,
@@ -167,29 +159,16 @@ class Model(keras.Model):
                 validation_data = (val_x, val_y, val_sample_weight)
 
         if validation_split and validation_data is None:
-            (
+            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
                 x,
                 y,
-                sample_weight,
-            ), validation_data = array_slicing.train_validation_split(
-                (x, y, sample_weight), validation_split=validation_split
+                sample_weights=sample_weight,
+                test_size=validation_split,
             )
-            print(np.sum(sample_weight))
-            print(x.shape)
-            print(y.shape)
-            print(sample_weight.shape)
             sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            print(np.sum(sample_weight))
-            (val_x, val_y, val_sample_weight) = validation_data
-
             val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
             validation_data = (val_x, val_y, val_sample_weight)
 
-        print('BALANCED')
-        print(x.shape)
-        print(np.sum(sample_weight))
-        print(val_x.shape)
-        print(np.sum(val_sample_weight))
         return self.fit(
             x=x,
             y=y,
@@ -275,10 +254,10 @@ class Model(keras.Model):
             epochs=1,
             **kwargs
     ):
+
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
-        self.trainable = True
         training_model = self
 
         if isinstance(epochs, tuple):
@@ -288,23 +267,22 @@ class Model(keras.Model):
             second_train_epochs = math.ceil(epochs / 2)
 
         if validation_split and validation_data is None:
-            (
+            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
                 x,
                 y,
-                sample_weight,
-            ), validation_data = array_slicing.train_validation_split(
-                (x, y, sample_weight), validation_split=validation_split
+                sample_weights=sample_weight,
+                test_size=validation_split,
             )
             sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            (val_x, val_y, val_sample_weight) = validation_data
             val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
             validation_data = (val_x, val_y, val_sample_weight)
 
-
+        stage_two_y = y
         if self._use_decoder_branch:
             training_model = self._extended_model
             y = [y, x]
 
+        val_x, stage_two_val_y, val_sample_weight = None, None, None
         if validation_data is not None:
             (
                 val_x,
@@ -312,6 +290,7 @@ class Model(keras.Model):
                 val_sample_weight,
             ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
             if self._use_decoder_branch:
+                stage_two_val_y = val_y
                 val_y = [val_y, val_x]
             val_sample_weight = verify_weight_scale(val_sample_weight)
             validation_data = (val_x, val_y, val_sample_weight)
@@ -326,10 +305,9 @@ class Model(keras.Model):
             **kwargs
         )
 
-        representation_layer_index = backend.tools.positive_model_layer_index(training_model, self._representation_layer_index)
-
-        found_layer, found_index = get_representation_layer_index(
-            training_model,
+        representation_layer_index = backend.tools.positive_model_layer_index(self, self._representation_layer_index)
+        found_layer, found_index = imbal.util.get_representation_layer_index(
+            self,
             desired_layer_index=representation_layer_index
         )
         if found_index is None:
@@ -360,17 +338,22 @@ class Model(keras.Model):
         second_stage_fit_kwargs = kwargs.copy()
         second_stage_fit_kwargs['epochs'] = second_train_epochs
         second_stage_fit_kwargs['sample_weight'] = sample_weight
-        second_stage_fit_kwargs['validation_data'] = validation_data
+        second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, val_sample_weight)
         second_stage_fit_kwargs['validation_split'] = validation_split
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
-        stage_two_history = training_model.balanced_fit(
+        self._use_decoder_branch = False
+        self._perform_batch_stratification = False
+        self.trainable = True
+        stage_two_history = self.balanced_fit(
             x=x,
-            y=y,
+            y=stage_two_y,
             **second_stage_fit_kwargs
         )
+        self._use_decoder_branch = self._generate_decoder_branch
+        self._perform_batch_stratification = self._stratify_batches
 
-        self.trainable = True
+
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
 

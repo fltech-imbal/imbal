@@ -49,19 +49,20 @@ auroc = tf.keras.metrics.AUC(curve="ROC", name="auroc")
 model_sep.compile(loss="binary_crossentropy",
                   optimizer="adam",
                   metrics=[f1, auroc],
-                  # stratify_batches=True
+                  stratify_batches=True,
+                  generate_decoder_branch=True
                   )
 
 print(model_sep.metrics)
 
 start_cpu = time.process_time()
 
-model_sep.balanced_fit(
+model_sep.decoupled_fit(
     x_train,
     y_train,
     validation_split=0.2,
     sample_weight=sample_weights,
-    epochs=600,
+    epochs=300,
     batch_size=512,
 )
 

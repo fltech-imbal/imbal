@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -198,11 +198,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "880201156760e452",
+  "active": "c13a8eec41bf35eb",
   "lastOpenFiles": [
-    "Proposal PDF.pdf",
-    "Spring 2026 Notes/Notes 2-26.md",
     "Spring 2026 Notes/Notes 1-26.md",
+    "Spring 2026 Notes/Notes 2-26.md",
+    "Proposal PDF.pdf",
     "Spring 2026 Notes",
     "Images/Pasted image 20260129113629.png",
     "Images/extended-model.png",
