@@ -285,6 +285,10 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
 
         self._num_samples = len(self._batchable_data)
 
+    @property
+    def num_batches(self) -> int:
+        return self._num_batches
+
     def __len__(self) -> int:
         return self._num_batches
 

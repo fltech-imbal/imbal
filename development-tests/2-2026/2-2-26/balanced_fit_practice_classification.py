@@ -35,7 +35,8 @@ def build_model(input_shape: int) -> imbal.classification.Model:
     hidden2 = layers.Dense(12, activation="relu", name="hidden_layer2")(hidden1)
     hidden3 = layers.Dense(8, activation="relu", name="hidden_layer3")(hidden2)
     hidden4 = layers.Dense(6, activation="relu", name="hidden_layer4")(hidden3)
-    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(hidden4)
+    flatten = layers.Flatten(name="flatten")(hidden4)
+    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(flatten)
     model = imbal.classification.Model(inputs=inputs, outputs=outputs, name="one_hidden_layer_6_units")
     return model
 
@@ -48,7 +49,7 @@ auroc = tf.keras.metrics.AUC(curve="ROC", name="auroc")
 model_sep.compile(loss="binary_crossentropy",
                   optimizer="adam",
                   metrics=[f1, auroc],
-                  stratify_batches=True,
+                  # stratify_batches=True
                   )
 
 print(model_sep.metrics)
@@ -58,6 +59,7 @@ start_cpu = time.process_time()
 model_sep.balanced_fit(
     x_train,
     y_train,
+    validation_split=0.2,
     sample_weight=sample_weights,
     epochs=600,
     batch_size=512,
