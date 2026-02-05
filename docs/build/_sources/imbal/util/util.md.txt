@@ -1,12 +1,9 @@
 # Util
-`imbal.util`
 
-## Classes:
-- [SimpleDataset](simple_dataset.md)
-- [ModelCompileParameters](model_compile_parameters.md)
+Located until the `imbal.util` subpackage.
 
 ## Functions:
-- [wrap_model_compile_parameters](wrap_model_compile_parameters.md)
+- [get_representation_layer_index](get_representation_layer_index.md)
 
 ```{eval-rst}
 .. toctree::
@@ -14,7 +11,5 @@
     :maxdepth: 2
     :caption: Contents:
 
-    SimpleDataset <simple_dataset>
-    ModelCompileParameters <model_compile_parameters>
-    wrap_model_compile_parameters <wrap_model_compile_parameters>
+    get_representation_layer_index <get_representation_layer_index>
 ```

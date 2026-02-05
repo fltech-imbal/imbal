@@ -1,8 +1,10 @@
 # Classification
-`imbal.classification`
+
+Located until the `imbal.classification` subpackage.
 
 ## Classes:
 - [DatasetWithBatching](dataset_with_batching.md)
+- [Model](model.md)
 
 ## Functions:
 - [split](split.md)
@@ -13,9 +15,6 @@
 - [shap_explain_image_sample](shap_explain_image_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
-- [cRT_fit](cRT_fit.md)
-- [balanced_fit](balanced_fit.md)
-- [compile_parameters](compile_parameters.md)
 
 ```{eval-rst}
 .. toctree::
@@ -24,6 +23,7 @@
     :caption: Contents:
 
     DatasetWithBatching <dataset_with_batching>
+    Model <model>
     split <split>
     generate_sample_weights <generate_sample_weights>
     tsne_visualization <tsne_visualization>
@@ -32,7 +32,4 @@
     shap_explain_image_sample <shap_explain_image_sample>
     shap_explain_tabular_sample <shap_explain_tabular_sample>
     shap_explain_tabular_dataset <shap_explain_tabular_dataset>
-    cRT_fit <cRT_fit>
-    balanced_fit <balanced_fit>
-    compile_parameters <compile_parameters>
 ```

@@ -53,29 +53,34 @@ safe_float_vectorized = np.vectorize(safe_float)
 # # x_combined = scaler.fit_transform(x_combined)
 
 
-from sklearn.preprocessing import StandardScaler
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-C/sep_10mev_training.csv'))
-print(data.shape)
-data = safe_float_vectorized(data[1:]).astype(float)
-NUM_FEATURES = 22
-y_combined = data[:, NUM_FEATURES].astype(float)
-scaler = StandardScaler()
-x_combined = data[:, :NUM_FEATURES].astype(float)
-x_combined = scaler.fit_transform(x_combined)
-
-
 # from sklearn.preprocessing import StandardScaler
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-# for i in range(43):
-#     if os.path.exists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-C/sep_10mev_training.csv'))
 # print(data.shape)
-# data = safe_float_vectorized(data).astype(float)
-# y_combined = data[:, 182].astype(float)
+# data = safe_float_vectorized(data[1:]).astype(float)
+# NUM_FEATURES = 22
+# y_combined = data[:, NUM_FEATURES].astype(float)
 # scaler = StandardScaler()
-# NUM_FEATURES = 182
 # x_combined = data[:, :NUM_FEATURES].astype(float)
 # x_combined = scaler.fit_transform(x_combined)
+
+
+from sklearn.preprocessing import StandardScaler
+data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
+for i in range(43):
+    if os.path.exists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
+        data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
+print(data.shape)
+data = safe_float_vectorized(data).astype(float)
+y_combined = data[:, 182].astype(float)
+scaler = StandardScaler()
+NUM_FEATURES = 182
+x_combined = data[:, :NUM_FEATURES].astype(float)
+print('greater than ln(10)')
+print(math.log(10))
+print(x_combined[:10, 3])
+print(np.arange(x_combined.shape[0])[x_combined[:, 3] > math.log(10)].shape)
+print(np.sum(x_combined[:, 3] > math.log(10)))
+x_combined = scaler.fit_transform(x_combined)
 
 print(x_combined.shape)
 print(y_combined.shape)

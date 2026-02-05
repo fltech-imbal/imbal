@@ -1,8 +1,10 @@
 # Regression
-`imbal.regression`
+
+Located until the `imbal.regression` subpackage.
 
 ## Classes:
 - [DatasetWithBatching](dataset_with_batching.md)
+- [Model](model.md)
 
 ## Functions:
 - [split](split.md)
@@ -14,9 +16,6 @@
 - [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
-- [rRT_fit](rRT_fit.md)
-- [balanced_fit](balanced_fit.md)
-- [compile_parameters](compile_parameters.md)
 
 ```{eval-rst}
 .. toctree::
@@ -25,6 +24,7 @@
     :caption: Contents:
 
     DatasetWithBatching <dataset_with_batching>
+    Model <model>
     split <split>
     get_sample_densities <get_sample_densities>
     generate_sample_weights <generate_sample_weights>
@@ -34,7 +34,4 @@
     lime_explain_tabular_sample <lime_explain_tabular_sample>
     shap_explain_tabular_sample <shap_explain_tabular_sample>
     shap_explain_tabular_dataset <shap_explain_tabular_dataset>
-    rRT_fit <rRT_fit>
-    balanced_fit <balanced_fit>
-    compile_parameters <compile_parameters>
 ```

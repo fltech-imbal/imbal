@@ -5,6 +5,15 @@ def get_representation_layer_index(
     model,
     desired_layer_index=-2,
 ):
+    """
+
+    Args:
+        model:
+        desired_layer_index:
+
+    Returns:
+
+    """
 
     num_layers = len(model.layers)
     desired_layer_index = positive_model_layer_index(model, desired_layer_index)

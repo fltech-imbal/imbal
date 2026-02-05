@@ -147,7 +147,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../util/util.html">
-    Util
+    imbal.util
   </a>
 </li>
 
@@ -247,7 +247,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../util/util.html">
-    Util
+    imbal.util
   </a>
 </li>
 
@@ -355,100 +355,6 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="balanced-fit">
 <h1>balanced_fit<a class="headerlink" href="#balanced-fit" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="imbal.regression.balanced_fit">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">balanced_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compile_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_decoder_branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representation_layer_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-3</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.balanced_fit" title="Link to this definition">#</a></dt>
-<dd><p>Bases:</p>
-<p>Performs a balanced fit based on user-provided densities or weights.
-By default, to achieve a balanced fit, weights will be calculated to be
-inversely proportional to the provided densities.</p>
-<p>Includes the ability to optionally generate a decoder branch extending from the provided model,
-which aids in achieving a better representation space, usually resulting in better performance
-on imbalanced data. This feature, enabled using <code class="code docutils literal notranslate"><span class="pre">generate_decoder_branch</span></code>, is off by
-default due to its experimental nature, but we recommend using it if your model fits the
-anticipated structure (see <a class="reference internal" href="../util/backend/generate_decoder_branch.html"><span class="doc">imbal.util.backend.generate_decoder_branch</span></a> for more details).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The model to perform the decoupled fit on.</p></li>
-<li><p><strong>x</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-A NumPy array of data points, arranged as a column vector</p></li>
-<li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
-</p></li>
-<li><p><strong>sample_weights</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A Numpy array of weights. Must be specified
-if <code class="code docutils literal notranslate"><span class="pre">sample_densities</span></code> is not specified.</p></li>
-<li><p><strong>sample_densities</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A Numpy array of densities. Must be specified
-if <code class="code docutils literal notranslate"><span class="pre">sample_weights</span></code> is not specified.</p></li>
-<li><p><strong>compile_parameters</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A <a class="reference internal" href="../util/model_compile_parameters.html"><span class="doc">ModelCompileParameters</span></a>
-object, or a dictionary mapping <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow model.compile parameters</a>
-to their corresponding values. If set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, the default <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">model.compile</a>
-parameters will be used.</p></li>
-<li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The data used to validate the model during training.
-See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
-</p></li>
-<li><p><strong>epochs</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">1</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The number of epochs to train for. If an <code class="code docutils literal notranslate"><span class="pre">int</span></code>,
-the provided number of epochs will be used during the first stage, and halved for the second stage.
-If a tuple or list of length 2, the value in the first index will be used as the number of
-epochs in the first stage of training, and the second index for the number of epochs
-in the second stage of training.</p>
-</p></li>
-<li><p><strong>batch_size</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The batch size to use during training.</p>
-</p></li>
-<li><p><strong>shuffle</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-Whether to shuffle the data before each epoch.</p>
-</p></li>
-<li><p><strong>stratify_batches</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to stratify data batch-wise during training.
-See <a class="reference internal" href="dataset_with_batching.html"><span class="doc">DatasetWithBatching</span></a> for details.</p></li>
-<li><p><strong>multi_input</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. Whether mutiple input values are used per sample (ex. an
-image and some tabular data). Used only in branching models.</p></li>
-<li><p><strong>multi_output</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. Whether mutiple output values are generated per sample (ex. an
-image and some tabular data). Used only in branching models.</p></li>
-<li><p><strong>output_label_index</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">0</span></code>. The index of the set of output data within the
-list of provided output data that contains the data label for each sample.
-Only used when <code class="code docutils literal notranslate"><span class="pre">multi_output</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
-<li><p><strong>generate_decoder_branch</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. When set to <code class="code docutils literal notranslate"><span class="pre">True</span></code>, an extended version of
-the provided model containing a decoder branch is generated and used for training, often yielding
-better training results (see <span class="xref std std-doc">Comparison of Fit Methods</span>).
-Decoder generation is experimental and may not always be possible depending on model structure.</p></li>
-<li><p><strong>representation_layer_index</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">-3</span></code>. Used only when <code class="code docutils literal notranslate"><span class="pre">generate_decoder_branch</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>.
-The index of the layer from which the decoder branch in generated. It is recommended that this layer is no later than the
-third to last layer of the model, to help ensure that the remaining layers in the classifier portion of the
-model may allow for non-linear relationships to be learned.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="code docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Assume MNIST data is already loaded in &#39;(x_train, y_train), (x_test, y_test)&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and that a model is already created in &#39;model&#39;</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">imbal</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">parameters</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">compile_parameters</span><span class="p">(</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;categorical_crossentropy&quot;</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(),</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">x_train</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">y_train</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">compile_parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
 <section id="comparison-of-balanced-fit-on-tabular-data-with-other-methods">
 <h2>Comparison of Balanced Fit on Tabular Data With Other Methods<a class="headerlink" href="#comparison-of-balanced-fit-on-tabular-data-with-other-methods" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -512,7 +418,6 @@ model may allow for non-linear relationships to be learned.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.balanced_fit"><code class="docutils literal notranslate"><span class="pre">balanced_fit</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-balanced-fit-on-tabular-data-with-other-methods">Comparison of Balanced Fit on Tabular Data With Other Methods</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-balanced-fit-on-image-data-with-other-methods">Comparison of Balanced Fit on Image Data With Other Methods</a></li>
 </ul>

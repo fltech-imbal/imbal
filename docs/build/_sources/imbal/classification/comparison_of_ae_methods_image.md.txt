@@ -1,7 +1,5 @@
 # Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Image Data
 
-
-
 ### Regular Fit with Autoencoder (1:24 Imbalance)
 
 <div style="display: flex; max-width: 100%; width:650px">

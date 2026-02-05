@@ -16,7 +16,6 @@ def mse_reconstruction_loss(y_true, y_pred):
     return loss_per_example
 
 class Model(keras.Model):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._serialized_compile_kwargs = None
@@ -43,6 +42,22 @@ class Model(keras.Model):
         shuffle=True,
         **kwargs
     ):
+        """
+        TODO: Fit function description
+
+        Args:
+            x:
+            y:
+            sample_weight:
+            validation_data:
+            validation_split:
+            batch_size:
+            shuffle:
+            **kwargs:
+
+        Returns:
+
+        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -134,6 +149,24 @@ class Model(keras.Model):
         shuffle=True,
         **kwargs
     ):
+        """
+        TODO: balanced fit description
+
+        Args:
+            x:
+            y:
+            class_weight:
+            sample_density:
+            sample_weight:
+            validation_data:
+            validation_split:
+            batch_size:
+            shuffle:
+            **kwargs:
+
+        Returns:
+
+        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -245,16 +278,30 @@ class Model(keras.Model):
         return sample_weight
 
     def decoupled_fit(
-            self,
-            x=None,
-            y=None,
-            sample_weight=None,
-            validation_data=None,
-            validation_split=None,
-            epochs=1,
-            **kwargs
+        self,
+        x=None,
+        y=None,
+        sample_weight=None,
+        validation_data=None,
+        validation_split=None,
+        epochs=1,
+        **kwargs
     ):
+        """
+        TODO: decoupled fit description
 
+        Args:
+            x:
+            y:
+            sample_weight:
+            validation_data:
+            validation_split:
+            epochs:
+            **kwargs:
+
+        Returns:
+
+        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -327,14 +374,12 @@ class Model(keras.Model):
                                    layer.bias_initializer(shape=np.asarray(layer.bias.shape))])
         for layer in untrainable_layers:
             layer.trainable = False
-        if self._generate_decoder_branch:
+        if self._use_decoder_branch:
             for layer in self._decoder_branch:
                 layer.trainable = False
 
         second_stage_compile_parameters = serialization_lib.deserialize_keras_object(self._serialized_compile_kwargs)
         second_stage_compile_parameters.update(self._second_stage_compile_kwargs)
-        training_model.compile(second_stage_compile_parameters)
-
         second_stage_fit_kwargs = kwargs.copy()
         second_stage_fit_kwargs['epochs'] = second_train_epochs
         second_stage_fit_kwargs['sample_weight'] = sample_weight
@@ -342,14 +387,21 @@ class Model(keras.Model):
         second_stage_fit_kwargs['validation_split'] = validation_split
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
+        model_clone = keras.models.clone_model(self)
+        model_clone.set_weights(self.get_weights())
+        model_clone.compile(**second_stage_compile_parameters)
+
         self._use_decoder_branch = False
         self._perform_batch_stratification = False
         self.trainable = True
-        stage_two_history = self.balanced_fit(
+        stage_two_history = model_clone.balanced_fit(
             x=x,
             y=stage_two_y,
             **second_stage_fit_kwargs
         )
+        print(self.get_weights())
+        self.set_weights(model_clone.get_weights())
+        print(self.get_weights())
         self._use_decoder_branch = self._generate_decoder_branch
         self._perform_batch_stratification = self._stratify_batches
 
@@ -366,6 +418,18 @@ class Model(keras.Model):
         representation_layer_index=-2,
         **kwargs
     ):
+        """
+        TODO: compile description
+
+        Args:
+            stratify_batches:
+            generate_decoder_branch:
+            representation_layer_index:
+            **kwargs:
+
+        Returns:
+
+        """
         self._serialized_compile_kwargs = serialization_lib.serialize_keras_object(kwargs)
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
@@ -377,7 +441,7 @@ class Model(keras.Model):
         self._use_decoder_branch = self._generate_decoder_branch
 
         if self._generate_decoder_branch:
-            self.generate_decoder_branch()
+            self._generate_decoder()
             self._compile_for_decoder_branch(**kwargs)
 
         super().compile(**kwargs)
@@ -426,12 +490,30 @@ class Model(keras.Model):
         self._extended_model.compile(**updated_compile_kwargs)
 
     def override_second_stage_compile_parameters(self, **kwargs):
+        """
+        TODO: description
+
+        Args:
+            **kwargs:
+
+        Returns:
+
+        """
         self._second_stage_compile_kwargs = kwargs.copy()
 
     def override_second_stage_fit_parameters(self, **kwargs):
+        """
+        TODO: description
+
+        Args:
+            **kwargs:
+
+        Returns:
+
+        """
         self._second_stage_fit_kwargs = kwargs.copy()
 
-    def generate_decoder_branch(self):
+    def _generate_decoder(self):
         """
         This function attempts to extend a provided model, using a simple algorithm
         which uses the ordering of the layers leading up to the specified representation

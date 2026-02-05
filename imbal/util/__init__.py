@@ -1,2 +1,2 @@
-from .simple_dataset import SimpleDataset
 from .get_representation_layer_index import get_representation_layer_index
+from . import backend
