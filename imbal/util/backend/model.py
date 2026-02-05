@@ -317,7 +317,7 @@ class Model(keras.Model):
             first_train_epochs, second_train_epochs = epochs
         else:
             first_train_epochs = epochs
-            second_train_epochs = math.ceil(epochs / 2)
+            second_train_epochs = None
 
         if validation_split and validation_data is None:
             (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
@@ -391,10 +391,11 @@ class Model(keras.Model):
         second_stage_compile_parameters = serialization_lib.deserialize_keras_object(self._serialized_compile_kwargs)
         second_stage_compile_parameters.update(self._second_stage_compile_kwargs)
         second_stage_fit_kwargs = kwargs.copy()
-        second_stage_fit_kwargs['epochs'] = second_train_epochs
+        second_stage_fit_kwargs['epochs'] = len(stage_one_history.epoch) // 2 if second_train_epochs is None else second_train_epochs
         second_stage_fit_kwargs['sample_weight'] = sample_weight
         second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, val_sample_weight)
         second_stage_fit_kwargs['validation_split'] = validation_split
+        second_stage_fit_kwargs['callbacks'] = None
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
         model_clone = keras.models.clone_model(self)

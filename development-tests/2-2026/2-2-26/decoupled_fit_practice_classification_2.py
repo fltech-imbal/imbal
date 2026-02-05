@@ -58,8 +58,9 @@ model_sep.cRT_fit(
     y_train,
     sample_weight=sample_weights,
     validation_split=0.2,
-    epochs=100,
+    epochs=1000,
     batch_size=512,
+    callbacks=[keras.callbacks.EarlyStopping(patience=10)],
 )
 
 end_cpu = time.process_time()
