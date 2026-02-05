@@ -57,6 +57,7 @@ model_sep.cRT_fit(
     x_train,
     y_train,
     sample_weight=sample_weights,
+    validation_split=0.2,
     epochs=100,
     batch_size=512,
 )

@@ -331,3 +331,6 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._rebuild_batchable()
 
         self._seed += self._num_batches
+
+    def unpack(self):
+        return self._batchable_data, self._batchable_labels, self._batchable_weights

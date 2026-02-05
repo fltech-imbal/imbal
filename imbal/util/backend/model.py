@@ -86,11 +86,14 @@ class Model(keras.Model):
             y = [y, x]
 
         if validation_data is not None:
-            (
-                val_x,
-                val_y,
-                val_sample_weight,
-            ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
+            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
+                val_x, val_y, val_sample_weight = validation_data.unpack()
+            else:
+                (
+                    val_x,
+                    val_y,
+                    val_sample_weight,
+                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
             if self._use_decoder_branch:
                 val_y = [val_y, val_x]
             val_sample_weight = verify_weight_scale(val_sample_weight)
@@ -177,11 +180,14 @@ class Model(keras.Model):
             sample_weight = self._auto_compute_weights(y, sample_weight, class_weight, sample_density)
 
         if validation_data is not None:
-            (
-                val_x,
-                val_y,
-                val_sample_weight,
-            ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
+            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
+                val_x, val_y, val_sample_weight = validation_data.unpack()
+            else:
+                (
+                    val_x,
+                    val_y,
+                    val_sample_weight,
+                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
             if val_sample_weight is None:
                 combined_y = np.concatenate((y, val_y), axis=0)
                 combined_weights = self._auto_compute_weights(combined_y, None, class_weight, None)
@@ -331,11 +337,15 @@ class Model(keras.Model):
 
         val_x, stage_two_val_y, val_sample_weight = None, None, None
         if validation_data is not None:
-            (
-                val_x,
-                val_y,
-                val_sample_weight,
-            ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
+            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
+                val_x, val_y, val_sample_weight = validation_data.unpack()
+            else:
+                (
+                    val_x,
+                    val_y,
+                    val_sample_weight,
+                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
+                stage_two_val_y = val_y
             if self._use_decoder_branch:
                 stage_two_val_y = val_y
                 val_y = [val_y, val_x]
@@ -399,9 +409,7 @@ class Model(keras.Model):
             y=stage_two_y,
             **second_stage_fit_kwargs
         )
-        print(self.get_weights())
         self.set_weights(model_clone.get_weights())
-        print(self.get_weights())
         self._use_decoder_branch = self._generate_decoder_branch
         self._perform_batch_stratification = self._stratify_batches
 

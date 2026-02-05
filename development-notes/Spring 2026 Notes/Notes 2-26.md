@@ -8,8 +8,8 @@
 # 2/2/26
 ## Tasks:
 - `EarlyStopping` tables (see below)
-- For validation, only necessary to support the same data types as TF
-- Bug with Metrics causing crash for decoupled fit
+- For validation, only necessary to support the same data types as TF $\checkmark$
+- Bug with Metrics causing crash for decoupled fit $\checkmark$
 - Documentation overhaul (WIP)
 - **Later on:** Refactoring / rewrite of `generate_decoder_branch`
 ## Notes:
@@ -73,3 +73,8 @@
 | Decoupled w/ AE  | -3                   |        |          |         |            |
 
 ---
+
+## Notes:
+- Although issue with re-compilation was fixed (sort of band-aid fix), should recompilation be allowed at all?
+	- Do we expect the user to change the optimizer, loss, or metrics?
+	- Disallowing this would prevent the need for a "band-aid" fix
