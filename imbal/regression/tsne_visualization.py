@@ -53,7 +53,7 @@ def tsne_visualization(
         >>> )
 
     """
-    indices = np.argsort(labels)
+    indices = np.argsort(labels.reshape(-1))
 
     sorted_labels = labels[indices]
     sorted_data = data[indices]

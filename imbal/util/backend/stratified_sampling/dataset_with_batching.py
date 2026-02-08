@@ -203,7 +203,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._num_samples = len(self._x_set)
 
         output_labels = self._y_set
-
+        print(type(output_labels))
         if output_labels.ndim == 1:
             self._comp_values = output_labels
         elif output_labels.ndim == 2:

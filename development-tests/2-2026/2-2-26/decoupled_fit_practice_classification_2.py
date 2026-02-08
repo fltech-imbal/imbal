@@ -53,6 +53,13 @@ model_sep.compile(loss="binary_crossentropy",
 
 start_cpu = time.process_time()
 
+model_sep.override_second_stage_fit_parameters(
+    epochs=1000,
+    callbacks=[
+        keras.callbacks.EarlyStopping(patience=10)
+    ]
+)
+
 model_sep.cRT_fit(
     x_train,
     y_train,

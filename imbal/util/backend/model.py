@@ -1,9 +1,8 @@
 import tensorflow as tf
 import numpy as np
-import keras, warnings, math
-from keras.src.saving import serialization_lib
+import keras, warnings
 from keras.src.trainers.data_adapters import data_adapter_utils
-
+from keras.src.saving import serialization_lib
 import imbal
 import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
@@ -18,15 +17,11 @@ def mse_reconstruction_loss(y_true, y_pred):
 class Model(keras.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._serialized_compile_kwargs = None
         self._generate_decoder_branch = False
         self._use_decoder_branch = False
-        self._stratify_batches = False
-        self._perform_batch_stratification = False
         self._representation_layer_index = -2
         self._extended_model = None
         self._decoder_branch = None
-        self._second_stage_compile_kwargs = {}
         self._second_stage_fit_kwargs = {}
         self._mode_subpackage = None
         self._mode_enum = None
@@ -40,6 +35,7 @@ class Model(keras.Model):
         validation_split=None,
         batch_size=32,
         shuffle=True,
+        stratify_batches=False,
         **kwargs
     ):
         """
@@ -53,6 +49,7 @@ class Model(keras.Model):
             validation_split:
             batch_size:
             shuffle:
+            stratify_batches:
             **kwargs:
 
         Returns:
@@ -61,8 +58,8 @@ class Model(keras.Model):
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
-        if self._perform_batch_stratification or self._use_decoder_branch:
-            x, y, sample_weight = self._x_y_weight_split_data(x, y, sample_weight)
+        if stratify_batches or self._use_decoder_branch:
+            x, y, sample_weight, stratify_batches = self._x_y_weight_split_data(x, y, sample_weight, stratify_batches)
 
         if sample_weight is None and not isinstance(x, tf.data.Dataset) and not isinstance(x, keras.utils.PyDataset):
             sample_weight = np.ones(x.shape[0])
@@ -99,7 +96,7 @@ class Model(keras.Model):
             val_sample_weight = verify_weight_scale(val_sample_weight)
             validation_data = (val_x, val_y, val_sample_weight)
 
-        if self._perform_batch_stratification:
+        if stratify_batches:
             if self._use_decoder_branch:
                 x = backend.MultiDatasetWithBatching(
                     x,
@@ -121,7 +118,6 @@ class Model(keras.Model):
                 )
             y = None
             sample_weight = None
-
         history = keras.Model.fit(
             training_model,
             x=x,
@@ -129,12 +125,11 @@ class Model(keras.Model):
             sample_weight=sample_weight,
             validation_split=validation_split,
             validation_data=validation_data,
-            batch_size=batch_size,
+            batch_size=None if stratify_batches else batch_size,
             shuffle=shuffle,
             **kwargs
         )
 
-        self._perform_batch_stratification = self._stratify_batches
         self._use_decoder_branch = self._generate_decoder_branch
 
         return history
@@ -150,6 +145,7 @@ class Model(keras.Model):
         validation_split=None,
         batch_size=32,
         shuffle=True,
+        stratify_batches=False,
         **kwargs
     ):
         """
@@ -165,6 +161,7 @@ class Model(keras.Model):
             validation_split:
             batch_size:
             shuffle:
+            stratify_batches:
             **kwargs:
 
         Returns:
@@ -173,8 +170,8 @@ class Model(keras.Model):
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
-        if self._perform_batch_stratification or self._use_decoder_branch:
-            x, y, sample_weight = self._x_y_weight_split_data(x, y, sample_weight)
+        if stratify_batches or self._use_decoder_branch:
+            x, y, sample_weight, stratify_batches = self._x_y_weight_split_data(x, y, sample_weight, stratify_batches)
 
         if sample_weight is None and not isinstance(x, tf.data.Dataset) and not isinstance(x, keras.utils.PyDataset):
             sample_weight = self._auto_compute_weights(y, sample_weight, class_weight, sample_density)
@@ -216,6 +213,7 @@ class Model(keras.Model):
             shuffle=shuffle,
             validation_data=validation_data,
             validation_split=validation_split,
+            stratify_batches=stratify_batches,
             **kwargs
         )
 
@@ -224,16 +222,17 @@ class Model(keras.Model):
         x,
         y,
         sample_weight,
+        stratify_batches
     ):
         data = []
         labels = []
         weights = []
         if isinstance(x, tf.data.Dataset):
-            if self._perform_batch_stratification:
+            if stratify_batches:
                 warnings.warn("In order to utilize batch stratification, data must be passed as a NumPy"
                               "array, array-like, tensor, or PyDataset. Batch stratification has been"
                               "disabled for this fit.")
-                self._perform_batch_stratification = False
+                stratify_batches=False
             if self._use_decoder_branch:
                 warnings.warn("In order to utilize decoder branch generation, data must be passed as a NumPy"
                               "array, array-like, tensor, or PyDataset. Decoder branch generation has been"
@@ -255,7 +254,7 @@ class Model(keras.Model):
             x = np.concatenate(data)
             y = np.concatenate(labels)
             sample_weight = np.concatenate(weights)
-        return x, y, sample_weight
+        return x, y, sample_weight, stratify_batches
 
     def _auto_compute_weights(
             self,
@@ -291,6 +290,9 @@ class Model(keras.Model):
         validation_data=None,
         validation_split=None,
         epochs=1,
+        batch_size=32,
+        shuffle=True,
+        stratify_batches=False,
         **kwargs
     ):
         """
@@ -330,12 +332,13 @@ class Model(keras.Model):
             val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
             validation_data = (val_x, val_y, val_sample_weight)
 
-        stage_two_y = y
+        stage_one_x = x
+        stage_one_y = y
         if self._use_decoder_branch:
             training_model = self._extended_model
-            y = [y, x]
+            stage_one_y = [y, x]
 
-        val_x, stage_two_val_y, val_sample_weight = None, None, None
+        val_x, stage_two_val_y, stage_two_val_sample_weight = None, None, None
         if validation_data is not None:
             if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
                 val_x, val_y, val_sample_weight = validation_data.unpack()
@@ -347,15 +350,41 @@ class Model(keras.Model):
                 ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
                 stage_two_val_y = val_y
             if self._use_decoder_branch:
-                stage_two_val_y = val_y
                 val_y = [val_y, val_x]
-            val_sample_weight = verify_weight_scale(val_sample_weight)
+            stage_two_val_sample_weight = verify_weight_scale(val_sample_weight)
+            val_sample_weight = np.ones(val_sample_weight.shape)
             validation_data = (val_x, val_y, val_sample_weight)
 
+        stage_one_sample_weights = np.ones(x.shape[0])
+
+        if stratify_batches:
+            if self._use_decoder_branch:
+                stage_one_x = backend.MultiDatasetWithBatching(
+                    x,
+                    stage_one_y,
+                    sample_weights=stage_one_sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle,
+                    multi_output=True,
+                    output_label_index=0,
+                    mode=self._mode_enum
+                )
+            else:
+                stage_one_x = self._mode_subpackage.DatasetWithBatching(
+                    x,
+                    stage_one_y,
+                    sample_weights=stage_one_sample_weights,
+                    batch_size=batch_size,
+                    shuffle=shuffle
+                )
+            stage_one_y = None
+            stage_one_sample_weights = None
+
+
         stage_one_history = training_model.fit(
-            x=x,
-            y=y,
-            sample_weight=sample_weight,
+            x=stage_one_x,
+            y=stage_one_y,
+            sample_weight=stage_one_sample_weights,
             validation_data=validation_data,
             validation_split=validation_split,
             epochs=first_train_epochs,
@@ -388,32 +417,28 @@ class Model(keras.Model):
             for layer in self._decoder_branch:
                 layer.trainable = False
 
-        second_stage_compile_parameters = serialization_lib.deserialize_keras_object(self._serialized_compile_kwargs)
-        second_stage_compile_parameters.update(self._second_stage_compile_kwargs)
         second_stage_fit_kwargs = kwargs.copy()
-        second_stage_fit_kwargs['epochs'] = len(stage_one_history.epoch) // 2 if second_train_epochs is None else second_train_epochs
+        second_stage_fit_kwargs['epochs'] = len(stage_one_history.epoch) if second_train_epochs is None else second_train_epochs
         second_stage_fit_kwargs['sample_weight'] = sample_weight
-        second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, val_sample_weight)
+        second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, stage_two_val_sample_weight)
         second_stage_fit_kwargs['validation_split'] = validation_split
         second_stage_fit_kwargs['callbacks'] = None
+        second_stage_fit_kwargs['shuffle'] = shuffle
+        second_stage_fit_kwargs['batch_size'] = batch_size
+        second_stage_fit_kwargs['stratify_batches'] = stratify_batches
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
-        model_clone = keras.models.clone_model(self)
-        model_clone.set_weights(self.get_weights())
-        model_clone.compile(**second_stage_compile_parameters)
-
         self._use_decoder_branch = False
-        self._perform_batch_stratification = False
-        self.trainable = True
-        stage_two_history = model_clone.balanced_fit(
+
+        print(x.shape)
+        print(y.shape)
+        stage_two_history = self.balanced_fit(
             x=x,
-            y=stage_two_y,
+            y=y,
             **second_stage_fit_kwargs
         )
-        self.set_weights(model_clone.get_weights())
-        self._use_decoder_branch = self._generate_decoder_branch
-        self._perform_batch_stratification = self._stratify_batches
 
+        self._use_decoder_branch = self._generate_decoder_branch
 
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
@@ -422,7 +447,6 @@ class Model(keras.Model):
 
     def compile(
         self,
-        stratify_batches=False,
         generate_decoder_branch=False,
         representation_layer_index=-2,
         **kwargs
@@ -431,7 +455,6 @@ class Model(keras.Model):
         TODO: compile description
 
         Args:
-            stratify_batches:
             generate_decoder_branch:
             representation_layer_index:
             **kwargs:
@@ -439,14 +462,11 @@ class Model(keras.Model):
         Returns:
 
         """
-        self._serialized_compile_kwargs = serialization_lib.serialize_keras_object(kwargs)
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
-        self._stratify_batches = stratify_batches
         self._decoder_branch = None
         self._extended_model = None
 
-        self._perform_batch_stratification = self._stratify_batches
         self._use_decoder_branch = self._generate_decoder_branch
 
         if self._generate_decoder_branch:
@@ -454,12 +474,6 @@ class Model(keras.Model):
             self._compile_for_decoder_branch(**kwargs)
 
         super().compile(**kwargs)
-        self._compile_config = serialization_lib.SerializableDict(
-            stratify_batches=stratify_batches,
-            generate_decoder_branch=generate_decoder_branch,
-            representation_layer_index=representation_layer_index,
-            **kwargs
-        )
 
     def compile_from_config(self, config):
         # Required to be overridden by Keras, however, the
@@ -479,14 +493,13 @@ class Model(keras.Model):
 
     def _compile_for_decoder_branch(self, **kwargs):
         updated_compile_kwargs = kwargs.copy()
-        deserialized_compile_kwargs = serialization_lib.deserialize_keras_object(self._serialized_compile_kwargs)
-        model_loss = deserialized_compile_kwargs.get('loss', False)
+        model_loss = updated_compile_kwargs.get('loss', False)
         updated_compile_kwargs['loss'] = (
             [updated_compile_kwargs['loss'], mse_reconstruction_loss] if model_loss
             else mse_reconstruction_loss
         )
 
-        model_metrics = deserialized_compile_kwargs.get('metrics', None)
+        model_metrics = kwargs.get('metrics', [None])
         is_list_like = backend.tools.is_list_like(model_metrics[0])
         updated_compile_kwargs['metrics'] = (
             (
@@ -497,18 +510,6 @@ class Model(keras.Model):
         )
 
         self._extended_model.compile(**updated_compile_kwargs)
-
-    def override_second_stage_compile_parameters(self, **kwargs):
-        """
-        TODO: description
-
-        Args:
-            **kwargs:
-
-        Returns:
-
-        """
-        self._second_stage_compile_kwargs = kwargs.copy()
 
     def override_second_stage_fit_parameters(self, **kwargs):
         """

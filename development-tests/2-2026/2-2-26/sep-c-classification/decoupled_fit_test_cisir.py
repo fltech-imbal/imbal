@@ -2,7 +2,7 @@ import keras
 import tensorflow as tf
 from tensorflow.keras import layers
 import numpy as np
-import os, csv, math, time, imbal
+import csv, math, time, imbal
 
 MODEL_TASK = 'classification'
 
@@ -13,7 +13,7 @@ REPRESENTATION_LAYER_INDEX = -4
 GEN_OUTPUT = True
 
 batch_size = 512
-epochs = 860
+epochs = 10000
 LEARNING_RATE =2e-4
 
 
@@ -30,9 +30,6 @@ def read_csv_to_list_of_lists(filepath):
             data.append(row)
     return data
 
-PATH_START = '/mnt/c/Users/tommy/Desktop/Repos/dr-chan-work-demo'
-print(os.getcwd())
-
 def safe_float(x):
     try:
         return float(x)
@@ -41,54 +38,32 @@ def safe_float(x):
 
 safe_float_vectorized = np.vectorize(safe_float)
 
-
-# from sklearn.preprocessing import StandardScaler
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SARCOS/sarcos_inv_training.csv'))
-# print(data.shape)
-# y_combined = data[1:, -1].astype(float)
-# data = safe_float_vectorized(data).astype(float)
-# scaler = StandardScaler()
-# NUM_FEATURES = data.shape[1] - 1
-# x_combined = data[1:, :NUM_FEATURES].astype(float)
-# # x_combined = scaler.fit_transform(x_combined)
-
-
 from sklearn.preprocessing import StandardScaler
-data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-C/sep_10mev_training.csv'))
-print(data.shape)
-data = safe_float_vectorized(data[1:]).astype(float)
+train_data = np.array(read_csv_to_list_of_lists(f'../../../../tutorials/data/SEP-C/sep_10mev_training.csv'))
+print(train_data.shape)
+train_data = safe_float_vectorized(train_data[1:]).astype(float)
 NUM_FEATURES = 22
-y_combined = data[:, NUM_FEATURES].astype(float)
+y_train = train_data[:, NUM_FEATURES].astype(float)
 scaler = StandardScaler()
-x_combined = data[:, :NUM_FEATURES].astype(float)
-x_combined = scaler.fit_transform(x_combined)
+x_train = train_data[:, :NUM_FEATURES].astype(float)
 
+test_data = np.array(read_csv_to_list_of_lists(f'../../../../tutorials/data/SEP-C/sep_10mev_testing.csv'))
+print(test_data.shape)
+test_data = safe_float_vectorized(test_data[1:]).astype(float)
+NUM_FEATURES = 22
+y_test = test_data[:, NUM_FEATURES].astype(float)
+x_test = test_data[:, :NUM_FEATURES].astype(float)
 
-# from sklearn.preprocessing import StandardScaler
-# data = np.array(read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_1_filled_ie_trim.csv'))[1:]
-# for i in range(43):
-#     if os.path.exists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv'):
-#         data = np.concatenate([data, read_csv_to_list_of_lists(f'{PATH_START}/tutorials/data/SEP-EC/training/sep_event_{i+2}_filled_ie_trim.csv')[1:]])
-# print(data.shape)
-# data = safe_float_vectorized(data).astype(float)
-# y_combined = data[:, 182].astype(float)
-# scaler = StandardScaler()
-# NUM_FEATURES = 182
-# x_combined = data[:, :NUM_FEATURES].astype(float)
-# x_combined = scaler.fit_transform(x_combined)
+x_combined = np.concatenate((x_train, x_test), axis=0)
+y_combined = np.concatenate((y_train, y_test), axis=0)
+scaled_x_combined = scaler.fit_transform(x_combined)
 
-print(x_combined.shape)
-print(y_combined.shape)
+x_train = scaled_x_combined[:x_train.shape[0]]
+x_test = scaled_x_combined[x_train.shape[0]:]
 
-num_data = x_combined.shape[0]
-percent_index = int(num_data * DATASET_PERCENTAGE)
-shuffled_indices = np.random.RandomState(seed=0).permutation(len(x_combined))[:percent_index]
-x_combined = x_combined[shuffled_indices].astype(np.float32)
-y_combined = y_combined[shuffled_indices].astype(np.float32)
-num_data = x_combined.shape[0]
-split_index = int(num_data * TRAIN_SPLIT)
-x_train, x_test = x_combined[:split_index], x_combined[split_index:]
-y_train, y_test = y_combined[:split_index], y_combined[split_index:]
+print(x_train.shape, y_train.shape)
+print(x_test.shape, y_test.shape)
+
 if MODEL_TASK == 'classification':
     y_train = (y_train >= math.log(10)).astype(int)
     y_test = (y_test >= math.log(10)).astype(int)
@@ -152,109 +127,6 @@ if MODE == 'balanced':
 if MODE == 'decoupled':
     fit_function = model.decoupled_fit
 
-def determine_ideal_epochs(
-    in_model,
-    x,
-    y,
-    sample_weight=None,
-    validation_split=0.2,
-    delta = 0,
-    patience = 10,
-    max_epochs=10000
-):
-
-    in_model.save_weights('initial.weights.h5')
-    TRIALS = 5
-    epochs = 0
-    for i in range(TRIALS):
-
-        common_x_train = x_train[y_train < math.log(10)]
-        rare_x_train = x_train[y_train > math.log(10)]
-        common_y_train = y_train[y_train < math.log(10)]
-        rare_y_train = y_train[y_train > math.log(10)]
-
-        common_permutation = np.random.permutation(len(common_y_train))
-        common_x_train = common_x_train[common_permutation]
-        common_y_train = common_y_train[common_permutation]
-
-        rare_permutation = np.random.permutation(len(rare_y_train))
-        rare_x_train = rare_x_train[rare_permutation]
-        rare_y_train = rare_y_train[rare_permutation]
-
-        common_x_val = common_x_train[round(len(common_x_train)*.8):]
-        common_x_train = common_x_train[:round(len(common_x_train) * .8)]
-        rare_x_val = rare_x_train[round(len(rare_x_train) * .8):]
-        rare_x_train = rare_x_train[:round(len(rare_x_train) * .8)]
-        common_y_val = common_y_train[round(len(common_y_train) * .8):]
-        common_y_train = common_y_train[:round(len(common_y_train) * .8)]
-        rare_y_val = rare_y_train[round(len(rare_y_train) * .8):]
-        rare_y_train = rare_y_train[:round(len(rare_y_train) * .8)]
-
-        final_x_train = np.concatenate((common_x_train, rare_x_train))
-        final_y_train = np.concatenate((common_y_train, rare_y_train))
-        final_x_val = np.concatenate((common_x_val, rare_x_val))
-        final_y_val = np.concatenate((common_y_val, rare_y_val))
-
-        train_permutation = np.random.permutation(len(final_x_train))
-        val_permutation = np.random.permutation(len(final_x_val))
-
-        final_x_train = final_x_train[train_permutation]
-        final_y_train = final_y_train[train_permutation]
-        final_x_val = final_x_val[val_permutation]
-        final_y_val = final_y_val[val_permutation]
-
-        assert len(final_x_train) == len(final_y_train)
-        assert len(final_x_val) == len(final_y_val)
-
-        train_dataset = imbal.classification.DatasetWithBatching(
-            final_x_train,
-            final_y_train,
-            batch_size=batch_size
-        )
-        val_dataset = imbal.classification.DatasetWithBatching(
-            final_x_val,
-            final_y_val,
-            batch_size=batch_size
-        )
-
-
-        stopper = tf.keras.callbacks.EarlyStopping(
-            monitor='val_loss',
-            min_delta=delta,
-            patience=patience
-        )
-        in_model.compile(
-            loss="binary_crossentropy" if MODEL_TASK == 'classification' else 'mse',
-            optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-            metrics=["accuracy" if MODEL_TASK == 'classification' else "mse"],
-            stratify_batches=STRATIFY,
-            generate_decoder_branch=AE,
-            representation_layer_index=REPRESENTATION_LAYER_INDEX
-        )
-        history = in_model.fit(
-            train_dataset,
-            batch_size=batch_size,
-            validation_data=val_dataset,
-            sample_weight=sample_weight,
-            epochs=max_epochs,
-            callbacks=[stopper]
-        )
-        epochs += len(history.history['loss']) - patience
-        in_model.load_weights('initial.weights.h5')
-
-    return round(epochs / TRIALS)
-
-
-# print(f'\n\n\nTESTING\n\n{determine_ideal_epochs(
-#     model,
-#     x_train,
-#     y_train,
-#     patience=20,
-#     delta=0
-# )}\n\n\n')
-
-history = None
-
 start = time.time()
 weights = np.ones(x_train.shape[0])
 if MODE == 'decoupled':
@@ -279,13 +151,29 @@ elif MODE == 'balanced':
     )
     weights = imbal.regression.generate_sample_weights(densities)
 
+model.override_second_stage_fit_parameters(
+    epochs=epochs,
+    callbacks=[
+        keras.callbacks.EarlyStopping(patience=20)
+    ]
+)
+
 history = fit_function(
     x_train,
     y_train,
+    validation_split=0.2,
     sample_weight=weights,
     batch_size=batch_size,
-    epochs=epochs
+    epochs=epochs,
+    callbacks=[
+        keras.callbacks.EarlyStopping(patience=20)
+    ]
 )
+
+if (MODE == 'decoupled'):
+    one, two = history
+    print('Stage lengths:')
+    print(len(one.epoch), len(two.epoch))
 
 end = time.time()
 

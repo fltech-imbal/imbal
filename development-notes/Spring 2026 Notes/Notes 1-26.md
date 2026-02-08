@@ -321,7 +321,7 @@ Note: For all tests below, batches are stratified
 
 | Method               | Representation Layer | Epochs | Time (s) | Frequent MSE | Rare MSE |
 | -------------------- | -------------------- | ------ | -------- | ------------ | -------- |
-| ==Regular w/o AE==   | ==N/A==              | 1057   | 66.42    | 0.313        | 17.279   |
+| ==Regular w/o AE==   | ==N/A==              |        |          |              |          |
 | ==Balanced w/o AE==  | ==N/A==              |        |          |              |          |
 | ==Decoupled w/o AE== | ==-2==               |        |          |              |          |
 | ==Decoupled w/o AE== | ==-3==               |        |          |              |          |
