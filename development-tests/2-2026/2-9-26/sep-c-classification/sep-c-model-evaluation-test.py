@@ -14,8 +14,8 @@ MODEL_TASK = 'classification'
 
 MODE = 'decoupled'
 STRATIFY = True
-AE = False
-REPRESENTATION_LAYER_INDEX = -2
+AE = True
+REPRESENTATION_LAYER_INDEX = -4
 GEN_OUTPUT = True
 batch_size = 512
 epochs = 10000
