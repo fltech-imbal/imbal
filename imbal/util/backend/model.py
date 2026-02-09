@@ -610,6 +610,11 @@ class Model(keras.Model):
                     units = layer.input.shape[-1]
                     config['units'] = units
                     new_layer = keras.layers.Dense(**config)
+                elif isinstance(layer, keras.layers.Flatten):
+                    config.pop('data_format', None)
+                    config.pop('channels_last', None)
+                    config['target_shape'] = block[layer_index-1].output.shape[1:]
+                    new_layer = keras.layers.Reshape(**config)
 
                 # Failsafe for non-trainable layers
                 elif not (hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')):
@@ -625,12 +630,21 @@ class Model(keras.Model):
                 current_ae_block.append(new_layer)
             ae_branch_blocks.append(current_ae_block)
 
+        for block in ae_branch_blocks:
+            for i in range(1, len(block)):
+                current_layer = block[i]
+                if isinstance(current_layer, keras.layers.Reshape):
+                    prev_layer = block[i-1]
+                    block[i-1] = current_layer
+                    block[i] = prev_layer
+
+
         # For better results, last block should only be made on trainable layers (activation
         # and normalization layers can sometimes prevent reaching the goal reconstruction)
         refined_last_block = []
         for layer in ae_branch_blocks[-1]:
             if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')\
-                    or isinstance(layer, keras.layers.MaxPooling2D):
+                    or isinstance(layer, keras.layers.MaxPooling2D) or isinstance(layer, keras.layers.Reshape):
                 refined_last_block.append(layer)
         ae_branch_blocks[-1] = refined_last_block
 
@@ -644,6 +658,7 @@ class Model(keras.Model):
         ae_layer_list = [layer for block in ae_branch_blocks for layer in block]
         last_layer = self.layers[representation_layer_index]
         for layer in ae_layer_list:
+            print(layer.name)
             print(last_layer.output.shape)
             layer(last_layer.output)
             last_layer = layer

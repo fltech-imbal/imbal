@@ -5,12 +5,12 @@ import numpy as np
 import os, math, time, imbal
 import matplotlib.pyplot as plt
 
-MODEL_TASK = 'regression'
+MODEL_TASK = 'classification'
 
 MODE = 'decoupled'
 STRATIFY = True
 AE = True
-REPRESENTATION_LAYER_INDEX = -4
+REPRESENTATION_LAYER_INDEX = -4 
 GEN_OUTPUT = True
 
 batch_size = 512
@@ -46,6 +46,11 @@ x_test = x_data[round(len(x_data)*TRAIN_SPLIT):]
 
 y_train = np.array(y_train).reshape(-1)
 y_test = np.array(y_test).reshape(-1)
+
+if MODEL_TASK == 'classification':
+    y_train = (y_train <= 18) | (y_train >= 80)
+    y_test = (y_test <= 18) | (y_test >= 80)
+    print(y_train[:10])
 
 print(type(x_train))
 
@@ -198,9 +203,6 @@ else:
 
 
 predictions = predictions.reshape(-1,)
-
-
-
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 y_test_labels = y_test.reshape(-1)
