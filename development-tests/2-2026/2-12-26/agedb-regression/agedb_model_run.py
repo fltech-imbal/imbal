@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 MODEL_TASK = 'regression'
 
-MODE = ''
+MODE = 'balanced'
 STRATIFY = True
 AE = False
 REPRESENTATION_LAYER_INDEX = -2
