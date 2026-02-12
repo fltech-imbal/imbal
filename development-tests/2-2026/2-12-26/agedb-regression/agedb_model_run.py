@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 
 MODEL_TASK = 'regression'
 
-MODE = 'decoupled'
+MODE = ''
 STRATIFY = True
-AE = True
-REPRESENTATION_LAYER_INDEX = -4
+AE = False
+REPRESENTATION_LAYER_INDEX = -2
 GEN_OUTPUT = True
 
 batch_size = 512
@@ -93,8 +93,43 @@ block_4_layer_4 = layers.BatchNormalization()(block_4_layer_3)
 block_4_layer_5 = layers.Add()([block_3_layer_6, block_4_layer_4])
 block_4_layer_6 = layers.ReLU()(block_4_layer_5)
 
-x = layers.Flatten()(block_4_layer_6)
-x = layers.Dense(32, activation='relu')(x)
+block_5_layer_0 = layers.Conv2D(64, 3, strides=(2, 2), padding='same')(block_4_layer_6)
+block_5_layer_1 = layers.BatchNormalization()(block_5_layer_0)
+block_5_layer_2 = layers.ReLU()(block_5_layer_1)
+block_5_layer_3 = layers.Conv2D(64, 3, padding='same')(block_5_layer_2)
+block_5_layer_4 = layers.BatchNormalization()(block_5_layer_3)
+block_5_shortcut_reduction = layers.Conv2D(64, 1, strides=(2, 2), padding='same')(block_4_layer_6)
+block_5_layer_5 = layers.Add()([block_5_shortcut_reduction, block_5_layer_4])
+block_5_layer_6 = layers.ReLU()(block_5_layer_5)
+
+block_6_layer_0 = layers.Conv2D(64, 3, padding='same')(block_5_layer_6)
+block_6_layer_1 = layers.BatchNormalization()(block_6_layer_0)
+block_6_layer_2 = layers.ReLU()(block_6_layer_1)
+block_6_layer_3 = layers.Conv2D(64, 3, padding='same')(block_6_layer_2)
+block_6_layer_4 = layers.BatchNormalization()(block_6_layer_3)
+block_6_layer_5 = layers.Add()([block_5_layer_6, block_6_layer_4])
+block_6_layer_6 = layers.ReLU()(block_6_layer_5)
+
+block_7_layer_0 = layers.Conv2D(64, 3, strides=(2, 2), padding='same')(block_6_layer_6)
+block_7_layer_1 = layers.BatchNormalization()(block_7_layer_0)
+block_7_layer_2 = layers.ReLU()(block_7_layer_1)
+block_7_layer_3 = layers.Conv2D(64, 3, padding='same')(block_7_layer_2)
+block_7_layer_4 = layers.BatchNormalization()(block_7_layer_3)
+block_7_shortcut_reduction = layers.Conv2D(64, 1, strides=(2, 2), padding='same')(block_6_layer_6)
+block_7_layer_5 = layers.Add()([block_7_shortcut_reduction, block_7_layer_4])
+block_7_layer_6 = layers.ReLU()(block_7_layer_5)
+
+block_8_layer_0 = layers.Conv2D(64, 3, padding='same')(block_7_layer_6)
+block_8_layer_1 = layers.BatchNormalization()(block_8_layer_0)
+block_8_layer_2 = layers.ReLU()(block_8_layer_1)
+block_8_layer_3 = layers.Conv2D(64, 3, padding='same')(block_8_layer_2)
+block_8_layer_4 = layers.BatchNormalization()(block_8_layer_3)
+block_8_layer_5 = layers.Add()([block_7_layer_6, block_8_layer_4])
+block_8_layer_6 = layers.ReLU()(block_8_layer_5)
+pooling = layers.GlobalAveragePooling2D()(block_8_layer_6)
+
+x = layers.Flatten()(pooling)
+x = layers.Dense(128, activation='relu')(x)
 x = layers.Flatten()(x)
 output = layers.Dense(1, activation='sigmoid' if MODEL_TASK == 'classification' else 'linear')(x)
 
@@ -145,7 +180,7 @@ if MODE == 'decoupled':
     )
     weights = imbal.regression.generate_sample_weights(densities)
     model.override_second_stage_fit_parameters(callbacks=[
-        keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        keras.callbacks.EarlyStopping(patience=40, restore_best_weights=True)
     ])
     epochs = (epochs, epochs)
 
@@ -166,7 +201,7 @@ history = fit_function(
     epochs=epochs,
     stratify_batches=STRATIFY,
     callbacks=[
-        keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        keras.callbacks.EarlyStopping(patience=40, restore_best_weights=True)
     ]
 )
 
@@ -306,10 +341,10 @@ else:
     y_common_mask = (y_test_labels > 18) & (y_test_labels < 80)
     plt.figure(figsize=(7, 6))
     plt.plot([-1, 200], [-1, 200], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
-    plt.scatter(y_test_labels[y_common_mask], predictions.reshape(-1)[y_common_mask], color="blue", alpha=0.3)
-    plt.scatter(y_test_labels[y_rare_mask], predictions.reshape(-1)[y_rare_mask], color="green", alpha=0.3)
-    plt.plot([-1, 200], [18, 18], color='red', linestyle="--")
-    plt.plot([-1, 200], [80, 80], color='red', linestyle="--")
+    plt.scatter(y_test_labels[y_common_mask], predictions.reshape(-1)[y_common_mask], color="#00ff00", alpha=0.3)
+    plt.scatter(y_test_labels[y_rare_mask], predictions.reshape(-1)[y_rare_mask], color="#ff0000", alpha=0.3)
+    plt.plot([-1, 200], [18, 18], color='#00000040', linestyle="--")
+    plt.plot([-1, 200], [80, 80], color='#00000040', linestyle="--")
     plt.xlabel("True Label")
     plt.ylabel("Predicted Label")
     plt.xlim(0, 102)
