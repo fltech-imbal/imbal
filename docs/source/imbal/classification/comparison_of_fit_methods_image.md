@@ -1,4 +1,4 @@
-# Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Image Data
+# Comparison of Methods: Regular vs. Balanced vs. cRT Fit on Image Classification
 
 Below is a comparison of [decoupled fit](cRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
@@ -35,17 +35,17 @@ threshold of $0.5$.
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>Confusion Matrix</p>
 <img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix--low.png"/>
+src="../../_static/classification/image_fit_comparison/confusion-matrix--low-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>TSNE Visualization</p>
 <img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization--low.png"/>
+src="../../_static/classification/image_fit_comparison/tsne_visualization--low-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>ROC Curve</p>
 <img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve--low.png"/>
+src="../../_static/classification/image_fit_comparison/roc-curve--low-rep-2.png"/>
 </div>  
 </div>
 

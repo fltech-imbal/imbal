@@ -18,18 +18,18 @@
 Stratify sampling is on for all tables below. Validation split = 0.2. Used `EarlyStopping` with a patience of 20. Learning rate 4e-4.
 ## Regression on SEP-C
 
-| Method               | Representation Layer | Epochs   | Time (s) | Frequent MSE | Rare MSE |
-| -------------------- | -------------------- | -------- | -------- | ------------ | -------- |
-| ==Regular w/o AE==   | ==N/A==              | 1220     | 78.29    | 0.3806       | 14.7851  |
-| ==Balanced w/o AE==  | ==N/A==              | 95       | 6.82     | 8.0030       | 2.1647   |
-| ==Decoupled w/o AE== | ==-2==               | 1161/30  | 75.29    | 2.7675       | 5.4321   |
-| ==Decoupled w/o AE== | ==-3==               | 1401/35  | 89.16    | 4.6619       | 2.8369   |
-| Regular w/ AE        | -2                   | 394      | 28.84    | 0.2706       | 12.1286  |
-| Balanced w/ AE       | -2                   | 121      | 9.15     | 7.8233       | 2.2785   |
-| Decoupled w/ AE      | -2                   | 391/283  | 46.99    | 6.4371       | 2.8791   |
-| Regular w/ AE        | -3                   | 515      | 37.39    | 0.2871       | 11.1098  |
-| Balanced w/ AE       | -3                   | 163      | 12.91    | 7.5920       | 2.1879   |
-| Decoupled w/ AE      | -3                   | 2065/109 | 166.61   | 5.6786       | 2.2497   |
+| Method               | Representation Layer | Epochs  | Time (s) | Frequent MSE | Rare MSE | Average |
+| -------------------- | -------------------- | ------- | -------- | ------------ | -------- | ------- |
+| ==Regular w/o AE==   | ==N/A==              | 1124    | 71.13    | 0.4685       | 14.4414  | 7.4550  |
+| ==Balanced w/o AE==  | ==N/A==              | 95      | 7.27     | 8.0013       | 2.1646   | 5.0830  |
+| ==Decoupled w/o AE== | ==-2==               | 1523/24 | 102.64   | 2.7540       | 5.5742   | 4.1641  |
+| ==Decoupled w/o AE== | ==-3==               | 1162/32 | 74.67    | 4.5330       | 3.2080   | 3.8705  |
+| Regular w/ AE        | -2                   | 391     | 28.66    | 0.2714       | 12.2392  | 6.2553  |
+| Balanced w/ AE       | -2                   | 121     | 9.51     | 7.8233       | 2.2784   | 5.0509  |
+| Decoupled w/ AE      | -2                   | 379/337 | 48.67    | 6.4606       | 2.8140   | 4.6372  |
+| Regular w/ AE        | -3                   | 1478    | 120.95   | 0.3815       | 17.1761  | 8.7788  |
+| Balanced w/ AE       | -3                   | 163     | 12.71    | 7.5923       | 2.1908   | 4.8916  |
+| Decoupled w/ AE      | -3                   | 1625/98 | 127.37   | 5.5401       | 2.2220   | 3.8811  |
 ## Classification on SEP-C
 
 | Method               | Representation Layer | Epochs   | Time (s) | Rare F1 | Rare AUROC |
@@ -38,7 +38,7 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 | ==Balanced w/o AE==  | ==N/A==              | 135      | 8.92     | 0.1891  | 0.9311     |
 | ==Decoupled w/o AE== | ==-2==               | 373/53   | 26.20    | 0.4285  | 0.9746     |
 | ==Decoupled w/o AE== | ==-3==               | 317/35   | 21.80    | 0.0809  | 0.9468     |
-| Regular w/ AE        | -2                   | 1299     | 92.42    | 0.4999  | 0.8802     |
+| Regular w/ AE        | -2                   | 1145     | 90.42    | 0.5185  | 0.9460     |
 | Balanced w/ AE       | -2                   | 334      | 23.93    | 0.4642  | 0.9144     |
 | Decoupled w/ AE      | -2                   | 1342/306 | 114.49   | 0.4799  | 0.9137     |
 | Regular w/ AE        | -3                   | 912      | 62.22    | 0.4999  | 0.8964     |
@@ -46,32 +46,32 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 | Decoupled w/ AE      | -3                   | 1195/140 | 91.19    | 0.4727  | 0.9789     |
 ## Regression on `AgeDB`
 
-| Method           | Representation Layer | Epochs  | Time (s) | Frequent MSE | Rare MSE |
-| ---------------- | -------------------- | ------- | -------- | ------------ | -------- |
-| Regular w/o AE   | N/A                  | 38      | 20.12    | 177.8285     | 545.1328 |
-| Balanced w/o AE  | N/A                  | 43      | 23.08    | 245.7015     | 501.7611 |
-| Decoupled w/o AE | -2                   | 46/41   | 38.40    | 228.0658     | 504.6126 |
-| Decoupled w/o AE | -3                   | 39/31   | 32.91    | 269.7757     | 442.1957 |
-| Regular w/ AE    | -2                   | 98      | 82.33    | 186.0832     | 539.1149 |
-| Balanced w/ AE   | -2                   | 187     | 135.20   | 245.0360     | 470.3938 |
-| Decoupled w/ AE  | -2                   | 120/187 | 156.80   | 269.3215     | 573.4518 |
-| Regular w/ AE    | -3                   | 96      | 75.74    | 181.8075     | 558.9628 |
-| Balanced w/ AE   | -3                   | 228     | 160.28   | 275.1886     | 528.5124 |
-| Decoupled w/ AE  | -3                   | 199/208 | 211.02   | 237.7709     | 468.4099 |
-## Classification on `AgeDB`
+| Method           | Representation Layer | Epochs | Time (s) | Frequent MSE | Rare MSE | Average |
+| ---------------- | -------------------- | ------ | -------- | ------------ | -------- | ------- |
+| Regular w/o AE   | N/A                  |        |          |              |          |         |
+| Balanced w/o AE  | N/A                  |        |          |              |          |         |
+| Decoupled w/o AE | -2                   |        |          |              |          |         |
+| Decoupled w/o AE | -3                   |        |          |              |          |         |
+| Regular w/ AE    | -2                   |        |          |              |          |         |
+| Balanced w/ AE   | -2                   |        |          |              |          |         |
+| Decoupled w/ AE  | -2                   |        |          |              |          |         |
+| Regular w/ AE    | -3                   |        |          |              |          |         |
+| Balanced w/ AE   | -3                   |        |          |              |          |         |
+| Decoupled w/ AE  | -3                   |        |          |              |          |         |
+## Classification on MNIST
 
-| Method           | Representation Layer | Epochs  | Time (s) | Rare F1 | Rare AUROC |
-| ---------------- | -------------------- | ------- | -------- | ------- | ---------- |
-| Regular w/o AE   | N/A                  | 29      | 18.18    | 0.0159  | 0.5440     |
-| Balanced w/o AE  | N/A                  | 27      | 18.15    | 0.1251  | 0.6079     |
-| Decoupled w/o AE | -2                   | 26/21   | 26.16    | 0.1005  | 0.5282     |
-| Decoupled w/o AE | -3                   | 27/21   | 24.07    | 0.0991  | 0.5622     |
-| Regular w/ AE    | -2                   | 580     | 414.57   | 0.1019  | 0.5365     |
-| Balanced w/ AE   | -2                   | 350     | 254.89   | 0.1240  | 0.6309     |
-| Decoupled w/ AE  | -2                   | 587/125 | 469.49   | 0.1056  | 0.5978     |
-| Regular w/ AE    | -3                   | 858     | 609.09   | 0.0     | 0.5846     |
-| Balanced w/ AE   | -3                   |         |          |         |            |
-| Decoupled w/ AE  | -3                   |         |          |         |            |
+| Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
+| ---------------- | -------------------- | ------ | -------- | ------- | ---------- |
+| Regular w/o AE   | N/A                  |        |          |         |            |
+| Balanced w/o AE  | N/A                  |        |          |         |            |
+| Decoupled w/o AE | -2                   |        |          |         |            |
+| Decoupled w/o AE | -3                   |        |          |         |            |
+| Regular w/ AE    | -2                   |        |          |         |            |
+| Balanced w/ AE   | -2                   |        |          |         |            |
+| Decoupled w/ AE  | -2                   |        |          |         |            |
+| Regular w/ AE    | -3                   |        |          |         |            |
+| Balanced w/ AE   | -3                   |        |          |         |            |
+| Decoupled w/ AE  | -3                   |        |          |         |            |
 
 ---
 ## Notes:
@@ -90,15 +90,33 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 # 2/5/26
 ## Tasks:
  - `AgeDB` on table $\checkmark$
-	- Documentation overhaul (WIP) $\times$
-- **Later on:** Refactoring / rewrite of `generate_decoder_branch` $\times$
+	- Documentation overhaul $\checkmark$
+		- Just missing `AgeDB` classfication $\times$
+
 - For SEP-C regression plots, adjust $\checkmark$
 	- Vertical line for ln(10), both ln(10) lines should be gray $\checkmark$
 	- Change green dots $\rightarrow$ red $\checkmark$
 - Get rid of `override_second_stage_compile_parameters` $\checkmark$
-- Can Callbacks be 'deep copied' before fit is performed? If so, do that $\times$
 - First and second stage of decoupled, *same number of epochs now* $\checkmark$
 - `stratify_batches` should be a parameter for the fit functions $\checkmark$
 ## Notes
 - Logic errors found in `decoupled_fit`
 	- Stage one sample weighting was not instance based when validation data was provided
+- I'm skeptical that `AgeDB` is a good dataset for the purposes of what we are trying to demonstrate in the documentation.
+	- Should these remain "bare bones" examples?
+	- Should I normalize output?
+	- Should I normalize input?
+# 2/10/26
+## Tasks
+- For balanced/decoupled fit, ensure validation data is *always* weighted in some manner when weights are not supplied $\checkmark$
+	- Both classification and regression $\checkmark$
+- Red and green need to be swapped for regression $\checkmark$
+	- `AgeDB` needs this too (!!!)
+		- Done for SEP-C regression $\checkmark$
+- cRT $\rightarrow$ rRT in documentation tables $\checkmark$
+- For regression tables, one more column, average of rare and frequent MSE $\checkmark$
+- MNIST for image classification
+- Use [Resnet-like](https://arxiv.org/pdf/1512.03385) architecture for `AgeDB` model (regression)
+- Documentation overhaul
+- **Later on:** Refactoring / rewrite of `generate_decoder_branch` $\times$
+- Can Callbacks be 'deep copied' before fit is performed? If so, do that $\times$

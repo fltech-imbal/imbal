@@ -329,37 +329,262 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="comparison-of-autoencoder-regular-vs-balanced-vs-rrt-fit-on-image-data">
 <h1>Comparison of Autoencoder: Regular vs. Balanced vs. rRT Fit on Image Data<a class="headerlink" href="#comparison-of-autoencoder-regular-vs-balanced-vs-rrt-fit-on-image-data" title="Link to this heading">#</a></h1>
-<section id="regular-fit-with-autoencoder">
-<h2>Regular Fit with Autoencoder<a class="headerlink" href="#regular-fit-with-autoencoder" title="Link to this heading">#</a></h2>
-<div style="display: flex; max-width: 100%; width:650px">
+<section id="regular-fit-with-autoencoder-representation-layer-2">
+<h2>Regular Fit with Autoencoder (representation layer = -2)<a class="headerlink" href="#regular-fit-with-autoencoder-representation-layer-2" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume data has already been loaded into x_train, y_train, x_test, and y_test</span>
+    <span class="n">input_shape</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">112</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))(</span><span class="n">inputs</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">4e-4</span><span class="p">),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mse&quot;</span><span class="p">],</span>
+        <span class="n">generate_decoder_branch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">representation_layer_index</span><span class="o">=-</span><span class="mi">2</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
 <img alt="test"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/fit-comparison--ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/regression-true-pred--ae-True-rep-2.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
 <img alt="test 2"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/tsne_visualization--ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/tsne_visualization--ae-True-rep-2.png"/>
+</div>
 </div>
 </section>
-<section id="balanced-fit-with-autoencoder">
-<h2>Balanced Fit with Autoencoder<a class="headerlink" href="#balanced-fit-with-autoencoder" title="Link to this heading">#</a></h2>
-<div style="display: flex; max-width: 100%; width:650px">
+<section id="balanced-fit-with-autoencoder-representation-layer-2">
+<h2>Balanced Fit with Autoencoder (representation layer = -2)<a class="headerlink" href="#balanced-fit-with-autoencoder-representation-layer-2" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume the data loading, model construction and compilation as shown in regular fit above.</span>
+
+    <span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">bin_count</span><span class="o">=</span><span class="mi">64</span>
+    <span class="p">)</span>
+    <span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">kde_bandwidth</span>
+    <span class="p">)</span>
+
+    <span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
 <img alt="test"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/fit-comparison-balanced-ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/regression-true-pred-balanced-ae-True-rep-2.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
 <img alt="test 2"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-balanced-ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/tsne_visualization-balanced-ae-True-rep-2.png"/>
+</div>
 </div>
 </section>
-<section id="rrt-fit-with-autoencoder">
-<h2>rRT Fit with Autoencoder<a class="headerlink" href="#rrt-fit-with-autoencoder" title="Link to this heading">#</a></h2>
-<div style="display: flex; max-width: 100%; width:650px">
+<section id="rrt-fit-with-autoencoder-representation-layer-2">
+<h2>rRT Fit with Autoencoder (representation layer = -2)<a class="headerlink" href="#rrt-fit-with-autoencoder-representation-layer-2" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume the data loading, model construction and compilation as shown in regular fit above.</span>
+
+    <span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
+            <span class="n">y_train</span><span class="p">,</span>
+            <span class="n">bin_count</span><span class="o">=</span><span class="mi">64</span>
+        <span class="p">)</span>
+    <span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">kde_bandwidth</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">override_second_stage_fit_parameters</span><span class="p">(</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">rRT_fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
 <img alt="test"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/fit-comparison-decoupled-ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/regression-true-pred-decoupled-ae-True-rep-2.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
 <img alt="test 2"
-style="flex: 1; max-width: 50%;"
-src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-decoupled-ae-True.png"/>
+src="../../_static/regression/image_fit_comparison/tsne_visualization-decoupled-ae-True-rep-2.png"/>
+</div>
+</div>
+</section>
+<section id="regular-fit-with-autoencoder-representation-layer-3">
+<h2>Regular Fit with Autoencoder (representation layer = -3)<a class="headerlink" href="#regular-fit-with-autoencoder-representation-layer-3" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume the data loading and model construction as shown in regular fit above.</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">4e-4</span><span class="p">),</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">],</span>
+        <span class="n">generate_decoder_branch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">representation_layer_index</span><span class="o">=-</span><span class="mi">3</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
+<img alt="test"
+src="../../_static/regression/image_fit_comparison/regression-true-pred--ae-True-rep-4.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
+<img alt="test 2"
+src="../../_static/regression/image_fit_comparison/tsne_visualization--ae-True-rep-4.png"/>
+</div>
+</div>
+</section>
+<section id="balanced-fit-with-autoencoder-representation-layer-3">
+<h2>Balanced Fit with Autoencoder (representation layer = -3)<a class="headerlink" href="#balanced-fit-with-autoencoder-representation-layer-3" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume the data loading, model construction and compilation as shown in regular fit above.</span>
+
+    <span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">bin_count</span><span class="o">=</span><span class="mi">64</span>
+    <span class="p">)</span>
+    <span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">kde_bandwidth</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
+<img alt="test"
+src="../../_static/regression/image_fit_comparison/regression-true-pred-balanced-ae-True-rep-4.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
+<img alt="test 2"
+src="../../_static/regression/image_fit_comparison/tsne_visualization-balanced-ae-True-rep-4.png"/>
+</div>
+</div>
+</section>
+<section id="rrt-fit-with-autoencoder-representation-layer-3">
+<h2>rRT Fit with Autoencoder (representation layer = -3)<a class="headerlink" href="#rrt-fit-with-autoencoder-representation-layer-3" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Assume the data loading, model construction and compilation as shown in regular fit above.</span>
+
+    <span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">bin_count</span><span class="o">=</span><span class="mi">64</span>
+    <span class="p">)</span>
+    <span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">kde_bandwidth</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">override_second_stage_fit_parameters</span><span class="p">(</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    
+    <span class="n">model</span><span class="o">.</span><span class="n">rRT_fit</span><span class="p">(</span>
+        <span class="n">x_train</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">,</span>
+        <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">epochs</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>Prediction Plot</p>
+<img alt="test"
+src="../../_static/regression/image_fit_comparison/regression-true-pred-decoupled-ae-True-rep-4.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:50%;">
+<p>TSNE Visualization</p>
+<img alt="test 2"
+src="../../_static/regression/image_fit_comparison/tsne_visualization-decoupled-ae-True-rep-4.png"/>
+</div>
 </div>
 </section>
 <section id="comparison-of-methods">
@@ -368,47 +593,93 @@ src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-decoupled-a
 <thead>
 <tr class="row-odd"><th class="head"><p>Method</p></th>
 <th class="head"><p>Autoencoder?</p></th>
+<th class="head"><p>Representation Layer Index</p></th>
+<th class="head"><p>Epochs</p></th>
 <th class="head"><p>Time (s)</p></th>
-<th class="head"><p>Frequent Sample MSE  (Digit 0)</p></th>
-<th class="head"><p>Rare Sample MSE  (Digit 9)</p></th>
+<th class="head"><p>Frequent MSE</p></th>
+<th class="head"><p>Rare MSE</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Regular</p></td>
 <td><p>No</p></td>
-<td><p><span class="math notranslate nohighlight">\(85.31\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.4929\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(9.3896\)</span></p></td>
+<td><p>N/A</p></td>
+<td><p><span class="math notranslate nohighlight">\(38\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(20.12\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(177.829\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(545.133\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p>Regular</p></td>
 <td><p>Yes</p></td>
-<td><p><span class="math notranslate nohighlight">\(220.24\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.2454\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.7639\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(-2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(98\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(82.33\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(186.083\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(539.115\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Regular</p></td>
+<td><p>Yes</p></td>
+<td><p><span class="math notranslate nohighlight">\(-3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(96\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(75.74\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(181.808\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(558.963\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Balanced</p></td>
+<td><p>No</p></td>
+<td><p>N/A</p></td>
+<td><p><span class="math notranslate nohighlight">\(43\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(23.08\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(245.702\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(501.761\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p>Balanced</p></td>
-<td><p>No</p></td>
-<td><p><span class="math notranslate nohighlight">\(80.95\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(1.8764\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(2.3904\)</span></p></td>
+<td><p>Yes</p></td>
+<td><p><span class="math notranslate nohighlight">\(-2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(187\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(135.20\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(245.036\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(470.394\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p>Balanced</p></td>
 <td><p>Yes</p></td>
-<td><p><span class="math notranslate nohighlight">\(235.87\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.6042\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(2.6974\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(-3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(228\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(160.28\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(275.189\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(528.512\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p>rRT</p></td>
 <td><p>No</p></td>
-<td><p><span class="math notranslate nohighlight">\(111.84\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(1.6591\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(3.6400\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(-2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(46/41\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(38.40\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(228.069\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(504.613\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>rRT</p></td>
+<td><p>No</p></td>
+<td><p><span class="math notranslate nohighlight">\(-3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(39/31\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(32.91\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(269.776\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(442.196\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>rRT</p></td>
+<td><p>Yes</p></td>
+<td><p><span class="math notranslate nohighlight">\(-2\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(120/187\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(156.80\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(269.322\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(573.452\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p>rRT</p></td>
 <td><p>Yes</p></td>
-<td><p><span class="math notranslate nohighlight">\(268.00\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(0.2423\)</span></p></td>
-<td><p><span class="math notranslate nohighlight">\(4.8219\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(-3\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(199/208\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(211.02\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(237.771\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(468.410\)</span></p></td>
 </tr>
 </tbody>
 </table>
@@ -446,9 +717,12 @@ src="../../_static/regression/decoupled_fit/mnist/tsne_visualization-decoupled-a
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-fit-with-autoencoder">Regular Fit with Autoencoder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#balanced-fit-with-autoencoder">Balanced Fit with Autoencoder</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rrt-fit-with-autoencoder">rRT Fit with Autoencoder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-fit-with-autoencoder-representation-layer-2">Regular Fit with Autoencoder (representation layer = -2)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#balanced-fit-with-autoencoder-representation-layer-2">Balanced Fit with Autoencoder (representation layer = -2)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rrt-fit-with-autoencoder-representation-layer-2">rRT Fit with Autoencoder (representation layer = -2)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regular-fit-with-autoencoder-representation-layer-3">Regular Fit with Autoencoder (representation layer = -3)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#balanced-fit-with-autoencoder-representation-layer-3">Balanced Fit with Autoencoder (representation layer = -3)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#rrt-fit-with-autoencoder-representation-layer-3">rRT Fit with Autoencoder (representation layer = -3)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-methods">Comparison of Methods</a></li>
 </ul>
   </nav></div>

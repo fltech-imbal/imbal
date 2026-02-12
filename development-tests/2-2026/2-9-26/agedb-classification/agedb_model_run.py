@@ -161,7 +161,7 @@ predictions = model.predict(x_test)
 #     y_train,
 #     kde_bandwidth,
 #     bin_count=BIN_COUNT,
-#     save_figure='sep-ec-kde-curve.png' if GEN_OUTPUT else None,
+#     save_figure='sep-c-data-distribution.png' if GEN_OUTPUT else None,
 #     padding_factor=0.0001
 # )
 

@@ -142,6 +142,7 @@ class Model(keras.Model):
         sample_density=None,
         sample_weight=None,
         validation_data=None,
+        validation_densities=None,
         validation_split=None,
         batch_size=32,
         shuffle=True,
@@ -186,12 +187,15 @@ class Model(keras.Model):
                     val_sample_weight,
                 ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
             if val_sample_weight is None:
-                combined_y = np.concatenate((y, val_y), axis=0)
-                combined_weights = self._auto_compute_weights(combined_y, None, class_weight, None)
-                sample_weight = combined_weights[:y.shape[0]]
-                sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-                val_sample_weight = combined_weights[y.shape[0]:]
-                val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
+                if validation_densities is not None:
+                    val_sample_weight = imbal.regression.generate_sample_weights(validation_densities)
+                else:
+                    combined_y = np.concatenate((y, val_y), axis=0)
+                    combined_weights = self._auto_compute_weights(combined_y, None, class_weight, None)
+                    sample_weight = combined_weights[:y.shape[0]]
+                    sample_weight = verify_weight_scale(sample_weight, show_warning=False)
+                    val_sample_weight = combined_weights[y.shape[0]:]
+                    val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
                 validation_data = (val_x, val_y, val_sample_weight)
 
         if validation_split and validation_data is None:

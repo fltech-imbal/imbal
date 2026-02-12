@@ -1,4 +1,4 @@
-# Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Image Data
+# Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Image Classification
 
 ### Regular Fit with Autoencoder (1:24 Imbalance)
 

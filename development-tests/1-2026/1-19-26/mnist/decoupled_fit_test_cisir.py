@@ -206,7 +206,7 @@ import matplotlib.pyplot as plt
 #     y_combined,
 #     kde_bandwidth,
 #     bin_count=BIN_COUNT,
-#     save_figure='sep-ec-kde-curve.png'
+#     save_figure='sep-c-data-distribution.png'
 # )
 
 predictions = predictions.reshape(-1, 1)
