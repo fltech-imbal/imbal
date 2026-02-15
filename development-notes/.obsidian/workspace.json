@@ -93,8 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5,
-    "collapsed": true
+    "width": 283.5
   },
   "right": {
     "id": "f4b539bdcde1eaad",
@@ -187,6 +186,7 @@
   },
   "active": "c13a8eec41bf35eb",
   "lastOpenFiles": [
+    "Pasted image 20260212111201.png",
     "Spring 2026 Notes/Notes 1-26.md",
     "Spring 2026 Notes/Notes 2-26.md",
     "Proposal PDF.pdf",

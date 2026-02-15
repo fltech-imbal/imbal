@@ -111,12 +111,31 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 - For balanced/decoupled fit, ensure validation data is *always* weighted in some manner when weights are not supplied $\checkmark$
 	- Both classification and regression $\checkmark$
 - Red and green need to be swapped for regression $\checkmark$
-	- `AgeDB` needs this too (!!!)
+	- `AgeDB` needs this too (!!!) $\checkmark$
 		- Done for SEP-C regression $\checkmark$
+		- Done for `AgeDB` $\checkmark$
 - cRT $\rightarrow$ rRT in documentation tables $\checkmark$
 - For regression tables, one more column, average of rare and frequent MSE $\checkmark$
 - MNIST for image classification
-- Use [Resnet-like](https://arxiv.org/pdf/1512.03385) architecture for `AgeDB` model (regression)
+- Use [Resnet-like](https://arxiv.org/pdf/1512.03385) architecture for `AgeDB` model (regression) $\checkmark$
 - Documentation overhaul
 - **Later on:** Refactoring / rewrite of `generate_decoder_branch` $\times$
 - Can Callbacks be 'deep copied' before fit is performed? If so, do that $\times$
+## Notes:
+- Discussed an issue with Daniel
+- Even after implementation of `ResNet` structure, I still have concerns about `AgeDB` (training loss decreases much faster than validation loss).
+
+![[Pasted image 20260212111201.png|600]]
+# 2/12/25
+## Tasks:
+- Lower learning rate for `AgeDB`
+	- Alternatively, learning rate schedule
+	- Alternatively, a pre-trained model
+	- Alternatively, SDO dataset
+- Check `AgeDB` regression paper
+	- Hyperparameters and such
+	- What were there results?
+- Just w/o AE comparisons for `AgeDB`
+- MNIST for image classification
+- Documentation overhaul
+- **Later on:** Refactoring / rewrite of `generate_decoder_branch`

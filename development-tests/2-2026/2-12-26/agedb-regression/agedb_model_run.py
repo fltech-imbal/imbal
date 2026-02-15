@@ -13,17 +13,15 @@ AE = False
 REPRESENTATION_LAYER_INDEX = -2
 GEN_OUTPUT = True
 
-batch_size = 512
+batch_size = 64
 epochs = 8000
-LEARNING_RATE =5e-4
-STOPPING_PATIENCE=15
+LEARNING_RATE =6e-5
+STOPPING_PATIENCE=20
 
 TRAIN_SPLIT = 0.8
-
-PATH_START = '/mnt/c/Users/tommy/PycharmProjects/DrChanWorkPlayground'
 print(os.getcwd())
 
-cropped_folder = os.path.join(PATH_START, 'AgeDB/cropped')
+cropped_folder = '../../../../AgeDB/cropped'
 
 print('loading data...')
 y_data = np.load(os.path.join(cropped_folder, 'age_labels.npy')).reshape(-1)
