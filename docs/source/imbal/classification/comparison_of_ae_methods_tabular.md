@@ -1,4 +1,4 @@
-# Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Tabular Data Classification
+# Comparison of Autoencoder: Regular vs. Balanced vs. cRT Fit on Tabular Classification
 
 ### Regular Fit with Autoencoder (representation layer = -2)
 

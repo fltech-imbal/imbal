@@ -466,14 +466,6 @@ loss should match the AUC <code class="code docutils literal notranslate"><span 
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.reset_state">
-<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.BoundedAUC.reset_state" title="Link to this definition">#</a></dt>
-<dd><p>Reset all of the metric state variables.</p>
-<p>This function is called between epochs/steps,
-when a metric is evaluated during training.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.result">
 <span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">_ScalarType_co</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#imbal.metrics.BoundedAUC.result" title="Link to this definition">#</a></dt>
 <dd><p>Compute the current metric value.</p>
@@ -482,6 +474,14 @@ when a metric is evaluated during training.</p>
 <dd class="field-odd"><p>A scalar tensor, or a dictionary of scalar tensors.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="imbal.metrics.BoundedAUC.reset_state">
+<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.BoundedAUC.reset_state" title="Link to this definition">#</a></dt>
+<dd><p>Reset all of the metric state variables.</p>
+<p>This function is called between epochs/steps,
+when a metric is evaluated during training.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -554,8 +554,8 @@ be a tensor whose rank is either 0, or the same rank as
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC"><code class="docutils literal notranslate"><span class="pre">BoundedAUC</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.reset_state"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.reset_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.result"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.reset_state"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.reset_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.BoundedAUC.update_state"><code class="docutils literal notranslate"><span class="pre">BoundedAUC.update_state()</span></code></a></li>
 </ul>
 </li>

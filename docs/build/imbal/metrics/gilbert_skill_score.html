@@ -417,14 +417,6 @@ of the metric instance.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="imbal.metrics.GilbertSkillScore.reset_state">
-<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.GilbertSkillScore.reset_state" title="Link to this definition">#</a></dt>
-<dd><p>Reset all of the metric state variables.</p>
-<p>This function is called between epochs/steps,
-when a metric is evaluated during training.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="imbal.metrics.GilbertSkillScore.result">
 <span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#imbal.metrics.GilbertSkillScore.result" title="Link to this definition">#</a></dt>
 <dd><p>Computes the current value of the metric based on the accumulated data.</p>
@@ -433,6 +425,14 @@ when a metric is evaluated during training.</p>
 <dd class="field-odd"><p>The Gilbert skill score of the accumulated data.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="imbal.metrics.GilbertSkillScore.reset_state">
+<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.GilbertSkillScore.reset_state" title="Link to this definition">#</a></dt>
+<dd><p>Reset all of the metric state variables.</p>
+<p>This function is called between epochs/steps,
+when a metric is evaluated during training.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -505,8 +505,8 @@ when a metric is evaluated during training.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.GilbertSkillScore"><code class="docutils literal notranslate"><span class="pre">GilbertSkillScore</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.GilbertSkillScore.reset_state"><code class="docutils literal notranslate"><span class="pre">GilbertSkillScore.reset_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.GilbertSkillScore.result"><code class="docutils literal notranslate"><span class="pre">GilbertSkillScore.result()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.GilbertSkillScore.reset_state"><code class="docutils literal notranslate"><span class="pre">GilbertSkillScore.reset_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.GilbertSkillScore.update_state"><code class="docutils literal notranslate"><span class="pre">GilbertSkillScore.update_state()</span></code></a></li>
 </ul>
 </li>

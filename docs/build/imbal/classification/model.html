@@ -352,121 +352,247 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="model">
 <h1>Model<a class="headerlink" href="#model" title="Link to this heading">#</a></h1>
-<p>Accessible via <code class="docutils literal notranslate"><span class="pre">imbal.classification.Model</span></code></p>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.classification.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
-<p>Classification model</p>
+<p>Package location: <code class="code docutils literal notranslate"><span class="pre">imbal.classification.Model</span></code></p>
+<p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model">Keras’s Model class</a> that
+can perform alternative types of model fits which aim to address common issues when applying
+machine learning algorithms to imbalanced/long-tail data.</p>
+<p>This <code class="code docutils literal notranslate"><span class="pre">imbal.classification.Model</span></code> class is intended for use only on classification problems.</p>
+<p>For a comparison of how these fit methods perform compared to a standard fit on imbalanced/long-tail
+data, see the information at the bottom of this page.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.balanced_fit">
-<span class="sig-name descname"><span class="pre">balanced_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_density</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_densities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.balanced_fit" title="Link to this definition">#</a></dt>
-<dd><p>TODO: balanced fit description</p>
+<span class="sig-name descname"><span class="pre">balanced_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.balanced_fit" title="Link to this definition">#</a></dt>
+<dd><p>Performs a class-balanced fit, where by default, each class is equally weighted during
+the model fitting process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong></p></li>
-<li><p><strong>y</strong></p></li>
-<li><p><strong>class_weight</strong></p></li>
-<li><p><strong>sample_density</strong></p></li>
-<li><p><strong>sample_weight</strong></p></li>
-<li><p><strong>validation_data</strong></p></li>
-<li><p><strong>validation_split</strong></p></li>
-<li><p><strong>batch_size</strong></p></li>
-<li><p><strong>shuffle</strong></p></li>
-<li><p><strong>stratify_batches</strong></p></li>
-<li><p><strong>**kwargs</strong></p></li>
+<li><p><strong>x</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A NumPy array of data points, arranged as a column vector</p></li>
+<li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
+</p></li>
+<li><p><strong>class_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of class weights, or a dictionary mapping class
+labels to class weights.</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
+overrides <code class="code docutils literal notranslate"><span class="pre">class_weights</span></code>.</p></li>
+<li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The data used to validate the model during training.
+See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
+</p></li>
+<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A float value representing the proportion of the
+provided training data to split off into a separate dataset used for model validation.</p></li>
+<li><p><strong>batch_size</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The batch size to use during training.</p>
+</p></li>
+<li><p><strong>shuffle</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+Whether to shuffle the data before each epoch.</p>
+</p></li>
+<li><p><strong>stratify_batches</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to stratify data batch-wise during training.
+See <a class="reference internal" href="dataset_with_batching.html"><span class="doc">DatasetWithBatching</span></a> for details.
+Only used when <code class="code docutils literal notranslate"><span class="pre">multi_output</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Any additional keyword arguments accepted by <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a></p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A History object. Its History.history attribute is a record of training loss values and metrics values
+at successive epochs, as well as validation loss values and validation metrics values (if applicable).</p>
+</dd>
 </dl>
-<p>Returns:</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume MNIST data is already loaded in &#39;(x_train, y_train), (x_test, y_test)&#39;</span>
+
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span>  <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;sparse_categorical_crossentropy&quot;</span><span class="p">,</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.cRT_fit">
-<span class="sig-name descname"><span class="pre">cRT_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.cRT_fit" title="Link to this definition">#</a></dt>
-<dd><p><code class="code docutils literal notranslate"><span class="pre">crt_fit</span></code> is an alias of <code class="code docutils literal notranslate"><span class="pre">decoupled_fit</span></code> (see
-<code class="code docutils literal notranslate"><span class="pre">decoupled_fit</span></code> documentation on this page).</p>
+<span class="sig-name descname"><span class="pre">cRT_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.cRT_fit" title="Link to this definition">#</a></dt>
+<dd><p>Performs a decoupled fit, based on the
+classifier re-training (cRT) method as described in
+<a class="reference external" href="https://arxiv.org/abs/1910.09217">this paper by Kang et al. (ICLR 2020)</a>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A 2-tuple of <code class="code docutils literal notranslate"><span class="pre">History</span></code> objects, one from each stage
-of the decoupled fit.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A Numpy array of data points, arranged as a column vector</p>
+</p></li>
+<li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
+</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A Numpy array of sample weights.</p></li>
+<li><p><strong>class_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of class weights, or a dictionary mapping class
+labels to class weights.</p></li>
+<li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The data used to validate the model during training.
+See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">Tensorflow’s model.fit documentation</a>.</p>
+</p></li>
+<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A float value representing the proportion of the
+provided training data to split off into a separate dataset used for model validation.</p></li>
+<li><p><strong>epochs</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">1</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The number of epochs to train for. If an <code class="code docutils literal notranslate"><span class="pre">int</span></code>,
+the provided number of epochs will be used during the first stage, and halved for the second stage.
+If a tuple or list of length 2, the value in the first index will be used as the number of
+epochs in the first stage of training, and the second index for the number of epochs
+in the second stage of training.</p>
+</p></li>
+<li><p><strong>batch_size</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">32</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The batch size to use during training.</p>
+</p></li>
+<li><p><strong>shuffle</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+Whether to shuffle the data before each epoch.</p>
+</p></li>
+<li><p><strong>stratify_batches</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to stratify data batch-wise during training.
+See <a class="reference internal" href="dataset_with_batching.html"><span class="doc">DatasetWithBatching</span></a> for details.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Any additional keyword arguments accepted by <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a></p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple (s1, s2) of History objects. Its History.history attribute is a record of training loss values
+and metrics values at successive epochs, as well as validation loss values and validation metrics
+values (if applicable).</p>
 </dd>
 </dl>
+<p>Example:</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.compile">
 <span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generate_decoder_branch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representation_layer_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.compile" title="Link to this definition">#</a></dt>
-<dd><p>TODO: compile description</p>
+<dd><p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">TensorFlow’s model.compile function</a>,
+which takes all the same parameters as the original function, along with some additional
+parameters used by the additional functionalities provided by this extended model class.</p>
+<p>Includes the ability to optionally generate a decoder branch extending from the provided model,
+which aids in achieving a better representation space, usually resulting in better performance
+on imbalanced data. This feature can be enabled by setting <code class="code docutils literal notranslate"><span class="pre">generate_decoder_branch</span></code> to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.
+(see <a class="reference internal" href="../util/generate_decoder.html"><span class="doc">imbal.util.generate_decoder</span></a> for more details).</p>
+<p>Note: <code class="code docutils literal notranslate"><span class="pre">generate_decoder_branch</span></code> is off by
+default due to its experimental nature, but it may be worth using if your model fits the
+anticipated structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>generate_decoder_branch</strong></p></li>
-<li><p><strong>representation_layer_index</strong></p></li>
-<li><p><strong>**kwargs</strong></p></li>
+<li><p><strong>generate_decoder_branch</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. Whether to generate a decoder
+branch for the purpose of training the model.</p></li>
+<li><p><strong>representation_layer_index</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">-2</span></code>. The layer from which the weights of all layers
+prior are frozen during the second stage of the decoupled training. Also, when
+<code class="code docutils literal notranslate"><span class="pre">generated_decoder_branch</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>, the index of the layer from which the decoder branch
+in generated.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Any keyword arguments accepted by <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">TensorFlow’s model.compile function</a></p>
+</p></li>
 </ul>
 </dd>
-</dl>
-<p>Returns:</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="imbal.classification.Model.decoupled_fit">
-<span class="sig-name descname"><span class="pre">decoupled_fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.decoupled_fit" title="Link to this definition">#</a></dt>
-<dd><p>TODO: decoupled fit description</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong></p></li>
-<li><p><strong>y</strong></p></li>
-<li><p><strong>sample_weight</strong></p></li>
-<li><p><strong>validation_data</strong></p></li>
-<li><p><strong>validation_split</strong></p></li>
-<li><p><strong>epochs</strong></p></li>
-<li><p><strong>**kwargs</strong></p></li>
-</ul>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<p>Returns:</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.fit" title="Link to this definition">#</a></dt>
-<dd><p>TODO: Fit function description</p>
+<dd><p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a>
+that allows for data batches to be stratified if desired.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong></p></li>
-<li><p><strong>y</strong></p></li>
-<li><p><strong>sample_weight</strong></p></li>
-<li><p><strong>validation_data</strong></p></li>
-<li><p><strong>validation_split</strong></p></li>
-<li><p><strong>batch_size</strong></p></li>
-<li><p><strong>shuffle</strong></p></li>
-<li><p><strong>stratify_batches</strong></p></li>
-<li><p><strong>**kwargs</strong></p></li>
+<li><p><strong>x</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A NumPy array of data points, arranged as a column vector</p>
+</p></li>
+<li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
+</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
+overrides <code class="code docutils literal notranslate"><span class="pre">class_weights</span></code>.</p></li>
+<li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The data used to validate the model during training.
+See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
+</p></li>
+<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A float value representing the proportion of the
+provided training data to split off into a separate dataset used for model validation.</p></li>
+<li><p><strong>batch_size</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+The batch size to use during training.</p>
+</p></li>
+<li><p><strong>shuffle</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
+Whether to shuffle the data before each epoch.</p>
+</p></li>
+<li><p><strong>stratify_batches</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to stratify data batch-wise during training.
+See <a class="reference internal" href="dataset_with_batching.html"><span class="doc">DatasetWithBatching</span></a> for details.
+Only used when <code class="code docutils literal notranslate"><span class="pre">multi_output</span></code> is <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Any additional keyword arguments accepted by <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a></p>
+</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A History object. Its History.history attribute is a record of training loss values and metrics values
+at successive epochs, as well as validation loss values and validation metrics values (if applicable).</p>
+</dd>
 </dl>
-<p>Returns:</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.override_second_stage_fit_parameters">
 <span class="sig-name descname"><span class="pre">override_second_stage_fit_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.override_second_stage_fit_parameters" title="Link to this definition">#</a></dt>
-<dd><p>TODO: description</p>
+<dd><p>Used to optionally override the parameters passed to the second stage of
+a decoupled fit. For instance, if you wanted to use a callback
+during the second stage of a decoupled fit, but not the first,
+you can call <code class="code docutils literal notranslate"><span class="pre">override_second_stage_fit_parameters</span></code> before
+calling the decoupled fit`, specifying a callback in
+<code class="code docutils literal notranslate"><span class="pre">override_second_stage_fit_parameters</span></code> but not in the fit call.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**kwargs</strong></p>
+<dd class="field-odd"><p><strong>**kwargs</strong> – <p>Any keyword arguments accepted by  <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a></p>
+</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
-<p>Returns:</p>
 </dd></dl>
 
 </dd></dl>
 
+<section id="comparison-of-fit-methods-on-tabular-data">
+<h2>Comparison of Fit Methods on Tabular Data<a class="headerlink" href="#comparison-of-fit-methods-on-tabular-data" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A comparison of the performance of the different fit options in this class on tabular data can be found <a class="reference internal" href="comparison_of_fit_methods_tabular.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>A comparison of the performance of the different fit options in this class on tabular data with autoencoder generation enabled can be found <a class="reference internal" href="comparison_of_ae_methods_tabular.html"><span class="std std-doc">here</span></a>.</p></li>
+</ul>
+</section>
+<section id="comparison-of-fit-methods-on-image-data">
+<h2>Comparison of Fit Methods on Image Data<a class="headerlink" href="#comparison-of-fit-methods-on-image-data" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A comparison of the performance of the different fit options in this class on image data can be found <a class="reference internal" href="comparison_of_fit_methods_image.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>A comparison of the performance of the different fit options in this class on image data with autoencoder generation enabled can be found <a class="reference internal" href="comparison_of_ae_methods_image.html"><span class="std std-doc">here</span></a>.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -520,11 +646,12 @@ of the decoupled fit.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.balanced_fit"><code class="docutils literal notranslate"><span class="pre">Model.balanced_fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.cRT_fit"><code class="docutils literal notranslate"><span class="pre">Model.cRT_fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.compile"><code class="docutils literal notranslate"><span class="pre">Model.compile()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.decoupled_fit"><code class="docutils literal notranslate"><span class="pre">Model.decoupled_fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.fit"><code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.override_second_stage_fit_parameters"><code class="docutils literal notranslate"><span class="pre">Model.override_second_stage_fit_parameters()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-tabular-data">Comparison of Fit Methods on Tabular Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-image-data">Comparison of Fit Methods on Image Data</a></li>
 </ul>
   </nav></div>
 

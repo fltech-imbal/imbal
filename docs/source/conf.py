@@ -41,7 +41,7 @@ sys.path.insert(0, os.path.abspath('../../'))  # Adjust path as needed
 html_theme = 'pydata_sphinx_theme'
 html_static_path = ['_static']
 
-autodoc_member_order = 'groupwise'
+autodoc_member_order = 'bysource'
 
 autodoc_default_options  = {
     'members' : True,

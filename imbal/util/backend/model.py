@@ -39,20 +39,33 @@ class Model(keras.Model):
         **kwargs
     ):
         """
-        TODO: Fit function description
+        An extension of `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+        that allows for data batches to be stratified if desired.
 
         Args:
-            x:
-            y:
-            sample_weight:
-            validation_data:
-            validation_split:
-            batch_size:
-            shuffle:
-            stratify_batches:
-            **kwargs:
+            x: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                A NumPy array of data points, arranged as a column vector
+            y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
+            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
+                overrides :code:`class_weights`.
+            validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                The data used to validate the model during training.
+                See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
+            validation_split: Optional, default :code:`None`. A float value representing the proportion of the
+                    provided training data to split off into a separate dataset used for model validation.
+            batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                The batch size to use during training.
+            shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                Whether to shuffle the data before each epoch.
+            stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
+                See :doc:`DatasetWithBatching </imbal/classification/dataset_with_batching>` for details.
+                Only used when :code:`multi_output` is :code:`True`.
+            **kwargs: Any additional keyword arguments accepted by `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
 
         Returns:
+            A History object. Its History.history attribute is a record of training loss values and metrics values
+            at successive epochs, as well as validation loss values and validation metrics values (if applicable).
 
         """
         if not self._mode_enum or not self._mode_subpackage:
@@ -134,7 +147,7 @@ class Model(keras.Model):
 
         return history
 
-    def balanced_fit(
+    def _balanced_fit(
         self,
         x=None,
         y=None,
@@ -149,25 +162,6 @@ class Model(keras.Model):
         stratify_batches=False,
         **kwargs
     ):
-        """
-        TODO: balanced fit description
-
-        Args:
-            x:
-            y:
-            class_weight:
-            sample_density:
-            sample_weight:
-            validation_data:
-            validation_split:
-            batch_size:
-            shuffle:
-            stratify_batches:
-            **kwargs:
-
-        Returns:
-
-        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -286,7 +280,7 @@ class Model(keras.Model):
                 sample_weight = self._mode_subpackage.generate_sample_weights(sample_density)
         return sample_weight
 
-    def decoupled_fit(
+    def _decoupled_fit(
         self,
         x=None,
         y=None,
@@ -299,21 +293,6 @@ class Model(keras.Model):
         stratify_batches=False,
         **kwargs
     ):
-        """
-        TODO: decoupled fit description
-
-        Args:
-            x:
-            y:
-            sample_weight:
-            validation_data:
-            validation_split:
-            epochs:
-            **kwargs:
-
-        Returns:
-
-        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -436,7 +415,7 @@ class Model(keras.Model):
 
         print(x.shape)
         print(y.shape)
-        stage_two_history = self.balanced_fit(
+        stage_two_history = self._balanced_fit(
             x=x,
             y=y,
             **second_stage_fit_kwargs
@@ -456,15 +435,30 @@ class Model(keras.Model):
         **kwargs
     ):
         """
-        TODO: compile description
+        An extension of `TensorFlow's model.compile function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_,
+        which takes all the same parameters as the original function, along with some additional
+        parameters used by the additional functionalities provided by this extended model class.
+
+        Includes the ability to optionally generate a decoder branch extending from the provided model,
+        which aids in achieving a better representation space, usually resulting in better performance
+        on imbalanced data. This feature can be enabled by setting :code:`generate_decoder_branch` to :code:`True`.
+        (see :doc:`imbal.util.generate_decoder </imbal/util/generate_decoder>` for more details).
+
+        Note: :code:`generate_decoder_branch` is off by
+        default due to its experimental nature, but it may be worth using if your model fits the
+        anticipated structure.
 
         Args:
-            generate_decoder_branch:
-            representation_layer_index:
-            **kwargs:
+            generate_decoder_branch: Optional, default :code:`False`. Whether to generate a decoder
+                branch for the purpose of training the model.
+            representation_layer_index: Optional, default :code:`-2`. The layer from which the weights of all layers
+                prior are frozen during the second stage of the decoupled training. Also, when
+                :code:`generated_decoder_branch` is :code:`True`, the index of the layer from which the decoder branch
+                in generated.
+            **kwargs: Any keyword arguments accepted by `TensorFlow's model.compile function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
 
         Returns:
-
+            None
         """
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
@@ -474,10 +468,16 @@ class Model(keras.Model):
         self._use_decoder_branch = self._generate_decoder_branch
 
         if self._generate_decoder_branch:
-            self._generate_decoder()
+            imbal.util.generate_decoder(self)
             self._compile_for_decoder_branch(**kwargs)
 
         super().compile(**kwargs)
+
+        self._compile_config = serialization_lib.SerializableDict(
+            **kwargs,
+            generate_decoder_branch=generate_decoder_branch,
+            representation_layer_index=representation_layer_index
+        )
 
     def compile_from_config(self, config):
         # Required to be overridden by Keras, however, the
@@ -517,160 +517,17 @@ class Model(keras.Model):
 
     def override_second_stage_fit_parameters(self, **kwargs):
         """
-        TODO: description
+        Used to optionally override the parameters passed to the second stage of
+        a decoupled fit. For instance, if you wanted to use a callback
+        during the second stage of a decoupled fit, but not the first,
+        you can call :code:`override_second_stage_fit_parameters` before
+        calling the decoupled fit`, specifying a callback in
+        :code:`override_second_stage_fit_parameters` but not in the fit call.
 
         Args:
-            **kwargs:
+            **kwargs: Any keyword arguments accepted by  `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
 
         Returns:
-
+            None
         """
         self._second_stage_fit_kwargs = kwargs.copy()
-
-    def _generate_decoder(self):
-        """
-        This function attempts to extend a provided model, using a simple algorithm
-        which uses the ordering of the layers leading up to the specified representation
-        layer to generate a decoder branch that reconstructs the model input.
-
-        The algorithm for generating the structure of the decoder is as follows:
-
-        - Divide the structure layers of the model leading up to the representation layer
-          into blocks, where each trainable layer indicates the first layer in a new block
-        - Reverse the order of the blocks, while maintaining the order of the layers within
-          each block (i.e. [[A, B, C], [D, E, F]] goes to  [[D, E, F], [A, B, C]])
-        - Remove all non-trainable layers from the last block of the decoder. This helps to
-          ensure that the input data can be reconstructed without loss of generality due to
-          the range of activation functions.
-
-        Additional methods are employed to help ensure consistent change of shape between
-        each layer of the decoder, resulting in a final output shape that is the same
-        as the input shape of the model (ex. Conv2D layers are converted to Conv2DTranspose layers,
-        and vice versa).
-
-        For this function to work well, the provided model should be a linear, and the
-        specified representation layer should be a Keras Flatten layer. Additionally,
-        the representation layer should be relatively deep in the model, though it does not necessarily have to be
-        at the end of the model. If you model already contains a Flatten layer (ex. 2D image data is flattened
-        to a 1D vector), it is likely best to specify that layer as the representation layer.
-
-        Returns:
-            A tuple of the form :code:`(model, layers)`, where :code:`model` is the decoder-extended
-            model, and :code:`layers` is a list of layer generated by this function.
-        """
-
-        representation_layer_index = backend.tools.positive_model_layer_index(self, self._representation_layer_index)
-        reverse_model = self.layers[:representation_layer_index][::-1]
-
-        # Determine AE blocks
-        ae_blocks = []
-        last_block_end_index = 0
-        for index, layer in enumerate(reverse_model):
-            if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer'):
-                ae_blocks.append(reverse_model[last_block_end_index:index + 1][::-1])
-                last_block_end_index = index + 1
-        # Exclude input layer
-        if last_block_end_index != len(reverse_model) - 1:
-            ae_blocks.append(reverse_model[last_block_end_index:-1][::-1])
-
-        print('\n----- FOUND BLOCKS -----\n')  # Debug, delete later
-        for block in ae_blocks:
-            print('----- BLOCK -----')
-            for layer in block:
-                print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
-        print('\n\n')
-
-        # Perform per-layer conversions (i.e. Conv2D to Conv2DTranspose)
-        # within each block
-        ae_branch_blocks = []
-        for block_index, block in enumerate(ae_blocks):
-            current_input_shape = block[-1].output.shape[1:]
-            current_ae_block = []
-            reshape_layer = keras.layers.Reshape(current_input_shape,
-                                                 name=f'imbal_auto_generated_ae_safeguard_reshape_block_{block_index}')
-            current_ae_block.append(reshape_layer)
-            print('----- BLOCK -----')  # Debug, delete later
-            for layer_index, layer in enumerate(block):
-                new_layer = None
-                config = layer.get_config()
-                config['name'] = f'imbal_auto_generated_ae_block_{block_index}_layer_{layer_index}'
-                if isinstance(layer, keras.layers.Conv2D):
-                    layer_shape_change = layer.input.shape[-1] / layer.output.shape[-1]
-                    config.pop('groups', None)
-                    config['filters'] = round(config['filters'] * layer_shape_change)
-                    new_layer = keras.layers.Conv2DTranspose(**config)
-                elif isinstance(layer, keras.layers.Conv2DTranspose):
-                    layer_shape_change = layer.input.shape[-1] / layer.output.shape[-1]
-                    config['filters'] = round(config['filters'] * layer_shape_change)
-                    new_layer = keras.layers.Conv2D(**config)
-                elif isinstance(layer, keras.layers.MaxPooling2D):
-                    config.pop('groups', None)
-                    config['strides'] = layer.strides
-                    config.pop('pool_size', None)
-                    config['kernel_size'] = layer.pool_size
-                    config['filters'] = round(block[layer_index-1].get_config()['filters'])
-                    new_layer = keras.layers.Conv2DTranspose(**config)
-                elif isinstance(layer, keras.layers.Dense):
-                    units = layer.input.shape[-1]
-                    config['units'] = units
-                    new_layer = keras.layers.Dense(**config)
-                elif isinstance(layer, keras.layers.Flatten):
-                    config.pop('data_format', None)
-                    config.pop('channels_last', None)
-                    config['target_shape'] = block[layer_index-1].output.shape[1:]
-                    new_layer = keras.layers.Reshape(**config)
-
-                # Failsafe for non-trainable layers
-                elif not (hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')):
-                    new_layer = type(layer).from_config(config)
-
-                # Raise exception if layer could not be converted
-                if new_layer is None:
-                    raise RuntimeError(f'Unable to perform AE conversion of layer {layer}')
-
-                print(f'\t{new_layer}')  # Debug, delete later
-                print(f'\t\t{new_layer.get_config()}')  # Debug, delete later
-
-                current_ae_block.append(new_layer)
-            ae_branch_blocks.append(current_ae_block)
-
-        for block in ae_branch_blocks:
-            for i in range(1, len(block)):
-                current_layer = block[i]
-                if isinstance(current_layer, keras.layers.Reshape):
-                    prev_layer = block[i-1]
-                    block[i-1] = current_layer
-                    block[i] = prev_layer
-
-
-        # For better results, last block should only be made on trainable layers (activation
-        # and normalization layers can sometimes prevent reaching the goal reconstruction)
-        refined_last_block = []
-        for layer in ae_branch_blocks[-1]:
-            if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')\
-                    or isinstance(layer, keras.layers.MaxPooling2D) or isinstance(layer, keras.layers.Reshape):
-                refined_last_block.append(layer)
-        ae_branch_blocks[-1] = refined_last_block
-
-        print('\n----- AE CONVERSION -----\n')  # Debug, delete later
-        for block in ae_branch_blocks:
-            print('----- BLOCK -----')
-            for layer in block:
-                print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
-
-        # Connect final layer structure
-        ae_layer_list = [layer for block in ae_branch_blocks for layer in block]
-        last_layer = self.layers[representation_layer_index]
-        for layer in ae_layer_list:
-            print(layer.name)
-            print(last_layer.output.shape)
-            layer(last_layer.output)
-            last_layer = layer
-
-        if not(hasattr(self, 'inputs') and hasattr(self, 'outputs')):
-            raise RuntimeError('Model\'s "inputs" and "outputs" fields are not set.')
-
-        self._extended_model = self.__class__(inputs=self.inputs, outputs=self.outputs + [ae_layer_list[-1].output])
-        self._decoder_branch = ae_layer_list
-
-

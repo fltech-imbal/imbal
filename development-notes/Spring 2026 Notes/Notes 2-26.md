@@ -46,32 +46,33 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 | Decoupled w/ AE      | -3                   | 1195/140 | 91.19    | 0.4727  | 0.9789     |
 ## Regression on `AgeDB`
 
-| Method           | Representation Layer | Epochs | Time (s) | Frequent MSE | Rare MSE | Average |
-| ---------------- | -------------------- | ------ | -------- | ------------ | -------- | ------- |
-| Regular w/o AE   | N/A                  |        |          |              |          |         |
-| Balanced w/o AE  | N/A                  |        |          |              |          |         |
-| Decoupled w/o AE | -2                   |        |          |              |          |         |
-| Decoupled w/o AE | -3                   |        |          |              |          |         |
-| Regular w/ AE    | -2                   |        |          |              |          |         |
-| Balanced w/ AE   | -2                   |        |          |              |          |         |
-| Decoupled w/ AE  | -2                   |        |          |              |          |         |
-| Regular w/ AE    | -3                   |        |          |              |          |         |
-| Balanced w/ AE   | -3                   |        |          |              |          |         |
-| Decoupled w/ AE  | -3                   |        |          |              |          |         |
+| Method           | Representation Layer | Epochs  | Time (s) | Frequent MSE | Rare MSE | Average  |
+| ---------------- | -------------------- | ------- | -------- | ------------ | -------- | -------- |
+| Regular w/o AE   | N/A                  | 815     | 4549.04  | 75.90783     | 285.7970 | 180.85   |
+| Balanced w/o AE  | N/A                  | 203     | 1186.85  | 113.2086     | 265.0980 | 189.1533 |
+| Decoupled w/o AE | -2                   | 83/45   | 703.14   | 143.9198     | 215.1342 | 179.527  |
+| Decoupled w/o AE | -3                   | 1717/43 | 8943.71  | 92.8854      | 245.0631 | 168.9742 |
+| Regular w/ AE    | -2                   |         |          |              |          |          |
+| Balanced w/ AE   | -2                   |         |          |              |          |          |
+| Decoupled w/ AE  | -2                   |         |          |              |          |          |
+| Regular w/ AE    | -3                   |         |          |              |          |          |
+| Balanced w/ AE   | -3                   |         |          |              |          |          |
+| Decoupled w/ AE  | -3                   |         |          |              |          |          |
 ## Classification on MNIST
+lr = 1e-4, patience=50
 
-| Method           | Representation Layer | Epochs | Time (s) | Rare F1 | Rare AUROC |
-| ---------------- | -------------------- | ------ | -------- | ------- | ---------- |
-| Regular w/o AE   | N/A                  |        |          |         |            |
-| Balanced w/o AE  | N/A                  |        |          |         |            |
-| Decoupled w/o AE | -2                   |        |          |         |            |
-| Decoupled w/o AE | -3                   |        |          |         |            |
-| Regular w/ AE    | -2                   |        |          |         |            |
-| Balanced w/ AE   | -2                   |        |          |         |            |
-| Decoupled w/ AE  | -2                   |        |          |         |            |
-| Regular w/ AE    | -3                   |        |          |         |            |
-| Balanced w/ AE   | -3                   |        |          |         |            |
-| Decoupled w/ AE  | -3                   |        |          |         |            |
+| Method           | Representation Layer | Epochs  | Time (s) | Rare F1 | Rare AUROC |
+| ---------------- | -------------------- | ------- | -------- | ------- | ---------- |
+| Regular w/o AE   | N/A                  | 212     | 45.86    | 0.0     | 0.9291     |
+| Balanced w/o AE  | N/A                  | 228     | 50.17    | 0.2399  | 0.9531     |
+| Decoupled w/o AE | -2                   | 311/54  | 80.53    | 0.2702  | 0.9463     |
+| Decoupled w/o AE | -3                   | 268/89  | 78.88    | 0.4210  | 0.9591     |
+| Regular w/ AE    | -2                   | 2948    | 1124.91  | 0.3749  | 0.8735     |
+| Balanced w/ AE   | -2                   | 1671    | 697.92   | 0.3414  | 0.9559     |
+| Decoupled w/ AE  | -2                   | 695/355 | 373.81   | 0.1791  | 0.9599     |
+| Regular w/ AE    | -3                   | 1782    | 1500.41  | 0.0     | 0.8294     |
+| Balanced w/ AE   | -3                   | 911     | 555.05   | 0.0     | 0.7240     |
+| Decoupled w/ AE  | -3                   | 1665/97 | 1113.20  | 0.0     | 0.6427     |
 
 ---
 ## Notes:
@@ -128,14 +129,54 @@ Stratify sampling is on for all tables below. Validation split = 0.2. Used `Earl
 ![[Pasted image 20260212111201.png|600]]
 # 2/12/25
 ## Tasks:
-- Lower learning rate for `AgeDB`
-	- Alternatively, learning rate schedule
-	- Alternatively, a pre-trained model
-	- Alternatively, SDO dataset
-- Check `AgeDB` regression paper
-	- Hyperparameters and such
-	- What were there results?
-- Just w/o AE comparisons for `AgeDB`
-- MNIST for image classification
-- Documentation overhaul
+- Lower learning rate for `AgeDB` $\checkmark$
+	- Alternatively, learning rate schedule $\checkmark$
+	- Alternatively, a pre-trained model $\checkmark$
+	- Alternatively, SDO dataset $\checkmark$
+- Check `AgeDB` regression paper $\checkmark$
+	- Hyperparameters and such $\checkmark$
+	- What were there results? $\checkmark$
+		- **Didn't find a paper with a simple model implementation for `AgeDB`.**
+- Just w/o AE comparisons for `AgeDB` $\checkmark$
+- MNIST for image classification $\checkmark$
+- Documentation overhaul $\checkmark$
 - **Later on:** Refactoring / rewrite of `generate_decoder_branch`
+# 2/17/26
+## Tasks:
+- Handle first
+	- Update code examples in `Model` documentation $\checkmark$
+	- Properly link all comparison pages (8 total) to the `imbal.classification.Model` and `imbal.regression.Model` pages (4 each) $\checkmark$
+	- Emphasize for documentation for `generate_decoder_branch` that it only works on sequential model (models without skip connections / branches) $\checkmark$
+		- Add check and fatal error $\checkmark$
+		- Copy over explanation of rare vs. frequent from comparison of fit images to comparison of ae images $\checkmark$
+	- Mute `sample_density`/`validation_densities` for classification `Model` object, and `class_weight` for regression `Model` object $\checkmark$
+	- Override `fit`/`balanced_fit`/`decoupled_fit` without "unnecessary parameters". $\checkmark$
+	- `decoupled_fit` is private, only `cRT` and `rRT` are accessible. $\checkmark$
+	- Is there a way to specify order that functions appear in documentation $\checkmark$
+		- Yes! And done $\checkmark$
+- 70%
+	- SEP-EC
+		- Two subsets
+			- all columns
+			- electron and proton data only
+		- Run through all `imbal` model function
+			- Assume stratified sampling
+			- w and w/o AE
+			- Comparison table as before
+			- Representation layer $-2$/$-3$
+			- Regression only
+	- **Later on:** MDI and wPCC
+- 30%
+	- `imbal` implementations
+		- Function with six parameters: `predictions`, `targets`, `metric`, `maximize`,`step_size` (default $0.1$), `range` (default $(0,1)$). Finds the threshold from $(0,1)$ that produces the best results for the provided `metric`. $\checkmark$
+			- Done, implemented under classification at the moment (because thresholding creates binary classes). $\checkmark$
+		- Function with three parameters: `start_weights`, `end_weights`, `steps`. Returns linearly interpolated class weights for the labels. $\checkmark$
+			- Done, implemented under classification $\checkmark$
+			- For regression $\frac{1}{d^\alpha}$ and vary, but mostly same as above.
+				- Actually, do this first and apply to SEC-EC described above
+		- An extension for `balanced_fit` that takes in possible class weights and returns the class weights that minimize the validation loss.
+	- Documentation and code examples for above.
+	- Then, refactoring / rewrite of `generate_decoder_branch`.
+# 2/17/26
+## Tasks:
+- Documentation for `interpolate_class_weights`, `optimize_metric`

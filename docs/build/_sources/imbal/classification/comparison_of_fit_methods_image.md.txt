@@ -2,8 +2,18 @@
 
 Below is a comparison of [decoupled fit](cRT_fit.md) and [balanced fit](balanced_fit.md)
 to a standard, unbalanced fit, and a weight-balanced
-fit of a subset of the [CIFAR10 dataset](https://www.cs.toronto.edu/~kriz/cifar.html), picking on the dogs and airplane classes,
-in two different data imbalance scenarios.
+fit of a subset of the [MNIST dataset](https://keras.io/api/datasets/mnist/), with
+data redistributed to match the following distribution:
+- Class 0: 4532 samples
+- Class 1: 2747 samples
+- Class 2: 1665 samples
+- Class 3: 1009 samples
+- Class 4: 611 samples
+- Class 5: 371 samples
+- Class 6: 225 samples
+- Class 7: 136 samples
+- Class 8: 82 samples
+- Class 9: 50 samples
 
 Each comparison below has three plots, showing a confusion matrix, TSNE
 visualization of the latent space of the trained model for the example, and
@@ -12,259 +22,200 @@ end of each scenario is a comparison of the AUC and F1 score for the
 rare class in the data imbalance. F1 scores are calculated using a
 threshold of $0.5$.
 
-## 1:24 Data Imbalance
-
 ### Regular Fit
 
 ```python
+    inputs = keras.Input(shape=(28,28,1))
+    x = layers.Conv2D(8, (3, 3), strides=(2, 2), activation='relu', padding='same')(inputs)
+    x = layers.Conv2D(16, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
+    x = layers.Flatten()(x)
+    x = layers.Dense(16, activation='relu')(x)
+    x = layers.Flatten()(x)
+    output = layers.Dense(10, activation='softmax')(x)
+
+    model = imbal.classification.Model(inputs=inputs, outputs=output)
+
     model.compile(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
+        loss="sparse_categorical_crossentropy",
+        optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+        metrics=["accuracy"]
     )
+    
     model.fit(
         x_train,
         y_train,
-        batch_size=batch_size,
-        epochs=epochs
+        stratify_batches=True,
+        validation_split=0.2,
+        batch_size=512,
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
     )
 ```
-#### Regular Fit Results
 
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>Confusion Matrix</p>
 <img alt="test"
-src="../../_static/classification/image_fit_comparison/confusion-matrix--low-rep-2.png"/>
+src="../../_static/classification/image_fit_comparison/confusion-matrix--ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>TSNE Visualization</p>
 <img alt="test 2"
-src="../../_static/classification/image_fit_comparison/tsne_visualization--low-rep-2.png"/>
+src="../../_static/classification/image_fit_comparison/tsne_visualization--ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>ROC Curve</p>
 <img alt="test 3"
-src="../../_static/classification/image_fit_comparison/roc-curve--low-rep-2.png"/>
+src="../../_static/classification/image_fit_comparison/roc-curve--ae-False-rep-2.png"/>
 </div>  
 </div>
 
 ### Balanced Fit
 
 ```python
-    parameters = imbal.classification.wrap_model_compile_parameters(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
-    )
-
-    imbal.classification.balanced_fit(
-        model,
+    # Assume the data loading, model construction and compilation as shown in regular fit above.
+    model.balanced_fit(
         x_train,
         y_train,
-        compile_parameters=parameters,
-        epochs=epochs,
-        batch_size=batch_size
+        stratify_batches=True,
+        validation_split=0.2,
+        batch_size=512,
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
     )
 ```
-
-#### Balanced Fit Results
 
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>Confusion Matrix</p>
 <img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix-balanced-low.png"/>
+src="../../_static/classification/image_fit_comparison/confusion-matrix-balanced-ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>TSNE Visualization</p>
 <img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization-balanced-low.png"/>
+src="../../_static/classification/image_fit_comparison/tsne_visualization-balanced-ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>ROC Curve</p>
 <img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve-balanced-low.png"/>
+src="../../_static/classification/image_fit_comparison/roc-curve-balanced-ae-False-rep-2.png"/>
 </div>  
 </div>
 
-### cRT Fit
+### cRT Fit / Decoupled Fit (representation layer = -2)
 
 ```python
-    parameters = imbal.classification.wrap_model_compile_parameters(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
-    )
-
-    imbal.classification.decoupled_fit(
-        model,
-        x_train,
-        y_train,
-        compile_parameters=parameters,
-        epochs=epochs,
-        batch_size=batch_size
-    )
-```
-
-#### cRT Fit Results
-    
-<div style="display: flex; max-width: 100%;">
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>Confusion Matrix</p>
-<img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix-decoupled-low.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>TSNE Visualization</p>
-<img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization-decoupled-low.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>ROC Curve</p>
-<img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve-decoupled-low.png"/>
-</div>  
-</div>
-
-### Comparison of Performance
-
-| Method    | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
-|-----------|----------|-------------------------------------|----------|
-| Regular   | $9.95$   | $0.0$                               | $0.865$* |
-| Balanced  | $13.24$  | $0.240$                             | $0.864$  |
-| cRT | $14.05$  | $0.211$                             | $0.848$  |
-
-*Some examples have a high AUC, but low F1 score. This is because F1 score
-is calculated with a decision threshold of 0.5, while some models can achieve
-a near perfect separation of the two classes by using a lower decision
-threshold. In these cases, almost all classes are predicted to be of the frequent class,
-resulting in an F1 score of nearly 0 for the rare class, while maintaining that a
-lower decision threshold exists such that a near perfect separation of classes is achieved,
-allowing for a AUROC close to 1.
-
-## 1:120 Data Imbalance
-
-### Regular Fit
-
-```python
+    # Assume the data loading and model construction as shown in regular fit above
     model.compile(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
+        loss="sparse_categorical_crossentropy",
+        optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+        metrics=["accuracy"],
+        representation_layer_index=-2
     )
-    model.fit(
+    
+    model.override_second_stage_fit_parameters(
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
+    )
+    
+    model.cRT_fit(
         x_train,
         y_train,
-        batch_size=batch_size,
-        epochs=epochs
+        stratify_batches=True,
+        validation_split=0.2,
+        batch_size=512,
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
     )
 ```
-#### Regular Fit Results
-
-<div style="display: flex; max-width: 100%;">
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>Confusion Matrix</p>
-<img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix--high.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>TSNE Visualization</p>
-<img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization--high.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>ROC Curve</p>
-<img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve--high.png"/>
-</div>  
-</div>
-
-### Balanced Fit
-
-```python
-    parameters = imbal.classification.wrap_model_compile_parameters(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
-    )
-
-    imbal.classification.balanced_fit(
-        model,
-        x_train,
-        y_train,high
-        compile_parameters=parameters,
-        epochs=epochs,
-        batch_size=batch_size
-    )
-```
-
-#### Balanced Fit Results
-
-<div style="display: flex; max-width: 100%;">
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>Confusion Matrix</p>
-<img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix-balanced-high.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>TSNE Visualization</p>
-<img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization-balanced-high.png"/>
-</div>
-<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
-<p>ROC Curve</p>
-<img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve-balanced-high.png"/>
-</div>  
-</div>
-
-### cRT Fit
-
-```python
-    parameters = imbal.classification.wrap_model_compile_parameters(
-        loss="categorical_crossentropy",
-        optimizer=keras.optimizers.Adam(learning_rate=2e-5),
-        metrics=["accuracy", 'F1Score', auc]
-    )
-
-    imbal.classification.cRT_fit(
-        model,
-        x_train,
-        y_train,
-        compile_parameters=parameters,
-        epochs=epochs,
-        batch_size=batch_size
-    )
-```
-
-#### cRT Fit Results
     
 <div style="display: flex; max-width: 100%;">
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>Confusion Matrix</p>
 <img alt="test"
-src="../../_static/classification/decoupled_fit/confusion-matrix-decoupled-high.png"/>
+src="../../_static/classification/image_fit_comparison/confusion-matrix-decoupled-ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>TSNE Visualization</p>
 <img alt="test 2"
-src="../../_static/classification/decoupled_fit/tsne_visualization-decoupled-high.png"/>
+src="../../_static/classification/image_fit_comparison/tsne_visualization-decoupled-ae-False-rep-2.png"/>
 </div>
 <div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
 <p>ROC Curve</p>
 <img alt="test 3"
-src="../../_static/classification/decoupled_fit/roc-curve-decoupled-high.png"/>
+src="../../_static/classification/image_fit_comparison/roc-curve-decoupled-ae-False-rep-2.png"/>
+</div>  
+</div>
+
+### cRT Fit / Decoupled Fit (representation layer = -3)
+
+```python
+    # Assume the data loading and model construction as shown in regular fit above
+    model.compile(
+        loss="sparse_categorical_crossentropy",
+        optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+        metrics=["accuracy"],
+        representation_layer_index=-3
+    )
+    
+    model.override_second_stage_fit_parameters(
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
+    )
+    
+    model.cRT_fit(
+        x_train,
+        y_train,
+        stratify_batches=True,
+        validation_split=0.2,
+        batch_size=512,
+        epochs=10000,
+        callbacks=[
+            keras.callbacks.EarlyStopping(patience=20, restore_best_weights=True)
+        ]
+    )
+```
+    
+<div style="display: flex; max-width: 100%;">
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
+<p>Confusion Matrix</p>
+<img alt="test"
+src="../../_static/classification/image_fit_comparison/confusion-matrix-decoupled-ae-False-rep-4.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
+<p>TSNE Visualization</p>
+<img alt="test 2"
+src="../../_static/classification/image_fit_comparison/tsne_visualization-decoupled-ae-False-rep-4.png"/>
+</div>
+<div style="display:flex; flex-direction:column; flex:1; align-items:center; max-width:33%;">
+<p>ROC Curve</p>
+<img alt="test 3"
+src="../../_static/classification/image_fit_comparison/roc-curve-decoupled-ae-False-rep-4.png"/>
 </div>  
 </div>
 
 ### Comparison of Performance
 
-| Method   | Time (s) | Rare Class F1 Score (threshold=0.5) | AUC      |
-|----------|----------|-------------------------------------|----------|
-| Regular  | $9.95$   | $0.0$                               | $0.844$* |
-| Balanced | $13.24$  | $0.092$                             | $0.855$  |
-| cRT      | $14.05$  | $0.079$                             | $0.836$  |
+For the table below, frequent samples refer to samples whose label
+$y \neq 9$, and rare samples refer to samples whose label $y = 9$.
+
+| Method                            | Epochs   | Time (s) | Rare Class F1 Score | Rare Class AUC |
+|-----------------------------------|----------|----------|---------------------|----------------|
+| Regular                           | $212$    | $45.86$  | $0.0$               | $0.929$*       |
+| Balanced                          | $228$    | $50.17$  | $0.240$             | $0.953$*       |
+| cRT (representation layer = $-2$) | $311/54$ | $80.53$  | $0.270$             | $0.946$*       |
+| cRT (representation layer = $-3$) | $268/89$ | $78.88$  | $0.421$             | $0.959$        |
 
 *Some examples have a high AUC, but low F1 score. This is because F1 score
 is calculated with a decision threshold of 0.5, while some models can achieve

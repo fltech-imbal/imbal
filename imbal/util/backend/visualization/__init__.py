@@ -44,7 +44,6 @@ def generate_tsne_visualization(
         unique_classes, counts = np.unique(labels, return_counts=True)
         index_ordering = np.argsort(counts)[::-1]
         unique_classes = unique_classes[index_ordering]
-        print(labels.shape)
 
         if s is not None:
             s = np.array(s)[index_ordering]

@@ -9,16 +9,22 @@ on the [AgeDB dataset](https://ibug.doc.ic.ac.uk/resources/agedb/).
 ```python
     # Assume data has already been loaded into x_train, y_train, x_test, and y_test
 
-    inputs = keras.Input(shape=(112, 88, 3))
-    x = layers.Conv2D(16, (3, 3), activation='relu', padding='same', strides=(2, 2))(inputs)
-    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
-    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same', strides=(2, 2))(x)
+    resnet = keras.applications.ResNet50(
+        include_top=False,
+        weights="imagenet",
+        input_tensor=None,
+        input_shape=(112, 88, 3),
+        pooling='avg',
+        name="resnet50",
+    )
+    resnet.trainable = True
+    
+    x = layers.Flatten()(resnet.output)
+    x = layers.Dense(128, activation='relu')(x)
     x = layers.Flatten()(x)
-    x = layers.Dense(32, activation='relu')(x)
-    x = layers.Flatten()(x)
-    output = layers.Dense(1, activation='linear')(x)
+    output = layers.Dense(1, activation='sigmoid')(x)
 
-    model = imbal.regression.Model(inputs=inputs, outputs=output)
+    model = imbal.regression.Model(inputs=resnet.input, outputs=output)
 
     model.compile(
         loss="mse",
@@ -205,12 +211,12 @@ src="../../_static/regression/image_fit_comparison/tsne_visualization-decoupled-
 
 For the table below, frequent samples refer to samples whose label
 $18 < y < 80$, and rare samples refer to samples whose label $y \le 18$ or $y \ge 80$.
+$MSE_{freq}$ is the mean square error of the frequent samples, $MSE_{rare}$
+is the mean square error of the rare samples, and $MSE_{av}=\frac{MSE_{freq}+MSE_{rare}}{2}$.
 
-| Method                            | Epochs  | Time (s) | Frequent MSE | Rare MSE  |
-|-----------------------------------|---------|----------|--------------|-----------|
-| Regular                           | $38$    | $20.12$  | $177.823$    | $545.133$ |
-| Balanced                          | $43$    | $23.08$  | $245.702$    | $501.761$ |
-| rRT (representation layer = $-2$) | $46/41$ | $38.40$  | $228.066$    | $504.613$ |
-| rRT (representation layer = $-3$) | $39/31$ | $32.91$  | $269.776$    | $442.196$ |
-
-See also: [Comparison of Autoencoder Methods](comparison_of_ae_methods_image.md)
+| Method                            | Epochs    | Time (s)  | $MSE_{freq}$ | $MSE_{rare}$ | $MSE_{av}$ |
+|-----------------------------------|-----------|-----------|--------------|--------------|------------|
+| Regular                           | $815$     | $4549.04$ | $75.907$     | $285.797$    | $180.85$   |
+| Balanced                          | $203$     | $1186.85$ | $113.209$    | $265.098$    | $189.15$   |
+| rRT (representation layer = $-2$) | $83/45$   | $703.14$  | $143.920$    | $215.134$    | $179.52$   |
+| rRT (representation layer = $-3$) | $1717/43$ | $8943.71$ | $92.885$     | $245.061$    | $168.97$   |
