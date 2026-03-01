@@ -22,12 +22,16 @@ def generate_decoder(model):
     as the input shape of the model (ex. Conv2D layers are converted to Conv2DTranspose layers,
     and vice versa).
 
-    For this function to work well, the provided model should be a linear, and the
-    specified representation layer should be a Keras Flatten layer. This function does not work if the
-    layers prior to the specified representation layer for a model contain branching or merging. Additionally,
-    the representation layer should be relatively deep in the model, though it does not necessarily have to be
-    at the end of the model. If you model already contains a Flatten layer (ex. 2D image data is flattened
-    to a 1D vector), it is likely best to specify that layer as the representation layer.
+    .. note::
+        This function has the following limitations:
+
+        - This function does not work if the layers prior to the specified representation
+          layer for a model contain branching or merging.
+        - For this function to work well, the provided model should be a linear, and the
+          specified representation layer should be a Keras Flatten layer. Additionally,
+          the representation layer should be relatively deep in the model, though it does not necessarily have to be
+          at the end of the model. If you model already contains a Flatten layer (ex. 2D image data is flattened
+          to a 1D vector), it is likely best to specify that layer as the representation layer.
 
     Args:
         model: An instance of :code:`imbal.classification.Model` or :code:`imbal.regression.Model`

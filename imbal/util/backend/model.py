@@ -284,8 +284,11 @@ class Model(keras.Model):
         self,
         x=None,
         y=None,
+        class_weight=None,
         sample_weight=None,
+        sample_density=None,
         validation_data=None,
+        validation_densities=None,
         validation_split=None,
         epochs=1,
         batch_size=32,
@@ -363,7 +366,8 @@ class Model(keras.Model):
             stage_one_y = None
             stage_one_sample_weights = None
 
-
+        # densities = kwargs.pop('sample_density', None)
+        # validation_densities = kwargs.pop('validation_densities', None)
         stage_one_history = training_model.fit(
             x=stage_one_x,
             y=stage_one_y,
@@ -373,6 +377,10 @@ class Model(keras.Model):
             epochs=first_train_epochs,
             **kwargs
         )
+        # if densities is not None:
+        #     kwargs['sample_density'] = densities
+        # if validation_densities is not None:
+        #     kwargs['validation_densities'] = validation_densities
 
         representation_layer_index = backend.tools.positive_model_layer_index(self, self._representation_layer_index)
         found_layer, found_index = imbal.util.get_representation_layer_index(
@@ -413,11 +421,12 @@ class Model(keras.Model):
 
         self._use_decoder_branch = False
 
-        print(x.shape)
-        print(y.shape)
         stage_two_history = self._balanced_fit(
             x=x,
             y=y,
+            class_weight=class_weight,
+            validation_densities=validation_densities,
+            sample_density=sample_density,
             **second_stage_fit_kwargs
         )
 

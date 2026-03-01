@@ -25,10 +25,18 @@ def safe_object_unwrap(obj, obj_type):
 def is_list_like(obj):
     return isinstance(obj, list) or isinstance(obj, tuple) or isinstance(obj, np.ndarray)
 
-def verify_weight_scale(weights, show_warning=True):
-    if weights is not None and abs(np.sum(weights) - weights.shape[0]) > 10e-3:
+def verify_weight_scale(weights, show_warning=True, axis=None):
+    if weights is None:
+        return weights
+    weights = np.array(weights)
+    num_samples = np.prod(weights.shape) if axis is None else weights.shape[axis]
+    differences_per_weights = np.abs(np.sum(weights, axis=axis) - num_samples)
+    if np.any(differences_per_weights > 1e-3):
         if show_warning:
             warnings.warn("Weights provided to fit function do not sum to n, where n is the number of "
                           "samples. TensorFlow expects provided weights to sum to n. Weights will be scaled.")
-        weights *= weights.shape[0] / np.sum(weights)
+        if axis is None:
+            weights *= (num_samples / np.sum(weights, axis=axis))
+        else:
+            weights *= (num_samples / np.sum(weights, axis=axis).reshape(-1, 1))
     return weights

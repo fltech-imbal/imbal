@@ -148,7 +148,7 @@ lr = 1e-4, patience=50
 	- Properly link all comparison pages (8 total) to the `imbal.classification.Model` and `imbal.regression.Model` pages (4 each) $\checkmark$
 	- Emphasize for documentation for `generate_decoder_branch` that it only works on sequential model (models without skip connections / branches) $\checkmark$
 		- Add check and fatal error $\checkmark$
-		- Copy over explanation of rare vs. frequent from comparison of fit images to comparison of ae images $\checkmark$
+	- Copy over explanation of rare vs. frequent from comparison of fit images to comparison of ae images $\checkmark$
 	- Mute `sample_density`/`validation_densities` for classification `Model` object, and `class_weight` for regression `Model` object $\checkmark$
 	- Override `fit`/`balanced_fit`/`decoupled_fit` without "unnecessary parameters". $\checkmark$
 	- `decoupled_fit` is private, only `cRT` and `rRT` are accessible. $\checkmark$
@@ -172,11 +172,143 @@ lr = 1e-4, patience=50
 			- Done, implemented under classification at the moment (because thresholding creates binary classes). $\checkmark$
 		- Function with three parameters: `start_weights`, `end_weights`, `steps`. Returns linearly interpolated class weights for the labels. $\checkmark$
 			- Done, implemented under classification $\checkmark$
-			- For regression $\frac{1}{d^\alpha}$ and vary, but mostly same as above.
-				- Actually, do this first and apply to SEC-EC described above
-		- An extension for `balanced_fit` that takes in possible class weights and returns the class weights that minimize the validation loss.
+			- For regression $\frac{1}{d^\alpha}$ and vary, but mostly same as above. $\checkmark$
+				- Actually, do this first and apply to SEC-EC described above $\checkmark$
+
 	- Documentation and code examples for above.
 	- Then, refactoring / rewrite of `generate_decoder_branch`.
 # 2/17/26
 ## Tasks:
-- Documentation for `interpolate_class_weights`, `optimize_metric`
+- Documentation for `interpolate_class_weights`, `optimize_metric`, `reciprocal_importance_function` $\checkmark$
+	- Also, refactor `reciprocal_importance_function` to work with a single alpha or a range of alphas $\checkmark$
+- An extension for `balanced_fit` that takes in possible class weights and returns the class weights that minimize the validation loss. $\checkmark$
+- Highlight and label "Limitations" is `generate_decoder_branch` $\checkmark$
+
+- SEP-EC - regression problem $\checkmark$
+	- Normalize feature values from $[-1, 1]$ (divide by largest magnitude) $\checkmark$
+	- Borrow k-fold cross validation from Daniel $\checkmark$
+		- Received from Daniel, but have not added to my code yet.
+	- Two subsets $\checkmark$
+		- all columns $\checkmark$
+		- electron and proton data only $\checkmark$
+	- Run through all `imbal` model function $\checkmark$
+		- Assume stratified sampling $\checkmark$
+		- w and w/o AE $\checkmark$
+		- Comparison table as before $\checkmark$
+		- Representation layer $-2$/$-3$ $\checkmark$
+		- Regression only $\checkmark$
+
+---
+### Regression on SEP-EC w/ CME (2/24/26)
+For all runs below:
+- Stratified batching is enabled
+	- Early stopping used with patience of 20 epochs
+- Same seed used for consistency
+
+| Method                        | LR     | Epochs   | Time (s) | MSE     |
+| ----------------------------- | ------ | -------- | -------- | ------- |
+| Regular w/o AE                | $1e-3$ | 558      | 92.30    | 0.04970 |
+| Regular w/ AE (rep = $-2$)    | $1e-3$ | 699      | 153.25   | 0.06012 |
+| Regular w/ AE (rep = $-3$)    | $1e-3$ | 643      | 136.90   | 0.05789 |
+| Balanced w/o AE               | $2e-4$ | 484      | 80.55    | 0.12949 |
+| Balanced w/ AE (rep = $-2$)   | $2e-4$ | 479      | 104.72   | 0.10312 |
+| Balanced w/ AE (rep = $-3$)   | $2e-4$ | 591      | 130.91   | 0.13388 |
+| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 1139/248 | 238.93   | 0.06862 |
+| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 1209/308 | 244.05   | 0.07713 |
+| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 1376/382 | 425.51   | 0.06475 |
+| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 1183/641 | 507.16   | 0.06671 |
+### Regression on SEP-EC w/o CME (2/24/26)
+For all runs below:
+- Stratified batching is enabled
+	- Early stopping used with patience of 20 epochs
+- Same seed used for consistency
+
+| Method                        | LR     | Epochs   | Time (s) | MSE     |
+| ----------------------------- | ------ | -------- | -------- | ------- |
+| Regular w/o AE                | $1e-3$ | 394      | 86.59    | 0.03484 |
+| Regular w/ AE (rep = $-2$)    | $1e-3$ | 443      | 132.61   | 0.03428 |
+| Regular w/ AE (rep = $-3$)    | $1e-3$ | 350      | 101.04   | 0.03280 |
+| Balanced w/o AE               | $2e-4$ | 423      | 96.56    | 0.08015 |
+| Balanced w/ AE (rep = $-2$)   | $2e-4$ | 376      | 114.53   | 0.09639 |
+| Balanced w/ AE (rep = $-3$)   | $2e-4$ | 340      | 106.54   | 0.09303 |
+| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 1036/118 | 256.14   | 0.03716 |
+| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 1105/228 | 297.78   | 0.03695 |
+| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 1047/633 | 437.11   | 0.03510 |
+| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 1169/287 | 387.84   | 0.03669 |
+
+---
+## Tasks:
+- Bug with decoupled fits related to how balanced and decoupled fit are not split between classification and regression classes. Need to do same for standard fit for consistency and to fix some issues. $\checkmark$
+- `interpolate_class_weights` code example should do steps=5 (or whatever gives \[.25, .25, .25, .25]) $\checkmark$
+- If a list of alphas is is provided to `reciprocal_inportance`, use those $\checkmark$
+- Use $|x| < 1$  for rare instances $\checkmark$
+
+Add these same metrics from [this paper](https://cs.fit.edu/~pkc/papers/icmla25.pdf) for tables $\checkmark$
+- Also, look at model structure from this paper
+![[Pasted image 20260224163319.png|500]]
+
+- **Later on:** MDI, wPCC, and DenseLoss
+- **30%:** Refactoring / rewrite of `generate_decoder_branch`.
+
+## Notes:
+- From paper, in regards to model structure:
+	- Not much about specific structure (though I am using MLP)
+	- Can't use residuals with auto-decoder
+> All models are implemented in TensorFlow using a residual MLP architecture. Dataset-specific hyperparameters are determined via four-fold stratified cross-validation on the training data.
+
+---
+### Regression on SEP-EC w/ CME (2/27/26)
+For all runs below:
+- Stratified batching is enabled
+	- Early stopping used with patience of 20 epochs
+- Same seed used for consistency
+
+| Method                        | LR     | Epochs   | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----------------------------- | ------ | -------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                | $1e-3$ | 520      | 130.78   | 0.077           | 0.347             | 0.212            | 0.613         | 0.933           | 0.773          |
+| Regular w/ AE (rep = $-2$)    | $1e-3$ | 548      | 174.58   | 0.075           | 0.469             | 0.272            | 0.762         | 0.950           | 0.856          |
+| Regular w/ AE (rep = $-3$)    | $1e-3$ | 539      | 156.76   | 0.074           | 0.473             | 0.273            | 0.694         | 0.930           | 0.812          |
+| Balanced w/o AE               | $2e-4$ | 579      | 132.97   | 0.267           | 0.575             | 0.421            | 0.276         | 0.894           | 0.585          |
+| Balanced w/ AE (rep = $-2$)   | $2e-4$ | 483      | 141.42   | 0.230           | 0.579             | 0.405            | 0.292         | 0.891           | 0.591          |
+| Balanced w/ AE (rep = $-3$)   | $2e-4$ | 641      | 212.27   | 0.258           | 0.498             | 0.378            | 0.304         | 0.923           | 0.613          |
+| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 1720/323 | 457.11   | 0.092           | 0.382             | 0.237            | 0.620         | 0.953           | 0.787          |
+| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 1899/322 | 508.84   | 0.170           | 0.507             | 0.338            | 0.429         | 0.896           | 0.662          |
+| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 1565/537 | 496.43   | 0.096           | 0.582             | 0.339            | 0.535         | 0.855           | 0.695          |
+| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 1571/887 | 1307.48  | 0.092           | 0.263             | 0.178            | 0.700         | 0.988           | 0.844          |
+### Regression on SEP-EC w/o CME (2/27/26)
+For all runs below:
+- Stratified batching is enabled
+	- Early stopping used with patience of 20 epochs
+- Same seed used for consistency
+
+| Method                        | LR     | Epochs   | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----------------------------- | ------ | -------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                | $1e-3$ | 498      | 90.33    | 0.018           | 0.236             | **0.127**        | **0.952**     | **0.985**       | **0.968**      |
+| Regular w/ AE (rep = $-2$)    | $1e-3$ | 498      | 118.96   | **0.017**       | 0.370             | 0.194            | 0.946         | 0.922           | 0.934          |
+| Regular w/ AE (rep = $-3$)    | $1e-3$ | 637      | 144.23   | 0.022           | 0.299             | 0.161            | 0.948         | 0.956           | 0.952          |
+| Balanced w/o AE               | $2e-4$ | 566      | 105.53   | 0.091           | 0.441             | 0.265            | 0.666         | 0.919           | 0.793          |
+| Balanced w/ AE (rep = $-2$)   | $2e-4$ | 423      | 99.38    | 0.211           | 0.383             | 0.297            | 0.417         | 0.968           | 0.693          |
+| Balanced w/ AE (rep = $-3$)   | $2e-4$ | 391      | 90.27    | 0.164           | 0.364             | 0.264            | 0.493         | 0.971           | 0.732          |
+| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 1012/212 | 299.24   | 0.052           | **0.205**         | 0.128            | 0.892         | 0.987           | 0.940          |
+| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 935/251  | 339.22   | 0.066           | 0.256             | 0.161            | 0.851         | 0.971           | 0.911          |
+| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 789/427  | 398.76   | 0.024           | 0.288             | 0.156            | 0.928         | 0.971           | 0.949          |
+| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 979/291  | 462.82   | 0.080           | 0.426             | 0.253            | 0.694         | 0.933           | 0.813          |
+
+---
+# 2/27/26
+## Tasks:
+- RankSim
+	- Two caveats
+		- Non-differentiable
+		- Impartial to the scaling/relative distance between features, regardless of the distances in the label space
+		- Computational efficiency (is there a solution better than $O(n^2)$?)
+			- $O(n\log n)$ seems feasible
+		- Can we reduce redundant features? (t-SNE)
+	- How to fix?
+		- *Current idea:* Don't rank, normalize label/feature similarities
+- Daniel k-fold addition
+- Testing across $\alpha$ values (reciprocal)
+	- Picking methods from table above that are already performing well, vary alpha to see how much improvement can be achieved
+- DenseLoss with multiple $\alpha$ from $[0.1, 2]$, $0.1$ increment
+- **Later on:** MDI, wPCC
+- **30%:** Refactoring / rewrite of `generate_decoder_branch`

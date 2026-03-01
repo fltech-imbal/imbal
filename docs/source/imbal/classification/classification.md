@@ -15,6 +15,8 @@ Located until the `imbal.classification` subpackage.
 - [shap_explain_image_sample](shap_explain_image_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
+- [optimize_metric_threshold](optimize_metric_threshold.md)
+- [interpolate_class_weights](interpolate_class_weights.md)
 
 ```{eval-rst}
 .. toctree::
@@ -32,4 +34,6 @@ Located until the `imbal.classification` subpackage.
     shap_explain_image_sample <shap_explain_image_sample>
     shap_explain_tabular_sample <shap_explain_tabular_sample>
     shap_explain_tabular_dataset <shap_explain_tabular_dataset>
+    optimize_metric_threshold <optimize_metric_threshold>
+    interpolate_class_weights <interpolate_class_weights>
 ```

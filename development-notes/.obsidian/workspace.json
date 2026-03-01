@@ -93,7 +93,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5
+    "width": 283.5,
+    "collapsed": true
   },
   "right": {
     "id": "f4b539bdcde1eaad",
@@ -188,6 +189,7 @@
   "lastOpenFiles": [
     "Proposal PDF.pdf",
     "Spring 2026 Notes/Notes 2-26.md",
+    "Pasted image 20260224163319.png",
     "Spring 2026 Notes/Untitled",
     "Images/Pasted image 20260212111201.png",
     "Spring 2026 Notes/Notes 1-26.md",
@@ -205,7 +207,6 @@
     "Images/roc-curve--low.png",
     "Images/roc-curve--high.png",
     "Images/fit-comparison-balanced-ae-True.png",
-    "Images/tsne_visualization-balanced-ae-True.png",
     "Fall 2025 Notes/Notes - 11-25.md",
     "mini-pipeline-demo.py",
     "Images",
