@@ -306,9 +306,65 @@ For all runs below:
 		- Can we reduce redundant features? (t-SNE)
 	- How to fix?
 		- *Current idea:* Don't rank, normalize label/feature similarities
-- Daniel k-fold addition
-- Testing across $\alpha$ values (reciprocal)
-	- Picking methods from table above that are already performing well, vary alpha to see how much improvement can be achieved
-- DenseLoss with multiple $\alpha$ from $[0.1, 2]$, $0.1$ increment
+
+- Daniel k-fold addition $\checkmark$
+- Updated model structure according to paper $\checkmark$
+- Testing across $\alpha$ values (reciprocal) $\checkmark$
+	- Picking methods from table above that are already performing well, vary alpha to see how much improvement can be achieved $\checkmark$
+- DenseLoss with multiple $\alpha$ from $[0.1, 2]$, $0.1$ increment $\checkmark$
+- **From Dr. Chan:**
+	- for varying alpha in DenseWeight and reciprocal, pick the best row for regular, balance, and decoupled.  That is, try to optimize the 3 basic methods. $\checkmark$
+		- First stage decoupled is not affected by sample weights. $\checkmark$
+	- For the SEP-EC data, the rare thresholds are +/- 0.5 $\checkmark$
+	- Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
+	- Inside `imbal`:
+		- update balanced/decoupled fit to incorporate finding the "best" class/sample weights based on the validation set
+			1.  Classification, iterate on different lists of class weights
+			2.  Regression, iterate on different lists of sample weights via alpha for reciprocal importance
+	- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
+		 0. no messages (except those from `keras`/`tensorflow`)
+		 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
+		 2. Different class weights, alphas, ... being evaluated
 - **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
+
+
+---
+### Regression on SEP-EC w/ CME (3/3/26)
+For all runs below:
+- Stratified batching is enabled
+- Same seed used for consistency
+-  Ideal weights to use based on `AORE` on 5-fold validation
+
+| Method                        | LR     | Epochs | Weights | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----------------------------- | ------ | ------ | ------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                | $2e-4$ | 224    | ---     | 41.29    | 0.041           | 0.396             | 0.219            | 0.814         | 0.927           | 0.871          |
+| Regular w/ AE (rep = $-2$)    | $2e-4$ | 224    | ---     | 58.68    | 0.038           | 0.329             | 0.184            | 0.823         | 0.925           | 0.874          |
+| Regular w/ AE (rep = $-3$)    | $2e-4$ | 224    | ---     | 57.52    | 0.040           | 0.338             | 0.189            | 0.813         | 0.930           | 0.871          |
+| Balanced w/o AE               | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Balanced w/ AE (rep = $-2$)   | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Balanced w/ AE (rep = $-3$)   | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Decoupled w/o AE (rep = $-2$) | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Decoupled w/o AE (rep = $-3$) | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Decoupled w/ AE (rep = $-2$)  | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+| Decoupled w/ AE (rep = $-3$)  | $5e-5$ |        |         |          |                 |                   |                  |               |                 |                |
+### Regression on SEP-EC w/o CME (3/3/26)
+For all runs below:
+- Stratified batching is enabled
+- Same seed used for consistency
+- Ideal weights to use based on `val_loss` on 5-fold validation
+
+| Method                        | LR     | Epochs | Weights                 | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----------------------------- | ------ | ------ | ----------------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                | $2e-4$ | 118    | ---                     | 53.90    | 0.023           | 0.131             | 0.077            | 0.961         | 0.980           | 0.971          |
+| Regular w/ AE (rep = $-2$)    | $2e-4$ | 118    | ---                     | 66.72    | 0.021           | 0.121             | 0.071            | 0.959         | 0.982           | 0.971          |
+| Regular w/ AE (rep = $-3$)    | $2e-4$ | 118    | ---                     | 67.65    | 0.024           | 0.101             | 0.063            | 0.962         | 0.984           | 0.973          |
+| Balanced w/o AE               | $5e-5$ | 305    | DenseLoss, $\alpha=0.1$ | 151.55   | 0.024           | 0.129             | 0.077            | 0.962         | 0.976           | 0.969          |
+| Balanced w/ AE (rep = $-2$)   | $5e-5$ | 305    | DenseLoss, $\alpha=0.1$ | 190.96   | 0.017           | 0.109             | 0.063            | 0.965         | 0.979           | 0.972          |
+| Balanced w/ AE (rep = $-3$)   | $5e-5$ | 305    | DenseLoss, $\alpha=0.1$ | 165.68   | 0.022           | 0.118             | 0.070            | 0.957         | 0.975           | 0.966          |
+| Decoupled w/o AE (rep = $-2$) | $5e-5$ | 118/80 | DenseLoss, $\alpha=0.1$ | 75.33    | 0.022           | 0.115             | 0.068            | 0.952         | 0.977           | 0.964          |
+| Decoupled w/o AE (rep = $-3$) | $5e-5$ | 118/80 | DenseLoss, $\alpha=0.1$ | 40.48    | 0.021           | 0.120             | 0.070            | 0.952         | 0.975           | 0.964          |
+| Decoupled w/ AE (rep = $-2$)  | $5e-5$ | 118/80 | DenseLoss, $\alpha=0.1$ | 54.17    | 0.020           | 0.118             | 0.069            | 0.953         | 0.976           | 0.965          |
+| Decoupled w/ AE (rep = $-3$)  | $5e-5$ | 118/80 | DenseLoss, $\alpha=0.1$ | 51.97    | 0.018           | 0.119             | 0.069            | 0.957         | 0.978           | 0.967          |
+
+---

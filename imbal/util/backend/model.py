@@ -131,6 +131,7 @@ class Model(keras.Model):
                 )
             y = None
             sample_weight = None
+
         history = keras.Model.fit(
             training_model,
             x=x,

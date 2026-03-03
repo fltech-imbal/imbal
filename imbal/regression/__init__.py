@@ -5,6 +5,7 @@ from .generate_sample_weights import (
     generate_sample_weights
 )
 from .reciprocal_importance import reciprocal_importance
+from .dense_weight import dense_weight
 from .tsne_visualization import tsne_visualization
 from .kde import (
     fit_kde,

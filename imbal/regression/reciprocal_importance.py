@@ -44,17 +44,20 @@ def reciprocal_importance(
 
         # The resulting value of weights is shown below
         # [[1.         1.         1.         1.        ]
-        #  [0.08736475 0.27627161 0.87364754 2.7627161 ]
-        #  [0.00360036 0.0360036  0.360036   3.60036004]]
+        #  [0.08736476 0.2762716  0.8736476  2.762716  ]
+        #  [0.00360036 0.0360036  0.36003602 3.6003602 ]]
     """
     if isinstance(alpha, tuple):
         sample_densities = np.array(sample_densities).reshape(-1)
         alphas = np.arange(steps)/(steps-1) * (alpha[1] - alpha[0]) + alpha[0]
         alphas = alphas.reshape(-1, 1)
     elif isinstance(alpha, (list, np.ndarray)):
-        alphas = np.array([[x] for x in alpha])
+        alphas = np.array([[x for x in alpha]])
     else:
         alphas = np.array([[alpha]])
+
+    sample_densities = sample_densities.reshape(1, -1)
+    alphas = alphas.reshape(-1, 1)
 
     weights = 1 / (np.power(sample_densities, alphas))
     weights = tools.verify_weight_scale(weights, show_warning=False, axis=1)
