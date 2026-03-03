@@ -28,15 +28,21 @@ def is_list_like(obj):
 def verify_weight_scale(weights, show_warning=True, axis=None):
     if weights is None:
         return weights
-    weights = np.array(weights)
-    num_samples = np.prod(weights.shape) if axis is None else weights.shape[axis]
-    differences_per_weights = np.abs(np.sum(weights, axis=axis) - num_samples)
-    if np.any(differences_per_weights > 1e-3):
-        if show_warning:
-            warnings.warn("Weights provided to fit function do not sum to n, where n is the number of "
-                          "samples. TensorFlow expects provided weights to sum to n. Weights will be scaled.")
-        if axis is None:
-            weights *= (num_samples / np.sum(weights, axis=axis))
-        else:
-            weights *= (num_samples / np.sum(weights, axis=axis).reshape(-1, 1))
+    weights = np.array(weights, dtype=np.float32)
+
+    if axis is None:
+        num_samples = weights.size
+        current_sum = np.sum(weights)
+        if abs(current_sum - num_samples) > 1e-3 * num_samples:
+            if show_warning:
+                warnings.warn("Weights do not sum to n. TensorFlow expects provided weights to sum to n. Weights will be rescaled.")
+            weights *= num_samples / current_sum
+    else:
+        num_samples = weights.shape[axis]
+        current_sum = np.sum(weights, axis=axis, keepdims=True)
+        if np.any(np.abs(current_sum - num_samples) > 1e-3 * num_samples):
+            if show_warning:
+                warnings.warn("Weights do not sum to N along axis. TensorFlow expects provided weights to sum to n. Weights will be rescaled.")
+            weights *= num_samples / current_sum
+
     return weights
