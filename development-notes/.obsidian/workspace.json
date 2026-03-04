@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -107,7 +107,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 283.5
+    "width": 283.5,
+    "collapsed": true
   },
   "right": {
     "id": "f4b539bdcde1eaad",
@@ -198,10 +199,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e4d66b6531e4f91d",
+  "active": "c13a8eec41bf35eb",
   "lastOpenFiles": [
-    "Spring 2026 Notes/Notes 3-26.md",
     "Spring 2026 Notes/Notes 2-26.md",
+    "Spring 2026 Notes/Notes 3-26.md",
     "Pasted image 20260224163319.png",
     "Images/Pasted image 20260212111201.png",
     "Pasted image 20260212111201.png",

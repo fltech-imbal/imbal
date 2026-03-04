@@ -33,8 +33,8 @@ class AORE(tf.keras.metrics.Metric):
         errors = y_pred - y_true
         rare_errors = tf.boolean_mask(errors, rare_mask)
 
-        self.square_errors.assign_add(tf.reduce_sum(tf.square(errors)))
-        self.square_rare_errors.assign_add(tf.reduce_sum(tf.square(rare_errors)))
+        self.square_errors.assign_add(tf.reduce_sum(tf.abs(errors)))
+        self.square_rare_errors.assign_add(tf.reduce_sum(tf.abs(rare_errors)))
 
         self.count.assign_add(tf.cast(tf.size(errors), tf.float32))
         self.rare_count.assign_add(tf.cast(tf.size(rare_errors), tf.float32))
