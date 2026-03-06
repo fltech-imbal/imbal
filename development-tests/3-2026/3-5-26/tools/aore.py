@@ -38,6 +38,10 @@ class AORE(tf.keras.metrics.Metric):
 
         self.count.assign_add(tf.cast(tf.size(errors), tf.float32))
         self.rare_count.assign_add(tf.cast(tf.size(rare_errors), tf.float32))
+        # print()
+        # print(tf.size(errors))
+        # print(tf.size(rare_errors))
+        # print()
 
     def result(self):
         mse_all = self.square_errors / tf.maximum(self.count, 1.0)

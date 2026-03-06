@@ -18,17 +18,17 @@ Set script parameters
 # tf.config.run_functions_eagerly(True)
 
 LEARNING_RATE = 2e-4
-FIT = FitType.BALANCED
+FIT = FitType.DECOUPLED
 AE = False
 REPRESENTATION_LAYER_INDEX = -2
 INCLUDE_CME_DATA = True
-DETERMINE_BEST_IMPORTANCE = True
-K_FOLD_EPOCHS = True
-K_FOLD_METRIC = 'val_aore'
+DETERMINE_BEST_IMPORTANCE = False
+K_FOLD_EPOCHS = False
+K_FOLD_METRIC = 'val_loss'
 GEN_OUTPUT = True
 EARLY_STOPPING = False
 EARLY_STOPPING_PATIENCE = 20
-EPOCHS = 224
+EPOCHS = (224, 57)
 
 OUTPUT_PATH = 'out' + ('' if INCLUDE_CME_DATA else '-no-cme')
 
@@ -107,7 +107,7 @@ if FIT != FitType.REGULAR:
         kde_bandwidth
     )
     # weights = imbal.regression.generate_sample_weights(densities)
-    weights = imbal.regression.dense_weight(densities, alpha=0.1)
+    weights = imbal.regression.reciprocal_importance(densities, alpha=0.4)
 # Necessary for early stopping during rRT_fit
 model.override_second_stage_fit_parameters(
     callbacks=[
@@ -125,7 +125,7 @@ if K_FOLD_EPOCHS:
             stratify_batches=STRATIFY,
             validation_split=0.2,
             batch_size=BATCH_SIZE,
-            epochs=118
+            epochs=EPOCHS
         )
 
     def k_fold(weights):
@@ -180,10 +180,12 @@ if K_FOLD_EPOCHS:
             mode=imbal.util.backend.ModelType.REGRESSION
 
         )
+
     if DETERMINE_BEST_IMPORTANCE:
         possible_weights = np.concatenate([
-            imbal.regression.reciprocal_importance(densities, (0, 1)),
-            imbal.regression.dense_weight(densities, (0.1, 2), steps=19)
+            # imbal.regression.reciprocal_importance(densities, (0, 1), steps=11),
+            # imbal.regression.reciprocal_importance(densities, (1.1, 2), steps=10),
+            imbal.regression.dense_weight(densities, (0.1, 2), steps=20)
             # [imbal.regression.reciprocal_importance(densities, alpha=0)],
             # [imbal.regression.reciprocal_importance(densities, alpha=1)],
             # [imbal.regression.dense_weight(densities, alpha=1)]
@@ -191,25 +193,53 @@ if K_FOLD_EPOCHS:
         for contender in possible_weights:
             print(np.min(contender), np.max(contender))
 
+        k_fold_metrics = []
         best_metric = None
         best_epochs = None
         best_index = None
         initial_weights = model.get_weights() 
         for i, weight_candidate in enumerate(possible_weights):
             print(f'Examining candidate weights... [{i+1}/{len(possible_weights)}]')
-            k_fold_epochs, average_metric = k_fold(weight_candidate)
+            fold_results = k_fold(weight_candidate)
+            average_metric = fold_results['aore']
+            k_fold_epochs = fold_results['epoch']
+            k_fold_metrics.append(fold_results)
             if best_metric is None or average_metric < best_metric:
                 best_metric = average_metric
                 best_epochs = k_fold_epochs
                 best_index = i
+            print(fold_results)
         print('Best metric:', best_metric)
         print('Index:', best_index)
         EPOCHS = best_epochs
         weights = possible_weights[best_index]
+
+        print('\nEpochs:', EPOCHS, '\n')
+        headers = ['alpha', 'MAE', 'MAE_r', 'AORE', 'val_loss', 'epochs']
+        weight_label = [
+                        # 'instance', 'reciprocal, 0.1', 'reciprocal, 0.2', 'reciprocal, 0.3', 'reciprocal, 0.4',
+                        # 'reciprocal, 0.5', 'reciprocal, 0.6', 'reciprocal, 0.7', 'reciprocal, 0.8', 'reciprocal, 0.9',
+                        # 'reciprocal, 1.0',
+                        # 'reciprocal, 1.1', 'reciprocal, 1.2', 'reciprocal, 1.3', 'reciprocal, 1.4',
+                        # 'reciprocal, 1.5', 'reciprocal, 1.6', 'reciprocal, 1.7', 'reciprocal, 1.8', 'reciprocal, 1.9',
+                        # 'reciprocal, 2.0',
+                        'denseweight, 0.1', 'denseweight, 0.2', 'denseweight, 0.3', 'denseweight, 0.4',
+                        'denseweight, 0.5', 'denseweight, 0.6', 'denseweight, 0.7', 'denseweight, 0.8', 'denseweight, 0.9',
+                        'denseweight, 1.0', 'denseweight, 1.1', 'denseweight, 1.2', 'denseweight, 1.3', 'denseweight, 1.4',
+                        'denseweight, 1.5', 'denseweight, 1.6', 'denseweight, 1.7', 'denseweight, 1.8', 'denseweight, 1.9',
+                        'denseweight, 2.0'
+        ]
+        header_format_string = "{:<20}{:<10}{:<10}{:<10}{:<10}{:<10}"
+        format_string = "{:<20}{:<10.3}{:<10.3}{:<10.3}{:<10.3}{:<10}"
+        print(header_format_string.format(*headers))
+        print("-" * 80)
+        for i, row in enumerate(k_fold_metrics):
+            extracted_row = [weight_label[i], row['mae'], row['mae_r'], row['aore'], row['val_loss'], row['epoch']]
+            print(format_string.format(*extracted_row))
     else:
         EPOCHS, _ = k_fold(weights)
 
-    print('\nEpochs:', EPOCHS, '\n')
+
 
 
 if not K_FOLD_EPOCHS and DETERMINE_BEST_IMPORTANCE:

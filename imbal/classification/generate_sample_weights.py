@@ -1,4 +1,5 @@
 import numpy as np
+from imbal.util.backend.tools import verify_weight_scale
 
 def generate_sample_weights(
         labels,
@@ -65,32 +66,41 @@ def generate_sample_weights(
 
     labels = labels.reshape(-1, )
     unique_classes, unique_counts = np.unique(labels, return_counts=True)
+    class_counts = dict(zip(unique_classes, unique_counts))
     full_weight_mapping = {}
     balanced_mapping = {}
     weight_sum = 0
 
+    multi_weight = False
+    weights = None
+
     if isinstance(class_weights, dict):
-        for cls in unique_classes:
-            if cls in class_weights:
-                full_weight_mapping[cls] = class_weights[cls]
-            else:
-                full_weight_mapping[cls] = 1
-            weight_sum += full_weight_mapping[cls]
+        weights = np.vectorize(
+            lambda x: class_weights.get(x, 1) / class_counts.get(x)
+        )(class_counts)
     else:
         if class_weights is None:
             for cls in unique_classes:
                 full_weight_mapping[cls] = 1
                 weight_sum += full_weight_mapping[cls]
         else:
-            if len(class_weights) != len(unique_classes):
-                raise ValueError(
-                    'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
-            for cls, weight in zip(unique_classes, class_weights):
-                full_weight_mapping[cls] = weight
-                weight_sum += weight
+            class_weights = np.array(class_weights)
+            if class_weights.ndim == 1:
+                if len(class_weights) != len(unique_classes):
+                    raise ValueError(
+                        'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
+            else:
+                assert class_weights.ndim == 2
+                for cls, weight in zip(unique_classes, class_weights):
+                    full_weight_mapping[cls] = weight
+                    weight_sum += weight
 
-    for label, count in zip(unique_classes, unique_counts):
-        balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count * labels.shape[0]})
 
-    return np.array([balanced_mapping[label] for label in labels])
+        for label, count in zip(unique_classes, unique_counts):
+            balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count * labels.shape[0]})
+        weights = np.array([balanced_mapping[label] for label in labels])
+
+
+    weights = verify_weight_scale(weights, show_warning=False, axis=1 if multi_weight else None)
+    return weights
 

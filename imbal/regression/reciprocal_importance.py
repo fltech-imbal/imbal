@@ -4,7 +4,7 @@ from imbal.util.backend import tools
 def reciprocal_importance(
     sample_densities,
     alpha=1,
-    steps=10
+    steps=11
 ):
     """
 
