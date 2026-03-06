@@ -428,6 +428,8 @@ class Model(keras.Model):
             stage_one_y = None
             stage_one_sample_weights = None
 
+        print('testing\n\n')
+        print(len(x))
         stage_one_history = training_model.fit(
             x=stage_one_x,
             y=stage_one_y,
@@ -468,10 +470,17 @@ class Model(keras.Model):
         second_stage_fit_kwargs['sample_weight'] = sample_weight
         second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, stage_two_val_sample_weight)
         second_stage_fit_kwargs['callbacks'] = None
+        second_stage_fit_kwargs['batch_size'] = batch_size
+        second_stage_fit_kwargs['shuffle'] = shuffle
+        second_stage_fit_kwargs['validation_split'] = validation_split
+        second_stage_fit_kwargs['stratify_batches'] = stratify_batches
+
         # Allow second stage overrides
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
         self._use_decoder_branch = False
+        print('testing\n\n')
+        print(len(x))
         stage_two_history = self._balanced_fit(
             x=x,
             y=y,

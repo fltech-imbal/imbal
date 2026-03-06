@@ -13,10 +13,6 @@
 	- update balanced/decoupled fit to incorporate finding the "best" class/sample weights based on the validation set $\checkmark$
 		1.  Classification, iterate on different lists of class weights $\checkmark$
 		2.  Regression, iterate on different lists of sample weights via alpha for reciprocal importance $\checkmark$
-- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
-	 1. no messages (except those from `keras`/`tensorflow`)
-	 2. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
-	 3. Different class weights, alphas, ... being evaluated
 - **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
 
@@ -200,5 +196,9 @@ For all runs below:
 ## Tasks
 - Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
 	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage)
+- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
+	 1. no messages (except those from `keras`/`tensorflow`)
+	 2. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
+	 3. Different class weights, alphas, ... being evaluated
 - **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
