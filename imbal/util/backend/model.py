@@ -428,8 +428,6 @@ class Model(keras.Model):
             stage_one_y = None
             stage_one_sample_weights = None
 
-        print('testing\n\n')
-        print(len(x))
         stage_one_history = training_model.fit(
             x=stage_one_x,
             y=stage_one_y,
@@ -479,8 +477,6 @@ class Model(keras.Model):
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
         self._use_decoder_branch = False
-        print('testing\n\n')
-        print(len(x))
         stage_two_history = self._balanced_fit(
             x=x,
             y=y,

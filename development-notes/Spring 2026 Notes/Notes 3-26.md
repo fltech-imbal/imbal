@@ -159,10 +159,10 @@ denseweight, 2.0    0.037     0.191     0.114     0.0138    14
 | Balanced w/o AE               | $2e-4$ | 268    | RI, $\alpha=0.4$ | 46.36    | 0.044           | 0.330             | 0.187            | 0.777         | 0.902           | 0.839          |
 | Balanced w/ AE (rep = $-2$)   | $2e-4$ | 268    | RI, $\alpha=0.4$ | 69.24    | 0.053           | 0.309             | 0.181            | 0.734         | 0.911           | 0.823          |
 | Balanced w/ AE (rep = $-3$)   | $2e-4$ | 268    | RI, $\alpha=0.4$ | 70.99    | 0.056           | 0.306             | 0.181            | 0.758         | 0.902           | 0.830          |
-| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 224/57 | RI, $\alpha=1$   |          |                 |                   |                  |               |                 |                |
-| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 224/13 | RI, $\alpha=1.2$ |          |                 |                   |                  |               |                 |                |
-| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 224/57 | RI, $\alpha=1$   |          |                 |                   |                  |               |                 |                |
-| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 224/13 | RI, $\alpha=1.2$ |          |                 |                   |                  |               |                 |                |
+| Decoupled w/o AE (rep = $-2$) | $2e-4$ | 224/57 | RI, $\alpha=1$   | 51.52    | 0.052           | 0.363             | 0.207            | 0.824         | 0.949           | 0.886          |
+| Decoupled w/o AE (rep = $-3$) | $2e-4$ | 224/13 | RI, $\alpha=1.2$ | 45.03    | 0.047           | 0.377             | 0.212            | 0.799         | 0.927           | 0.863          |
+| Decoupled w/ AE (rep = $-2$)  | $2e-4$ | 224/57 | RI, $\alpha=1$   | 74.58    | 0.047           | 0.327             | 0.187            | 0.803         | 0.925           | 0.864          |
+| Decoupled w/ AE (rep = $-3$)  | $2e-4$ | 224/13 | RI, $\alpha=1.2$ | 68.59    | 0.042           | 0.320             | 0.181            | 0.817         | 0.932           | 0.875          |
 ### Regression on SEP-EC w/o CME (3/3/26)
 For all runs below:
 - Stratified batching is enabled

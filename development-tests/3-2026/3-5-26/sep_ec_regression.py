@@ -19,7 +19,7 @@ Set script parameters
 
 LEARNING_RATE = 2e-4
 FIT = FitType.DECOUPLED
-AE = False
+AE = True
 REPRESENTATION_LAYER_INDEX = -2
 INCLUDE_CME_DATA = True
 DETERMINE_BEST_IMPORTANCE = False
@@ -28,7 +28,7 @@ K_FOLD_METRIC = 'val_loss'
 GEN_OUTPUT = True
 EARLY_STOPPING = False
 EARLY_STOPPING_PATIENCE = 20
-EPOCHS = (224, 57)
+EPOCHS = (224, 13)
 
 OUTPUT_PATH = 'out' + ('' if INCLUDE_CME_DATA else '-no-cme')
 
@@ -107,7 +107,7 @@ if FIT != FitType.REGULAR:
         kde_bandwidth
     )
     # weights = imbal.regression.generate_sample_weights(densities)
-    weights = imbal.regression.reciprocal_importance(densities, alpha=0.4)
+    weights = imbal.regression.reciprocal_importance(densities, alpha=1.2)
 # Necessary for early stopping during rRT_fit
 model.override_second_stage_fit_parameters(
     callbacks=[
