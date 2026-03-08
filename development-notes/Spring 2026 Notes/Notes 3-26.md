@@ -192,13 +192,15 @@ For all runs below:
 		- Can we reduce redundant features? (t-SNE)
 	- How to fix?
 		- *Current idea:* Don't rank, normalize label/feature similarities
-
 ## Tasks
 - Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
 	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage)
+	- Use folds already present in the SEP-EC data to re-generate best weights.
 - Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
 	 1. no messages (except those from `keras`/`tensorflow`)
 	 2. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
 	 3. Different class weights, alphas, ... being evaluated
+ - Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
+	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage (no AE, adding AE))
 - **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`

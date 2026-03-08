@@ -338,3 +338,7 @@ print('AORE:', f'{(mae_r + mae)/2:.5f}')
 print('PCC:', f'{pcc:.5f}')
 print('PCC_R:', f'{pcc_r:.5f}')
 print('AORC:', f'{(pcc_r + pcc)/2:.5f}')
+
+temp = AORE()
+temp.update(y_test, predictions)
+print(temp.result())
