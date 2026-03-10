@@ -148,6 +148,7 @@ denseweight, 1.7    0.0381    0.192     0.115     0.0128    20
 denseweight, 1.8    0.0378    0.187     0.112     0.0129    18        
 denseweight, 1.9    0.0378    0.195     0.117     0.0132    20        
 denseweight, 2.0    0.037     0.191     0.114     0.0138    14
+
 ```
 
 
@@ -193,14 +194,145 @@ For all runs below:
 	- How to fix?
 		- *Current idea:* Don't rank, normalize label/feature similarities
 ## Tasks
-- Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
-	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage)
-	- Use folds already present in the SEP-EC data to re-generate best weights.
+- Use folds already present in the SEP-EC data to re-generate best weights. $\checkmark$
+ - Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\checkmark$
+	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage (no AE, adding AE)) $\checkmark$
 - Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
 	 1. no messages (except those from `keras`/`tensorflow`)
 	 2. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
 	 3. Different class weights, alphas, ... being evaluated
- - Outside `imbal`,  add variation of having an extra trained layers for decoupled fit $\times$
-	- For tables, add two rows (since above always has -2 rep layer for first stage, then add additional layer in second stage (no AE, adding AE))
 - **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
+
+## Notes
+- Fixed issue with `imbal.regression.get_sample_densities`. Previously, distribution used for KDE had to be the same as the list of labels used to retrieve densities for. Separate lists may now be specified.
+
+---
+## Balanced w/ CME (3/9/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0829    0.708     0.395     0.0262    32        
+reciprocal, 0.1     0.0895    0.61      0.35      0.0356    55        
+reciprocal, 0.2     0.0886    0.503     0.296     0.0479    96        
+reciprocal, 0.3     0.0958    0.485     0.291     0.0636    122       
+reciprocal, 0.4     0.095     0.482     0.288     0.0823    143       
+reciprocal, 0.5     0.103     0.45      0.277     0.116     172       
+reciprocal, 0.6     0.116     0.334     0.225     0.0958    263       
+reciprocal, 0.7     0.122     0.329     0.225     0.137     398  <--- 
+reciprocal, 0.8     0.146     0.337     0.242     0.164     335       
+reciprocal, 0.9     0.234     0.43      0.332     0.28      142       
+reciprocal, 1.0     0.233     0.429     0.331     0.445     125
+denseweight, 0.1    0.0833    0.692     0.388     0.0286    20        
+denseweight, 0.2    0.0837    0.729     0.406     0.0301    5     
+denseweight, 0.3    0.0862    0.698     0.392     0.0356    6         
+denseweight, 0.4    0.0837    0.546     0.315     0.0356    84        
+denseweight, 0.5    0.0863    0.623     0.355     0.0351    46        
+denseweight, 0.6    0.087     0.623     0.355     0.0379    38        
+denseweight, 0.7    0.094     0.63      0.362     0.0461    32        
+denseweight, 0.8    0.0912    0.59      0.34      0.0475    57        
+denseweight, 0.9    0.0828    0.416     0.249     0.0375    182       
+denseweight, 1.0    0.0875    0.416     0.252     0.0398    205       
+denseweight, 1.1    0.0982    0.396     0.247     0.0457    183       
+denseweight, 1.2    0.103     0.381     0.242     0.0499    166       
+denseweight, 1.3    0.104     0.399     0.251     0.0471    195       
+denseweight, 1.4    0.109     0.391     0.25      0.0528    199       
+denseweight, 1.5    0.112     0.422     0.267     0.0574    130       
+denseweight, 1.6    0.106     0.441     0.273     0.0608    182       
+denseweight, 1.7    0.107     0.402     0.255     0.0573    166       
+denseweight, 1.8    0.108     0.389     0.249     0.0614    192       
+denseweight, 1.9    0.105     0.405     0.255     0.0594    186       
+denseweight, 2.0    0.114     0.363     0.239     0.065     261
+```
+## Decoupled (rep layer = -2) w/ CME (3/9/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0589    0.301     0.18      0.0112    64        
+reciprocal, 0.1     0.0598    0.273     0.166     0.0135    52        
+reciprocal, 0.2     0.0597    0.245     0.152     0.0191    50        
+reciprocal, 0.3     0.0661    0.24      0.153     0.0282    57        
+reciprocal, 0.4     0.0714    0.254     0.163     0.0328    37        
+reciprocal, 0.5     0.0732    0.238     0.156     0.0452    30        
+reciprocal, 0.6     0.0857    0.249     0.167     0.0597    41        
+reciprocal, 0.7     0.0988    0.231     0.165     0.0739    38        
+reciprocal, 0.8     0.104     0.227     0.166     0.0944    15        
+reciprocal, 0.9     0.11      0.23      0.17      0.111     17        
+reciprocal, 1.0     0.139     0.221     0.18      0.117     10
+denseweight, 0.1    0.0565    0.294     0.175     0.012     94        
+denseweight, 0.2    0.0605    0.3       0.18      0.0122    82        
+denseweight, 0.3    0.0589    0.287     0.173     0.0121    98        
+denseweight, 0.4    0.0582    0.3       0.179     0.0124    98        
+denseweight, 0.5    0.0596    0.273     0.166     0.0128    116       
+denseweight, 0.6    0.0609    0.283     0.172     0.0157    106       
+denseweight, 0.7    0.0626    0.268     0.165     0.0151    92        
+denseweight, 0.8    0.0642    0.257     0.161     0.0169    93   <---   
+denseweight, 0.9    0.0663    0.285     0.175     0.0203    105       
+denseweight, 1.0    0.0753    0.253     0.164     0.0221    90        
+denseweight, 1.1    0.0743    0.274     0.174     0.0222    71        
+denseweight, 1.2    0.0781    0.275     0.177     0.0228    66        
+denseweight, 1.3    0.0732    0.253     0.163     0.0262    108      
+denseweight, 1.4    0.0811    0.263     0.172     0.0254    98        
+denseweight, 1.5    0.08      0.278     0.179     0.0274    74        
+denseweight, 1.6    0.0794    0.263     0.171     0.0286    80        
+denseweight, 1.7    0.0821    0.272     0.177     0.0289    70        
+denseweight, 1.8    0.0851    0.254     0.17      0.0275    62        
+denseweight, 1.9    0.0922    0.257     0.175     0.0302    57        
+denseweight, 2.0    0.0907    0.249     0.17      0.0297    56
+```
+## Decoupled (rep layer = -3) w/ CME (3/9/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0579    0.316     0.187     0.0109    106       
+reciprocal, 0.1     0.059     0.311     0.185     0.015     130       
+reciprocal, 0.2     0.061     0.262     0.161     0.0194    155   
+reciprocal, 0.3     0.0643    0.266     0.165     0.0274    148       
+reciprocal, 0.4     0.0771    0.248     0.162     0.0439    32        
+reciprocal, 0.5     0.0849    0.267     0.176     0.0552    26        
+reciprocal, 0.6     0.0973    0.24      0.169     0.0543    23        
+reciprocal, 0.7     0.0954    0.256     0.176     0.0791    68        
+reciprocal, 0.8     0.0993    0.232     0.166     0.0863    22        
+reciprocal, 0.9     0.13      0.225     0.178     0.125     13        
+reciprocal, 1.0     0.157     0.232     0.194     0.133     27
+denseweight, 0.1    0.0581    0.273     0.166     0.0106    82 
+denseweight, 0.2    0.0594    0.279     0.169     0.0115    92        
+denseweight, 0.3    0.059     0.268     0.163     0.0123    95        
+denseweight, 0.4    0.0592    0.285     0.172     0.014     62        
+denseweight, 0.5    0.0604    0.276     0.168     0.0129    100       
+denseweight, 0.6    0.0605    0.279     0.17      0.0134    82        
+denseweight, 0.7    0.0624    0.26      0.161     0.0146    85   <---     
+denseweight, 0.8    0.0646    0.271     0.168     0.0167    74        
+denseweight, 0.9    0.0686    0.258     0.163     0.0184    85        
+denseweight, 1.0    0.0733    0.243     0.158     0.0214    86        
+denseweight, 1.1    0.07      0.264     0.167     0.0253    54        
+denseweight, 1.2    0.076     0.264     0.17      0.0229    118       
+denseweight, 1.3    0.0782    0.251     0.165     0.0227    66        
+denseweight, 1.4    0.0742    0.269     0.171     0.0266    70        
+denseweight, 1.5    0.0822    0.252     0.167     0.0239    52        
+denseweight, 1.6    0.0789    0.267     0.173     0.0268    54        
+denseweight, 1.7    0.088     0.241     0.165     0.025     95        
+denseweight, 1.8    0.0904    0.249     0.17      0.0288    90        
+denseweight, 1.9    0.0861    0.264     0.175     0.0307    64        
+denseweight, 2.0    0.0842    0.26      0.172     0.0274    66
+```
+
+Regular best epochs: $55$
+All runs have learning rate of $2e-4$
+
+| Method                        | Epochs   | Weights          | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----------------------------- | -------- | ---------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                | 55       | ---              | 19.37    | ==0.054==       | 0.435             | 0.244            | 0.625         | 0.856           | 0.740          |
+| Regular w/ AE (rep = $-2$)    | 55       | ---              | 29.26    | 0.067           | 0.422             | 0.245            | 0.491         | 0.821           | 0.656          |
+| Regular w/ AE (rep = $-3$)    | 55       | ---              | 28.25    | 0.074           | 0.421             | 0.247            | 0.485         | 0.829           | 0.657          |
+| Balanced w/o AE               | 398      | RI, $\alpha=0.7$ | 60.51    | 0.080           | 0.246             | 0.163            | ==0.669==     | 0.918           | ==0.793==      |
+| Balanced w/ AE (rep = $-2$)   | 398      | RI, $\alpha=0.7$ | 91.64    | 0.105           | 0.241             | 0.173            | 0.605         | 0.913           | 0.759          |
+| Balanced w/ AE (rep = $-3$)   | 398      | RI, $\alpha=0.7$ | 91.64    | 0.087           | ==0.207==         | ==0.147==        | 0.636         | ==0.938==       | 0.787          |
+| Decoupled w/o AE (rep = $-2$) | 55 / 93  | DW, $\alpha=0.8$ | 34.16    | 0.065           | 0.414             | 0.240            | 0.532         | 0.832           | 0.682          |
+| Decoupled w/o AE (rep = $-3$) | 55 / 85  | DW, $\alpha=0.7$ | 33.76    | 0.060           | 0.416             | 0.238            | 0.609         | 0.880           | 0.744          |
+| Decoupled w/ AE (rep = $-2$)  | 55 / 93  | DW, $\alpha=0.8$ | 42.87    | 0.066           | 0.407             | 0.237            | 0.512         | 0.847           | 0.679          |
+| Decoupled w/ AE (rep = $-3$)  | 55 / 85  | DW, $\alpha=0.7$ | 43.61    | 0.064           | 0.412             | 0.238            | 0.543         | 0.836           | 0.689          |
+| Decoupled w/ AE (rep = $-3$)  | 55 / 85  | RI, $\alpha=0.7$ | 43.11    | 0.084           | 0.345             | 0.215            | 0.523         | 0.862           | 0.692          |
+| Decoupled w/ AE (rep = $-3$)  | 55 / 398 | RI, $\alpha=0.7$ | 80.44    | 0.093           | 0.331             | 0.212            | 0.523         | 0.877           | 0.698          |
+| Extended Decoupled w/o AE     | 55 / 85  | DW, $\alpha=0.7$ | 35.61    | 0.058           | 0.417             | 0.238            | 0.574         | 0.859           | 0.717          |
+| Extended Decoupled w/ AE      | 55 / 85  | DW, $\alpha=0.7$ | 44.48    | 0.062           | 0.421             | 0.242            | 0.543         | 0.806           | 0.675          |

@@ -12,6 +12,7 @@ import warnings
 def get_sample_densities(
         labels,
         bandwidth,
+        distribution=None,
         interpolation_method=None,
         interpolation_samples=None,
         atol=0,
@@ -146,7 +147,10 @@ def get_sample_densities(
 
     labels = labels.reshape(labels.shape[0], -1)
 
-    kde = KernelDensity(bandwidth=bandwidth, atol=atol).fit(labels)
+    fit_data = distribution if distribution is not None else labels
+    fit_data = fit_data.reshape(fit_data.shape[0], -1)
+
+    kde = KernelDensity(bandwidth=bandwidth, atol=atol).fit(fit_data)
 
     # Use KDE approximation to generate weights
     points, densities = None, None
