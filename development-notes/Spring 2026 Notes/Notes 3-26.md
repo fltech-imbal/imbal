@@ -201,9 +201,7 @@ For all runs below:
 	 1. no messages (except those from `keras`/`tensorflow`)
 	 2. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
 	 3. Different class weights, alphas, ... being evaluated
-- **Later on:** MDI, wPCC
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
-
 ## Notes
 - Fixed issue with `imbal.regression.get_sample_densities`. Previously, distribution used for KDE had to be the same as the list of labels used to retrieve densities for. Separate lists may now be specified.
 
@@ -336,3 +334,19 @@ All runs have learning rate of $2e-4$
 | Decoupled w/ AE (rep = $-3$)  | 55 / 398 | RI, $\alpha=0.7$ | 80.44    | 0.093           | 0.331             | 0.212            | 0.523         | 0.877           | 0.698          |
 | Extended Decoupled w/o AE     | 55 / 85  | DW, $\alpha=0.7$ | 35.61    | 0.058           | 0.417             | 0.238            | 0.574         | 0.859           | 0.717          |
 | Extended Decoupled w/ AE      | 55 / 85  | DW, $\alpha=0.7$ | 44.48    | 0.062           | 0.421             | 0.242            | 0.543         | 0.806           | 0.675          |
+| Method                        | Epochs   | Weights          | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+## Tasks
+- Extended decoupled
+	- For second stage, do not freeze encoder (add as rows to table)
+- Add MDI
+- Add wPCC to loss function
+	- First, no sample weights (basically just 1 - PCC), then add sample weights (using MDI)
+- Early stopping with minimum number epochs
+- `get_sample_densities` documentation update
+- Make sure documentation for fits specifies that multiple weight lists are allowed.
+- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
+	- DO NOT called it `verbose`. Different from the preexisting TF fit parameter.
+	 0. no messages (except those from `keras`/`tensorflow`)
+	 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
+	 2. Different class weights, alphas, ... being evaluated
+- **30%:** Refactoring / rewrite of `generate_decoder_branch`
