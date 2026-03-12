@@ -335,13 +335,15 @@ All runs have learning rate of $2e-4$
 | Extended Decoupled w/o AE     | 55 / 85  | DW, $\alpha=0.7$ | 35.61    | 0.058           | 0.417             | 0.238            | 0.574         | 0.859           | 0.717          |
 | Extended Decoupled w/ AE      | 55 / 85  | DW, $\alpha=0.7$ | 44.48    | 0.062           | 0.421             | 0.242            | 0.543         | 0.806           | 0.675          |
 | Method                        | Epochs   | Weights          | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+
+---
 ## Tasks
-- Extended decoupled
-	- For second stage, do not freeze encoder (add as rows to table)
-- Add MDI
-- Add wPCC to loss function
-	- First, no sample weights (basically just 1 - PCC), then add sample weights (using MDI)
-- Early stopping with minimum number epochs
+- Extended decoupled $\checkmark$
+	- For second stage, do not freeze encoder (add as rows to table) $\checkmark$
+- Add MDI $\checkmark$
+- Add wPCC to loss function $\checkmark$
+	- First, no sample weights (basically just 1 - PCC), then add sample weights (using MDI) $\checkmark$
+- Early stopping with minimum number epochs $\checkmark$
 - `get_sample_densities` documentation update
 - Make sure documentation for fits specifies that multiple weight lists are allowed.
 - Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
@@ -350,3 +352,149 @@ All runs have learning rate of $2e-4$
 	 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
 	 2. Different class weights, alphas, ... being evaluated
 - **30%:** Refactoring / rewrite of `generate_decoder_branch`
+
+
+---
+## Balanced w/ CME (3/12/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0653    0.384     0.225     0.112     462       
+reciprocal, 0.1     0.0679    0.357     0.212     0.106     497       
+reciprocal, 0.2     0.0693    0.37      0.219     0.145     404       
+reciprocal, 0.3     0.0607    0.34      0.2       0.141     582       
+reciprocal, 0.4     0.072     0.35      0.211     0.317     440       
+reciprocal, 0.5     0.0807    0.32      0.2       0.528     396       
+reciprocal, 0.6     0.0774    0.282     0.18      0.576     415  <---     
+reciprocal, 0.7     0.0863    0.305     0.196     1.84      366       
+reciprocal, 0.8     0.0881    0.284     0.186     1.82      378       
+reciprocal, 0.9     0.13      0.271     0.2       2.78      410       
+reciprocal, 1.0     0.103     0.286     0.195     2.86      412
+--------------------------------------------------------------------------------
+denseweight, 0.1    0.0734    0.384     0.229     0.12      452       
+denseweight, 0.2    0.0641    0.379     0.222     0.107     526       
+denseweight, 0.3    0.0631    0.379     0.221     0.1       599       
+denseweight, 0.4    0.0605    0.388     0.224     0.101     503       
+denseweight, 0.5    0.0646    0.372     0.219     0.107     429       
+denseweight, 0.6    0.0646    0.392     0.228     0.114     446       
+denseweight, 0.7    0.0703    0.359     0.214     0.107     470       
+denseweight, 0.8    0.0592    0.362     0.211     0.098     551       
+denseweight, 0.9    0.0653    0.377     0.221     0.114     420       
+denseweight, 1.0    0.0661    0.371     0.219     0.116     429       
+denseweight, 1.1    0.0678    0.391     0.229     0.132     513       
+denseweight, 1.2    0.0642    0.36      0.212     0.116     459       
+denseweight, 1.3    0.0711    0.363     0.217     0.141     411       
+denseweight, 1.4    0.0755    0.381     0.228     0.16      390       
+denseweight, 1.5    0.0649    0.367     0.216     0.147     393       
+denseweight, 1.6    0.0634    0.368     0.216     0.16      555       
+denseweight, 1.7    0.0683    0.373     0.221     0.179     401       
+denseweight, 1.8    0.0663    0.361     0.214     0.169     512       
+denseweight, 1.9    0.0731    0.343     0.208     0.158     440  <---     
+denseweight, 2.0    0.0717    0.353     0.212     0.158     468
+```
+## Decoupled (rep layer = -2) w/ CME (3/12/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0441    0.258     0.151     0.0578    206       
+reciprocal, 0.1     0.041     0.247     0.144     0.055     199       
+reciprocal, 0.2     0.0398    0.254     0.147     0.0589    156       
+reciprocal, 0.3     0.0382    0.24      0.139     0.0672    169       
+reciprocal, 0.4     0.0452    0.233     0.139     0.0894    148       
+reciprocal, 0.5     0.0401    0.221     0.131     0.12      133       
+reciprocal, 0.6     0.0489    0.215     0.132     0.198     82        
+reciprocal, 0.7     0.0452    0.214     0.13      0.307     62        
+reciprocal, 0.8     0.0482    0.209     0.129     0.437     123  <--- 
+reciprocal, 0.9     0.0496    0.224     0.137     0.775     121       
+reciprocal, 1.0     0.0525    0.227     0.14      1.15      63 
+--------------------------------------------------------------------------------
+denseweight, 0.1    0.0401    0.249     0.145     0.0575    132       
+denseweight, 0.2    0.0435    0.25      0.147     0.0578    251       
+denseweight, 0.3    0.0405    0.245     0.143     0.0559    176       
+denseweight, 0.4    0.042     0.246     0.144     0.0564    128       
+denseweight, 0.5    0.0402    0.261     0.15      0.0544    252       
+denseweight, 0.6    0.0425    0.251     0.147     0.0528    142       
+denseweight, 0.7    0.0413    0.252     0.146     0.0531    201       
+denseweight, 0.8    0.0393    0.247     0.143     0.0502    104       
+denseweight, 0.9    0.041     0.239     0.14      0.0492    143       
+denseweight, 1.0    0.0402    0.236     0.138     0.0466    185       
+denseweight, 1.1    0.0417    0.244     0.143     0.0496    204       
+denseweight, 1.2    0.0405    0.233     0.137     0.0507    131       
+denseweight, 1.3    0.0423    0.233     0.137     0.0536    135       
+denseweight, 1.4    0.0394    0.241     0.14      0.0565    193       
+denseweight, 1.5    0.0408    0.237     0.139     0.0588    120       
+denseweight, 1.6    0.0418    0.234     0.138     0.0595    162       
+denseweight, 1.7    0.0414    0.231     0.136     0.0597    137       
+denseweight, 1.8    0.0427    0.233     0.138     0.0646    53        
+denseweight, 1.9    0.0406    0.23      0.135     0.0644    207  <---     
+denseweight, 2.0    0.0403    0.238     0.139     0.0683    146
+```
+## Decoupled (rep layer = -3) w/ CME (3/12/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0464    0.249     0.148     0.0605    186       
+reciprocal, 0.1     0.0499    0.249     0.15      0.0627    229       
+reciprocal, 0.2     0.048     0.249     0.148     0.0667    202       
+reciprocal, 0.3     0.0444    0.231     0.138     0.0705    182       
+reciprocal, 0.4     0.047     0.227     0.137     0.09      114       
+reciprocal, 0.5     0.049     0.223     0.136     0.131     81        
+reciprocal, 0.6     0.0455    0.212     0.129     0.191     101  <---     
+reciprocal, 0.7     0.052     0.215     0.134     0.316     92        
+reciprocal, 0.8     0.0481    0.212     0.13      0.5       75        
+reciprocal, 0.9     0.0516    0.214     0.133     0.768     32        
+reciprocal, 1.0     0.0485    0.209     0.129     0.995     38
+--------------------------------------------------------------------------------
+mdi, 0.1            0.102     0.187     0.144     0.0127    21        
+mdi, 0.2            0.0446    0.201     0.123     0.0133    34   <---      
+mdi, 0.3            0.0486    0.199     0.124     0.0157    121       
+mdi, 0.4            0.0433    0.202     0.123     0.0176    34        
+mdi, 0.5            0.051     0.242     0.146     0.0187    198       
+mdi, 0.6            0.0451    0.237     0.141     0.0214    134       
+mdi, 0.7            0.0511    0.265     0.158     0.0216    206       
+mdi, 0.8            0.053     0.284     0.169     0.0226    230       
+mdi, 0.9            0.0438    0.254     0.149     0.0243    174       
+mdi, 1.0            0.0461    0.287     0.167     0.0246    202       
+mdi, 1.1            0.0517    0.271     0.161     0.0265    185       
+mdi, 1.25           0.0491    0.294     0.171     0.027     244       
+mdi, 1.4            0.0511    0.266     0.158     0.0288    178       
+mdi, 1.66           0.0537    0.279     0.166     0.0317    280       
+mdi, 2              0.0567    0.303     0.18      0.034     232       
+mdi, 2.5            0.0507    0.278     0.164     0.0367    202       
+mdi, 3.33           0.0535    0.278     0.166     0.0391    296       
+mdi, 5              0.059     0.283     0.171     0.0431    260       
+mdi, 10             0.0504    0.27      0.16      0.0481    215
+```
+
+Regular best epochs: $514$
+All runs have learning rate of $2e-4$
+
+| Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ------------------------------------ | ------- | ----------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Regular w/o AE                       | 514     | ---               | 81.54    | 0.038           | 0.234             | 0.136            | 0.869         | 0.961           | 0.914          |
+| Regular w/ AE (rep = $-2$)           | 514     | ---               | 119.62   | 0.039           | 0.222             | 0.131            | 0.827         | 0.966           | 0.896          |
+| Regular w/ AE (rep = $-3$)           | 514     | ---               | 130.15   | 0.038           | 0.176             | 0.107            | 0.839         | 0.972           | 0.905          |
+| Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| Balanced w/o AE                      | 415     | RI, $\alpha=0.6$  | 67.36    | 0.041           | 0.218             | 0.130            | 0.813         | 0.952           | 0.883          |
+| Balanced w/o AE                      | 440     | DW, $\alpha=1.9$  | 68.31    | 0.035           | 0.241             | 0.138            | 0.880         | 0.968           | 0.924          |
+| Balanced w/ AE (rep = $-2$)          | 415     | RI, $\alpha=0.6$  | 106.13   | 0.041           | 0.186             | 0.114            | 0.824         | 0.949           | 0.886          |
+| Balanced w/ AE (rep = $-2$)          | 440     | DW, $\alpha=1.9$  | 107.40   | 0.033           | 0.188             | 0.110            | 0.876         | 0.969           | 0.922          |
+| Balanced w/ AE (rep = $-3$)          | 415     | RI, $\alpha=0.6$  | 102.69   | 0.041           | 0.163             | 0.102            | 0.848         | 0.959           | 0.903          |
+| Balanced w/ AE (rep = $-3$)          | 440     | DW, $\alpha=1.9$  | 108.37   | 0.040           | 0.194             | 0.117            | 0.864         | 0.971           | 0.918          |
+| Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| Decoupled w/o AE (rep = $-2$)        | 514/123 | RI, $\alpha=0.8$  | 96.41    | 0.039           | 0.187             | 0.113            | 0.874         | 0.947           | 0.911          |
+| Decoupled w/o AE (rep = $-2$)        | 514/34  | MDI, $\alpha=0.2$ | 86.36    | 0.51            | 0.396             | 0.224            | 0.874         | 0.962           | 0.918          |
+| Decoupled w/o AE (rep = $-3$)        | 514/101 | RI, $\alpha=0.6$  | 95.86    | 0.037           | 0.253             | 0.145            | 0.842         | 0.930           | 0.886          |
+| Decoupled w/o AE (rep = $-3$)        | 514/34  | MDI, $\alpha=0.2$ | 91.04    | 0.059           | 0.379             | 0.219            | 0.869         | 0.961           | 0.915          |
+| Decoupled w/ AE (rep = $-2$)         | 514/123 | RI, $\alpha=0.8$  | 136.84   | 0.042           | 0.189             | 0.115            | 0.801         | 0.951           | 0.876          |
+| Decoupled w/ AE (rep = $-2$)         | 514/34  | MDI, $\alpha=0.2$ | 131.96   | 0.045           | 0.326             | 0.185            | 0.863         | 0.966           | 0.915          |
+| Decoupled w/ AE (rep = $-3$)         | 514/101 | RI, $\alpha=0.6$  | 141.88   | 0.037           | 0.197             | 0.117            | 0.881         | 0.954           | 0.917          |
+| Decoupled w/ AE (rep = $-3$)         | 514/34  | MDI, $\alpha=0.2$ | 136.99   | 0.051           | 0.351             | 0.201            | 0.864         | 0.965           | 0.914          |
+| Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| Extended Decoupled w/o AE            | 514/101 | RI, $\alpha=0.6$  | 100.37   | 0.040           | 0.245             | 0.143            | 0.846         | 0.928           | 0.887          |
+| Extended Decoupled w/ AE             | 514/101 | RI, $\alpha=0.6$  | 148.00   | 0.039           | 0.198             | 0.119            | 0.802         | 0.946           | 0.874          |
+| Extended Decoupled w/o AE (unfrozen) | 514/101 | RI, $\alpha=0.6$  | 104.79   | 0.094           | 0.264             | 0.179            | 0.784         | 0.950           | 0.867          |
+| Extended Decoupled w/ AE (unfrozen)  | 514/101 | RI, $\alpha=0.6$  | 151.16   | 0.085           | 0.283             | 0.184            | 0.834         | 0.964           | 0.899          |
+| Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+
+---

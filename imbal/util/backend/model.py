@@ -78,7 +78,7 @@ class Model(keras.Model):
         SAME (2)
         """
         if self._multi_weight(sample_weight, None):
-            return self._multi_weight_call(
+            return self._multi_weight_fit(
                 self.fit,
                 x=x,
                 y=y,
@@ -610,7 +610,7 @@ class Model(keras.Model):
                 return True
         return False
 
-    def multi_weight_fit(
+    def _multi_weight_fit(
         self,
         fit_function,
         **kwargs

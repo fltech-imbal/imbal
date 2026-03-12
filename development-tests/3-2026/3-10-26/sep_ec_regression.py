@@ -1,6 +1,7 @@
 """
 Import packages
 """
+
 import imbal
 import tensorflow as tf
 import keras
@@ -8,9 +9,8 @@ from tensorflow.keras import layers
 import numpy as np
 import time
 import tools
-from tools import FitType, AORE
-import daniel_tools
-from daniel_tools import fit_k_folds_modular
+from tools import FitType, AORE, TrainingPhaseManager, IsTraining, mdi_importance
+
 """
 Set script parameters
 """
@@ -28,11 +28,13 @@ K_FOLD_METRIC = 'val_loss'
 GEN_OUTPUT = True
 EARLY_STOPPING = False
 EARLY_STOPPING_PATIENCE = 50
-EPOCHS = (55, 85)
+EPOCHS = (514, 101)
 
-DENSITY_TO_WEIGHT_FUNCTION = imbal.regression.dense_weight
+FREEZE_SECOND_STAGE_EXTENDED = False
+MIN_EPOCHS_BEFORE_STOP = 0
+DENSITY_TO_WEIGHT_FUNCTION = imbal.regression.reciprocal_importance
 DENSITY_TO_WEIGHT_KWARGS = {
-    'alpha' : 0.7
+    'alpha' : 0.6
 }
 
 OUTPUT_PATH = 'out' + ('' if INCLUDE_CME_DATA else '-no-cme')
@@ -77,13 +79,7 @@ representation_layer = model.get_layer(index=-2)
 print(representation_layer)
 model.summary()
 
-model.compile(
-    loss='mse',
-    optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-    metrics=["mse", AORE()],
-    generate_decoder_branch=AE,
-    representation_layer_index=REPRESENTATION_LAYER_INDEX
-)
+pm = TrainingPhaseManager()
 
 """
 Generate sample densities
@@ -94,11 +90,11 @@ kde_bandwidth = imbal.regression.fit_kde(
     bin_count=KDE_BIN_COUNT
 )
 
-imbal.regression.plot_kde_1d(
-    y_train,
-    kde_bandwidth,
-    bin_count=KDE_BIN_COUNT
-)
+# imbal.regression.plot_kde_1d(
+#     y_train,
+#     kde_bandwidth,
+#     bin_count=KDE_BIN_COUNT
+# )
 
 densities = imbal.regression.get_sample_densities(
     y_train,
@@ -127,7 +123,12 @@ if FIT != FitType.REGULAR:
 # Necessary for early stopping during rRT_fit
 model.override_second_stage_fit_parameters(
     callbacks=[
-        keras.callbacks.EarlyStopping(patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True)
+        tools.DelayedEarlyStopping(
+            patience=EARLY_STOPPING_PATIENCE,
+            restore_best_weights=True,
+            stop_after_epoch=MIN_EPOCHS_BEFORE_STOP
+        ),
+        IsTraining(pm)
     ]
 )
 
@@ -135,6 +136,20 @@ if K_FOLD_EPOCHS:
     print('Performing k-fold validation...')
 
     if FIT == FitType.DECOUPLED:
+        train_ones_dict = tools.map_labels_to_importance_weights(y_train, np.ones(len(y_train)))
+        model.compile(
+            loss=lambda y_true, y_pred: tools.mse_wpcc(
+                y_true, y_pred,
+                phase_manager=pm,
+                lambda_factor=0.5,
+                train_mse_weight_dict=train_ones_dict,
+                train_pcc_weight_dict=train_ones_dict,
+            ),
+            optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+            metrics=["mse", AORE()],
+            generate_decoder_branch=AE,
+            representation_layer_index=REPRESENTATION_LAYER_INDEX
+        )
         model.fit(
             x_train,
             y_train,
@@ -146,38 +161,6 @@ if K_FOLD_EPOCHS:
 
     def k_fold(weight_function, weight_alpha):
 
-        # early_stop = keras.callbacks.EarlyStopping(
-        #     monitor=K_FOLD_METRIC,
-        #     patience=50,
-        #     mode="min",
-        #     restore_best_weights=True
-        # )
-        #
-        # params = (daniel_tools.RegularFitParams(
-        #     x=x_train,
-        #     y=y_train,
-        #     sample_weight=weights,
-        #     batch_size=BATCH_SIZE,
-        #     shuffle=True,  # keep your intended behavior
-        #     callbacks=[early_stop],  # NOTE: only pass the EarlyStopping here if you want it cloned per fold
-        # ) if FIT == FitType.REGULAR else (
-        # daniel_tools.BalancedFitParams(
-        #     x=x_train,
-        #     y=y_train,
-        #     sample_weight=weights,
-        #     batch_size=BATCH_SIZE,
-        #     shuffle=True,  # keep your intended behavior
-        #     callbacks=[early_stop],  # NOTE: only pass the EarlyStopping here if you want it cloned per fold
-        # ) if FIT == FitType.BALANCED else
-        # daniel_tools.DecoupledFitStageTwoParams(
-        #     x=x_train,
-        #     y=y_train,
-        #     sample_weight=weights,
-        #     batch_size=BATCH_SIZE,
-        #     shuffle=True,  # keep your intended behavior
-        #     callbacks=[early_stop],  # NOTE: only pass the EarlyStopping here if you want it cloned per fold
-        # )))
-
         maes = []
         mae_rs = []
         aores = []
@@ -185,7 +168,6 @@ if K_FOLD_EPOCHS:
         best_loss = []
 
         initial_weights = model.get_weights()
-        compile_config = model.get_compile_config()
 
         for i in range(4):
             x_sub_train, y_sub_train = tools.load_sep_ec(
@@ -199,7 +181,9 @@ if K_FOLD_EPOCHS:
                 normalization_factors=normalization_factors
             )
 
+
             if FIT != FitType.REGULAR:
+                
                 densities_sub_train = imbal.regression.get_sample_densities(
                     y_sub_train,
                     kde_bandwidth,
@@ -217,7 +201,29 @@ if K_FOLD_EPOCHS:
                 weights_sub_train = np.ones(x_sub_train.shape[0])
                 weights_val = np.ones(x_val.shape[0])
 
-            model.compile_from_config(compile_config)
+            print('weight shape:', weights_sub_train.shape)
+            train_weight_dict = tools.map_labels_to_importance_weights(y_sub_train, weights_sub_train)
+            train_ones_dict = tools.map_labels_to_importance_weights(y_sub_train, np.ones(len(y_sub_train)))
+
+            val_weight_dict = tools.map_labels_to_importance_weights(y_val, weights_val)
+            val_ones_dict = tools.map_labels_to_importance_weights(y_val, np.ones(len(y_val)))
+
+            model.compile(
+                loss=lambda y_true, y_pred: tools.mse_wpcc(
+                    y_true, y_pred,
+                    phase_manager=pm,
+                    lambda_factor=0.5,
+                    train_mse_weight_dict=train_weight_dict,
+                    train_pcc_weight_dict=train_ones_dict,
+                    val_mse_weight_dict=val_weight_dict,
+                    val_pcc_weight_dict=val_ones_dict,
+                ),
+                optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+                metrics=["mse", AORE()],
+                generate_decoder_branch=AE,
+                representation_layer_index=REPRESENTATION_LAYER_INDEX
+            )
+
             model.set_weights(initial_weights)
             model.reset_metrics()
 
@@ -229,19 +235,23 @@ if K_FOLD_EPOCHS:
                 stratify_batches=STRATIFY,
                 batch_size=BATCH_SIZE,
                 epochs=100000,
-                callbacks=(
-                    [keras.callbacks.EarlyStopping(
+                callbacks=[
+                    tools.DelayedEarlyStopping(
                         patience=EARLY_STOPPING_PATIENCE,
                         restore_best_weights=True,
                         monitor=K_FOLD_METRIC,
+                        stop_after_epoch=MIN_EPOCHS_BEFORE_STOP,
                         mode="min"
-                    )]
-                )
+                    ),
+                    IsTraining(pm)
+                ]
+
             )
 
             val_losses = history.history['val_loss']
             if val_losses:
-                best_loss_index = int(len(val_losses) - EARLY_STOPPING_PATIENCE)
+                best_loss_index = int(np.argmin(val_losses))
+                print('Found of minimum val_loss:', best_loss_index+1)
                 best_loss.append(val_losses[best_loss_index])
                 best_epochs.append(best_loss_index + 1)
 
@@ -276,12 +286,6 @@ if K_FOLD_EPOCHS:
 
     if DETERMINE_BEST_IMPORTANCE:
         possible_weights = [
-            # imbal.regression.reciprocal_importance(densities, (0, 1), steps=11),
-            # imbal.regression.reciprocal_importance(densities, (1.1, 2), steps=10),
-            # imbal.regression.dense_weight(densities, (0.1, 2), steps=20)
-            # [imbal.regression.reciprocal_importance(densities, alpha=0)],
-            # [imbal.regression.reciprocal_importance(densities, alpha=1)],
-            # [imbal.regression.dense_weight(densities, alpha=1)]
             
             # [imbal.regression.reciprocal_importance, 0], [imbal.regression.reciprocal_importance, 0.1],
             # [imbal.regression.reciprocal_importance, 0.2], [imbal.regression.reciprocal_importance, 0.3],
@@ -290,7 +294,7 @@ if K_FOLD_EPOCHS:
             # [imbal.regression.reciprocal_importance, 0.8], [imbal.regression.reciprocal_importance, 0.9],
             # [imbal.regression.reciprocal_importance, 1.0],
 
-            [imbal.regression.dense_weight, 0.1],
+            # [imbal.regression.dense_weight, 0.1],
             # [imbal.regression.dense_weight, 0.2], [imbal.regression.dense_weight, 0.3],
             # [imbal.regression.dense_weight, 0.4], [imbal.regression.dense_weight, 0.5],
             # [imbal.regression.dense_weight, 0.6], [imbal.regression.dense_weight, 0.7],
@@ -301,6 +305,17 @@ if K_FOLD_EPOCHS:
             # [imbal.regression.dense_weight, 1.6], [imbal.regression.dense_weight, 1.7],
             # [imbal.regression.dense_weight, 1.8], [imbal.regression.dense_weight, 1.9],
             # [imbal.regression.dense_weight, 2.0],
+
+            [mdi_importance, 0.1],
+            [mdi_importance, 0.2], [mdi_importance, 0.3],
+            [mdi_importance, 0.4], [mdi_importance, 0.5],
+            [mdi_importance, 0.6], [mdi_importance, 0.7],
+            [mdi_importance, 0.8], [mdi_importance, 0.9],
+            [mdi_importance, 1.0], [mdi_importance, 1.1],
+            [mdi_importance, 1.25], [mdi_importance, 1.4],
+            [mdi_importance, 1.66], [mdi_importance, 2],
+            [mdi_importance, 2.5], [mdi_importance, 3.33],
+            [mdi_importance, 5], [mdi_importance, 10]
         ]
         # for contender in possible_weights:
         #     print(np.min(contender), np.max(contender))
@@ -332,15 +347,15 @@ if K_FOLD_EPOCHS:
                         # 'instance', 'reciprocal, 0.1', 'reciprocal, 0.2', 'reciprocal, 0.3', 'reciprocal, 0.4',
                         # 'reciprocal, 0.5', 'reciprocal, 0.6', 'reciprocal, 0.7', 'reciprocal, 0.8', 'reciprocal, 0.9',
                         # 'reciprocal, 1.0',
-                        # 'reciprocal, 1.1', 'reciprocal, 1.2', 'reciprocal, 1.3', 'reciprocal, 1.4',
-                        # 'reciprocal, 1.5',
-                        # 'reciprocal, 1.6', 'reciprocal, 1.7', 'reciprocal, 1.8', 'reciprocal, 1.9',
-                        # 'reciprocal, 2.0',
-                        'denseweight, 0.1', 'denseweight, 0.2', 'denseweight, 0.3', 'denseweight, 0.4',
-                        'denseweight, 0.5', 'denseweight, 0.6', 'denseweight, 0.7', 'denseweight, 0.8', 'denseweight, 0.9',
-                        'denseweight, 1.0', 'denseweight, 1.1', 'denseweight, 1.2', 'denseweight, 1.3', 'denseweight, 1.4',
-                        'denseweight, 1.5', 'denseweight, 1.6', 'denseweight, 1.7', 'denseweight, 1.8', 'denseweight, 1.9',
-                        'denseweight, 2.0'
+                        # 'denseweight, 0.1', 'denseweight, 0.2', 'denseweight, 0.3', 'denseweight, 0.4',
+                        # 'denseweight, 0.5', 'denseweight, 0.6', 'denseweight, 0.7', 'denseweight, 0.8', 'denseweight, 0.9',
+                        # 'denseweight, 1.0', 'denseweight, 1.1', 'denseweight, 1.2', 'denseweight, 1.3', 'denseweight, 1.4',
+                        # 'denseweight, 1.5', 'denseweight, 1.6', 'denseweight, 1.7', 'denseweight, 1.8', 'denseweight, 1.9',
+                        # 'denseweight, 2.0'
+                        'mdi, 0.1', 'mdi, 0.2', 'mdi, 0.3', 'mdi, 0.4',
+                        'mdi, 0.5', 'mdi, 0.6', 'mdi, 0.7', 'mdi, 0.8', 'mdi, 0.9',
+                        'mdi, 1.0', 'mdi, 1.1', 'mdi, 1.25', 'mdi, 1.4', 'mdi, 1.66',
+                        'mdi, 2', 'mdi, 2.5', 'mdi, 3.33', 'mdi, 5', 'mdi, 10',
         ]
         header_format_string = "{:<20}{:<10}{:<10}{:<10}{:<10}{:<10}"
         format_string = "{:<20}{:<10.3}{:<10.3}{:<10.3}{:<10.3}{:<10}"
@@ -352,8 +367,6 @@ if K_FOLD_EPOCHS:
     else:
         info = k_fold(imbal.regression.reciprocal_importance, 0)
         print(info['epoch'])
-
-
 
 
 if not K_FOLD_EPOCHS and DETERMINE_BEST_IMPORTANCE:
@@ -384,6 +397,23 @@ if not K_FOLD_EPOCHS and DETERMINE_BEST_IMPORTANCE:
             print("Best alpha:", i/10)
     weights = best_weights
 
+train_weight_dict = tools.map_labels_to_importance_weights(y_train, weights)
+train_ones_dict = tools.map_labels_to_importance_weights(y_train, np.ones(len(y_train)))
+
+model.compile(
+    loss=lambda y_true, y_pred: tools.mse_wpcc(
+        y_true, y_pred,
+        phase_manager=pm,
+        lambda_factor=0.5,
+        train_mse_weight_dict=train_weight_dict,
+        train_pcc_weight_dict=train_ones_dict,
+    ),
+    optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+    metrics=["mse", AORE()],
+    generate_decoder_branch=AE,
+    representation_layer_index=REPRESENTATION_LAYER_INDEX
+)
+
 start = time.time()
 if FIT == FitType.EXTENDED:
     model.fit(
@@ -394,8 +424,9 @@ if FIT == FitType.EXTENDED:
         epochs=EPOCHS[0],
     )
 
-    for layer in model.layers:
-        layer.trainable = False
+    if FREEZE_SECOND_STAGE_EXTENDED:
+        for layer in model.layers:
+            layer.trainable = False
 
     extra_layer = layers.Dense(64)(representation_layer.output)
     new_output = layers.Dense(1)(extra_layer)
@@ -424,12 +455,10 @@ else:
         sample_weight=weights,
         batch_size=BATCH_SIZE,
         epochs=EPOCHS,
-        callbacks=(
-            [keras.callbacks.EarlyStopping(
-                patience=EARLY_STOPPING_PATIENCE,
-                restore_best_weights=True
-            )] if EARLY_STOPPING and not K_FOLD_EPOCHS else [],
-        )
+        callbacks=[
+            IsTraining(pm)
+        ],
+
     )
 end = time.time()
 
@@ -451,13 +480,13 @@ imbal.regression.tsne_visualization(
     x_test,
     y_test,
     representation_layer_index=REPRESENTATION_LAYER_INDEX,
-    save_figure=f'{OUTPUT_PATH}/tsne_visualization-{FIT.value}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
+    save_figure=f'{OUTPUT_PATH}/tsne_visualization-{FIT.value}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}-weights-{DENSITY_TO_WEIGHT_FUNCTION.__name__}-{DENSITY_TO_WEIGHT_KWARGS["alpha"]}-frozen-{FREEZE_SECOND_STAGE_EXTENDED}.png' if GEN_OUTPUT else None,
 )
 
 tools.plot_true_vs_predictions(
     y_test,
     predictions,
-    save_figure=f'{OUTPUT_PATH}/regression-true-pred-{FIT.value}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}.png' if GEN_OUTPUT else None,
+    save_figure=f'{OUTPUT_PATH}/regression-true-pred-{FIT.value}-ae-{AE}-rep{REPRESENTATION_LAYER_INDEX}-weights-{DENSITY_TO_WEIGHT_FUNCTION.__name__}-{DENSITY_TO_WEIGHT_KWARGS["alpha"]}-frozen-{FREEZE_SECOND_STAGE_EXTENDED}.png' if GEN_OUTPUT else None,
 )
 
 
