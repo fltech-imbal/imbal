@@ -318,6 +318,7 @@ denseweight, 2.0    0.0842    0.26      0.172     0.0274    66
 Regular best epochs: $55$
 All runs have learning rate of $2e-4$
 
+
 | Method                        | Epochs   | Weights          | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
 | ----------------------------- | -------- | ---------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
 | Regular w/o AE                | 55       | ---              | 19.37    | ==0.054==       | 0.435             | 0.244            | 0.625         | 0.856           | 0.740          |
@@ -498,3 +499,15 @@ All runs have learning rate of $2e-4$
 | Method                               | Epochs  | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
 
 ---
+## Tasks:
+- Seeing if wPCC improves performance when on/off
+- Comparison of MDI, DenseWeight, RecImp (expectation is that MDI improves)
+- `get_sample_densities` documentation update
+- Make sure documentation for fits specifies that multiple weight lists are allowed.
+- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
+	- DO NOT called it `verbose`. Different from the preexisting TF fit parameter.
+		- `verbose_imbal`
+	 0. no messages (except those from `keras`/`tensorflow`)
+	 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
+	 2. Different class weights, alphas, ... being evaluated
+ - See Daniel's message from 3/10, either revert or use suggested change
