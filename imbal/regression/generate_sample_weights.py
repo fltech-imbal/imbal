@@ -7,7 +7,6 @@ from imbal.util.backend.sample_weighting import get_label_bin_bounds
 from scipy.interpolate import RegularGridInterpolator
 
 import tensorflow as tf
-import warnings
 
 def get_sample_densities(
         labels,
@@ -76,8 +75,10 @@ def get_sample_densities(
     (with no guarentee of some maximum error).
 
     Args:
-        bandwidth: The bandwidth that should be used to generate the KDE used for densit sampling
         labels: A NumPy array of labels, arranged as a column vector
+        bandwidth: The bandwidth that should be used to generate the KDE used for densit sampling
+        distribution: Optional, default :code:`None`. A list of labels used to generate the KDE distribution. If set
+            to :code:`None`, the provided :code:`labels` will be used to generate the distribution.
         interpolation_method: Optional, default :code:`None`. When not set as :code:`None`, will
             be passed to a `scipy RegularGridInterpolator <https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html>`_
             as the method that should be used to interpolate between sampled points.

@@ -77,7 +77,7 @@ def generate_sample_weights(
     if isinstance(class_weights, dict):
         weights = np.vectorize(
             lambda x: class_weights.get(x, 1) / class_counts.get(x)
-        )(class_counts)
+        )(labels)
     else:
         if class_weights is None:
             for cls in unique_classes:

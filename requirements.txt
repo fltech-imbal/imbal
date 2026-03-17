@@ -152,3 +152,4 @@ typing_extensions~=4.14.1
 kagglehub~=0.3.13
 lime~=0.2.0.1
 scikit-image~=0.25.2
+shap~=0.49.1

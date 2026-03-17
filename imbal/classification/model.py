@@ -43,9 +43,13 @@ class Model(backend.Model):
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
             class_weight: Optional, default :code:`None`. A list of class weights, or a dictionary mapping class
-                labels to class weights.
+                labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`class_weights`.
+                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
@@ -109,8 +113,8 @@ class Model(backend.Model):
         self,
         x=None,
         y=None,
-        sample_weight=None,
         class_weight=None,
+        sample_weight=None,
         validation_data=None,
         validation_split=None,
         epochs=1,
@@ -129,9 +133,14 @@ class Model(backend.Model):
                 A Numpy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            sample_weight: Optional, default :code:`None`. A Numpy array of sample weights.
             class_weight: Optional, default :code:`None`. A list of class weights, or a dictionary mapping class
-                labels to class weights.
+                labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
+                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_.

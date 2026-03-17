@@ -44,7 +44,9 @@ class Model(backend.Model):
                 A NumPy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`sample_density`.
+                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             sample_density: Optional, default :code:`None`. A list of sample probability densities.
                 If unspecified, :code:`sample_weight` must be specified.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -146,7 +148,10 @@ class Model(backend.Model):
                 A Numpy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            sample_weight: Optional, default :code:`None`. A Numpy array of sample weights.
+            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
+                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once all class weights provided, with the final model weights being set to the
+                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             sample_density: Optional, default :code:`None`. A list of sample probability densities.
                 If unspecified, :code:`sample_weight` must be specified.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
