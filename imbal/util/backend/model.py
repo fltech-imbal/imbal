@@ -655,7 +655,7 @@ class Model(keras.Model):
                 **kwargs
             )
             if verbose_imbal > 0:
-                print(f'[{index+1}/{len(iterate_over)}] Fitted after {len(history.history.get('loss'))} epochs for {weight_type} candidate at index {index}')
+                print(f'[{index+1}/{len(iterate_over)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
 
             loss_metric = history.history.get('val_loss', None)
             if loss_metric is None:

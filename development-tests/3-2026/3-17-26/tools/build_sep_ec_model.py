@@ -14,9 +14,9 @@ def build_sep_ec_model(input_dim):
         x = layers.Dense(num_units, activation='relu')(x)
         x = layers.Dropout(DROPOUT_RATE)(x)
 
-    x = layers.Flatten()(x)
+    # x = layers.Flatten()(x)
     x = layers.Dense(EMBED_DIM, activation='relu', name="embedding")(x)
-    x = layers.Flatten()(x)
+#     x = layers.Flatten()(x)
     outputs = layers.Dense(1)(x)
 
     model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="SEP_EC")
