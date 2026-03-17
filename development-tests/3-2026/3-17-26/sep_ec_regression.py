@@ -17,13 +17,13 @@ Set script parameters
 
 LEARNING_RATE = 2e-4
 FIT = FitType.EXTENDED
-AE = False
+AE = True
 REPRESENTATION_LAYER_INDEX = -2
-USE_WPCC = False
-EPOCHS = (527, 634)
-DENSITY_TO_WEIGHT_FUNCTION = mdi_importance
+USE_WPCC = True
+EPOCHS = (514, 440)
+DENSITY_TO_WEIGHT_FUNCTION = imbal.regression.dense_weight
 DENSITY_TO_WEIGHT_KWARGS = {
-    'alpha' : 1.4
+    'alpha' : 1.9
 }
 FREEZE_SECOND_STAGE_EXTENDED = False
 
