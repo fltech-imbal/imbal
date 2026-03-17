@@ -590,12 +590,12 @@ All runs have learning rate of $2e-4$
 - Comparison of MDI, DenseWeight, RecImp (expectation is that MDI improves) $\checkmark$
 - `get_sample_densities` documentation update $\checkmark$
 - Make sure documentation for fits specifies that multiple weight lists are allowed. $\checkmark$
-- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: 
-	- DO NOT called it `verbose`. Different from the preexisting TF fit parameter.
-		- `verbose_imbal`
-	 0. no messages (except those from `keras`/`tensorflow`)
-	 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set
-	 2. Different class weights, alphas, ... being evaluated
+- Fit functions will run much slower, I suggest printing status messages. I suggest an int parameter to indicate message levels, this will also help debugging, for example: $\checkmark$
+	- DO NOT called it `verbose`. Different from the preexisting TF fit parameter. $\checkmark$
+		- `verbose_imbal` $\checkmark$
+	 0. no messages (except those from `keras`/`tensorflow`)  $\checkmark$
+	 1. main steps, found epoch number based on validation, class weights (alpha in reciprocal importance) based on validation..., training on the entire training set $\checkmark$
+	 2. Different class weights, alphas, ... being evaluated $\checkmark$
  - See Daniel's message from 3/10, either revert or use suggested change $\checkmark$
 
 ---
@@ -611,4 +611,50 @@ All runs have learning rate of $2e-4$
 | No       | No    | 527    | ---     | 81.19    | 0.041           | 0.244             | 0.143            | 0.805         | 0.970           | 0.888          |
 | Yes (-2) | No    | 527    | ---     | 122.36   | 0.036           | 0.222             | 0.129            | 0.869         | 0.964           | 0.917          |
 | Yes (-3) | No    | 527    | ---     | 120.66   | 0.035           | 0.197             | 0.116            | 0.871         | 0.966           | 0.919          |
- 
+## Balanced Fit
+
+| AE?      | wPCC? | Epochs | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| -------- | ----- | ------ | ----------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| No       | Yes   | 415    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| No       | No    | 415    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| No       | Yes   | 440    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| No       | No    | 440    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| No       | Yes   | 634    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+| No       | No    | 634    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | Yes   | 514    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | No    | 514    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | Yes   | 514    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | No    | 514    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | Yes   | 514    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+| Yes (-2) | No    | 514    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | Yes   | 514    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | No    | 514    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | Yes   | 514    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | No    | 514    | DW, $\alpha=1.9$  |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | Yes   | 514    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+| Yes (-3) | No    | 514    | MDI, $\alpha=1.4$ |          |                 |                   |                  |               |                 |                |
+
+
+## Decoupled Fit (rep=-3)
+
+| AE? | wPCC? | Epochs | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| --- | ----- | ------ | ----------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| No  | Yes   | 101    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| No  | No    | 101    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| No  | Yes   | 75     | DW, $\alpha=1.7$  |          |                 |                   |                  |               |                 |                |
+| No  | No    | 75     | DW, $\alpha=1.7$  |          |                 |                   |                  |               |                 |                |
+| No  | Yes   | 34     | MDI, $\alpha=0.2$ |          |                 |                   |                  |               |                 |                |
+| No  | No    | 34     | MDI, $\alpha=0.2$ |          |                 |                   |                  |               |                 |                |
+| Yes | Yes   | 101    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes | No    | 101    | RI, $\alpha=0.6$  |          |                 |                   |                  |               |                 |                |
+| Yes | Yes   | 75     | DW, $\alpha=1.7$  |          |                 |                   |                  |               |                 |                |
+| Yes | No    | 75     | DW, $\alpha=1.7$  |          |                 |                   |                  |               |                 |                |
+| Yes | Yes   | 34     | MDI, $\alpha=0.2$ |          |                 |                   |                  |               |                 |                |
+| Yes | No    | 34     | MDI, $\alpha=0.2$ |          |                 |                   |                  |               |                 |                |
+
+---
+
+## Notes
+- For debug messages, you asked for alphas to be printed for reciprocal importance. However, alpha values are not passed to fit.
+
+## Tasks

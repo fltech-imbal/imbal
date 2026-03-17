@@ -36,6 +36,7 @@ class Model(keras.Model):
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
+        verbose_imbal=1,
         **kwargs
     ):
         """
@@ -90,6 +91,7 @@ class Model(keras.Model):
                 batch_size=batch_size,
                 shuffle=shuffle,
                 stratify_batches=stratify_batches,
+                verbose_imbal=verbose_imbal,
                 **kwargs
             )
 
@@ -194,6 +196,7 @@ class Model(keras.Model):
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
+        verbose_imbal=1,
         **kwargs
     ):
         """
@@ -309,11 +312,11 @@ class Model(keras.Model):
         return x, y, sample_weight, stratify_batches
 
     def _auto_compute_weights(
-            self,
-            labels,
-            sample_weight,
-            class_weight,
-            sample_density
+        self,
+        labels,
+        sample_weight,
+        class_weight,
+        sample_density
     ):
         if self._mode_enum == ModelType.CLASSIFICATION:
             if sample_weight is not None and class_weight is not None:
@@ -348,6 +351,7 @@ class Model(keras.Model):
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
+        verbose_imbal=1,
         **kwargs
     ):
         """
@@ -615,17 +619,20 @@ class Model(keras.Model):
     def _multi_weight_fit(
         self,
         fit_function,
+        verbose_imbal=1,
         **kwargs
     ):
         sample_weight = kwargs.pop('sample_weight', None)
         class_weight = kwargs.pop('class_weight', None)
 
         iterate_over = sample_weight if sample_weight is not None else class_weight
+        weight_type = 'sample weight' if sample_weight is not None else 'class weight'
         iterate_over = np.array(iterate_over)
 
         best_loss = None
         best_history = None
         best_model_weights = None
+        best_weights_index = None
 
         starting_model_weights = self.get_weights()
 
@@ -633,7 +640,7 @@ class Model(keras.Model):
             callbacks=kwargs.pop('callbacks', None),
         )
 
-        for weights in iterate_over:
+        for index, weights in enumerate(iterate_over):
             current_kwargs = kwargs.copy()
             if sample_weight is not None:
                 current_kwargs['sample_weight'] = weights
@@ -642,9 +649,13 @@ class Model(keras.Model):
 
             current_kwargs.update(serialization_lib.deserialize_keras_object(serialized_kwargs))
 
+            if verbose_imbal > 1:
+                print(f'Performing fit on {weight_type} candidate at index {index}:\n{weights}')
             history = fit_function(
                 **kwargs
             )
+            if verbose_imbal > 0:
+                print(f'[{index+1}/{len(iterate_over)}] Fitted after {len(history.history.get('loss'))} epochs for {weight_type} candidate at index {index}')
 
             loss_metric = history.history.get('val_loss', None)
             if loss_metric is None:
@@ -657,9 +668,12 @@ class Model(keras.Model):
                 best_loss = best_loss_of_run
                 best_history = history
                 best_model_weights = self.get_weights()
+                best_weights_index = index
 
             self.set_weights(starting_model_weights)
 
+        if verbose_imbal > 0:
+            print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
         self.set_weights(best_model_weights)
         return best_history
 
