@@ -613,26 +613,26 @@ All runs have learning rate of $2e-4$
 | Yes (-3) | No    | 527    | ---     | 120.66   | 0.035           | 0.197             | 0.116            | 0.871         | 0.966           | 0.919          |
 ## Balanced Fit
 
-| AE?      | wPCC? | Epochs | Weights           | Time (s) | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
-| -------- | ----- | ------ | ----------------- | -------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
-| No       | Yes   | 415    | RI, $\alpha=0.6$  | 65.44    | 0.041           | 0.240             | 0.140            | 0.841         | 0.941           | 0.891          |
-| No       | No    | 415    | RI, $\alpha=0.6$  | 65.73    | 0.067           | 0.214             | 0.140            | 0.720         | 0.932           | 0.826          |
-| No       | Yes   | 440    | DW, $\alpha=1.9$  | 68.55    | 0.041           | 0.236             | 0.138            | 0.844         | 0.964           | 0.904          |
-| No       | No    | 440    | DW, $\alpha=1.9$  | 69.28    | 0.062           | 0.296             | 0.179            | 0.751         | 0.960           | 0.855          |
-| No       | Yes   | 634    | MDI, $\alpha=1.4$ | 95.00    | 0.034           | 0.290             | 0.162            | 0.901         | 0.964           | 0.933          |
-| No       | No    | 634    | MDI, $\alpha=1.4$ | 91.69    | 0.059           | 0.328             | 0.193            | 0.684         | 0.859           | 0.771          |
-| Yes (-2) | Yes   | 415    | RI, $\alpha=0.6$  | 98.41    | 0.040           | 0.192             | 0.116            | 0.859         | 0.949           | 0.904          |
-| Yes (-2) | No    | 415    | RI, $\alpha=0.6$  | 100.30   | 0.056           | 0.237             | 0.146            | 0.724         | 0.929           | 0.827          |
-| Yes (-2) | Yes   | 440    | DW, $\alpha=1.9$  | 101.89   | 0.038           | 0.191             | 0.115            | 0.900         | 0.969           | 0.935          |
-| Yes (-2) | No    | 440    | DW, $\alpha=1.9$  | 102.22   | 0.065           | 0.230             | 0.147            | 0.754         | 0.964           | 0.859          |
-| Yes (-2) | Yes   | 634    | MDI, $\alpha=1.4$ | 140.88   | 0.031           | 0.223             | 0.127            | 0.910         | 0.974           | 0.942          |
-| Yes (-2) | No    | 634    | MDI, $\alpha=1.4$ | 142.77   | 0.063           | 0.758             | 0.410            | 0.062         | 0.296           | 0.179          |
-| Yes (-3) | Yes   | 415    | RI, $\alpha=0.6$  | 96.06    | 0.044           | 0.181             | 0.112            | 0.806         | 0.952           | 0.878          |
-| Yes (-3) | No    | 415    | RI, $\alpha=0.6$  | 96.94    | 0.069           | 0.233             | 0.151            | 0.695         | 0.928           | 0.811          |
-| Yes (-3) | Yes   | 440    | DW, $\alpha=1.9$  | 102.52   | 0.038           | 0.208             | 0.123            | 0.862         | 0.962           | 0.911          |
-| Yes (-3) | No    | 440    | DW, $\alpha=1.9$  | 100.32   | 0.068           | 0.209             | 0.138            | 0.773         | 0.964           | 0.868          |
-| Yes (-3) | Yes   | 634    | MDI, $\alpha=1.4$ | 138.22   | 0.031           | 0.178             | 0.105            | 0.910         | 0.971           | 0.940          |
-| Yes (-3) | No    | 634    | MDI, $\alpha=1.4$ | 133.50   | 0.067           | 0.735             | 0.401            | 0.146         | 0.175           | 0.160          |
+| AE?      | wPCC?   | Epochs | Weights           | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| -------- | ------- | ------ | ----------------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| No       | Yes     | 415    | RI, $\alpha=0.6$  | 0.041           | 0.240             | 0.140            | 0.841         | 0.941           | 0.891          |
+| No       | No      | 415    | RI, $\alpha=0.6$  | 0.067           | 0.214             | 0.140            | 0.720         | 0.932           | 0.826          |
+| No       | Yes     | 440    | DW, $\alpha=1.9$  | 0.041           | 0.236             | 0.138            | 0.844         | 0.964           | 0.904          |
+| No       | No      | 440    | DW, $\alpha=1.9$  | 0.062           | 0.296             | 0.179            | 0.751         | 0.960           | 0.855          |
+| No       | Yes     | 634    | MDI, $\alpha=1.4$ | 0.034           | 0.290             | 0.162            | 0.901         | 0.964           | 0.933          |
+| No       | No      | 634    | MDI, $\alpha=1.4$ | 0.059           | 0.328             | 0.193            | 0.684         | 0.859           | 0.771          |
+| Yes (-2) | ==Yes== | 415    | RI, $\alpha=0.6$  | 0.040           | 0.192             | 0.116            | 0.859         | 0.949           | 0.904          |
+| Yes (-2) | No      | 415    | RI, $\alpha=0.6$  | 0.056           | 0.237             | 0.146            | 0.724         | 0.929           | 0.827          |
+| Yes (-2) | ==Yes== | 440    | DW, $\alpha=1.9$  | 0.038           | 0.191             | 0.115            | 0.900         | 0.969           | 0.935          |
+| Yes (-2) | No      | 440    | DW, $\alpha=1.9$  | 0.065           | 0.230             | 0.147            | 0.754         | 0.964           | 0.859          |
+| Yes (-2) | ==Yes== | 634    | MDI, $\alpha=1.4$ | 0.031           | 0.223             | 0.127            | 0.910         | 0.974           | 0.942          |
+| Yes (-2) | No      | 634    | MDI, $\alpha=1.4$ | 0.063           | 0.758             | 0.410            | 0.062         | 0.296           | 0.179          |
+| Yes (-3) | Yes     | 415    | RI, $\alpha=0.6$  | 0.044           | 0.181             | 0.112            | 0.806         | 0.952           | 0.878          |
+| Yes (-3) | No      | 415    | RI, $\alpha=0.6$  | 0.069           | 0.233             | 0.151            | 0.695         | 0.928           | 0.811          |
+| Yes (-3) | Yes     | 440    | DW, $\alpha=1.9$  | 0.038           | 0.208             | 0.123            | 0.862         | 0.962           | 0.911          |
+| Yes (-3) | No      | 440    | DW, $\alpha=1.9$  | 0.068           | 0.209             | 0.138            | 0.773         | 0.964           | 0.868          |
+| Yes (-3) | Yes     | 634    | MDI, $\alpha=1.4$ | 0.031           | 0.178             | 0.105            | 0.910         | 0.971           | 0.940          |
+| Yes (-3) | No      | 634    | MDI, $\alpha=1.4$ | 0.067           | 0.735             | 0.401            | 0.146         | 0.175           | 0.160          |
 
 
 ## Decoupled Fit (rep=-3)
@@ -673,5 +673,18 @@ All runs have learning rate of $2e-4$
 
 ## Notes
 - For debug messages, you asked for alphas to be printed for reciprocal importance. However, alpha values are not passed to fit.
-
+- Got code running on Ai-Panther (had some odd issues related to memory limits, despite the code working fine on my laptop, which does not have a lot of memory)
 ## Tasks
+- Notes from emails (3/12)
+	- `model.best_sample_weigts`, `model.best_class_weights`, and `model.best_metric_threshold`
+	- Step size of $0.1$ for threshold testing
+- For class weights in multi-fit, print out at `verbose_imbal>1`.
+
+- Restrict runs to only with AE (always at -2).
+	- Vary wPCC on/off
+	- RI, DW, MDI
+	- Decoupled is only at -2, (like Kang et al.)
+	- Extended stays (-2, but add extra layer)
+		- Stick with frozen, but add unfrozen if results are off
+	- For k-fold validation, prioritize decoupled and "extended", to ensure some results for Thursday
+- Remove in-batch randomization (duh)
