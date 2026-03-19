@@ -679,12 +679,196 @@ All runs have learning rate of $2e-4$
 	- `model.best_sample_weigts`, `model.best_class_weights`, and `model.best_metric_threshold`
 	- Step size of $0.1$ for threshold testing
 - For class weights in multi-fit, print out at `verbose_imbal>1`.
+- See "more notes from 3/17"
+	- On `verbose_imbal`
+		- For classification, print the index and class weights; if more than 5, print the first 5 followed by ... 
+		- For regression, print the index and first 5 sample weights followed by ...
+- Restrict runs to only with AE (always at -2) $\checkmark$
+	- Vary wPCC on/off $\checkmark$
+	- RI, DW, MDI $\checkmark$
+	- Decoupled is only at -2, (like Kang et al.) $\checkmark$
+	- Extended stays (-2, but add extra layer) $\checkmark$
+		- Stick with frozen, but add unfrozen if results are off $\checkmark$
+	- For k-fold validation, prioritize decoupled and "extended", to ensure some results for Thursday $\checkmark$
+- Remove in-batch randomization $\checkmark$
 
-- Restrict runs to only with AE (always at -2).
-	- Vary wPCC on/off
-	- RI, DW, MDI
-	- Decoupled is only at -2, (like Kang et al.)
-	- Extended stays (-2, but add extra layer)
-		- Stick with frozen, but add unfrozen if results are off
-	- For k-fold validation, prioritize decoupled and "extended", to ensure some results for Thursday
-- Remove in-batch randomization (duh)
+---
+
+Regular best epochs with wPCC: $514$
+Regular best epochs without wPCC: $527$
+
+For all:
+- Learning rate is $2e-4$
+- AE is on
+- wPCC is on
+## Decoupled (rep layer = -2) w/ CME (3/19/26)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0579    0.202     0.13      0.102     105
+reciprocal, 0.1     0.0581    0.201     0.13      0.0985    133
+reciprocal, 0.2     0.0584    0.199     0.129     0.0965    87
+reciprocal, 0.3     0.059     0.199     0.129     0.0986    66
+reciprocal, 0.4     0.0594    0.198     0.128     0.109     62
+reciprocal, 0.5     0.06      0.197     0.129     0.142     172
+reciprocal, 0.6     0.0603    0.196     0.128     0.21      20
+reciprocal, 0.7     0.0612    0.195     0.128     0.349     45  <---
+reciprocal, 0.8     0.0609    0.195     0.128     0.573     50
+reciprocal, 0.9     0.0619    0.195     0.129     0.905     64
+reciprocal, 1.0     0.0626    0.196     0.129     1.26      163
+--------------------------------------------------------------------------------
+denseweight, 0.1    0.0579    0.201     0.13      0.1       105
+denseweight, 0.2    0.0579    0.202     0.13      0.0989    137
+denseweight, 0.3    0.0581    0.201     0.13      0.0972    88
+denseweight, 0.4    0.0582    0.201     0.13      0.0952    86
+denseweight, 0.5    0.0582    0.201     0.13      0.0928    84
+denseweight, 0.6    0.0582    0.201     0.13      0.0901    104
+denseweight, 0.7    0.0584    0.201     0.129     0.0869    73   <---
+denseweight, 0.8    0.0585    0.201     0.13      0.0831    70
+denseweight, 0.9    0.0584    0.201     0.13      0.0783    130
+denseweight, 1.0    0.0586    0.201     0.13      0.0731    113
+denseweight, 1.1    0.0587    0.201     0.13      0.0728    134
+denseweight, 1.2    0.0589    0.2       0.13      0.0736    59
+denseweight, 1.3    0.0589    0.201     0.13      0.0743    119
+denseweight, 1.4    0.0588    0.201     0.13      0.075     171
+denseweight, 1.5    0.0591    0.2       0.13      0.0762    54
+denseweight, 1.6    0.0591    0.201     0.13      0.077     101
+denseweight, 1.7    0.0592    0.2       0.13      0.0778    71
+denseweight, 1.8    0.0592    0.2       0.13      0.0785    90
+denseweight, 1.9    0.0591    0.2       0.13      0.0794    79
+denseweight, 2.0    0.0594    0.2       0.13      0.0804    4
+--------------------------------------------------------------------------------
+mdi, 0.1            0.0382    0.178     0.108     0.00777   14  <---      
+mdi, 0.2            0.0346    0.197     0.116     0.00871   52        
+mdi, 0.3            0.0343    0.202     0.118     0.0099    20        
+mdi, 0.4            0.0332    0.195     0.114     0.0111    11        
+mdi, 0.5            0.0337    0.195     0.114     0.0124    53        
+mdi, 0.6            0.0336    0.2       0.117     0.0135    28        
+mdi, 0.7            0.0331    0.2       0.116     0.0146    18        
+mdi, 0.8            0.0329    0.2       0.116     0.0156    66        
+mdi, 0.9            0.0329    0.197     0.115     0.0166    80        
+mdi, 1.0            0.0322    0.194     0.113     0.0175    180       
+mdi, 1.1            0.0322    0.195     0.114     0.0183    55        
+mdi, 1.25           0.0322    0.196     0.114     0.0196    86        
+mdi, 1.4            0.0328    0.2       0.116     0.0207    86        
+mdi, 1.66           0.0321    0.199     0.116     0.0225    110       
+mdi, 2              0.0321    0.195     0.114     0.0246    139       
+mdi, 2.5            0.0321    0.201     0.116     0.0271    92        
+mdi, 3.33           0.0324    0.201     0.117     0.0301    132       
+mdi, 5              0.0322    0.198     0.115     0.0339    52        
+mdi, 10             0.0327    0.198     0.115     0.0379    116
+```
+## Extended (frozen) w/ CME (3/19/26)
+
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------
+instance            0.0555    0.293     0.174     0.102     137
+reciprocal, 0.1     0.0562    0.285     0.17      0.1       228
+reciprocal, 0.2     0.061     0.23      0.146     0.0995    294
+reciprocal, 0.3     0.061     0.228     0.144     0.104     212
+reciprocal, 0.4     0.0611    0.226     0.143     0.121     215
+reciprocal, 0.5     0.0617    0.225     0.143     0.163     256
+reciprocal, 0.6     0.0627    0.226     0.144     0.257     153
+reciprocal, 0.7     0.0625    0.221     0.142     0.423     231
+reciprocal, 0.8     0.0641    0.219     0.141     0.707     345  <---
+reciprocal, 0.9     0.0669    0.22      0.144     1.09      362
+reciprocal, 1.0     0.0681    0.224     0.146     1.63      266
+--------------------------------------------------------------------------------
+denseweight, 0.1    0.0556    0.293     0.174     0.101     137
+denseweight, 0.2    0.056     0.287     0.172     0.0995    157
+denseweight, 0.3    0.0557    0.289     0.172     0.0979    162
+denseweight, 0.4    0.0561    0.289     0.172     0.0964    165
+denseweight, 0.5    0.0562    0.284     0.17      0.0945    201
+denseweight, 0.6    0.0603    0.234     0.147     0.0918    290
+denseweight, 0.7    0.0603    0.232     0.146     0.089     333
+denseweight, 0.8    0.0603    0.233     0.147     0.0856    298
+denseweight, 0.9    0.0604    0.235     0.148     0.0819    324
+denseweight, 1.0    0.0603    0.234     0.147     0.0773    356
+denseweight, 1.1    0.0608    0.229     0.145     0.0777    331
+denseweight, 1.2    0.0608    0.231     0.146     0.0792    239
+denseweight, 1.3    0.061     0.23      0.145     0.0809    271
+denseweight, 1.4    0.0609    0.233     0.147     0.0817    343
+denseweight, 1.5    0.0616    0.224     0.143     0.0833    178
+denseweight, 1.6    0.0611    0.231     0.146     0.0844    321
+denseweight, 1.7    0.0612    0.23      0.146     0.0859    282
+denseweight, 1.8    0.0611    0.225     0.143     0.087     212
+denseweight, 1.9    0.0614    0.222     0.142     0.0881    209  <---
+denseweight, 2.0    0.0611    0.23      0.145     0.0898    218
+--------------------------------------------------------------------------------
+mdi, 0.1            0.308     0.261     0.284     0.0215    529
+mdi, 0.2            0.0638    0.211     0.137     0.0224    238  <---
+mdi, 0.3            0.0643    0.216     0.14      0.0276    203
+mdi, 0.4            0.0614    0.224     0.143     0.032     250
+mdi, 0.5            0.0614    0.234     0.148     0.0357    304
+mdi, 0.6            0.0595    0.247     0.153     0.0389    188
+mdi, 0.7            0.0598    0.231     0.145     0.0417    199
+mdi, 0.8            0.06      0.228     0.144     0.0442    185
+mdi, 0.9            0.058     0.231     0.145     0.0463    166
+mdi, 1.0            0.0594    0.235     0.147     0.0484    202
+mdi, 1.1            0.0591    0.245     0.152     0.0504    239
+mdi, 1.25           0.0583    0.232     0.145     0.0531    187
+mdi, 1.4            0.0591    0.228     0.144     0.0555    203
+mdi, 1.66           0.0577    0.241     0.149     0.0592    131
+mdi, 2              0.058     0.236     0.147     0.0632    153
+mdi, 2.5            0.0584    0.246     0.152     0.0678    160
+mdi, 3.33           0.0579    0.239     0.148     0.0732    151
+mdi, 5              0.0583    0.243     0.15      0.0794    161
+mdi, 10             0.0577    0.235     0.146     0.0861    13
+```
+
+## Extended (unfrozen)
+```
+alpha               MAE       MAE_r     AORE      val_loss  epochs    
+--------------------------------------------------------------------------------mdi, 0.1            0.339     0.345     0.342     0.024     80        
+mdi, 0.2            0.0824    0.279     0.181     0.0103    151       
+mdi, 0.3            0.0578    0.208     0.133     0.0111    111 <---
+mdi, 0.4            0.0763    0.339     0.207     0.00982   167       
+mdi, 0.5            0.0768    0.354     0.215     0.0104    183       
+mdi, 0.6            0.088     0.384     0.236     0.012     114       
+mdi, 0.7            0.0583    0.334     0.196     0.0133    115
+```
+
+---
+
+For all:
+- AE is on
+With AE off
+- Regular best epochs with wPCC: $514$
+- Regular best epochs without wPCC: $527$
+With AE on:
+- Regular best epochs with wPCC: $923$
+- Regular best epochs without wPCC: $576$
+## Decoupled (rep=-2)
+
+| wPCC? | Weights           | Epochs | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----- | ----------------- | ------ | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Yes   | RI, $\alpha=0.7$  | 923/45 | 0.036           | 0.216             | 0.126            | 0.880         | 0.945           | 0.912          |
+| No    | RI, $\alpha=0.7$  | 576/45 | 0.080           | 0.201             | 0.141            | 0.687         | 0.939           | 0.813          |
+| Yes   | DW, $\alpha=0.7$  | 923/73 | 0.032           | 0.223             | 0.128            | 0.892         | 0.974           | 0.933          |
+| No    | DW, $\alpha=0.7$  | 576/73 | 0.039           | 0.221             | 0.130            | 0.845         | 0.959           | 0.902          |
+| Yes   | MDI, $\alpha=0.1$ | 923/14 | 0.142           | 0.230             | 0.187            | 0.905         | 0.974           | 0.939          |
+| No    | MDI, $\alpha=0.1$ | 576/14 |                 |                   |                  |               |                 |                |
+## Extended (frozen)
+
+| wPCC? | Weights           | Epochs  | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----- | ----------------- | ------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Yes   | RI, $\alpha=0.8$  | 923/345 | 0.039           | 0.220             | 0.130            | 0.849         | 0.936           | 0.893          |
+| No    | RI, $\alpha=0.8$  | 576/345 | 0.111           | 0.216             | 0.163            | 0.602         | 0.932           | 0.767          |
+| Yes   | DW, $\alpha=1.9$  | 923/209 | 0.030           | 0.215             | 0.122            | 0.913         | 0.971           | 0.942          |
+| No    | DW, $\alpha=1.9$  | 576/209 | 0.064           | 0.216             | 0.140            | 0.779         | 0.970           | 0.875          |
+| Yes   | MDI, $\alpha=0.2$ | 923/238 | 0.044           | 0.123             | 0.084            | 0.888         | 0.967           | 0.927          |
+| No    | MDI, $\alpha=0.2$ | 576/238 |                 |                   |                  |               |                 |                |
+## Extended (unfrozen)
+
+| wPCC? | Weights           | Epochs  | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
+| ----- | ----------------- | ------- | --------------- | ----------------- | ---------------- | ------------- | --------------- | -------------- |
+| Yes   | RI, $\alpha=0.8$  | 923/345 |                 |                   |                  |               |                 |                |
+| No    | RI, $\alpha=0.8$  | 576/345 |                 |                   |                  |               |                 |                |
+| Yes   | DW, $\alpha=1.9$  | 923/209 |                 |                   |                  |               |                 |                |
+| No    | DW, $\alpha=1.9$  | 576/209 |                 |                   |                  |               |                 |                |
+| Yes   | MDI, $\alpha=0.3$ | 923/111 | 0.060           | 0.302             | 0.181            | 0.830         | 0.977           | 0.903          |
+| No    | MDI, $\alpha=0.3$ | 576/111 |                 |                   |                  |               |                 |                |
+## Tasks:
+- Should rerun all k-folds with updated with AE regular epochs for first stage (mistake on my part)
+- 

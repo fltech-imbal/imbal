@@ -53,8 +53,8 @@ def generate_decoder(model):
         return False
 
     if _detect_branches(reverse_model):
-        raise RuntimeError("In order to generate a decoder branch automatically, the layers"
-                           "before the specified representation layer must not contain branching"
+        raise RuntimeError("In order to generate a decoder branch automatically, the layers "
+                           "before the specified representation layer must not contain branching "
                            "or merging paths.")
 
     # Determine AE blocks

@@ -171,7 +171,6 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
     def _rebuild_batchable(self):
         self._batchable_data = np.concatenate(self._data_by_class)
         self._batchable_labels = np.concatenate(self._data_labels)
-
         self._batchable_weights = np.concatenate(self._data_weights)
 
     def __init__(self,
@@ -296,20 +295,13 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         if idx < 0 or idx >= self._num_batches:
             raise IndexError('Index out of range')
 
-        batch_size = ceil((self._num_samples - idx) / self._num_batches)
-        if self._shuffle:
-            rng = np.random.default_rng(self._seed + idx)
-            shuffle_indices = rng.permutation(batch_size)
-        else:
-            shuffle_indices = np.arange(batch_size)
+        labels = self._batchable_labels[idx::self._num_batches]
 
-        labels = self._batchable_labels[idx::self._num_batches][shuffle_indices]
-
-        data = self._batchable_data[idx::self._num_batches][shuffle_indices]
+        data = self._batchable_data[idx::self._num_batches]
 
         return (data,
             labels,
-            np.reshape(self._batchable_weights[idx::self._num_batches][shuffle_indices], (-1, 1)))
+            np.reshape(self._batchable_weights[idx::self._num_batches], (-1, 1)))
 
     def on_epoch_end(self) -> None:
         """
