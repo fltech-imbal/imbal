@@ -153,6 +153,13 @@
   </a>
 </li>
 
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -253,6 +260,13 @@
   </a>
 </li>
 
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
   </ul>
 </nav></div>
           
@@ -293,6 +307,7 @@
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reciprocal_importance.html">reciprocal_importance</a></li>
 </ul>
 </div>
 </nav></div>
@@ -357,7 +372,7 @@
 <h1>get_sample_densities<a class="headerlink" href="#get-sample-densities" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.regression.get_sample_densities">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">get_sample_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.get_sample_densities" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">get_sample_densities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_interpolation_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.get_sample_densities" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
 <p>This function exists as a means of extracting densities from a scitkit-learn
 <code class="code docutils literal notranslate"><span class="pre">KernelDensity</span></code> object. As a part of this function, some approaches to
@@ -407,8 +422,10 @@ than using an absolute tolerance, at the cost of sometimes yielding less accurat
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>bandwidth</strong> – The bandwidth that should be used to generate the KDE used for densit sampling</p></li>
 <li><p><strong>labels</strong> – A NumPy array of labels, arranged as a column vector</p></li>
+<li><p><strong>bandwidth</strong> – The bandwidth that should be used to generate the KDE used for densit sampling</p></li>
+<li><p><strong>distribution</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of labels used to generate the KDE distribution. If set
+to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, the provided <code class="code docutils literal notranslate"><span class="pre">labels</span></code> will be used to generate the distribution.</p></li>
 <li><p><strong>interpolation_method</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. When not set as <code class="code docutils literal notranslate"><span class="pre">None</span></code>, will
 be passed to a <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RegularGridInterpolator.html">scipy RegularGridInterpolator</a>
 as the method that should be used to interpolate between sampled points.</p></li>

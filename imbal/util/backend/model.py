@@ -7,6 +7,7 @@ import imbal
 import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
 from imbal.util.backend.tools import verify_weight_scale
+import copy
 
 def mse_reconstruction_loss(y_true, y_pred):
     sq = tf.math.squared_difference(y_true, y_pred)
@@ -17,6 +18,11 @@ def mse_reconstruction_loss(y_true, y_pred):
 class Model(keras.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.best_sample_weights = None
+        self.best_class_weights = None
+        self.best_metric_threshold = None
+
         self._generate_decoder_branch = False
         self._use_decoder_branch = False
         self._representation_layer_index = -2
@@ -25,6 +31,7 @@ class Model(keras.Model):
         self._second_stage_fit_kwargs = {}
         self._mode_subpackage = None
         self._mode_enum = None
+
 
     def fit(
         self,
@@ -269,6 +276,7 @@ class Model(keras.Model):
             validation_data=validation_data,
             validation_split=validation_split,
             stratify_batches=stratify_batches,
+            verbose_imbal=verbose_imbal,
             **kwargs
         )
 
@@ -441,6 +449,7 @@ class Model(keras.Model):
             validation_data=validation_data,
             validation_split=validation_split,
             epochs=stage_one_epochs,
+            verbose_imbal=verbose_imbal,
             **kwargs
         )
 
@@ -489,6 +498,7 @@ class Model(keras.Model):
             class_weight=class_weight,
             validation_densities=validation_densities,
             sample_density=sample_density,
+            verbose_imbal=verbose_imbal,
             **second_stage_fit_kwargs
         )
         self._use_decoder_branch = self._generate_decoder_branch
@@ -627,6 +637,7 @@ class Model(keras.Model):
 
         iterate_over = sample_weight if sample_weight is not None else class_weight
         weight_type = 'sample weight' if sample_weight is not None else 'class weight'
+        find_threshold = sample_weight is None
         iterate_over = np.array(iterate_over)
 
         best_loss = None
@@ -635,6 +646,27 @@ class Model(keras.Model):
         best_weights_index = None
 
         starting_model_weights = self.get_weights()
+
+        def clone_callbacks(callbacks):
+            cloned = []
+            for cb in callbacks:
+                if hasattr(cb, "get_config"):
+                    try:
+                        config = cb.get_config()
+                        cls = cb.__class__
+                        new_cb = cls.from_config(config)
+                        cloned.append(new_cb)
+                        continue
+                    except Exception:
+                        pass
+                try:
+                    cloned.append(copy.deepcopy(cb))
+                    continue
+                except Exception:
+                    pass
+                raise RuntimeError("Unable to create copy of passed callbacks")
+
+            return cloned
 
         serialized_kwargs = serialization_lib.SerializableDict(
             callbacks=kwargs.pop('callbacks', None),
@@ -647,10 +679,18 @@ class Model(keras.Model):
             else:
                 current_kwargs['class_weight'] = weights
 
-            current_kwargs.update(serialization_lib.deserialize_keras_object(serialized_kwargs))
+            if 'callbacks' in kwargs:
+                current_kwargs['callbacks'] = clone_callbacks(kwargs['callbacks'])
+
+            def format_array_string(array):
+                array = np.array(array)
+                if array.shape[0] < 7:
+                    return str(array)
+                else:
+                    return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
 
             if verbose_imbal > 1:
-                print(f'Performing fit on {weight_type} candidate at index {index}:\n{weights}')
+                print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights)}')
             history = fit_function(
                 **kwargs
             )
@@ -674,6 +714,27 @@ class Model(keras.Model):
 
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
+
+        if sample_weight is not None:
+            self.best_sample_weights = sample_weight[best_weights_index]
+        else:
+            self.best_class_weights = class_weight[best_weights_index]
+
         self.set_weights(best_model_weights)
+
+        if find_threshold and len(self.compiled_metrics._metrics) > 0:
+            compare_metric = self.compiled_metrics._metrics[0]
+            best_result = None
+            best_threshold = None
+            predictions = self.predict(kwargs['x'], kwargs['y'])
+            for i in range(1, 10):
+                compare_metric.reset_state()
+                rounded_predictions = (predictions > i/10).astype(np.int32)
+                compare_metric.update_state(y_true=kwargs['y'], y_pred=rounded_predictions)
+                if best_result is None or compare_metric.result()[0] > best_result:
+                    best_result = compare_metric.result()[0]
+                    best_threshold = i/10
+            self.best_threshold = best_threshold
+
         return best_history
 

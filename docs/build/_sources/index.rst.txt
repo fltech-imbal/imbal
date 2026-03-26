@@ -17,6 +17,9 @@ Information on select tools used:
 - :doc:`LIME Model Explanation </imbal/lime-explanation>`
 - :doc:`SHAP Model Explanation </imbal/shap-explanation>`
 
+Code tutorials can be found :doc:`here </imbal/tutorials/tutorials>`
+
+
 .. toctree::
     :hidden:
     :maxdepth: 2
@@ -26,5 +29,6 @@ Information on select tools used:
     /imbal/classification/classification
     /imbal/regression/regression
     /imbal/util/util
+    /imbal/tutorials/tutorials
 
 

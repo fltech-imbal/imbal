@@ -849,6 +849,7 @@ With AE on:
 | No    | DW, $\alpha=0.7$  | 576/73 | 0.039           | 0.221             | 0.130            | 0.845         | 0.959           | 0.902          |
 | Yes   | MDI, $\alpha=0.1$ | 923/14 | 0.142           | 0.230             | 0.187            | 0.905         | 0.974           | 0.939          |
 | No    | MDI, $\alpha=0.1$ | 576/14 |                 |                   |                  |               |                 |                |
+|       |                   |        |                 |                   |                  |               |                 |                |
 ## Extended (frozen)
 
 | wPCC? | Weights           | Epochs  | $MAE\downarrow$ | $MAE_R\downarrow$ | $AORE\downarrow$ | $PCC\uparrow$ | $PCC_R\uparrow$ | $AORC\uparrow$ |
@@ -858,6 +859,7 @@ With AE on:
 | Yes   | DW, $\alpha=1.9$  | 923/209 | 0.030           | 0.215             | 0.122            | 0.913         | 0.971           | 0.942          |
 | No    | DW, $\alpha=1.9$  | 576/209 | 0.064           | 0.216             | 0.140            | 0.779         | 0.970           | 0.875          |
 | Yes   | MDI, $\alpha=0.2$ | 923/238 | 0.044           | 0.123             | 0.084            | 0.888         | 0.967           | 0.927          |
+| Yes   | MDI, $\alpha=0.2$ | 923/238 | 0.032           | 0.112             | 0.072            | 0.921         | 0.974           | 0.947          |
 | No    | MDI, $\alpha=0.2$ | 576/238 |                 |                   |                  |               |                 |                |
 ## Extended (unfrozen)
 
@@ -870,5 +872,36 @@ With AE on:
 | Yes   | MDI, $\alpha=0.3$ | 923/111 | 0.060           | 0.302             | 0.181            | 0.830         | 0.977           | 0.903          |
 | No    | MDI, $\alpha=0.3$ | 576/111 |                 |                   |                  |               |                 |                |
 ## Tasks:
-- Should rerun all k-folds with updated with AE regular epochs for first stage (mistake on my part)
-- 
+- `SDODataset` (see 'tutorials for `imbal`' email) $\checkmark$
+	- One image per sample (most frequent type of images from 10min before predictions) $\checkmark$
+		- Opted instead for all images of from 10min before $\checkmark$
+	- Normalize pixel values from 0-1 $\checkmark$
+- For tutorials, three sections $\checkmark$
+	- Description of what we are doing $\checkmark$
+	- Source code $\checkmark$
+	- Expected output screenshots $\checkmark$
+	- For next week: Section 1 from 'tutorials for `imbal`' email complete $\checkmark$
+- Notes from emails (3/12) $\checkmark$
+	- `model.best_sample_weights`, `model.best_class_weights`, and `model.best_metric_threshold` $\checkmark$
+	- Step size of $0.1$ for threshold testing $\checkmark$
+- For class weights in multi-fit, print out at `verbose_imbal>1`. $\checkmark$
+- See "more notes from 3/17" $\checkmark$
+	- On `verbose_imbal` $\checkmark$
+		- For classification, print the index and class weights; if more than 5, print the first 5 followed by ...  $\checkmark$
+		- For regression, print the index and first 5 sample weights followed by ... $\checkmark$
+## Tasks
+- Test how many SDO data samples make training time "reasonable". Prune dataset such that only that many data samples are available. (1000 train, 300 test?)
+	- Any thing that can be pre-processed in SDO should be
+- Plot full SDO distribution... is there a big gap in the middle? Maybe use stratified sampling to pick 1000 samples from across the distribution.
+- Ask Daniel what sections he has in his tutorials. Make sure they are relatively the same (in terms of steps)
+- Number the steps of the tutorial
+- Add inline comments and more section descriptions to tutorial
+- Data and Results Visualization $\rightarrow$ Probability Density Distribution and Results Visualization
+- Add "Necessary files" section before "Import Packages"
+	- source file
+	- training data folder
+	- testing data folder
+- Add new page to documentation "Image regression on `SDOBenchmark`", which describes the pre-processing done on the dataset, as well as linking to relevant tutorials
+- Lower priority: Make `imbal` pip-installable
+- For later:
+	- We will add one more visualization for `imbal` if there is time: `GradCam`

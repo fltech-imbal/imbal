@@ -9,14 +9,14 @@ from scipy.interpolate import RegularGridInterpolator
 import tensorflow as tf
 
 def get_sample_densities(
-        labels,
-        bandwidth,
-        distribution=None,
-        interpolation_method=None,
-        interpolation_samples=None,
-        atol=0,
-        padding_factor=0.01,
-        return_interpolation_samples=False
+    labels,
+    bandwidth,
+    distribution=None,
+    interpolation_method=None,
+    interpolation_samples=None,
+    atol=0,
+    padding_factor=0.01,
+    return_interpolation_samples=False
 ):
     r"""
     This function exists as a means of extracting densities from a scitkit-learn
@@ -146,6 +146,7 @@ def get_sample_densities(
     if interpolation_samples is None:
         interpolation_samples = round(labels.shape[0] / 10)
 
+    input_label_shape = labels.shape
     labels = labels.reshape(labels.shape[0], -1)
 
     fit_data = distribution if distribution is not None else labels
@@ -171,7 +172,7 @@ def get_sample_densities(
 
     approx = (points, densities)
 
-    densities = densities.reshape(densities.shape[0], -1)
+    densities = densities.reshape(input_label_shape)
 
     if return_interpolation_samples and approx is not None:
         return densities, approx
