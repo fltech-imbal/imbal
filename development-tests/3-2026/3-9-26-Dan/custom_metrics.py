@@ -94,7 +94,7 @@ class RegressionFalsePositives(tf.keras.metrics.Metric):
         self.threshold = float(threshold)
         self.count = self.add_weight(name="count", initializer="zeros")
 
-    def update_state(self, y_true, y_pred):
+    def update_state(self, y_true, y_pred, sample_weight=None):
         y_true = tf.reshape(tf.cast(y_true, tf.float32), [-1])
         y_pred = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
 
@@ -126,7 +126,7 @@ class RegressionFalseNegatives(tf.keras.metrics.Metric):
         self.threshold = float(threshold)
         self.count = self.add_weight(name="count", initializer="zeros")
 
-    def update_state(self, y_true, y_pred):
+    def update_state(self, y_true, y_pred, sample_weight):
         y_true = tf.reshape(tf.cast(y_true, tf.float32), [-1])
         y_pred = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
 
@@ -143,6 +143,56 @@ class RegressionFalseNegatives(tf.keras.metrics.Metric):
 
     def reset_states(self):
         self.count.assign(0.0)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({"threshold": self.threshold})
+        return config
+
+
+@keras.saving.register_keras_serializable(package="custom_metrics")
+class RegressionF1Score(tf.keras.metrics.Metric):
+
+    def __init__(self, threshold, name="f1", dtype=None, **kwargs):
+        super().__init__(name=name, dtype=dtype, **kwargs)
+        self.threshold = float(threshold)
+
+        self.true_positives = self.add_weight(name="true_positives", initializer="zeros")
+        self.false_positives = self.add_weight(name="false_positives", initializer="zeros")
+        self.false_negatives = self.add_weight(name="false_negatives", initializer="zeros")
+
+    def update_state(self, y_true, y_pred, sample_weight=None):
+        y_true = tf.reshape(tf.cast(y_true, tf.float32), [-1])
+        y_pred = tf.reshape(tf.cast(y_pred, tf.float32), [-1])
+
+        pred_pos = y_pred >= self.threshold
+        pred_neg = y_pred < self.threshold
+        true_pos = y_true >= self.threshold
+        true_neg = y_true < self.threshold
+
+        tp = tf.logical_and(pred_pos, true_pos)
+        fp = tf.logical_and(pred_pos, true_neg)
+        fn = tf.logical_and(pred_neg, true_pos)
+
+        self.true_positives.assign_add(tf.reduce_sum(tf.cast(tp, tf.float32)))
+        self.false_positives.assign_add(tf.reduce_sum(tf.cast(fp, tf.float32)))
+        self.false_negatives.assign_add(tf.reduce_sum(tf.cast(fn, tf.float32)))
+
+    def result(self):
+        precision = tf.math.divide_no_nan(
+            self.true_positives,
+            self.true_positives + self.false_positives,
+        )
+        recall = tf.math.divide_no_nan(
+            self.true_positives,
+            self.true_positives + self.false_negatives,
+        )
+        return tf.math.divide_no_nan(2.0 * precision * recall, precision + recall)
+
+    def reset_states(self):
+        self.true_positives.assign(0.0)
+        self.false_positives.assign(0.0)
+        self.false_negatives.assign(0.0)
 
     def get_config(self):
         config = super().get_config()
