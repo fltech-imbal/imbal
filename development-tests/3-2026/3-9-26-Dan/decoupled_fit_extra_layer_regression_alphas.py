@@ -14,8 +14,10 @@ from modular_cross_validation import (
     DecoupledFitStageOneStrategy,
     DecoupledFitStageTwoExtraLayerStrategy,
 )
-from plot_auroc_curve import plot_auroc_curve
+from sep_regression_plot import plot_predicted_vs_actual
 from custom_callbacks import ConvergenceStopping
+from custom_metrics import AORE, RareMAE, RegressionFalsePositives, RegressionFalseNegatives, RegressionF1Score
+from regression_metrics import compute_regression_metrics
 
 
 # ----------------------------
@@ -47,8 +49,8 @@ monitor_metric = "val_loss"
 train_data = pd.read_csv("../../../tutorials/data/SEP-C/sep_10mev_training.csv")
 test_data  = pd.read_csv("../../../tutorials/data/SEP-C/sep_10mev_testing.csv")
 
-y_train = (train_data[target_column].values >= threshold).reshape(-1, 1).astype("float32")
-y_test  = (test_data[target_column].values  >= threshold).reshape(-1, 1).astype("float32")
+y_train = train_data[target_column].values.reshape(-1, 1).astype("float32")
+y_test  = test_data[target_column].values.reshape(-1, 1).astype("float32")
 
 x_train = train_data.drop(columns=[target_column]).values.astype(np.float32)
 x_test  = test_data.drop(columns=[target_column]).values.astype(np.float32)
@@ -57,26 +59,24 @@ x_test  = test_data.drop(columns=[target_column]).values.astype(np.float32)
 # ----------------------------
 # Model
 # ----------------------------
-def build_model(input_shape: int) -> imbal.classification.Model:
+def build_model(input_shape: int) -> imbal.regression.Model:
     inputs = keras.Input(shape=(input_shape,), name="features")
     hidden1 = layers.Dense(18, activation="relu", name="hidden_layer1")(inputs)
     hidden2 = layers.Dense(12, activation="relu", name="hidden_layer2")(hidden1)
     hidden3 = layers.Dense(8, activation="relu", name="hidden_layer3")(hidden2)
     hidden4 = layers.Dense(6, activation="relu", name="hidden_layer4")(hidden3)
-    flatten = layers.Flatten()(hidden4)
-    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(flatten)
-    built_model = imbal.classification.Model(inputs=inputs, outputs=outputs, name="one_hidden_layer_6_units")
+    outputs = layers.Dense(1, name="output_layer")(hidden4)
+    built_model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="one_hidden_layer_6_units")
     return built_model
 
 
-def build_model_from_research_paper(input_shape: int) -> imbal.classification.Model:
+def build_model_from_research_paper(input_shape: int) -> imbal.regression.Model:
     inputs = keras.Input(shape=(input_shape,), name="features")
     hidden1 = layers.Dense(18, activation="relu", name="hidden_layer1")(inputs)
     hidden2 = layers.Dense(9, activation="relu", name="hidden_layer2")(hidden1)
     hidden3 = layers.Dense(6, activation="relu", name="hidden_layer3")(hidden2)
-    flatten = layers.Flatten()(hidden3)
-    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(flatten)
-    built_model = imbal.classification.Model(inputs=inputs, outputs=outputs, name="one_hidden_layer_6_units")
+    outputs = layers.Dense(1, name="output_layer")(hidden3)
+    built_model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="one_hidden_layer_6_units")
     return built_model
 
 
@@ -85,23 +85,16 @@ def build_model_from_research_paper(input_shape: int) -> imbal.classification.Mo
 # ----------------------------
 
 
-class_weight_candidates=[
-        {0: 0.9, 1: 0.1},
-        {0: 0.8, 1: 0.2},
-        {0: 0.7, 1: 0.3},
-        {0: 0.6, 1: 0.4},
-        {0: 0.5, 1: 0.5},
-        {0: 0.4, 1: 0.6},
-        {0: 0.3, 1: 0.7},
-        {0: 0.2, 1: 0.8},
-        {0: 0.1, 1: 0.9},
-    ]
+alpha_values = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
 all_results = []
 
 stage_one_model = build_model(x_train.shape[1])
-#stage_one_model = build_model_from_research_paper(x_train.shape[1])
+#model = build_model_from_research_paper(x_train.shape[1])
 
-sample_weights = imbal.classification.generate_sample_weights(y_train)
+labels_kde = y_train.reshape(-1).copy()
+kde = imbal.regression.fit_kde(labels_kde)
+densities = imbal.regression.get_sample_densities(labels_kde, kde)
+sample_weights = imbal.regression.generate_sample_weights(densities)
 
 # early_stop = keras.callbacks.EarlyStopping(
 #     monitor="val_loss",
@@ -112,21 +105,20 @@ sample_weights = imbal.classification.generate_sample_weights(y_train)
 #     verbose=1,
 # )
 
-stage_one_convergence_stop = ConvergenceStopping("loss", 0.01, patience=30, restore_best_weights=True, best_weight_identifier="val_loss")
+stage_one_convergence_stop = ConvergenceStopping("loss", 0.1, patience=30, restore_best_weights=True, best_weight_identifier="val_loss")
 
 start_cpu = time.process_time()
 
-f1 = tf.keras.metrics.F1Score(threshold=0.9)
-auroc = tf.keras.metrics.AUC(curve="ROC", name="auroc")
-fp = tf.keras.metrics.FalsePositives(thresholds=0.5, name="fp")
-fn = tf.keras.metrics.FalseNegatives(thresholds=0.5, name="fn")
+mae = tf.keras.metrics.MeanAbsoluteError(name="mae")
+mae_rare = RareMAE(threshold=threshold, name="mae_rare")
+aore = AORE(threshold=threshold, name="aore")
+fp = RegressionFalsePositives(threshold=threshold, name="fp")
+fn = RegressionFalseNegatives(threshold=threshold, name="fn")
+f1 = RegressionF1Score(threshold=threshold, name="f1")
 
-stage_one_model.compile(loss="binary_crossentropy",
-                        optimizer="adam",
-                        metrics=[tf.keras.metrics.Accuracy(name="accuracy")],
-                        generate_decoder_branch=True,
-                        representation_layer_index=-2,
-                        )
+stage_one_model.compile(loss="mse",
+              optimizer="adam",
+              )
 
 # --- modular CV setup ---
 stage_one_strategy = DecoupledFitStageOneStrategy()
@@ -144,7 +136,10 @@ stage_one_params = DecoupledFitStageOneParams(
     stratify_batches=True,        # matches your current call
     callbacks=[stage_one_convergence_stop],       # NOTE: only pass the EarlyStopping here if you want it cloned per fold
     kwargs={
-
+        # anything else you used to pass through **kwargs to balanced_fit / fit
+        # If your balanced_fit supports extra flags like generate_decoder_branch, put them here:
+        # "generate_decoder_branch": True,
+        # "representation_layer_index": -2,
     },
 )
 
@@ -160,14 +155,13 @@ stage_one_history, stage_two_model, stage_one_selection_info = fit_k_folds_modul
     seed=seed,
     metric=monitor_metric,
     min_or_max="min",
-    selection_metric="f1_score",
-    selection_min_or_max="max",
-    mode=ModelType.CLASSIFICATION,
-    metrics=[f1, auroc, fp, fn],
-    do_threshold_sweep=True,
+    selection_metric="aore",
+    selection_min_or_max="min",
+    mode=ModelType.REGRESSION,
+    metrics=[mae, mae_rare, aore, fp, fn, f1],
 )
 
-stage_two_convergence_stop = ConvergenceStopping("loss", 0.01, patience=30, restore_best_weights=True, best_weight_identifier="val_loss")
+stage_two_convergence_stop = ConvergenceStopping("loss", 0.1, patience=30, restore_best_weights=True, best_weight_identifier="val_loss")
 
 stage_two_strategy = DecoupledFitStageTwoExtraLayerStrategy()
 
@@ -200,19 +194,18 @@ stage_two_history, stage_two_model, stage_two_selection_info = fit_k_folds_modul
     seed=seed,
     metric=monitor_metric,
     min_or_max="min",
-    selection_metric="f1_score",
-    selection_min_or_max="max",
-    mode=ModelType.CLASSIFICATION,
-    class_weight_candidates=class_weight_candidates,
-    metrics=[f1, auroc, fp, fn],
-    do_threshold_sweep=True,
+    selection_metric="aore",
+    selection_min_or_max="min",
+    mode=ModelType.REGRESSION,
+    alpha_candidates=alpha_values,
+    metrics=[mae, mae_rare, aore, fp, fn, f1],
 )
 
 end_cpu = time.process_time()
 
 results = stage_two_model.evaluate(x_test, y_test, verbose=0)
 
-loss, _ = results
+loss = results
 print(f"\nCPU time: {end_cpu - start_cpu:.4f} sec")
 print(f"loss: {loss:.4f}")
 
@@ -221,74 +214,78 @@ cv_results = []
 cv_by_candidate_stage_two = stage_two_selection_info["cv_by_candidate"]
 
 for cand_name, summary in cv_by_candidate_stage_two.items():
-    cw = summary["meta"]["class_weight"]
+    alpha = summary["meta"]["alpha"]
     avg = summary["avg_metrics_at_best_epoch"]
-    f1_val = summary["mean_best_metric_value"]
+    mae_val = summary["mean_best_metric_value"]
 
     cv_results.append({
-        "class_weights": cw,
+        "alpha": alpha,
         "avg_best_epoch": summary["avg_best_epoch"],
-        "avg_best_threshold": summary.get("avg_best_threshold"),
-        "val_f1_score": f1_val,
-        "val_auroc": avg.get("auroc"),
+        "val_mae": mae_val,
+        "val_rare_mae": avg.get("mae_rare"),
+        "val_aore": avg.get("aore"),
         "val_fp": avg.get("fp"),
         "val_fn": avg.get("fn"),
+        "val_f1": avg.get("f1"),
     })
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', 2000)
 pd.set_option('display.precision', 4)
 cv_df = pd.DataFrame(cv_results)
-print("\n=== CV Sweep Summary (Stage Two) ===")
+print("\n=== CV Sweep Summary ===")
 print(cv_df)
 print()
 
 # -------------- Confusion Matrix ---------------
-selected_threshold = stage_two_selection_info["selected_threshold"]
+def run_regression_plot(data, target, threshold_regplot, model_sep_regplot, x_test_regplot):
+    y_true = data[target].to_numpy()
+    y_pred = model_sep_regplot.predict(x_test_regplot, batch_size=512, verbose=0).reshape(-1)
 
-y_test_prob = stage_two_model.predict(x_test, verbose=0).reshape(-1)
-y_test_true = y_test.astype(int).reshape(-1)
-y_test_pred = (y_test_prob >= selected_threshold).astype(int)
+    plot_predicted_vs_actual(
+        y_true=y_true,
+        y_pred=y_pred,
+        threshold=threshold_regplot,
+        out_png="pred_vs_actual_ln_peak_decoupled_fit_extra_layer_current_model.png",
+        title="Predicted vs Actual ln(peak intensity) (Current Model)",
+        show=False
+    )
 
-TP = int(np.sum((y_test_true == 1) & (y_test_pred == 1)))
-TN = int(np.sum((y_test_true == 0) & (y_test_pred == 0)))
-FP = int(np.sum((y_test_true == 0) & (y_test_pred == 1)))
-FN = int(np.sum((y_test_true == 1) & (y_test_pred == 0)))
+    # plot_predicted_vs_actual(
+    #     y_true=y_true,
+    #     y_pred=y_pred,
+    #     threshold=threshold_regplot,
+    #     out_png="pred_vs_actual_ln_peak_balanced_fit_paper_model.png",
+    #     title="Predicted vs Actual ln(peak intensity) (Paper Model)",
+    #     show=False
+    # )
 
-precision = TP / (TP + FP) if (TP + FP) > 0 else 0.0
-recall = TP / (TP + FN) if (TP + FN) > 0 else 0.0
-f1score = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0.0
-best_counts = {"TP": TP, "TN": TN, "FP": FP, "FN": FN}
-best_threshold = selected_threshold
-
-# -------------- AUROC Curve ---------------
-_, _, _, auroc_val = plot_auroc_curve(
-   stage_two_model,
-   x_test,
-   y_test,
-   title="Decoupled Fit w/ AE (Rep -2) (Current Model) Test ROC (colored by threshold)",
-   color_by_threshold=True,
-   save_path="decoupled_fit_current_model_roc_curve_rep3.png",
-)
-# plot_auroc_curve(
-#     model,
-#     x_test,
-#     y_test,
-#     title="Balanced Fit (Paper Model) Test ROC (colored by threshold)",
-#     color_by_threshold=True,
-#     save_path="decoupled_fit_paper_model_roc_curve_rep3",
-# )
+run_regression_plot(test_data, target_column, threshold, stage_two_model, x_test)
 
 # ----------------------------------
 # Summary table
 # ----------------------------------
+y_pred = stage_two_model.predict(x_test, verbose=0)
+
+metrics_tuple = compute_regression_metrics(
+    y_true=y_test,
+    y_pred=y_pred,
+    threshold=np.log(10.0),
+)
+overall_mae, rare_mae, _, aore, overall_pcc, rare_pcc, aorc, fp, fn, f1 = metrics_tuple
+
 all_results.append({
-    "class_weights": stage_two_selection_info["selected_class_weight"],
+    "alpha": stage_two_selection_info["selected_alpha"],
     "loss": loss,
-    "threshold": best_threshold,
-    "f1_score": f1score,
-    "TP|FP|TN|FN": f"{best_counts["TP"]}|{best_counts["FP"]}|{best_counts["TN"]}|{best_counts["FN"]}",
-    "auroc": auroc_val,
+    "overall_mae": overall_mae,
+    "rare_mae": rare_mae,
+    "aore": aore,
+    #"overall_pcc": overall_pcc,
+    #"rare_pcc": rare_pcc,
+    #"aorc": aorc,
+    "FP": fp,
+    "FN": fn,
+    "F1": f1,
     "epochs": len(stage_two_history.history["loss"]),
 })
 

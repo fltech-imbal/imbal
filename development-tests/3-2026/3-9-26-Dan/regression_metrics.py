@@ -34,21 +34,9 @@ def compute_regression_metrics(y_true, y_pred, threshold):
         - aorc = (rare_pcc + overall_pcc) / 2
         - false_positives
         - false_negatives
+        - f1_score
 
     Rare defined as y_true >= threshold
-
-    Returns tuple in fixed order:
-        (
-            overall_mae,
-            rare_mae,
-            common_mae,
-            aore,
-            overall_pcc,
-            rare_pcc,
-            aorc,
-            fp,
-            fn
-        )
     """
 
     y_true = np.asarray(y_true).reshape(-1)
@@ -71,12 +59,22 @@ def compute_regression_metrics(y_true, y_pred, threshold):
     rare_pcc = _pcc(y_true[rare_mask], y_pred[rare_mask])
     final_pcc = 0.5 * (rare_pcc + overall_pcc)
 
-    # --- FP / FN ---
+    # --- Classification stats (thresholded) ---
     pred_pos = y_pred >= threshold
     true_pos = y_true >= threshold
 
+    tp = int(np.sum(pred_pos & true_pos))
     fp = int(np.sum(pred_pos & ~true_pos))
     fn = int(np.sum(~pred_pos & true_pos))
+
+    # --- F1 ---
+    precision = tp / (tp + fp) if (tp + fp) > 0 else np.nan
+    recall = tp / (tp + fn) if (tp + fn) > 0 else np.nan
+
+    if precision + recall > 0:
+        f1 = 2 * precision * recall / (precision + recall)
+    else:
+        f1 = np.nan
 
     return (
         overall_mae,
@@ -88,4 +86,5 @@ def compute_regression_metrics(y_true, y_pred, threshold):
         final_pcc,
         fp,
         fn,
+        f1,
     )
