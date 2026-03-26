@@ -6,7 +6,7 @@ with image data using `imbal`. All the code shown in this
 tutorial, along with the dataset used, can be found in the
 `tutorials/SDO` folder in the `imbal` repository.
 
-## Import Packages
+## 1. Import Packages
 
 The following lines of code are used simply to import the packages
 that are required for the entirety of this tutorial. It should
@@ -27,7 +27,7 @@ from PIL import Image
 from keras import layers, optimizers
 ```
 
-## Load Data
+## 2. Load Data
 
 The data used in this tutorial is a subset of the
 [SDOBenchmark dataset](https://i4ds.github.io/SDOBenchmark/).
@@ -124,7 +124,7 @@ Loaded data with the following shapes:
 	y_test (50,)
 ```
 
-## Build the Model
+## 3. Build the Model
 
 The following code builds a model using Keras layers. Note this is the first
 time in this tutorial that the `imbal` package is being used, as where you
@@ -193,7 +193,7 @@ Model: "model"
  Non-trainable params: 0 (0.00 B)
 ```
 
-## Model Compilation and Training
+## 4. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
 object, then performs a model fit on the training data. Notably, the
@@ -229,7 +229,7 @@ model.evaluate(x_test, y_test)
 The above code should produce the standard TensorFlow output for model
 training and evaluation.
 
-## Data and Results Visualization
+## 5. Probability Density Distribution and Results Visualization
 
 The following code plots a fitted KDE distribution for the training
 data over a histogram of the training data, along with a plot
