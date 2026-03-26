@@ -14,57 +14,27 @@ from keras import layers, optimizers
 Load data
 """
 SDO_DATA_PATH = '../data/SDOBenchmark'
-TRAINING_DATA_MAX_SIZE = 50
-TESTING_DATA_MAX_SIZE = 50
 
-def load_sdo_data(data_path, max_samples=None):
-    df = pd.read_csv(os.path.join(data_path, 'meta_data.csv'))
-    good_file_paths = []
-    good_file_fluxes = []
-    for i in range(len(df)):
-        timestamp_id = df['id'][i]
-        log_peak_flux = math.log10(float(df['peak_flux'][i]))
-        print(f'Finding data from "{data_path}" [{i+1}/{len(df["id"])}]', end='\r')
-        timestamp_portions = str(timestamp_id).split('_')
-        folder_path = str(os.path.join(data_path, timestamp_portions[0]))
-        sub_folder_path = str(os.path.join(folder_path, '_'.join(timestamp_portions[1:])))
-        if not os.path.exists(sub_folder_path):
-            continue
+def load_sdo_data(data_path):
+    # Load labels (log peak flux)
+    with open(os.path.join(data_path, 'log_peak_flux.txt'), 'r') as file:
+        contents = file.read().strip()
+        loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
-        folder_timestamp = datetime.strptime("_".join(timestamp_portions[-4:-1]), '%H_%M_%S')
-        minus_ten_minutes = folder_timestamp - timedelta(minutes=10)
-        images = glob.glob(os.path.join(sub_folder_path, '*.jpg'))
+    # Load images (10 images per sample, 256x256 per image)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    for i in range(len(loaded_data_fluxes)):
+        print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
+        image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
+        stacked_images = np.stack(image_list, axis=-1) # Images stacked along channels
+        loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
-        def within_five_seconds(image_name, timestamp):
-            image_time_string = image_name.split('T')[1][:6]
-            image_timestamp = datetime.strptime(image_time_string, '%H%M%S')
-            return abs((timestamp - image_timestamp).total_seconds()) < 5
-
-        minus_ten_images = [x for x in images if within_five_seconds(x, minus_ten_minutes)]
-        if len(minus_ten_images) == 10:
-            good_file_paths.append(minus_ten_images)
-            good_file_fluxes.append(log_peak_flux)
-
-        if max_samples is not None and len(good_file_paths) == max_samples:
-            print('\nFound maximum number of samples. Stopping early.',end='\r')
-            break
-
-
-    loaded_images = np.zeros((len(good_file_paths), 256, 256, 10))
-    loaded_data_fluxes = np.array(good_file_fluxes)
-
-    print()
-    for index, image_paths in enumerate(good_file_paths):
-        print(f'Loading SDO samples [{index+1}/{len(good_file_paths)}]', end='\r')
-        image_list = [Image.open(x).convert('L') for x in image_paths]
-        stacked_images = np.stack(image_list, axis=-1)
-        loaded_images[index] = stacked_images / 255.0
-
-    print(f'\n{len(good_file_paths)} data samples loaded successfully')
+    print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
     return loaded_images, loaded_data_fluxes
 
-x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'), max_samples=TRAINING_DATA_MAX_SIZE)
-x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'), max_samples=TESTING_DATA_MAX_SIZE)
+# Load train and test data via function defined above
+x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'))
+x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'))
 
 print(
     f'Loaded data with the following shapes:\n'
@@ -112,8 +82,8 @@ model = build_simple_cnn()
 Compile and train model
 """
 LEARNING_RATE = 5e-5
-EPOCHS = 50
-BATCH_SIZE = 32
+EPOCHS = 20
+BATCH_SIZE = 64
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -141,8 +111,16 @@ test_rare_mask = y_test > -4
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
 print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
 
-train_predictions = model.predict(x_train).reshape(-1)
-test_predictions = model.predict(x_test).reshape(-1)
+train_predictions = []
+for i in range(0, len(x_train), BATCH_SIZE):
+    batch = x_train[i:i+BATCH_SIZE]
+    train_predictions.append(model.predict(batch))
+train_predictions = np.concatenate(train_predictions, axis=0)
+test_predictions = []
+for i in range(0, len(x_test), BATCH_SIZE):
+    batch = x_test[i:i+BATCH_SIZE]
+    test_predictions.append(model.predict(batch))
+test_predictions = np.concatenate(test_predictions, axis=0)
 
 train_predictions_rare = train_predictions[train_rare_mask]
 train_labels_rare = y_train[train_rare_mask]

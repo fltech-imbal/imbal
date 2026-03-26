@@ -1,5 +1,6 @@
 # Tutorials
 
+- [Image regression on SDOBenchmark]()
 Image regression:
 - [Standard fit](SDO/regular_fit.md)
 - [Balanced fit](SDO/balanced_fit.md)
