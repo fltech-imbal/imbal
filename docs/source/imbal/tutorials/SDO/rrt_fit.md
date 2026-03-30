@@ -2,14 +2,15 @@
 
 The purpose of this tutorial is to outline the necessary steps
 to perform a decoupled/regressor re-training (rRT) regression model training and evaluation
-with image data using `imbal`.  In this example, all data samples
-used in training are weighted inversely proportional to their
-sample density, using KDE to approximate the density curve of the
-training data.
-
-All the code shown in this
+with image data using `imbal`. All the code shown in this
 tutorial, along with the dataset used, can be found in the
-`tutorials/SDO` folder in the `imbal` repository.
+`tutorials/SDO/sdo_rrt_fit.py` file in the `imbal` repository.
+
+## Necessary Files
+
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/sdo_rrt_fit.py`
+- The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
+- The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
 ## 1. Import Packages
 
@@ -34,71 +35,32 @@ from keras import layers, optimizers
 
 ## 2. Load Data
 
-The data used in this tutorial is a subset of the
-[SDOBenchmark dataset](https://i4ds.github.io/SDOBenchmark/).
-The following code loads the SDO image data for only those samples
-that have all ten images available from the timestamp ten minutes
-before the prediction time. The constants at the top of the following
-code block can be used to set the path from which the data is loaded
-from, as well as the maximum number of samples to load from the
-training or test sets, or `None` to load all available samples.
-
 ```python
 """
 Load data
 """
-SDO_DATA_PATH = '../data/SDOBenchmark'
-TRAINING_DATA_MAX_SIZE = None
-TESTING_DATA_MAX_SIZE = None
+SDO_DATA_PATH = '../data/SDOBenchmark' # Ensure data is located at this path
 
-def load_sdo_data(data_path, max_samples=None):
-    df = pd.read_csv(os.path.join(data_path, 'meta_data.csv'))
-    good_file_paths = []
-    good_file_fluxes = []
-    for i in range(len(df)):
-        timestamp_id = df['id'][i]
-        log_peak_flux = math.log10(float(df['peak_flux'][i]))
-        print(f'Finding data from "{data_path}" [{i+1}/{len(df["id"])}]', end='\r')
-        timestamp_portions = str(timestamp_id).split('_')
-        folder_path = str(os.path.join(data_path, timestamp_portions[0]))
-        sub_folder_path = str(os.path.join(folder_path, '_'.join(timestamp_portions[1:])))
-        if not os.path.exists(sub_folder_path):
-            continue
+def load_sdo_data(data_path):
+    # Load labels (log peak flux)
+    with open(os.path.join(data_path, 'log_peak_flux.txt'), 'r') as file:
+        contents = file.read().strip()
+        loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
-        folder_timestamp = datetime.strptime("_".join(timestamp_portions[-4:-1]), '%H_%M_%S')
-        minus_ten_minutes = folder_timestamp - timedelta(minutes=10)
-        images = glob.glob(os.path.join(sub_folder_path, '*.jpg'))
+    # Load images (10 images per sample, 256x256 per image)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    for i in range(len(loaded_data_fluxes)):
+        print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
+        image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
+        stacked_images = np.stack(image_list, axis=-1) # Images stacked along channels
+        loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
-        def within_five_seconds(image_name, timestamp):
-            image_time_string = image_name.split('T')[1][:6]
-            image_timestamp = datetime.strptime(image_time_string, '%H%M%S')
-            return abs((timestamp - image_timestamp).total_seconds()) < 5
-
-        minus_ten_images = [x for x in images if within_five_seconds(x, minus_ten_minutes)]
-        if len(minus_ten_images) == 10:
-            good_file_paths.append(minus_ten_images)
-            good_file_fluxes.append(log_peak_flux)
-
-        if max_samples is not None and len(good_file_paths) == max_samples:
-            print('\nFound maximum number of samples. Stopping early.',end='\r')
-            break
-
-
-    loaded_images = np.zeros((len(good_file_paths), 256, 256, 10))
-    loaded_data_fluxes = np.array(good_file_fluxes)
-
-    print()
-    for index, image_paths in enumerate(good_file_paths):
-        print(f'Loading SDO samples [{index+1}/{len(good_file_paths)}]', end='\r')
-        image_list = [Image.open(x).convert('L') for x in image_paths]
-        stacked_images = np.stack(image_list, axis=-1)
-        loaded_images[index] = stacked_images / 255.0
-
-    print(f'\n{len(good_file_paths)} data samples loaded successfully')
+    print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
     return loaded_images, loaded_data_fluxes
 
-x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'), max_samples=TRAINING_DATA_MAX_SIZE)
-x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'), max_samples=TESTING_DATA_MAX_SIZE)
+# Load train and test data via function defined above
+x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'))
+x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'))
 
 print(
     f'Loaded data with the following shapes:\n'
@@ -142,6 +104,7 @@ Calculate data density distribution, and extract sample densities
 """
 KDE_BIN_COUNT=32
 
+# Determine KDE fit for data, then extract sample densities
 data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 ```
@@ -232,8 +195,8 @@ samples are present in each batch during training.
 Compile and train model
 """
 LEARNING_RATE = 5e-5
-EPOCHS = 50
-BATCH_SIZE = 32
+EPOCHS = 20
+BATCH_SIZE = 64
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -248,7 +211,7 @@ model.rRT_fit(
     sample_density=sample_densities,
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-    stratify_batches=True
+    stratify_batches=True # Ensure all batches have a similar data distribution
 )
 
 model.evaluate(x_test, y_test)
@@ -273,17 +236,28 @@ test_rare_mask = y_test > -4
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
 print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
 
-train_predictions = model.predict(x_train).reshape(-1)
-test_predictions = model.predict(x_test).reshape(-1)
+# Predict on training data
+train_predictions = []
+for i in range(0, len(x_train), BATCH_SIZE):
+    batch = x_train[i:i+BATCH_SIZE]
+    train_predictions.append(model.predict(batch))
+train_predictions = np.concatenate(train_predictions, axis=0)
 
-train_predictions_rare = train_predictions[train_rare_mask]
-train_labels_rare = y_train[train_rare_mask]
-test_predictions_rare = test_predictions[test_rare_mask]
-test_labels_rare = y_test[test_rare_mask]
+# Predict on test data
+test_predictions = []
+for i in range(0, len(x_test), BATCH_SIZE):
+    batch = x_test[i:i+BATCH_SIZE]
+    test_predictions.append(model.predict(batch))
+test_predictions = np.concatenate(test_predictions, axis=0)
 
+train_predictions_rare = train_predictions[train_rare_mask] # Mask rare training data
+train_labels_rare = y_train[train_rare_mask] # Mask predictions on rare training data
+test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
+test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
+
+# Calculate metrics
 overall_train_mae = np.mean(np.abs(train_predictions - y_train))
 rare_train_mae = np.mean(np.abs(train_predictions_rare - train_labels_rare))
-
 overall_test_mae = np.mean(np.abs(test_predictions - y_test))
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
@@ -314,14 +288,15 @@ def plot_true_vs_predictions(
     labels = labels.reshape(-1)
     predictions = predictions.reshape(-1)
 
+    # Mask rare and frequent data
     rare_mask = labels > rare_threshold
     frequent_mask = ~rare_mask
-
     frequent_labels = labels[frequent_mask]
     frequent_predictions = predictions[frequent_mask]
     rare_labels = labels[rare_mask]
     rare_predictions = predictions[rare_mask]
 
+    # Create comparison plot
     plt.figure(figsize=(7, 6))
     plt.plot([low_bound, high_bound], [low_bound, high_bound], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
     light_gray = '#BBBBBB'

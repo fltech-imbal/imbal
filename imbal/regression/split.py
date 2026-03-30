@@ -2,14 +2,14 @@ from imbal.util.backend.stratified_sampling.split import split as util_split
 from imbal.util.backend.constants import ModelType
 
 def split(
-        x_set,
-        y_set,
-        sample_weights=None,
-        test_size=None,
-        train_size=None,
-        seed=None,
-        shuffle=True
-    ) -> tuple:
+    x_set,
+    y_set,
+    sample_weights=None,
+    test_size=None,
+    train_size=None,
+    seed=None,
+    shuffle=True
+) -> tuple:
     """
     Args:
         x_set: A NumPy array of data points, arranged as a column vector

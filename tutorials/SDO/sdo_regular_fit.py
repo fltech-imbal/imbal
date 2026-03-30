@@ -85,7 +85,7 @@ model.fit(
     y_train,
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-    stratify_batches=True
+    stratify_batches=True # Ensure all batches have a similar data distribution
 )
 
 model.evaluate(x_test, y_test)
@@ -100,25 +100,28 @@ test_rare_mask = y_test > -4
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
 print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
 
+# Predict on training data
 train_predictions = []
 for i in range(0, len(x_train), BATCH_SIZE):
     batch = x_train[i:i+BATCH_SIZE]
     train_predictions.append(model.predict(batch))
 train_predictions = np.concatenate(train_predictions, axis=0)
+
+# Predict on test data
 test_predictions = []
 for i in range(0, len(x_test), BATCH_SIZE):
     batch = x_test[i:i+BATCH_SIZE]
     test_predictions.append(model.predict(batch))
 test_predictions = np.concatenate(test_predictions, axis=0)
 
-train_predictions_rare = train_predictions[train_rare_mask]
-train_labels_rare = y_train[train_rare_mask]
-test_predictions_rare = test_predictions[test_rare_mask]
-test_labels_rare = y_test[test_rare_mask]
+train_predictions_rare = train_predictions[train_rare_mask] # Mask rare training data
+train_labels_rare = y_train[train_rare_mask] # Mask predictions on rare training data
+test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
+test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
 
+# Calculate metrics
 overall_train_mae = np.mean(np.abs(train_predictions - y_train))
 rare_train_mae = np.mean(np.abs(train_predictions_rare - train_labels_rare))
-
 overall_test_mae = np.mean(np.abs(test_predictions - y_test))
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
@@ -135,7 +138,7 @@ imbal.regression.plot_kde_1d(
     data_kde_bandwidth,
     bin_count=KDE_BIN_COUNT,
     show_bin_count=False,
-    save_figure='sample-sdo-standard-fit-data-distribution.png'
+    save_figure='sample-sdo-regular-fit-data-distribution.png'
 )
 
 def plot_true_vs_predictions(
@@ -149,14 +152,15 @@ def plot_true_vs_predictions(
     labels = labels.reshape(-1)
     predictions = predictions.reshape(-1)
 
+    # Mask rare and frequent data
     rare_mask = labels > rare_threshold
     frequent_mask = ~rare_mask
-
     frequent_labels = labels[frequent_mask]
     frequent_predictions = predictions[frequent_mask]
     rare_labels = labels[rare_mask]
     rare_predictions = predictions[rare_mask]
 
+    # Create comparison plot
     plt.figure(figsize=(7, 6))
     plt.plot([low_bound, high_bound], [low_bound, high_bound], linestyle="--", linewidth=1, color='black', label="Perfect Prediction")
     light_gray = '#BBBBBB'
@@ -168,6 +172,7 @@ def plot_true_vs_predictions(
     plt.ylabel("Predicted Label")
     plt.xlim(low_bound, high_bound)
     plt.ylim(low_bound, high_bound)
+    # Save plot if path is specified
     if save_figure is not None:
         plt.savefig(save_figure)
     plt.show()
@@ -175,5 +180,5 @@ def plot_true_vs_predictions(
 plot_true_vs_predictions(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-standard-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'
 )

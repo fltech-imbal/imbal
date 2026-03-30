@@ -890,18 +890,38 @@ With AE on:
 		- For classification, print the index and class weights; if more than 5, print the first 5 followed by ...  $\checkmark$
 		- For regression, print the index and first 5 sample weights followed by ... $\checkmark$
 ## Tasks
-- Test how many SDO data samples make training time "reasonable". Prune dataset such that only that many data samples are available. (1000 train, 300 test?)
-	- Any thing that can be pre-processed in SDO should be
-- Plot full SDO distribution... is there a big gap in the middle? Maybe use stratified sampling to pick 1000 samples from across the distribution.
-- Ask Daniel what sections he has in his tutorials. Make sure they are relatively the same (in terms of steps)
-- Number the steps of the tutorial
-- Add inline comments and more section descriptions to tutorial
-- Data and Results Visualization $\rightarrow$ Probability Density Distribution and Results Visualization
+- Test how many SDO data samples make training time "reasonable". Prune dataset such that only that many data samples are available. (1000 train, 300 test?) $\checkmark$
+	- Any thing that can be pre-processed in SDO should be $\checkmark$
+- Plot full SDO distribution... is there a big gap in the middle? Maybe use stratified sampling to pick 1000 samples from across the distribution. $\checkmark$
+- Ask Daniel what sections he has in his tutorials. Make sure they are relatively the same (in terms of steps) $\checkmark$
+- Number the steps of the tutorial $\checkmark$
+- Add inline comments and more section descriptions to tutorial $\checkmark$
+- Data and Results Visualization $\rightarrow$ Probability Density Distribution and Results Visualization $\checkmark$
 - Add "Necessary files" section before "Import Packages"
-	- source file
-	- training data folder
-	- testing data folder
-- Add new page to documentation "Image regression on `SDOBenchmark`", which describes the pre-processing done on the dataset, as well as linking to relevant tutorials
+	- source file $\checkmark$
+	- training data folder $\checkmark$
+	- testing data folder $\checkmark$
+- Add new page to documentation "Image regression on `SDOBenchmark`", which describes the pre-processing done on the dataset, as well as linking to relevant tutorials $\checkmark$
 - Lower priority: Make `imbal` pip-installable
 - For later:
 	- We will add one more visualization for `imbal` if there is time: `GradCam`
+
+---
+# 3/26/26
+
+## Tasks
+- Double check documentation for `class_weights` in `imbal.classification.Model.balanced_fit`. The wording seems to be butchered.
+- Documentation should reflect that if neither class nor sample weights are provided to `imbal.classification.Model.balanced_fit`, equal class weighting is used.
+- Update outputs within tutorials (oversight on my part, ran out of time to fix it)
+- Why does `rRT_fit` run OOM?
+- `imbal.regression.Model.balanced_fit` `sample_weights` description is wrong
+- `imbal.regression.Model.balanced_fit` `sample_densities` description should say that reciprocal importance is used when densities are provided.
+- Ensure the following is clear in the documentation:
+![[Pasted image 20260326161401.png|400]]
+- Get rid of redundant descriptions at top of tutorial files
+- Get rid of `representation_layer=-2` for decoupled tutorials
+- Reduce SDO from 1000/300 to 500/100
+- in TSNE documentation...
+	- PyTorch to TensorFlow
+	- Representation layer should say -2
+	- For perplexity, add that the suggested range from the original paper is 5-50 (and link the paper)

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>split &#8212; imbal  documentation</title>
+    <title>Image regression on SDOBenchmark &#8212; imbal  documentation</title>
   
   
   
@@ -41,11 +41,9 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/regression/split';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/tutorials/image_regression_sdobenchmark';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="get_sample_densities" href="get_sample_densities.html" />
-    <link rel="prev" title="Model" href="model.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -138,8 +136,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="regression.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../regression/regression.html">
     Regression
   </a>
 </li>
@@ -153,7 +151,7 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+  <a class="nav-link nav-internal" href="tutorials.html">
     Tutorials
   </a>
 </li>
@@ -215,8 +213,10 @@
       
       
       
+        
+      
       <dialog id="pst-primary-sidebar-modal"></dialog>
-      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
   
@@ -245,8 +245,8 @@
 </li>
 
 
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="regression.html">
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../regression/regression.html">
     Regression
   </a>
 </li>
@@ -260,7 +260,7 @@
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+  <a class="nav-link nav-internal" href="tutorials.html">
     Tutorials
   </a>
 </li>
@@ -286,30 +286,6 @@
       </div>
     
   </div>
-  
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<nav class="bd-docs-nav bd-links"
-     aria-label="Section Navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="dataset_with_batching.html">DatasetWithBatching</a></li>
-<li class="toctree-l1"><a class="reference internal" href="model.html">Model</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">split</a></li>
-<li class="toctree-l1"><a class="reference internal" href="get_sample_densities.html">get_sample_densities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="generate_sample_weights.html">generate_sample_weights</a></li>
-<li class="toctree-l1"><a class="reference internal" href="plot_kde_1d.html">plot_kde_1d</a></li>
-<li class="toctree-l1"><a class="reference internal" href="fit_kde.html">fit_kde</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reciprocal_importance.html">reciprocal_importance</a></li>
-</ul>
-</div>
-</nav></div>
-    </div>
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
@@ -346,10 +322,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    
-    <li class="breadcrumb-item"><a href="regression.html" class="nav-link">Regression</a></li>
-    
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">split</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Image regression on SDOBenchmark</span></li>
   </ul>
 </nav>
 </div>
@@ -366,56 +339,28 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="split">
-<h1>split<a class="headerlink" href="#split" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="imbal.regression.split">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">test_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.split" title="Link to this definition">#</a></dt>
-<dd><p>Bases:</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x_set</strong> – A NumPy array of data points, arranged as a column vector</p></li>
-<li><p><strong>y_set</strong> – A NumPy array of labels, arranged as a column vector</p></li>
-<li><p><strong>sample_weights</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A NumPy array of weights,
-arranged as a column vector.</p></li>
-<li><p><strong>test_size</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The percentage of data that
-should be contained in the test split.</p></li>
-<li><p><strong>train_size</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The percentage of data that
-should be contained in the train split. If specified, overrides the
-value of <code class="code docutils literal notranslate"><span class="pre">test_size</span></code>.</p></li>
-<li><p><strong>seed</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The random seed to use for shuffling.
-When set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, a seed is generated by the system.</p></li>
-<li><p><strong>shuffle</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to shuffle the data before splitting.</p></li>
+  <section class="tex2jax_ignore mathjax_ignore" id="image-regression-on-sdobenchmark">
+<h1>Image regression on SDOBenchmark<a class="headerlink" href="#image-regression-on-sdobenchmark" title="Link to this heading">#</a></h1>
+<p>The purpose of these tutorials is to demonstrate the utility
+of the <code class="docutils literal notranslate"><span class="pre">imbal</span></code> package for the application of regression on
+image data.</p>
+<p>The dataset used in these tutorials is a subset of the
+<a class="reference external" href="https://i4ds.github.io/SDOBenchmark/">SDOBenchmark dataset</a>.
+The subset consists of 1000 training samples and 300 test samples,
+all of which contain the 10 images from the timestamp 10 minute
+prior to the prediction time. The full subset of data
+used in these examples can be found in the <code class="docutils literal notranslate"><span class="pre">tutorials/data/SDOBenchmark</span></code>
+folder in the <code class="docutils literal notranslate"><span class="pre">imbal</span></code> repository.</p>
+<p>All the code shown in the provided tutorials can be found in
+the <code class="docutils literal notranslate"><span class="pre">tutorials/SDO</span></code> folder in the <code class="docutils literal notranslate"><span class="pre">imbal</span></code> repository.</p>
+<section id="tutorials">
+<h2>Tutorials:<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="SDO/regular_fit.html"><span class="std std-doc">Regular Regression on SDOBenchmark</span></a></p></li>
+<li><p><a class="reference internal" href="SDO/balanced_fit.html"><span class="std std-doc">Balanced Regression on SDOBenchmark</span></a></p></li>
+<li><p><a class="reference internal" href="SDO/rrt_fit.html"><span class="std std-doc">rRT Regression on SDOBenchmark</span></a></p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Two SimpleDataset objects in a tuple of the form <code class="code docutils literal notranslate"><span class="pre">(train_dataset,</span> <span class="pre">test_dataset)</span></code>.</p>
-</dd>
-</dl>
-<p>In the case of regression, there are no explict classes to stratify data on. Instead,
-the data is sorted based on its label, then seperated into pseudo classes, which are then split based on
-the specified split percentage. These psuedo-classes are of size 10 or 100 based on the
-specified split percentage, therefore it is encouraged that the split percentage is a
-multiple of 10% for smaller data sets, and a multiple of 1% for larger data sets.</p>
-<p class="rubric">Example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">21</span><span class="p">)</span> <span class="o">/</span> <span class="mi">21</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">train_set</span><span class="p">,</span> <span class="n">test_set</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.20</span><span class="p">)</span>
-<span class="go"># SimpleDataset.get_unzipped returns data, labels, and weights separately</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">w_train</span> <span class="o">=</span> <span class="n">train_set</span><span class="o">.</span><span class="n">get_unzipped</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">w_test</span> <span class="o">=</span> <span class="n">test_set</span><span class="o">.</span><span class="n">get_unzipped</span><span class="p">()</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
-<span class="go">[20. 16.  8.  2. 14.  1. 11.  9. 19.  0.  5. 13. 15.  6. 17. 12.  7.]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span>
-<span class="go">[10.  3.  4. 18.]</span>
-</pre></div>
-</div>
-</dd></dl>
-
+</section>
 </section>
 
 
@@ -428,24 +373,6 @@ multiple of 10% for smaller data sets, and a multiple of 1% for larger data sets
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="model.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Model</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="get_sample_densities.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">get_sample_densities</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
@@ -465,7 +392,7 @@ multiple of 10% for smaller data sets, and a multiple of 1% for larger data sets
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.split"><code class="docutils literal notranslate"><span class="pre">split</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials:</a></li>
 </ul>
   </nav></div>
 
@@ -473,7 +400,7 @@ multiple of 10% for smaller data sets, and a multiple of 1% for larger data sets
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../../_sources/imbal/regression/split.md.txt"
+      <li><a href="../../_sources/imbal/tutorials/image_regression_sdobenchmark.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

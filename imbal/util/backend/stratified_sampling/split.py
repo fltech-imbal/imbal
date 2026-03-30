@@ -3,15 +3,15 @@ import numpy as np
 from imbal.util.backend.constants import ModelType
 
 def split(
-        x_set,
-        y_set,
-        sample_weights=None,
-        test_size=None,
-        train_size=None,
-        seed=None,
-        shuffle=True,
-        mode=ModelType.CLASSIFICATION,
-    ) -> tuple:
+    x_set,
+    y_set,
+    sample_weights=None,
+    test_size=None,
+    train_size=None,
+    seed=None,
+    shuffle=True,
+    mode=ModelType.CLASSIFICATION,
+) -> tuple:
     """
 
     Args:
@@ -125,11 +125,11 @@ def split(
             return (x_train, y_train, w_train), (x_test, y_test, w_test)
 
 def _stratified_regression_split(
-        x_set,
-        y_set,
-        sample_weights,
-        test_size=None,
-        train_size=None
+    x_set,
+    y_set,
+    sample_weights,
+    test_size=None,
+    train_size=None
 ):
 
     exclude_weights = False
