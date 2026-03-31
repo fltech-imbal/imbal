@@ -43,14 +43,15 @@ class Model(backend.Model):
                 A NumPy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            class_weight: Optional, default :code:`None`. A list of class weights, or a dictionary mapping class
+            class_weight: Optional, default :code:`None`. If left as default, equal class weighting is used.
+                A list of class weights, or a dictionary mapping class
                 labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
-            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
+                the model will be fit once using each class weight list provided, with the final model weights being set to the
+                model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_weight: Optional, default :code:`None`. If set, overrides behavior of :code:`class_weights`. A list of sample weights. If specified,
                 overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+                the model will be fit once using each sample weight list provided, with the final model weights being set to the
+                final model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.

@@ -1,11 +1,5 @@
 # Balanced Regression on Imbalanced Image Data
 
-The purpose of this tutorial is to outline the necessary steps
-to perform a balanced regression model training and evaluation
-with image data using `imbal`. All the code shown in this
-tutorial, along with the dataset used, can be found in the
-`tutorials/SDO/sdo_balanced_fit.py` file in the `imbal` repository.
-
 ## Necessary Files
 
 - All the source code in this tutorial can be found at `imbal/tutorials/SDO/sdo_balanced_fit.py`

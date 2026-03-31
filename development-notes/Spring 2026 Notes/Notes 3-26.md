@@ -910,18 +910,18 @@ With AE on:
 # 3/26/26
 
 ## Tasks
-- Double check documentation for `class_weights` in `imbal.classification.Model.balanced_fit`. The wording seems to be butchered.
-- Documentation should reflect that if neither class nor sample weights are provided to `imbal.classification.Model.balanced_fit`, equal class weighting is used.
+- Double check documentation for `class_weights` in `imbal.classification.Model.balanced_fit`. The wording seems to be butchered. $\checkmark$
+- Documentation should reflect that if neither class nor sample weights are provided to `imbal.classification.Model.balanced_fit`, equal class weighting is used. $\checkmark$
+- `imbal.regression.Model.balanced_fit` `sample_weights` description is wrong $\checkmark$
+- `imbal.regression.Model.balanced_fit` `sample_densities` description should say that reciprocal importance is used when densities are provided. $\checkmark$
+- Ensure the following is clear in the documentation: $\checkmark$
+![[Pasted image 20260326161401.png|400]]
+- Get rid of redundant descriptions at top of tutorial files $\checkmark$
+- Get rid of `representation_layer=-2` for decoupled tutorials $\checkmark$
+- in TSNE documentation... $\checkmark$
+	- PyTorch to TensorFlow $\checkmark$
+	- Representation layer should say -2 $\checkmark$
+	- For perplexity, add that the suggested range from the original paper is 5-50 (and link the paper) $\checkmark$
 - Update outputs within tutorials (oversight on my part, ran out of time to fix it)
 - Why does `rRT_fit` run OOM?
-- `imbal.regression.Model.balanced_fit` `sample_weights` description is wrong
-- `imbal.regression.Model.balanced_fit` `sample_densities` description should say that reciprocal importance is used when densities are provided.
-- Ensure the following is clear in the documentation:
-![[Pasted image 20260326161401.png|400]]
-- Get rid of redundant descriptions at top of tutorial files
-- Get rid of `representation_layer=-2` for decoupled tutorials
 - Reduce SDO from 1000/300 to 500/100
-- in TSNE documentation...
-	- PyTorch to TensorFlow
-	- Representation layer should say -2
-	- For perplexity, add that the suggested range from the original paper is 5-50 (and link the paper)

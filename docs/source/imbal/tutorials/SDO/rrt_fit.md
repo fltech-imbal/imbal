@@ -1,11 +1,5 @@
 # rRT Regression on Imbalanced Image Data
 
-The purpose of this tutorial is to outline the necessary steps
-to perform a decoupled/regressor re-training (rRT) regression model training and evaluation
-with image data using `imbal`. All the code shown in this
-tutorial, along with the dataset used, can be found in the
-`tutorials/SDO/sdo_rrt_fit.py` file in the `imbal` repository.
-
 ## Necessary Files
 
 - All the source code in this tutorial can be found at `imbal/tutorials/SDO/sdo_rrt_fit.py`
@@ -201,8 +195,7 @@ BATCH_SIZE = 64
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='mse',
-    metrics=['mae'],
-    representation_layer_index=-2
+    metrics=['mae']
 )
 
 model.rRT_fit(

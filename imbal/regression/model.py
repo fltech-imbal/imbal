@@ -45,10 +45,12 @@ class Model(backend.Model):
                 A NumPy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
-            sample_density: Optional, default :code:`None`. A list of sample probability densities.
+                overrides behavior of :code:`sample_density`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once using each sample weight list provided, with the final model weights being set to the
+                model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_density: Optional, default :code:`None`. Must be specified if :code:`sample_weight` is :code:`None`.
+                A list of sample probability densities, which will be
+                used to generate sample weights using reciprocal importance.
                 If unspecified, :code:`sample_weight` must be specified.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.

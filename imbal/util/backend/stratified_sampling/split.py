@@ -88,10 +88,8 @@ def split(
             if w_test is not None:
                 w_test = np.array(w_test)[test_indices]
         if w_train is not None:
-            print(1)
             return (x_train, y_train, w_train), (x_test, y_test, w_test)
         else:
-            print(2)
             return (x_train, y_train), (x_test, y_test)
     else:
         if shuffle:

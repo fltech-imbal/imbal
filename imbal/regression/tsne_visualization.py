@@ -16,13 +16,15 @@ def tsne_visualization(
 ):
     """
     Args:
-        model: The PyTorch model whose representation space you wish to visualize.
+        model: The TensorFlow model whose representation space you wish to visualize.
         data: The data whose representation you wish to visualize, as a column vector.
         labels: The corresponding labels for the provided data, as a column vector.
-        representation_layer_index: Optional, default :math:`2`. The index of the layer of your
+        representation_layer_index: Optional, default :math:`-2`. The index of the layer of your
             model to extract the representation from. Defaults to the second to last
             layer of the provided model.
         perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
+            The suggested perplexity value from the `paper which introduced t-SNE <https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf>_`
+            is from 5 to 50.
         save_figure: Optional, default :code:`None`. If set to a string, will save the
             resultant plot to the specified path.
         s: Optional, default :code:`None`. If not :code:`None`, a float that represents the marker size
