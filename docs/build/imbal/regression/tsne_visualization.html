@@ -153,6 +153,13 @@
   </a>
 </li>
 
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -253,6 +260,13 @@
   </a>
 </li>
 
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials/tutorials.html">
+    Tutorials
+  </a>
+</li>
+
   </ul>
 </nav></div>
           
@@ -293,6 +307,7 @@
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reciprocal_importance.html">reciprocal_importance</a></li>
 </ul>
 </div>
 </nav></div>
@@ -362,13 +377,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> – The PyTorch model whose representation space you wish to visualize.</p></li>
+<li><p><strong>model</strong> – The TensorFlow model whose representation space you wish to visualize.</p></li>
 <li><p><strong>data</strong> – The data whose representation you wish to visualize, as a column vector.</p></li>
 <li><p><strong>labels</strong> – The corresponding labels for the provided data, as a column vector.</p></li>
-<li><p><strong>representation_layer_index</strong> – Optional, default <span class="math notranslate nohighlight">\(2\)</span>. The index of the layer of your
+<li><p><strong>representation_layer_index</strong> – Optional, default <span class="math notranslate nohighlight">\(-2\)</span>. The index of the layer of your
 model to extract the representation from. Defaults to the second to last
 layer of the provided model.</p></li>
-<li><p><strong>perplexity</strong> – Optional, default <span class="math notranslate nohighlight">\(30\)</span>. See <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">sklearn.manifold.TSNE</a>.</p></li>
+<li><p><strong>perplexity</strong> – Optional, default <span class="math notranslate nohighlight">\(30\)</span>. See <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">sklearn.manifold.TSNE</a>.
+The suggested perplexity value from the <cite>paper which introduced t-SNE &lt;https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf&gt;_</cite>
+is from 5 to 50.</p></li>
 <li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If set to a string, will save the
 resultant plot to the specified path.</p></li>
 <li><p><strong>s</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If not <code class="code docutils literal notranslate"><span class="pre">None</span></code>, a float that represents the marker size

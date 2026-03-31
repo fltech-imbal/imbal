@@ -2,9 +2,7 @@
 Import packages
 """
 import imbal
-import os, glob, math
-from datetime import datetime, timedelta
-import pandas as pd
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -45,15 +43,6 @@ print(
 )
 
 """
-Calculate data density distribution, and extract sample densities
-"""
-KDE_BIN_COUNT=32
-
-# Determine KDE fit for data, then extract sample densities
-data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
-sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
-
-"""
 Build model
 """
 def build_simple_cnn():
@@ -91,10 +80,9 @@ model.compile(
     metrics=['mae']
 )
 
-model.balanced_fit(
+model.fit(
     x_train,
     y_train,
-    sample_density=sample_densities,
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -105,11 +93,16 @@ model.evaluate(x_test, y_test)
 """
 Data and results visualization
 """
+KDE_BIN_COUNT=32
 
 train_rare_mask = y_train > -4
 test_rare_mask = y_test > -4
+train_frequent_mask = ~train_rare_mask
+test_frequent_mask = ~test_rare_mask
+print('Number of frequent training samples:', np.sum(train_frequent_mask.astype(np.int32)))
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
-print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
+print('Number of frequent test samples:', np.sum(test_frequent_mask.astype(np.int32)))
+print('Number of rare test samples:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on training data
 train_predictions = []
@@ -129,27 +122,35 @@ train_predictions_rare = train_predictions[train_rare_mask] # Mask rare training
 train_labels_rare = y_train[train_rare_mask] # Mask predictions on rare training data
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
+train_predictions_frequent = train_predictions[train_frequent_mask] # Mask frequent training data
+train_labels_frequent = y_train[train_frequent_mask] # Mask predictions on frequent training data
+test_predictions_frequent = test_predictions[test_frequent_mask] # Mask frequent test data
+test_labels_frequent = y_test[test_frequent_mask] # Mask predictions on frequent test data
 
 # Calculate metrics
 overall_train_mae = np.mean(np.abs(train_predictions - y_train))
+frequent_train_mae = np.mean(np.abs(train_predictions_frequent - train_labels_frequent))
 rare_train_mae = np.mean(np.abs(train_predictions_rare - train_labels_rare))
 overall_test_mae = np.mean(np.abs(test_predictions - y_test))
+frequent_test_mae = np.mean(np.abs(test_predictions_frequent - test_labels_frequent))
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
 print(
     f'Overall train MAE: {overall_train_mae:.3f}\n'
+    f'Frequent train MAE: {frequent_train_mae:.3f}\n'
     f'Rare train MAE: {rare_train_mae:.3f}\n'
     f'Overall test MAE: {overall_test_mae:.3f}\n'
+    f'Frequent test MAE: {frequent_test_mae:.3f}\n'
     f'Rare test MAE: {rare_test_mae:.3f}'
 )
 
-
+data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 imbal.regression.plot_kde_1d(
     y_train,
     data_kde_bandwidth,
     bin_count=KDE_BIN_COUNT,
     show_bin_count=False,
-    save_figure='sample-sdo-balanced-fit-data-distribution.png'
+    save_figure='sample-sdo-regular-fit-data-distribution.png'
 )
 
 def plot_true_vs_predictions(
@@ -183,6 +184,7 @@ def plot_true_vs_predictions(
     plt.ylabel("Predicted Label")
     plt.xlim(low_bound, high_bound)
     plt.ylim(low_bound, high_bound)
+    # Save plot if path is specified
     if save_figure is not None:
         plt.savefig(save_figure)
     plt.show()
@@ -190,5 +192,5 @@ def plot_true_vs_predictions(
 plot_true_vs_predictions(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-balanced-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'
 )

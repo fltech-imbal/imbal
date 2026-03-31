@@ -341,15 +341,10 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="regular-regression-on-sdobenchmark">
 <h1>Regular Regression on SDOBenchmark<a class="headerlink" href="#regular-regression-on-sdobenchmark" title="Link to this heading">#</a></h1>
-<p>The purpose of this tutorial is to outline the necessary steps
-to perform a regular regression model training and evaluation
-with image data using <code class="docutils literal notranslate"><span class="pre">imbal</span></code>. All the code shown in this
-tutorial, along with the dataset used, can be found in the
-<code class="docutils literal notranslate"><span class="pre">tutorials/SDO/sdo_regular_fit.py</span></code> file in the <code class="docutils literal notranslate"><span class="pre">imbal</span></code> repository.</p>
 <section id="necessary-files">
 <h2>Necessary Files<a class="headerlink" href="#necessary-files" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/sdo_regular_fit.py</span></code></p></li>
+<li><p>All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/sdo_regression_regular_fit.py</span></code></p></li>
 <li><p>The training data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/training</span></code></p></li>
 <li><p>The test data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/test</span></code></p></li>
 </ul>
@@ -363,10 +358,9 @@ from TensorFlow.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Import packages</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras.metrics</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">imbal</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">glob</span><span class="o">,</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
@@ -414,19 +408,15 @@ from TensorFlow.</p>
 <p>The above code should generate an output similar to the following.
 The output below is the result of loading the first 50 samples from
 the training and test sets.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Finding</span> <span class="n">data</span> <span class="kn">from</span><span class="w"> </span><span class="s2">&quot;../data/SDOBenchmark/training&quot;</span> <span class="p">[</span><span class="mi">64</span><span class="o">/</span><span class="mi">8336</span><span class="p">]</span>
-<span class="n">Found</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">samples</span><span class="o">.</span> <span class="n">Stopping</span> <span class="n">early</span><span class="o">.</span>
-<span class="n">Loading</span> <span class="n">SDO</span> <span class="n">samples</span> <span class="p">[</span><span class="mi">50</span><span class="o">/</span><span class="mi">50</span><span class="p">]</span>
-<span class="mi">50</span> <span class="n">data</span> <span class="n">samples</span> <span class="n">loaded</span> <span class="n">successfully</span>
-<span class="n">Finding</span> <span class="n">data</span> <span class="kn">from</span><span class="w"> </span><span class="s2">&quot;../data/SDOBenchmark/test&quot;</span> <span class="p">[</span><span class="mi">66</span><span class="o">/</span><span class="mi">886</span><span class="p">]</span>
-<span class="n">Found</span> <span class="n">maximum</span> <span class="n">number</span> <span class="n">of</span> <span class="n">samples</span><span class="o">.</span> <span class="n">Stopping</span> <span class="n">early</span><span class="o">.</span>
-<span class="n">Loading</span> <span class="n">SDO</span> <span class="n">samples</span> <span class="p">[</span><span class="mi">50</span><span class="o">/</span><span class="mi">50</span><span class="p">]</span>
-<span class="mi">50</span> <span class="n">data</span> <span class="n">samples</span> <span class="n">loaded</span> <span class="n">successfully</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Loading</span> <span class="n">SDO</span> <span class="n">samples</span> <span class="p">[</span><span class="mi">500</span><span class="o">/</span><span class="mi">500</span><span class="p">]</span>
+<span class="mi">500</span> <span class="n">data</span> <span class="n">samples</span> <span class="n">loaded</span> <span class="n">successfully</span>
+<span class="n">Loading</span> <span class="n">SDO</span> <span class="n">samples</span> <span class="p">[</span><span class="mi">100</span><span class="o">/</span><span class="mi">100</span><span class="p">]</span>
+<span class="mi">100</span> <span class="n">data</span> <span class="n">samples</span> <span class="n">loaded</span> <span class="n">successfully</span>
 <span class="n">Loaded</span> <span class="n">data</span> <span class="k">with</span> <span class="n">the</span> <span class="n">following</span> <span class="n">shapes</span><span class="p">:</span>
-	<span class="n">x_train</span><span class="p">:</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-	<span class="n">y_train</span><span class="p">:</span> <span class="p">(</span><span class="mi">50</span><span class="p">,)</span>
-	<span class="n">x_test</span><span class="p">:</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-	<span class="n">y_test</span> <span class="p">(</span><span class="mi">50</span><span class="p">,)</span>
+	<span class="n">x_train</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+	<span class="n">y_train</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,)</span>
+	<span class="n">x_test</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+	<span class="n">y_test</span> <span class="p">(</span><span class="mi">100</span><span class="p">,)</span>
 </pre></div>
 </div>
 </section>
@@ -542,8 +532,12 @@ comparing the true and predicted values for individual test samples.</p>
 
 <span class="n">train_rare_mask</span> <span class="o">=</span> <span class="n">y_train</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">4</span>
 <span class="n">test_rare_mask</span> <span class="o">=</span> <span class="n">y_test</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">4</span>
+<span class="n">train_frequent_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">train_rare_mask</span>
+<span class="n">test_frequent_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">test_rare_mask</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of frequent training samples:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">train_frequent_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of rare training samples:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">train_rare_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of rare testing samples:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_rare_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of frequent test samples:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_frequent_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of rare test samples:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_rare_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)))</span>
 
 <span class="c1"># Predict on training data</span>
 <span class="n">train_predictions</span> <span class="o">=</span> <span class="p">[]</span>
@@ -563,17 +557,25 @@ comparing the true and predicted values for individual test samples.</p>
 <span class="n">train_labels_rare</span> <span class="o">=</span> <span class="n">y_train</span><span class="p">[</span><span class="n">train_rare_mask</span><span class="p">]</span> <span class="c1"># Mask predictions on rare training data</span>
 <span class="n">test_predictions_rare</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="p">[</span><span class="n">test_rare_mask</span><span class="p">]</span> <span class="c1"># Mask rare test data</span>
 <span class="n">test_labels_rare</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">test_rare_mask</span><span class="p">]</span> <span class="c1"># Mask predictions on rare test data</span>
+<span class="n">train_predictions_frequent</span> <span class="o">=</span> <span class="n">train_predictions</span><span class="p">[</span><span class="n">train_frequent_mask</span><span class="p">]</span> <span class="c1"># Mask frequent training data</span>
+<span class="n">train_labels_frequent</span> <span class="o">=</span> <span class="n">y_train</span><span class="p">[</span><span class="n">train_frequent_mask</span><span class="p">]</span> <span class="c1"># Mask predictions on frequent training data</span>
+<span class="n">test_predictions_frequent</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="p">[</span><span class="n">test_frequent_mask</span><span class="p">]</span> <span class="c1"># Mask frequent test data</span>
+<span class="n">test_labels_frequent</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">test_frequent_mask</span><span class="p">]</span> <span class="c1"># Mask predictions on frequent test data</span>
 
 <span class="c1"># Calculate metrics</span>
 <span class="n">overall_train_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">train_predictions</span> <span class="o">-</span> <span class="n">y_train</span><span class="p">))</span>
+<span class="n">frequent_train_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">train_predictions_frequent</span> <span class="o">-</span> <span class="n">train_labels_frequent</span><span class="p">))</span>
 <span class="n">rare_train_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">train_predictions_rare</span> <span class="o">-</span> <span class="n">train_labels_rare</span><span class="p">))</span>
 <span class="n">overall_test_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_predictions</span> <span class="o">-</span> <span class="n">y_test</span><span class="p">))</span>
+<span class="n">frequent_test_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_predictions_frequent</span> <span class="o">-</span> <span class="n">test_labels_frequent</span><span class="p">))</span>
 <span class="n">rare_test_mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">test_predictions_rare</span> <span class="o">-</span> <span class="n">test_labels_rare</span><span class="p">))</span>
 
 <span class="nb">print</span><span class="p">(</span>
     <span class="sa">f</span><span class="s1">&#39;Overall train MAE: </span><span class="si">{</span><span class="n">overall_train_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Frequent train MAE: </span><span class="si">{</span><span class="n">frequent_train_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="sa">f</span><span class="s1">&#39;Rare train MAE: </span><span class="si">{</span><span class="n">rare_train_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="sa">f</span><span class="s1">&#39;Overall test MAE: </span><span class="si">{</span><span class="n">overall_test_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Frequent test MAE: </span><span class="si">{</span><span class="n">frequent_test_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
     <span class="sa">f</span><span class="s1">&#39;Rare test MAE: </span><span class="si">{</span><span class="n">rare_test_mae</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
@@ -631,14 +633,17 @@ comparing the true and predicted values for individual test samples.</p>
 </div>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Number of rare training samples: 0
-Number of rare testing samples: 3
-4/4 ━━━━━━━━━━━━━━━━━━━━ 1s 136ms/step
-4/4 ━━━━━━━━━━━━━━━━━━━━ 1s 106ms/step
-Overall train MAE: 0.888
-Rare train MAE: nan
-Overall test MAE: 0.984
-Rare test MAE: 2.111
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Number</span> <span class="n">of</span> <span class="n">frequent</span> <span class="n">training</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">496</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">rare</span> <span class="n">training</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">4</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">frequent</span> <span class="n">test</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">98</span>
+<span class="n">Number</span> <span class="n">of</span> <span class="n">rare</span> <span class="n">test</span> <span class="n">samples</span><span class="p">:</span> <span class="mi">2</span>
+
+<span class="n">Overall</span> <span class="n">train</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">1.248</span>
+<span class="n">Frequent</span> <span class="n">train</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">1.237</span>
+<span class="n">Rare</span> <span class="n">train</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">2.967</span>
+<span class="n">Overall</span> <span class="n">test</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">1.342</span>
+<span class="n">Frequent</span> <span class="n">test</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">1.307</span>
+<span class="n">Rare</span> <span class="n">test</span> <span class="n">MAE</span><span class="p">:</span> <span class="mf">3.368</span>
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">

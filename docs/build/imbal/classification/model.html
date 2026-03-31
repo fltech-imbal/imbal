@@ -392,14 +392,15 @@ A NumPy array of data points, arranged as a column vector</p></li>
 <li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
 </p></li>
-<li><p><strong>class_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of class weights, or a dictionary mapping class
+<li><p><strong>class_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If left as default, equal class weighting is used.
+A list of class weights, or a dictionary mapping class
 labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
-the model will be fit once all class weights provided, with the final model weights being set to the
-final weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
-<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
+the model will be fit once using each class weight list provided, with the final model weights being set to the
+model weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If set, overrides behavior of <code class="code docutils literal notranslate"><span class="pre">class_weights</span></code>. A list of sample weights. If specified,
 overrides <code class="code docutils literal notranslate"><span class="pre">class_weights</span></code>. Optionally, a 2D list of sample weights can be provided, in which case
-the model will be fit once all class weights provided, with the final model weights being set to the
-final weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
+the model will be fit once using each sample weight list provided, with the final model weights being set to the
+final model weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 The data used to validate the model during training.
 See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>

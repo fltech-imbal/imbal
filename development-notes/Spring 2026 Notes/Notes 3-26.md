@@ -922,6 +922,6 @@ With AE on:
 	- PyTorch to TensorFlow $\checkmark$
 	- Representation layer should say -2 $\checkmark$
 	- For perplexity, add that the suggested range from the original paper is 5-50 (and link the paper) $\checkmark$
-- Update outputs within tutorials (oversight on my part, ran out of time to fix it)
-- Why does `rRT_fit` run OOM?
-- Reduce SDO from 1000/300 to 500/100
+- Update outputs within tutorials (oversight on my part, ran out of time to fix it) $\checkmark$
+- Why does `rRT_fit` run OOM? $\checkmark$
+- Reduce SDO from 1000/300 to 500/100 $\checkmark$

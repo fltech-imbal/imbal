@@ -110,8 +110,12 @@ Data and results visualization
 
 train_rare_mask = y_train > -4
 test_rare_mask = y_test > -4
+train_frequent_mask = ~train_rare_mask
+test_frequent_mask = ~test_rare_mask
+print('Number of frequent training samples:', np.sum(train_frequent_mask.astype(np.int32)))
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
-print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
+print('Number of frequent test samples:', np.sum(test_frequent_mask.astype(np.int32)))
+print('Number of rare test samples:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on training data
 train_predictions = []
@@ -131,20 +135,27 @@ train_predictions_rare = train_predictions[train_rare_mask] # Mask rare training
 train_labels_rare = y_train[train_rare_mask] # Mask predictions on rare training data
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
+train_predictions_frequent = train_predictions[train_frequent_mask] # Mask frequent training data
+train_labels_frequent = y_train[train_frequent_mask] # Mask predictions on frequent training data
+test_predictions_frequent = test_predictions[test_frequent_mask] # Mask frequent test data
+test_labels_frequent = y_test[test_frequent_mask] # Mask predictions on frequent test data
 
 # Calculate metrics
 overall_train_mae = np.mean(np.abs(train_predictions - y_train))
+frequent_train_mae = np.mean(np.abs(train_predictions_frequent - train_labels_frequent))
 rare_train_mae = np.mean(np.abs(train_predictions_rare - train_labels_rare))
 overall_test_mae = np.mean(np.abs(test_predictions - y_test))
+frequent_test_mae = np.mean(np.abs(test_predictions_frequent - test_labels_frequent))
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
 print(
     f'Overall train MAE: {overall_train_mae:.3f}\n'
+    f'Frequent train MAE: {frequent_train_mae:.3f}\n'
     f'Rare train MAE: {rare_train_mae:.3f}\n'
     f'Overall test MAE: {overall_test_mae:.3f}\n'
+    f'Frequent test MAE: {frequent_test_mae:.3f}\n'
     f'Rare test MAE: {rare_test_mae:.3f}'
 )
-
 
 imbal.regression.plot_kde_1d(
     y_train,

@@ -2,7 +2,7 @@
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/sdo_balanced_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/sdo_regression_balanced_fit.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -17,10 +17,9 @@ from TensorFlow.
 """
 Import packages
 """
+import keras.metrics
 import imbal
-import os, glob, math
-from datetime import datetime, timedelta
-import pandas as pd
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -71,19 +70,15 @@ The output below is the result of loading the first 50 samples from
 the training and test sets.
 
 ```
-Finding data from "../data/SDOBenchmark/training" [64/8336]
-Found maximum number of samples. Stopping early.
-Loading SDO samples [50/50]
-50 data samples loaded successfully
-Finding data from "../data/SDOBenchmark/test" [66/886]
-Found maximum number of samples. Stopping early.
-Loading SDO samples [50/50]
-50 data samples loaded successfully
+Loading SDO samples [500/500]
+500 data samples loaded successfully
+Loading SDO samples [100/100]
+100 data samples loaded successfully
 Loaded data with the following shapes:
-	x_train: (50, 256, 256, 10)
-	y_train: (50,)
-	x_test: (50, 256, 256, 10)
-	y_test (50,)
+	x_train: (500, 256, 256, 10)
+	y_train: (500,)
+	x_test: (100, 256, 256, 10)
+	y_test (100,)
 ```
 
 ## 3. Calculate Sample Densities
@@ -227,8 +222,12 @@ Data and results visualization
 
 train_rare_mask = y_train > -4
 test_rare_mask = y_test > -4
+train_frequent_mask = ~train_rare_mask
+test_frequent_mask = ~test_rare_mask
+print('Number of frequent training samples:', np.sum(train_frequent_mask.astype(np.int32)))
 print('Number of rare training samples:', np.sum(train_rare_mask.astype(np.int32)))
-print('Number of rare testing samples:', np.sum(test_rare_mask.astype(np.int32)))
+print('Number of frequent test samples:', np.sum(test_frequent_mask.astype(np.int32)))
+print('Number of rare test samples:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on training data
 train_predictions = []
@@ -248,20 +247,27 @@ train_predictions_rare = train_predictions[train_rare_mask] # Mask rare training
 train_labels_rare = y_train[train_rare_mask] # Mask predictions on rare training data
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
+train_predictions_frequent = train_predictions[train_frequent_mask] # Mask frequent training data
+train_labels_frequent = y_train[train_frequent_mask] # Mask predictions on frequent training data
+test_predictions_frequent = test_predictions[test_frequent_mask] # Mask frequent test data
+test_labels_frequent = y_test[test_frequent_mask] # Mask predictions on frequent test data
 
 # Calculate metrics
 overall_train_mae = np.mean(np.abs(train_predictions - y_train))
+frequent_train_mae = np.mean(np.abs(train_predictions_frequent - train_labels_frequent))
 rare_train_mae = np.mean(np.abs(train_predictions_rare - train_labels_rare))
 overall_test_mae = np.mean(np.abs(test_predictions - y_test))
+frequent_test_mae = np.mean(np.abs(test_predictions_frequent - test_labels_frequent))
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
 print(
     f'Overall train MAE: {overall_train_mae:.3f}\n'
+    f'Frequent train MAE: {frequent_train_mae:.3f}\n'
     f'Rare train MAE: {rare_train_mae:.3f}\n'
     f'Overall test MAE: {overall_test_mae:.3f}\n'
+    f'Frequent test MAE: {frequent_test_mae:.3f}\n'
     f'Rare test MAE: {rare_test_mae:.3f}'
 )
-
 
 imbal.regression.plot_kde_1d(
     y_train,
@@ -317,14 +323,18 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```
-Number of rare training samples: 0
-Number of rare testing samples: 2
+Number of frequent training samples: 496
+Number of rare training samples: 4
+Number of frequent test samples: 98
+Number of rare test samples: 2
 2/2 ━━━━━━━━━━━━━━━━━━━━ 0s 107ms/step
 2/2 ━━━━━━━━━━━━━━━━━━━━ 0s 76ms/step
-Overall train MAE: 0.881
-Rare train MAE: nan
-Overall test MAE: 1.059
-Rare test MAE: 1.355
+Overall train MAE: 1.582
+Frequent train MAE: 1.586
+Rare train MAE: 1.531
+Overall test MAE: 1.137
+Frequent test MAE: 1.138
+Rare test MAE: 1.916
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
