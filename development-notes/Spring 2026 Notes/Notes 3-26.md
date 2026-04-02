@@ -925,3 +925,16 @@ With AE on:
 - Update outputs within tutorials (oversight on my part, ran out of time to fix it) $\checkmark$
 - Why does `rRT_fit` run OOM? $\checkmark$
 - Reduce SDO from 1000/300 to 500/100 $\checkmark$
+## Tasks
+- HSS and F1 for final print in classification (no accuracies)
+	- Use following wording for regression print:
+	- Testing only (remove testing metrics)
+```
+MAE for log10 flux >= -4 :
+MAE for log10 flux < -4 :
+```
+- Add supplemental information for balanced/rRT regression:
+	- How to manually generate weights with handpicked alpha using `imbal`, then passing sample weights to `balanced_fit/rRT_fit`.
+	- Passing custom class weights for balanced/cRT classification
+- Make sure section numbers are consistent in tutorials
+- For tutorials (3) in email, AE is *off*.
