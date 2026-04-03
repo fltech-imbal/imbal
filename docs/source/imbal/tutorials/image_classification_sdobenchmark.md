@@ -19,3 +19,6 @@ the `tutorials/SDO` folder in the `imbal` repository.
 - [Regular Classification on SDOBenchmark](SDO/classification/regular_fit.md)
 - [Balanced Classification on SDOBenchmark](SDO/classification/balanced_fit.md)
 - [cRT Classification on SDOBenchmark](SDO/classification/crt_fit.md)
+- [Regular Classification on SDOBenchmark with Audoencoder](SDO/classification/regular_fit_ae.md)
+- [Balanced Classification on SDOBenchmark with Audoencoder](SDO/classification/balanced_fit_ae.md)
+- [cRT Classification on SDOBenchmark with Audoencoder](SDO/classification/crt_fit_ae.md)

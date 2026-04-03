@@ -1,8 +1,8 @@
-# Balanced Classification on SDOBenchmark
+# Regular Classification on SDOBenchmark with Autoencoder
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_balanced_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_regular_fit_ae.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -14,15 +14,8 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
-object, then performs a model fit on the training data. We call `Model.balanced_fit`
-instead of the standard `Model.fit`, which will perform a class-balanced fit on the
-training data, where each data class is equally weighted. Alternatively, a list
-of class weights can optionally be provided, in which case a fit
-will be performed on each class weight candidate, and the fit with the
-best loss will be restored.
-
-Notably, the
-`imbal.classification.Model` object can take an extra parameter in its fit
+object, then performs a model fit on the training data. Notably, the
+`imbal.classification.Model` object can take an extra parameter in its `Model.fit`
 function, called `stratify_batches`. This parameter ensures that rarer
 samples are present in each batch during training.
 
@@ -38,12 +31,12 @@ model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
     metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    generate_decoder_branch=True
 )
 
-model.balanced_fit(
+model.fit(
     x_train,
     y_train.reshape(-1, 1),
-    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -97,7 +90,7 @@ print(
 plot_confusion_matrix(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-balanced-fit-confusion-matrix.png'
+    save_figure='sample-sdo-regular-fit-ae-confusion-matrix.png'
 )
 ```
 
@@ -108,10 +101,10 @@ like for the above code.
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
-Heikde Skill Score: 0.0613
-F1 Score: 0.0952
+Heikde Skill Score: 0.0000
+F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-ae-confusion-matrix.png"/>
 </div>

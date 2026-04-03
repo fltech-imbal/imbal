@@ -5,8 +5,7 @@ import keras.metrics
 import imbal
 import os
 import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from plot_helper import plot_confusion_matrix
 from PIL import Image
 from keras import layers, optimizers
 
@@ -51,18 +50,14 @@ Build model
 """
 def build_simple_cnn():
     input_layer = layers.Input((256, 256, 10))
-    x = layers.Conv2D(32, 3, activation='relu')(input_layer)
-    x = layers.MaxPooling2D()(x)
-
-    x = layers.Conv2D(64, 3, activation='relu')(x)
-    x = layers.MaxPooling2D()(x)
-
-    x = layers.Conv2D(128, 3, activation='relu')(x)
-    x = layers.MaxPooling2D()(x)
-
-    x = layers.GlobalAveragePooling2D()(x)
-    x = layers.Dense(128, activation='relu')(x)
-    x = layers.Dropout(0.5)(x)
+    x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
+    x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
+    x = layers.Conv2D(16, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
+    x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Dense(32, activation='relu')(x)
+    x = layers.Flatten()(x)
     output_layer = layers.Dense(1, activation='sigmoid')(x)
 
     model = imbal.classification.Model(inputs=input_layer, outputs=output_layer)
@@ -87,6 +82,7 @@ model.compile(
 model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -101,8 +97,8 @@ KDE_BIN_COUNT=32
 
 test_rare_mask = y_test == 1
 test_frequent_mask = ~test_rare_mask
-print('Number of frequent test samples:', np.sum(test_frequent_mask))
-print('Number of rare test samples:', np.sum(test_rare_mask))
+print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask))
+print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
 test_predictions = []
@@ -125,9 +121,8 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-cm = confusion_matrix(y_test.reshape(-1), np.round(test_predictions).reshape(-1))
-disp = ConfusionMatrixDisplay(confusion_matrix=cm)
-disp.plot()
-plt.title('Confusion matrix for test data')
-plt.savefig('sample-sdo-regular-fit-confusion-matrix-test.png')
-plt.show()
+plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-crt-fit-confusion-matrix.png'
+)

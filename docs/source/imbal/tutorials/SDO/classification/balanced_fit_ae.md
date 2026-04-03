@@ -1,8 +1,8 @@
-# Balanced Classification on SDOBenchmark
+# Balanced Classification on SDOBenchmark with Audoencdoer
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_balanced_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_balanced_fit_ae.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -38,6 +38,7 @@ model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
     metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    generate_decoder_branch=True
 )
 
 model.balanced_fit(
@@ -108,10 +109,10 @@ like for the above code.
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
-Heikde Skill Score: 0.0613
-F1 Score: 0.0952
+Heikde Skill Score: -0.0363
+F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-confusion-matrix.png"/>
 </div>

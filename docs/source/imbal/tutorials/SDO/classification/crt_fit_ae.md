@@ -1,8 +1,8 @@
-# Balanced Classification on SDOBenchmark
+# cRT Classification on SDOBenchmark with Autoencoder
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_balanced_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/sdo_crt_fit_ae.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
-object, then performs a model fit on the training data. We call `Model.balanced_fit`
+object, then performs a model fit on the training data. We call `Model.cRT_fit`
 instead of the standard `Model.fit`, which will perform a class-balanced fit on the
 training data, where each data class is equally weighted. Alternatively, a list
 of class weights can optionally be provided, in which case a fit
@@ -38,9 +38,10 @@ model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
     metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    generate_decoder_branch=True
 )
 
-model.balanced_fit(
+model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
     # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
@@ -97,7 +98,7 @@ print(
 plot_confusion_matrix(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-balanced-fit-confusion-matrix.png'
+    save_figure='sample-sdo-crt-fit-ae-confusion-matrix.png'
 )
 ```
 
@@ -108,10 +109,10 @@ like for the above code.
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
-Heikde Skill Score: 0.0613
-F1 Score: 0.0952
+Heikde Skill Score: -0.0382
+F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-ae-confusion-matrix.png"/>
 </div>

@@ -1,10 +1,11 @@
 """
 Import packages
 """
+import keras.metrics
 import imbal
 import os
 import numpy as np
-from plot_helper import plot_true_vs_predictions
+from plot_helper import plot_confusion_matrix
 from PIL import Image
 from keras import layers, optimizers
 
@@ -33,6 +34,8 @@ def load_sdo_data(data_path):
 # Load train and test data via function defined above
 x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'))
 x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'))
+y_train = (y_train > -4).astype(np.int32)
+y_test = (y_test > -4).astype(np.int32)
 
 print(
     f'Loaded data with the following shapes:\n'
@@ -55,9 +58,9 @@ def build_simple_cnn():
     x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Dense(32, activation='relu')(x)
     x = layers.Flatten()(x)
-    output_layer = layers.Dense(1)(x)
+    output_layer = layers.Dense(1, activation='sigmoid')(x)
 
-    model = imbal.regression.Model(inputs=input_layer, outputs=output_layer)
+    model = imbal.classification.Model(inputs=input_layer, outputs=output_layer)
     model.summary()
     return model
 
@@ -72,29 +75,31 @@ BATCH_SIZE = 64
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
-    loss='mse',
-    metrics=['mae']
+    loss='binary_crossentropy',
+    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    generate_decoder_branch=True
 )
 
-model.fit(
+model.cRT_fit(
     x_train,
-    y_train,
+    y_train.reshape(-1, 1),
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
 )
 
-model.evaluate(x_test, y_test)
+model.evaluate(x_test, y_test.reshape(-1, 1))
 
 """
-Probability Density Distribution and Results Visualization
+Data and results visualization
 """
 KDE_BIN_COUNT=32
 
-test_rare_mask = y_test > -4
+test_rare_mask = y_test == 1
 test_frequent_mask = ~test_rare_mask
-print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.astype(np.int32)))
-print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
+print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask))
+print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
 test_predictions = []
@@ -102,33 +107,23 @@ for i in range(0, len(x_test), BATCH_SIZE):
     batch = x_test[i:i+BATCH_SIZE]
     test_predictions.append(model.predict(batch))
 test_predictions = np.concatenate(test_predictions, axis=0)
-
-test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
-test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
-test_predictions_frequent = test_predictions[test_frequent_mask] # Mask frequent test data
-test_labels_frequent = y_test[test_frequent_mask] # Mask predictions on frequent test data
+test_predictions = test_predictions.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-overall_test_mae = np.mean(np.abs(test_predictions - y_test))
-frequent_test_mae = np.mean(np.abs(test_predictions_frequent - test_labels_frequent))
-rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
+hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss.update_state(y_test, test_predictions)
+
+f1 = keras.metrics.F1Score(threshold=0.5)
+f1.update_state(y_test, test_predictions)
 
 print(
-    f'MAE for log10 flux < -4: {frequent_test_mae:.3f}\n'
-    f'MAE for log10 flux >= -4: {rare_test_mae:.3f}'
+    f'Heikde Skill Score: {hss.result()[0]:.4f}\n'
+    f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
-imbal.regression.plot_kde_1d(
-    y_train,
-    data_kde_bandwidth,
-    bin_count=KDE_BIN_COUNT,
-    show_bin_count=False,
-    save_figure='sample-sdo-regular-fit-data-distribution.png'
-)
-
-plot_true_vs_predictions(
+plot_confusion_matrix(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-crt-fit-ae-confusion-matrix.png'
 )

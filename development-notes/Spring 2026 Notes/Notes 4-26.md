@@ -8,7 +8,7 @@ MAE for log10 flux < -4 :
 ```
 - Add supplemental information for balanced/rRT regression: $\checkmark$
 	- How to manually generate weights with handpicked alpha using `imbal`, then passing sample weights to `balanced_fit/rRT_fit`. $\checkmark$
-	- Passing custom class weights for balanced/cRT classification
+	- Passing custom class weights for balanced/cRT classification $\checkmark$
 - Make sure section numbers are consistent in tutorials $\checkmark$
 - For tutorials (3) in email, AE is *off*. $\checkmark$
  1.  each tutorial of the 9 tutorials has one source code file -- plus  
