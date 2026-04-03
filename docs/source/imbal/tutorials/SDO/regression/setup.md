@@ -17,7 +17,6 @@ Import packages
 import imbal
 import os
 import numpy as np
-from plot_helper import plot_true_vs_predictions
 from PIL import Image
 from keras import layers, optimizers
 ```

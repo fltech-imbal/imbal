@@ -5,7 +5,6 @@ import keras.metrics
 import imbal
 import os
 import numpy as np
-from plot_helper import plot_confusion_matrix
 from PIL import Image
 from keras import layers, optimizers
 
@@ -121,7 +120,7 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-plot_confusion_matrix(
+imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='sample-sdo-balanced-fit-confusion-matrix.png'

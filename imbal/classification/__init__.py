@@ -7,3 +7,4 @@ from .shap import shap_explain_tabular_sample, shap_explain_image_sample, shap_e
 from .model import Model
 from .optimize_metric_threshold import optimize_metric_threshold
 from .interpolate_class_weights import interpolate_class_weights
+from .plot_confusion_matrix import plot_confusion_matrix
