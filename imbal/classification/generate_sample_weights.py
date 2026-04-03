@@ -90,16 +90,34 @@ def generate_sample_weights(
                     raise ValueError(
                         'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
             else:
-                assert class_weights.ndim == 2
-                for cls, weight in zip(unique_classes, class_weights):
-                    full_weight_mapping[cls] = weight
-                    weight_sum += weight
+                class_weights = np.array(class_weights)
+                multi_weight = True
+
+                if class_weights.shape[1] != len(unique_classes):
+                    raise ValueError(
+                        "2D class_weights must have shape (k, num_classes)"
+                    )
+
+                k = class_weights.shape[0]
+                n = labels.shape[0]
+
+                weights = np.zeros((k, n))
+
+                for i in range(k):
+                    weight_sum = np.sum(class_weights[i])
+
+                    balanced_mapping = {}
+                    for cls, count in zip(unique_classes, unique_counts):
+                        cls_weight = class_weights[i][np.where(unique_classes == cls)[0][0]]
+                        balanced_mapping[cls] = cls_weight / weight_sum / count * n
+
+                    weights[i] = np.array([balanced_mapping[label] for label in labels])
+                return weights
 
 
         for label, count in zip(unique_classes, unique_counts):
             balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count * labels.shape[0]})
         weights = np.array([balanced_mapping[label] for label in labels])
-
 
     weights = verify_weight_scale(weights, show_warning=False, axis=1 if multi_weight else None)
     return weights

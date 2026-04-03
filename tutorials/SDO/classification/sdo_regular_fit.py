@@ -60,7 +60,7 @@ def build_simple_cnn():
     x = layers.Flatten()(x)
     output_layer = layers.Dense(1, activation='sigmoid')(x)
 
-    model = imbal.regression.Model(inputs=input_layer, outputs=output_layer)
+    model = imbal.classification.Model(inputs=input_layer, outputs=output_layer)
     model.summary()
     return model
 
