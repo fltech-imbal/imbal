@@ -16,9 +16,9 @@ All the code shown in the provided tutorials can be found in
 the `tutorials/SDO` folder in the `imbal` repository.
 
 ## Tutorials:
-- [Regular Regression on SDOBenchmark](SDO/regular_fit.md)
-- [Balanced Regression on SDOBenchmark](SDO/balanced_fit.md)
-- [rRT Regression on SDOBenchmark](SDO/rrt_fit.md)
-- [Regular Regression on SDOBenchmark with Autoencoder](SDO/regular_fit_ae.md)
-- [Balanced Regression on SDOBenchmark with Autoencoder](SDO/balanced_fit_ae.md)
-- [rRT Regression on SDOBenchmark with Autoencoder](SDO/rrt_fit_ae.md)
+- [Regular Regression on SDOBenchmark](SDO/regression/regular_fit.md)
+- [Balanced Regression on SDOBenchmark](SDO/regression/balanced_fit.md)
+- [rRT Regression on SDOBenchmark](SDO/regression/rrt_fit.md)
+- [Regular Regression on SDOBenchmark with Autoencoder](SDO/regression/regular_fit_ae.md)
+- [Balanced Regression on SDOBenchmark with Autoencoder](SDO/regression/balanced_fit_ae.md)
+- [rRT Regression on SDOBenchmark with Autoencoder](SDO/regression/rrt_fit_ae.md)

@@ -16,6 +16,6 @@ All the code shown in the provided tutorials can be found in
 the `tutorials/SDO` folder in the `imbal` repository.
 
 ## Tutorials:
-- [Regular Classification on SDOBenchmark](SDO/regular_classification_fit.md)
-- [Balanced Classification on SDOBenchmark](SDO/balanced_classification_fit.md)
-- [cRT Classification on SDOBenchmark](SDO/crt_fit.md)
+- [Regular Classification on SDOBenchmark](SDO/classification/regular_fit.md)
+- [Balanced Classification on SDOBenchmark](SDO/classification/balanced_fit.md)
+- [cRT Classification on SDOBenchmark](SDO/classification/crt_fit.md)
