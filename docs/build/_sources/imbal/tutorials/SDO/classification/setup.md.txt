@@ -18,7 +18,6 @@ import keras.metrics
 import imbal
 import os
 import numpy as np
-from plot_helper import plot_confusion_matrix
 from PIL import Image
 from keras import layers, optimizers
 ```

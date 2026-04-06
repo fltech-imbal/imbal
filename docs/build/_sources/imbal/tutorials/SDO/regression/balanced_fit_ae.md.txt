@@ -133,7 +133,7 @@ imbal.regression.plot_kde_1d(
     save_figure='sample-sdo-balanced-fit-ae-data-distribution.png'
 )
 
-plot_true_vs_predictions(
+imbal.regression.plot_true_vs_predictions(
     y_test,
     test_predictions,
     save_figure='sample-sdo-balanced-fit-ae-label-vs-prediction-plot.png'

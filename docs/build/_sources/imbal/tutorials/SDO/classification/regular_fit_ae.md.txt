@@ -87,7 +87,7 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-plot_confusion_matrix(
+imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='sample-sdo-regular-fit-ae-confusion-matrix.png'

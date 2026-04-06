@@ -95,7 +95,7 @@ imbal.regression.plot_kde_1d(
     save_figure='sample-sdo-regular-fit-data-distribution.png'
 )
 
-plot_true_vs_predictions(
+imbal.regression.plot_true_vs_predictions(
     y_test,
     test_predictions,
     save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'

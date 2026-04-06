@@ -34,8 +34,25 @@ matrix (classification).  That is, one instruction to plot each of them.  $\che
 1.  plot_confusion_matrix(actual_values, predicted_values)  $\checkmark$
 2.  plot_actual_vs_predicted_values(actual_values, predicted_values)  
      with actual on x, predicted on y, and a diagonal dotted line  $\checkmark$
-     Perhaps some optional parameters with default values:  
-actual_axis_label, predicted_axis_label, actual_range, predicted_range,  
-shape, color, size  **TBD**
 
-**Redid all current regression + regular classification**
+
+---
+# 4/3/26
+
+## Tasks:
+- Do validation tutorials. Use best result to begin explanation and visualization tutorials (only one, using best method) LIME and t-SNE
+	- Use rare instance for LIME tutorials
+- For LIME implementations
+	- Set image `num_features` back to 5
+	- Why was training data needed as parameter?
+- For regression plot
+	- don't need to worry about different rare/frequent colors
+	- Only diagonal line (no rare bound)
+	- Perhaps some optional parameters with default values: actual_axis_label, predicted_axis_label, actual_range, predicted_range, shape, color, size
+	- Mention in documentation that points are plotted in the same order that they are supplied
+- Optional section 2.1s should be changed to section 3 (density vs weights)
+- Show results for handpicking class weights / alpha
+	- Add section to bottom, showing where code was changed, and new results
+- [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure to mention code is taken from that link in documentation
+	- Also refer to paper link from paper list

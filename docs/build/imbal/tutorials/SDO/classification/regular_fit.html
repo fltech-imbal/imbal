@@ -425,7 +425,7 @@ training and test set.</p>
     <span class="sa">f</span><span class="s1">&#39;F1 Score: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
-<span class="n">plot_confusion_matrix</span><span class="p">(</span>
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
     <span class="n">y_test</span><span class="p">,</span>
     <span class="n">test_predictions</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-confusion-matrix.png&#39;</span>
