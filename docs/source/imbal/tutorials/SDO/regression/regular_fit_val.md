@@ -2,7 +2,7 @@
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/regression/sdo_regular_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/regression/sdo_regular_fit_val.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -122,13 +122,13 @@ imbal.regression.plot_kde_1d(
     data_kde_bandwidth,
     bin_count=KDE_BIN_COUNT,
     show_bin_count=False,
-    save_figure='sample-sdo-regular-fit-data-distribution.png'
+    save_figure='sample-sdo-regular-fit-val-data-distribution.png'
 )
 
 imbal.regression.plot_true_vs_predictions(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-regular-fit-val-label-vs-prediction-plot.png'
 )
 ```
 

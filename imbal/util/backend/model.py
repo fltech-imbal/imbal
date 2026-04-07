@@ -413,8 +413,12 @@ class Model(keras.Model):
                 stage_two_val_y = val_y
             if self._use_decoder_branch:
                 val_y = [val_y, val_x]
+            if val_sample_weight is None:
+                if self._mode_enum == ModelType.CLASSIFICATION:
+                    val_sample_weight = imbal.classification.generate_sample_weights(val_y, class_weight)
+                else:
+                    val_sample_weight = imbal.regression.generate_sample_weights(validation_densities)
             stage_two_val_sample_weight = verify_weight_scale(val_sample_weight)
-            val_sample_weight = np.ones(val_sample_weight.shape)
             validation_data = (val_x, val_y, val_sample_weight)
 
         stage_one_sample_weights = np.ones(x.shape[0])

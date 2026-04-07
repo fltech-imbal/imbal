@@ -346,7 +346,7 @@
 <section id="necessary-files">
 <h2>Necessary Files<a class="headerlink" href="#necessary-files" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p>All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/regression/sdo_regular_fit.py</span></code></p></li>
+<li><p>All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/regression/sdo_regular_fit_val.py</span></code></p></li>
 <li><p>The training data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/training</span></code></p></li>
 <li><p>The test data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/test</span></code></p></li>
 </ul>
@@ -460,13 +460,13 @@ comparing the true and predicted values for individual test samples.</p>
     <span class="n">data_kde_bandwidth</span><span class="p">,</span>
     <span class="n">bin_count</span><span class="o">=</span><span class="n">KDE_BIN_COUNT</span><span class="p">,</span>
     <span class="n">show_bin_count</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-data-distribution.png&#39;</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-val-data-distribution.png&#39;</span>
 <span class="p">)</span>
 
 <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">plot_true_vs_predictions</span><span class="p">(</span>
     <span class="n">y_test</span><span class="p">,</span>
     <span class="n">test_predictions</span><span class="p">,</span>
-    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-label-vs-prediction-plot.png&#39;</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-val-label-vs-prediction-plot.png&#39;</span>
 <span class="p">)</span>
 </pre></div>
 </div>

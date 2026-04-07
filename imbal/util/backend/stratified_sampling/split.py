@@ -98,7 +98,8 @@ def split(
             rng.shuffle(indices)
             x_set = x_set[indices]
             y_set = y_set[indices]
-            sample_weights = sample_weights[indices]
+            if sample_weights is not None:
+                sample_weights = sample_weights[indices]
 
         if sample_weights is None:
             x_train, x_test, y_train, y_test = train_test_split(

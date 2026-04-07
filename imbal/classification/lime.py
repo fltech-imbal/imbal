@@ -12,7 +12,7 @@ def lime_explain_image_sample(
         class_names=None,
         actual_label=None,
         label_to_explain=None,
-        return_figure=False
+        save_figure=None
 ):
     """
     Utilizes LIME to generate an explanation for the classification of a particular image
@@ -45,6 +45,7 @@ def lime_explain_image_sample(
     if len(image.shape) < 2 or len(image.shape) > 3:
         raise ValueError('"image" must be a 2D or 3D array (height, width, channels)')
 
+    original_image = image
     if len(image.shape) == 2:
         image = np.expand_dims(image, axis=-1)
 
@@ -52,6 +53,13 @@ def lime_explain_image_sample(
         image = np.repeat(image, 3, -1)
 
     def predict_fn(value):
+        print(value.shape, original_image.shape)
+        if original_image.shape != value.shape[1:]:
+            if original_image.ndim == 2 or original_image.ndim == 3 and original_image.shape[-1] == 1:
+                value = value[..., 0]
+                print('here', value.shape)
+            value = value.reshape((value.shape[0], *original_image.shape))
+        print(value.shape)
         return model.predict(value)
 
     explainer = lime_image.LimeImageExplainer()
@@ -98,8 +106,8 @@ def lime_explain_image_sample(
     ax[1].set_title(explanation_display)
     ax[1].set_axis_off()
 
-    if return_figure:
-        return fig, ax
+    if save_figure is not None:
+        plt.savefig(save_figure)
 
     plt.show()
     return None

@@ -1,8 +1,8 @@
-# Balanced Regression on SDOBenchmark
+# Balanced Regression on SDOBenchmark with Validation Data
 
 ## Necessary Files
 
-- All the source code in this tutorial can be found at `imbal/tutorials/SDO/regression/sdo_balanced_fit.py`
+- All the source code in this tutorial can be found at `imbal/tutorials/SDO/regression/sdo_balanced_fit_val.py`
 - The training data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/training`
 - The test data for this tutorial can be found at `imbal/tutorials/data/SDOBenchmark/test`
 
@@ -30,7 +30,7 @@ data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 ```
 
-### 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
+## 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
 
 In the case where you would like to be able to customize the alpha value used
 in the reciprocal importance function $RI(d, \alpha) = \frac{1}{d^\alpha}$, you
@@ -155,13 +155,13 @@ imbal.regression.plot_kde_1d(
     data_kde_bandwidth,
     bin_count=KDE_BIN_COUNT,
     show_bin_count=False,
-    save_figure='sample-sdo-balanced-fit-data-distribution.png'
+    save_figure='sample-sdo-balanced-fit-val-data-distribution.png'
 )
 
 imbal.regression.plot_true_vs_predictions(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-balanced-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-balanced-fit-val-label-vs-prediction-plot.png'
 )
 )
 ```
@@ -178,8 +178,8 @@ MAE for log10 flux >= -4: 0.699
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-data-distribution.png"/>
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-label-vs-prediction-plot.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-data-distribution.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot.png"/>
 </div>
 
 By enabling the optional alpha variation in section 3:
@@ -204,6 +204,8 @@ model.balanced_fit(
 
 we get the following results:
 
+# WIP
+
 ```text
 (after training output)
 [3/3] Fitted after 20 epochs for sample weight candidate at index 2
@@ -217,6 +219,6 @@ MAE for log10 flux >= -4: 2.601
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-data-distribution-alphas.png"/>
-<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-label-vs-prediction-plot-alphas.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-data-distribution-alphas.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot-alphas.png"/>
 </div>

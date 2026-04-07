@@ -30,7 +30,7 @@ data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 ```
 
-### 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
+## 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
 
 In the case where you would like to be able to customize the alpha value used
 in the reciprocal importance function $RI(d, \alpha) = \frac{1}{d^\alpha}$, you

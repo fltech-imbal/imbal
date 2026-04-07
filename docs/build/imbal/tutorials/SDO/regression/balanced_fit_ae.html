@@ -372,8 +372,9 @@ emphasis on those samples appear infrequently in the training set.</p>
 <span class="n">sample_densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">data_kde_bandwidth</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
 <section id="optional-testing-multiple-hand-picked-alpha-values-for-sample-weights">
-<h3>3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights<a class="headerlink" href="#optional-testing-multiple-hand-picked-alpha-values-for-sample-weights" title="Link to this heading">#</a></h3>
+<h2>3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights<a class="headerlink" href="#optional-testing-multiple-hand-picked-alpha-values-for-sample-weights" title="Link to this heading">#</a></h2>
 <p>In the case where you would like to be able to customize the alpha value used
 in the reciprocal importance function <span class="math notranslate nohighlight">\(RI(d, \alpha) = \frac{1}{d^\alpha}\)</span>, you
 can use the <code class="docutils literal notranslate"><span class="pre">imbal.regression.reciprocal_importance</span></code> function to apply one, or multiple,
@@ -384,7 +385,6 @@ model during training.</p>
 <span class="c1"># weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])</span>
 </pre></div>
 </div>
-</section>
 </section>
 <section id="model-compilation-and-training">
 <h2>4. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
@@ -563,10 +563,8 @@ MAE for log10 flux &gt;= -4: 2.601
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Balanced Regression on SDOBenchmark with Autoencoder</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files">Necessary Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdo-setup">1. SDO Setup</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-sample-densities">2. Calculate Sample Densities</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-testing-multiple-hand-picked-alpha-values-for-sample-weights">3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-sample-densities">2. Calculate Sample Densities</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-testing-multiple-hand-picked-alpha-values-for-sample-weights">3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">4. Model Compilation and Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density-distribution-and-results-visualization">5. Probability Density Distribution and Results Visualization</a></li>
 </ul>
