@@ -345,19 +345,28 @@
 <h1>plot_true_vs_predictions<a class="headerlink" href="#plot-true-vs-predictions" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.regression.plot_true_vs_predictions">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">plot_true_vs_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rare_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_bound</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.plot_true_vs_predictions" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">plot_true_vs_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_axis_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_axis_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.plot_true_vs_predictions" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
 <p>Plots and displays a comparison of the true labels and the predicted labels
 for regression data. Points plotted are (true, prediction) for each label/prediction
-pair, such that a perfect prediction would fall precisely on the line <span class="math notranslate nohighlight">\(y=x\)</span>.</p>
+pair, such that a perfect prediction would fall precisely on the line <span class="math notranslate nohighlight">\(y=x\)</span>.
+Prediction-label pairs will be plotted in the same order as supplied to the function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>labels</strong> – A NumPy array of binary labels (0/1 or true/false)</p></li>
 <li><p><strong>predictions</strong> – A NumPy array of predictions corresponding to the provided labels</p></li>
-<li><p><strong>rare_threshold</strong> – The threshold for what is considered a “rare instance”</p></li>
-<li><p><strong>low_bound</strong> – The lower bound of the x/y range displayed in the plot</p></li>
-<li><p><strong>high_bound</strong> – The upper bound of the x/y range displayed in the plot</p></li>
+<li><p><strong>x_axis_label</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A string to label the x-axis.</p></li>
+<li><p><strong>y_axis_label</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A string to label the y-axis.</p></li>
+<li><p><strong>title</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A string to title the generated plot.</p></li>
+<li><p><strong>color</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A color to apply to the points within the
+generated plot. See <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">matplotlib.pyplot.scatter</a>.</p></li>
+<li><p><strong>marker</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A marker to use when plotting points within the
+generated plot. See <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">matplotlib.pyplot.scatter</a>.</p>
+</p></li>
+<li><p><strong>size</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A size to plot each point within the
+generated plot. See <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">matplotlib.pyplot.scatter</a>.</p>
+</p></li>
 <li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If set to a string, will save the
 resultant plot to the specified path.</p></li>
 </ul>
@@ -374,9 +383,6 @@ resultant plot to the specified path.</p></li>
 <span class="n">plot_true_vs_predictions</span><span class="p">(</span>
     <span class="n">labels</span><span class="p">,</span>
     <span class="n">predictions</span><span class="p">,</span>
-    <span class="n">rare_threshold</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-    <span class="n">low_bound</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">high_bound</span><span class="o">=</span><span class="mf">5.5</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s2">&quot;true_vs_predictions.png&quot;</span>
 <span class="p">)</span>
 </pre></div>

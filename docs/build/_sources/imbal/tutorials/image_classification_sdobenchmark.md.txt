@@ -15,10 +15,17 @@ folder in the `imbal` repository.
 All the code shown in the provided tutorials can be found in
 the `tutorials/SDO` folder in the `imbal` repository.
 
-## Tutorials:
-- [Regular Classification on SDOBenchmark](SDO/classification/regular_fit.md)
-- [Balanced Classification on SDOBenchmark](SDO/classification/balanced_fit.md)
-- [cRT Classification on SDOBenchmark](SDO/classification/crt_fit.md)
-- [Regular Classification on SDOBenchmark with Audoencoder](SDO/classification/regular_fit_ae.md)
-- [Balanced Classification on SDOBenchmark with Audoencoder](SDO/classification/balanced_fit_ae.md)
-- [cRT Classification on SDOBenchmark with Audoencoder](SDO/classification/crt_fit_ae.md)
+## Tutorials
+
+Below is a table containing links to tutorials for possible model fit approaches that can be achieved through `imbal`.
+Each column corresponds to a type of fit that can be performed with `imbal.classifiaction` (regular, balanced, cRT).
+Each row corresponds to some additional modification to the approach:
+- Basic: The basic approach, with no additional modification
+- With AE: Includes automatic autoencoder branch generation
+- With Val: Includes splitting of validation data and using early stopping to end training
+
+|                 | Regular Fit                                          | Balanced Fit                                           | cRT Fit                                      |
+|-----------------|------------------------------------------------------|--------------------------------------------------------|----------------------------------------------|
+| Basic           | [Regular](SDO/classification/regular_fit.md)         | [Balanced](SDO/classification/balanced_fit.md)         | [cRT](SDO/classification/crt_fit.md)         |
+| With AE         | [Regular+AE](SDO/classification/regular_fit_ae.md)   | [Balanced+AE](SDO/classification/balanced_fit_ae.md)   | [cRT+AE](SDO/classification/crt_fit_ae.md)   |
+| With Validation | [Regular+val](SDO/classification/regular_fit_val.md) | [Balanced+val](SDO/classification/balanced_fit_val.md) | [cRT+val](SDO/classification/crt_fit_val.md) |

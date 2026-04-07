@@ -107,12 +107,12 @@ imbal.regression.plot_true_vs_predictions(
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
-```
+```text
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
-MAE for log10 flux < -4: 1.328
-MAE for log10 flux >= -4: 3.227
+MAE for log10 flux < -4: 1.338
+MAE for log10 flux >= -4: 3.043
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

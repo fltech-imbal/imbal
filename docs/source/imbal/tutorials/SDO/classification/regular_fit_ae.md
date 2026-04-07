@@ -97,7 +97,7 @@ imbal.classification.plot_confusion_matrix(
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
-```
+```text
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 

@@ -15,10 +15,17 @@ folder in the `imbal` repository.
 All the code shown in the provided tutorials can be found in
 the `tutorials/SDO` folder in the `imbal` repository.
 
-## Tutorials:
-- [Regular Regression on SDOBenchmark](SDO/regression/regular_fit.md)
-- [Balanced Regression on SDOBenchmark](SDO/regression/balanced_fit.md)
-- [rRT Regression on SDOBenchmark](SDO/regression/rrt_fit.md)
-- [Regular Regression on SDOBenchmark with Autoencoder](SDO/regression/regular_fit_ae.md)
-- [Balanced Regression on SDOBenchmark with Autoencoder](SDO/regression/balanced_fit_ae.md)
-- [rRT Regression on SDOBenchmark with Autoencoder](SDO/regression/rrt_fit_ae.md)
+## Tutorials
+
+Below is a table containing links to tutorials for possible model fit approaches that can be achieved through `imbal`.
+Each column corresponds to a type of fit that can be performed with `imbal.regression` (regular, balanced, rRT).
+Each row corresponds to some additional modification to the approach:
+- Basic: The basic approach, with no additional modification
+- With AE: Includes automatic autoencoder branch generation
+- With Val: Includes splitting of validation data and using early stopping to end training
+
+|                 | Regular Fit                                      | Balanced Fit                                       | rRT Fit                                  |
+|-----------------|--------------------------------------------------|----------------------------------------------------|------------------------------------------|
+| Basic           | [Regular](SDO/regression/regular_fit.md)         | [Balanced](SDO/regression/balanced_fit.md)         | [rRT](SDO/regression/rrt_fit.md)         |
+| With AE         | [Regular+AE](SDO/regression/regular_fit_ae.md)   | [Balanced+AE](SDO/regression/balanced_fit_ae.md)   | [rRT+AE](SDO/regression/rrt_fit_ae.md)   |
+| With Validation | [Regular+val](SDO/regression/regular_fit_val.md) | [Balanced+val](SDO/regression/balanced_fit_val.md) | [rRT+val](SDO/regression/rrt_fit_val.md) |

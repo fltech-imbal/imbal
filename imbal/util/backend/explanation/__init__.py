@@ -5,16 +5,16 @@ from matplotlib import pyplot as plt
 from bs4 import BeautifulSoup
 
 def lime_explain_tabular_sample(
-        sample,
-        model,
-        training_data,
-        num_samples=100,
-        class_names=None,
-        feature_names=None,
-        label_to_explain=None,
-        actual_label=None,
-        mode='classification',
-        figure_save_path='lime-explanation.html'
+    sample,
+    model,
+    training_data,
+    num_samples=100,
+    class_names=None,
+    feature_names=None,
+    label_to_explain=None,
+    actual_label=None,
+    mode='classification',
+    figure_save_path='lime-explanation.html'
 ):
 
     def predict_fn(value):

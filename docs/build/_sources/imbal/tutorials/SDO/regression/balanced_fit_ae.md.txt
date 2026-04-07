@@ -30,7 +30,7 @@ data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 ```
 
-### 2.1 Optional: Testing Multiple Hand-Picked Alpha Values
+### 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
 
 In the case where you would like to be able to customize the alpha value used
 in the reciprocal importance function $RI(d, \alpha) = \frac{1}{d^\alpha}$, you
@@ -44,7 +44,7 @@ model during training.
 # weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 ```
 
-## 3. Model Compilation and Training
+## 4. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
 object, then performs a model fit on the training data. Notably, during
@@ -84,7 +84,7 @@ model.evaluate(x_test, y_test)
 The above code should produce the standard TensorFlow output for model
 training and evaluation.
 
-## 4. Probability Density Distribution and Results Visualization
+## 5. Probability Density Distribution and Results Visualization
 
 The following code plots a fitted KDE distribution for the training
 data over a histogram of the training data, along with a plot
@@ -144,15 +144,57 @@ imbal.regression.plot_true_vs_predictions(
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
-```
+```text
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
-MAE for log10 flux < -4: 1.027
-MAE for log10 flux >= -4: 1.816
+MAE for log10 flux < -4: 1.112
+MAE for log10 flux >= -4: 2.350
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-data-distribution.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-label-vs-prediction-plot.png"/>
+</div>
+
+
+By enabling the optional alpha variation in section 3:
+
+```python
+# The below line can be uncommented to test multiple alpha values for reciprocal importance
+# If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
+weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+
+# ...then during fit...
+
+model.balanced_fit(
+    x_train,
+    y_train,
+    sample_density=sample_densities,
+    sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    stratify_batches=True # Ensure all batches have a similar data distribution
+)
+```
+
+we get the following results:
+
+# WIP
+
+```text
+(after training output)
+[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 1
+
+Number of test samples with log10 flux < -4: 98
+Number of test samples with log10 flux >= -4: 2
+
+MAE for log10 flux < -4: 1.321
+MAE for log10 flux >= -4: 2.601
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-data-distribution-alphas.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-label-vs-prediction-plot-alphas.png"/>
 </div>

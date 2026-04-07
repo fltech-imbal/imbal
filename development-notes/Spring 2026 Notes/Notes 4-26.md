@@ -40,19 +40,34 @@ matrix (classification).  That is, one instruction to plot each of them.  $\che
 # 4/3/26
 
 ## Tasks:
-- Do validation tutorials. Use best result to begin explanation and visualization tutorials (only one, using best method) LIME and t-SNE
+- Do validation tutorials. $\checkmark$
+	- Use best result to begin explanation and visualization tutorials (only one, using best method) LIME and t-SNE
 	- Use rare instance for LIME tutorials
-- For LIME implementations
-	- Set image `num_features` back to 5
-	- Why was training data needed as parameter?
-- For regression plot
-	- don't need to worry about different rare/frequent colors
-	- Only diagonal line (no rare bound)
-	- Perhaps some optional parameters with default values: actual_axis_label, predicted_axis_label, actual_range, predicted_range, shape, color, size
-	- Mention in documentation that points are plotted in the same order that they are supplied
-- Optional section 2.1s should be changed to section 3 (density vs weights)
-- Show results for handpicking class weights / alpha
-	- Add section to bottom, showing where code was changed, and new results
+- For LIME implementations $\checkmark$
+	- Set image `num_features` back to 5 $\checkmark$
+	- Why was training data needed as parameter? $\checkmark$
+		- Required by `lime_tabular.LimeTabularExplainer`, however the parameter is almost entirely undocumented in original LIME documentation. $\checkmark$
+- For regression plot $\checkmark$
+	- don't need to worry about different rare/frequent colors $\checkmark$
+	- Only diagonal line (no rare bound) $\checkmark$
+	- Perhaps some optional parameters with default values: actual_axis_label, predicted_axis_label, actual_range, predicted_range, shape, color, size $\checkmark$
+	- Mention in documentation that points are plotted in the same order that they are supplied $\checkmark$
+- Optional section 2.1s should be changed to section 3 (density vs weights) $\checkmark$
+- Show results for handpicking class weights / alpha $\checkmark$
+	- Add section to bottom, showing where code was changed, and new results $\checkmark$
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure to mention code is taken from that link in documentation
 	- Also refer to paper link from paper list
+1.  On the main tutorial page, for the 9 tutorials, instead of a list, I  
+suggest a 3x3 table to make the organization easier to understand:  $\checkmark$
+     a.  Column headings: regular training, balanced training, cRT/rRT  
+(classifier/regressor re-training)  $\checkmark$
+     b.  Row headings: basic, with autoencoder to enhance representation  
+learning, with validation set to reduce overfitting and estimate  $\checkmark$
+class/sample weights  
+    c.  Cell: regular, balanced, cRT/rRT $\checkmark$
+              regular+AE, ...  $\checkmark$
+              regular+val, ...  $\checkmark$
+2.  Between the 9 tutorials and t-SNE, add a tutorial on metrics  
+      classification: F1, HSS, TSS, AUROC  
+      regression: MAE, MSE, Correlation

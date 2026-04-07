@@ -442,17 +442,46 @@ training and test set.</p>
 </div>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Number</span> <span class="n">of</span> <span class="n">test</span> <span class="n">samples</span> <span class="k">with</span> <span class="n">log10</span> <span class="n">flux</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">4</span><span class="p">:</span> <span class="mi">98</span>
-<span class="n">Number</span> <span class="n">of</span> <span class="n">test</span> <span class="n">samples</span> <span class="k">with</span> <span class="n">log10</span> <span class="n">flux</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">4</span><span class="p">:</span> <span class="mi">2</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 98
+Number of test samples with log10 flux &gt;= -4: 2
 
-<span class="n">Heikde</span> <span class="n">Skill</span> <span class="n">Score</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.0382</span>
-<span class="n">F1</span> <span class="n">Score</span><span class="p">:</span> <span class="mf">0.0000</span>
+Heikde Skill Score: -0.0382
+F1 Score: 0.0000
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-ae-confusion-matrix.png"/>
 </div>
+<p>By enabling the optional class weight variation in section 2:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">cRT_fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">class_weight</span><span class="o">=</span><span class="p">[[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,],</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]],</span> <span class="c1"># Uncomment to use varying class weights</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+    <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Ensure all batches have a similar data distribution</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>we get the following results:</p>
 </section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="wip">
+<h1>WIP<a class="headerlink" href="#wip" title="Link to this heading">#</a></h1>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
+[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 0
+
+Number of test samples with log10 flux &lt; -4: 98
+Number of test samples with log10 flux &gt;= -4: 2
+
+Heikde Skill Score: 0.0000
+F1 Score: 0.0000
+</pre></div>
+</div>
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-ae-confusion-matrix-class-weights.png"/>
+</div>
 </section>
 
 
@@ -484,11 +513,16 @@ like for the above code.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">cRT Classification on SDOBenchmark with Autoencoder</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files">Necessary Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdo-classification-setup">1. SDO Classification Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">2. Model Compilation and Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">3. Metrics and Results Visualization</a></li>
 </ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#wip">WIP</a></li>
+</ul>
+
   </nav></div>
 
   <div class="sidebar-secondary-item">

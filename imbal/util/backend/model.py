@@ -692,7 +692,7 @@ class Model(keras.Model):
             if verbose_imbal > 1:
                 print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights)}')
             history = fit_function(
-                **kwargs
+                **current_kwargs
             )
             if verbose_imbal > 0:
                 print(f'[{index+1}/{len(iterate_over)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
@@ -707,6 +707,7 @@ class Model(keras.Model):
             if best_loss is None or best_loss_of_run < best_loss:
                 best_loss = best_loss_of_run
                 best_history = history
+                del best_model_weights  # free previous
                 best_model_weights = self.get_weights()
                 best_weights_index = index
 

@@ -8,7 +8,7 @@ def lime_explain_image_sample(
         image,
         model,
         num_samples=100,
-        num_features=100000,
+        num_features=5,
         class_names=None,
         actual_label=None,
         label_to_explain=None,

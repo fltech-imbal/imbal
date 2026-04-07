@@ -5,7 +5,7 @@ import imbal
 import os
 import numpy as np
 from PIL import Image
-from keras import layers, optimizers
+from keras import layers, optimizers, callbacks
 
 """
 Load data
@@ -63,11 +63,17 @@ def build_simple_cnn():
 model = build_simple_cnn()
 
 """
+Create validation split
+"""
+
+(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
+
+"""
 Compile and train model
 """
 LEARNING_RATE = 5e-5
-EPOCHS = 20
 BATCH_SIZE = 64
+PATIENCE = 10
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -75,13 +81,18 @@ model.compile(
     metrics=['mae']
 )
 
-model.fit(
+history = model.fit(
     x_train,
     y_train,
-    epochs=EPOCHS,
+    validation_data=(x_val, y_val),
+    epochs=500,
     batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
+    stratify_batches=True, # Ensure all batches have a similar data distribution,
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
+
+print(f'Fit stopped after {len(history.history["loss"])} epochs')
+print(f'Restored weights from epoch {len(history.history["loss"]) - PATIENCE}')
 
 model.evaluate(x_test, y_test)
 
@@ -123,11 +134,11 @@ imbal.regression.plot_kde_1d(
     data_kde_bandwidth,
     bin_count=KDE_BIN_COUNT,
     show_bin_count=False,
-    save_figure='sample-sdo-regular-fit-data-distribution.png'
+    save_figure='sample-sdo-regular-fit-val-data-distribution.png'
 )
 
 imbal.regression.plot_true_vs_predictions(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-regular-fit-label-vs-prediction-plot.png'
+    save_figure='sample-sdo-regular-fit-val-label-vs-prediction-plot.png'
 )

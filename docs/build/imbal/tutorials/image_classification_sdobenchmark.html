@@ -354,15 +354,42 @@ folder in the <code class="docutils literal notranslate"><span class="pre">imbal
 <p>All the code shown in the provided tutorials can be found in
 the <code class="docutils literal notranslate"><span class="pre">tutorials/SDO</span></code> folder in the <code class="docutils literal notranslate"><span class="pre">imbal</span></code> repository.</p>
 <section id="tutorials">
-<h2>Tutorials:<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h2>
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h2>
+<p>Below is a table containing links to tutorials for possible model fit approaches that can be achieved through <code class="docutils literal notranslate"><span class="pre">imbal</span></code>.
+Each column corresponds to a type of fit that can be performed with <code class="docutils literal notranslate"><span class="pre">imbal.classifiaction</span></code> (regular, balanced, cRT).
+Each row corresponds to some additional modification to the approach:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="SDO/classification/regular_fit.html"><span class="std std-doc">Regular Classification on SDOBenchmark</span></a></p></li>
-<li><p><a class="reference internal" href="SDO/classification/balanced_fit.html"><span class="std std-doc">Balanced Classification on SDOBenchmark</span></a></p></li>
-<li><p><a class="reference internal" href="SDO/classification/crt_fit.html"><span class="std std-doc">cRT Classification on SDOBenchmark</span></a></p></li>
-<li><p><a class="reference internal" href="SDO/classification/regular_fit_ae.html"><span class="std std-doc">Regular Classification on SDOBenchmark with Audoencoder</span></a></p></li>
-<li><p><a class="reference internal" href="SDO/classification/balanced_fit_ae.html"><span class="std std-doc">Balanced Classification on SDOBenchmark with Audoencoder</span></a></p></li>
-<li><p><a class="reference internal" href="SDO/classification/crt_fit_ae.html"><span class="std std-doc">cRT Classification on SDOBenchmark with Audoencoder</span></a></p></li>
+<li><p>Basic: The basic approach, with no additional modification</p></li>
+<li><p>With AE: Includes automatic autoencoder branch generation</p></li>
+<li><p>With Val: Includes splitting of validation data and using early stopping to end training</p></li>
 </ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Regular Fit</p></th>
+<th class="head"><p>Balanced Fit</p></th>
+<th class="head"><p>cRT Fit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Basic</p></td>
+<td><p><a class="reference internal" href="SDO/classification/regular_fit.html"><span class="std std-doc">Regular</span></a></p></td>
+<td><p><a class="reference internal" href="SDO/classification/balanced_fit.html"><span class="std std-doc">Balanced</span></a></p></td>
+<td><p><a class="reference internal" href="SDO/classification/crt_fit.html"><span class="std std-doc">cRT</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>With AE</p></td>
+<td><p><a class="reference internal" href="SDO/classification/regular_fit_ae.html"><span class="std std-doc">Regular+AE</span></a></p></td>
+<td><p><a class="reference internal" href="SDO/classification/balanced_fit_ae.html"><span class="std std-doc">Balanced+AE</span></a></p></td>
+<td><p><a class="reference internal" href="SDO/classification/crt_fit_ae.html"><span class="std std-doc">cRT+AE</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>With Validation</p></td>
+<td><p><a class="reference internal" href="#SDO/classification/regular_fit_val.md"><span class="xref myst">Regular+val</span></a></p></td>
+<td><p><a class="reference internal" href="#SDO/classification/balanced_fit_val.md"><span class="xref myst">Balanced+val</span></a></p></td>
+<td><p><a class="reference internal" href="#SDO/classification/crt_fit_val.md"><span class="xref myst">cRT+val</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 </section>
 
@@ -395,7 +422,7 @@ the <code class="docutils literal notranslate"><span class="pre">tutorials/SDO</
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials</a></li>
 </ul>
   </nav></div>
 

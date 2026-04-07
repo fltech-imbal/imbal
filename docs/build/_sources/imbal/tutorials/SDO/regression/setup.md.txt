@@ -18,7 +18,7 @@ import imbal
 import os
 import numpy as np
 from PIL import Image
-from keras import layers, optimizers
+from keras import layers, optimizers, callbacks
 ```
 
 ## 2. Load Data
@@ -63,7 +63,7 @@ The above code should generate an output similar to the following.
 The output below is the result of loading the first 50 samples from
 the training and test sets.
 
-```
+```text
 Loading SDO samples [500/500]
 500 data samples loaded successfully
 Loading SDO samples [100/100]
@@ -107,7 +107,7 @@ model = build_simple_cnn()
 
 The above code should produce the following output:
 
-```
+```text
 Model: "model"
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃

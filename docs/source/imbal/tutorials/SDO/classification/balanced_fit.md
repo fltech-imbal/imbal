@@ -104,7 +104,7 @@ imbal.classification.plot_confusion_matrix(
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
-```
+```text
 Number of test samples with log10 flux < -4: 98
 Number of test samples with log10 flux >= -4: 2
 
@@ -114,4 +114,35 @@ F1 Score: 0.0952
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
+</div>
+
+By enabling the optional class weight variation in section 2:
+
+```python
+model.balanced_fit(
+    x_train,
+    y_train.reshape(-1, 1),
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    stratify_batches=True # Ensure all batches have a similar data distribution
+)
+```
+
+we get the following results:
+
+```text
+(after training output)
+[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 0
+
+Number of test samples with log10 flux < -4: 98
+Number of test samples with log10 flux >= -4: 2
+
+Heikde Skill Score: 0.0000
+F1 Score: 0.0000
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix-class-weights.png"/>
 </div>
