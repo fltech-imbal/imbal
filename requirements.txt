@@ -57,6 +57,7 @@ keras==3.11.2
 kiwisolver==1.4.9
 lark==1.2.2
 libclang==18.1.1
+lxml
 Markdown==3.8.2
 markdown-it-py==4.0.0
 MarkupSafe==3.0.2

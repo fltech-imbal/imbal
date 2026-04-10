@@ -12,7 +12,7 @@ This tutorial demonstrates how to train a neural network for a binary classifica
 
 > **Before you begin:** Use the [Tutorial Setup](../imbal_tutorial_ae_setup_classification.md) guide as your starting point, then continue with this tutorial.
 
-## 4. Model Compilation and Training
+## 1. Model Compilation and Training
 
 ### Compilation
 
@@ -57,7 +57,7 @@ model.balanced_fit(
 
 ---
 
-## 5. Results
+## 2. Results
 
 ### Model Evaluation
 
@@ -76,7 +76,7 @@ print(f"Test HSS: {hss:.4f}")
 
 ---
 
-## 6. Optional: Using Class Weights
+## 3. Optional: Using Class Weights
 
 Alternatively, you can manually specify class weights during training. Replace the `model.balanced_fit` call with:
 
