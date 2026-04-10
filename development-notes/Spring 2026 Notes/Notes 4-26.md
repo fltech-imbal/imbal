@@ -55,9 +55,6 @@ matrix (classification).  That is, one instruction to plot each of them.  $\che
 - Optional section 2.1s should be changed to section 3 (density vs weights) $\checkmark$
 - Show results for handpicking class weights / alpha $\checkmark$
 	- Add section to bottom, showing where code was changed, and new results $\checkmark$
-- [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
-	- Make sure to mention code is taken from that link in documentation
-	- Also refer to paper link from paper list
 1.  On the main tutorial page, for the 9 tutorials, instead of a list, I  
 suggest a 3x3 table to make the organization easier to understand:  $\checkmark$
      a.  Column headings: regular training, balanced training, cRT/rRT  
@@ -71,3 +68,27 @@ class/sample weights
 2.  Between the 9 tutorials and t-SNE, add a tutorial on metrics  
       classification: F1, HSS, TSS, AUROC  
       regression: MAE, MSE, Correlation
+## Tasks
+- Make sure multi-weight lists are support in `imbal.classification/regression.split`
+- Fix `imbal.Model` to take in multiple lists of weights for validation data
+	- sample weights and validation weights should have same number of rows
+	- Potentially, one "data cleaning" function to ensure data is always in a singular format, followed by the necessary calls (and loops for `multi_weight`)
+	- Potentially, everything passes though `multi_weight` (with singular weight lists being reshaped to $(1, N)$)
+	- For class weights, training and validation data can be class weighted individually (differences in distribution is minimal for larger datasets).
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
+- For validation tutorials, add additional supplement for specifying validation percent
+- Follow up with Karen about "TA teaching" class $\checkmark$
+- Make sure to register for Fall classes $\checkmark$
+- Make sure percent signs show for LaTeX in documentation
+- Make sure new documentation numbers are in-order
+- Make sure new section 3 description for documentation is on all validation tutorials
+- Get rid of "callback" explanation in tutorials in favor of more general reasoning for why we include validation data
+- [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure to mention code is taken from that link in documentation
+	- Also refer to paper link from paper list
+- When making metric tutorial, considerations for putting metrics in/out of compile:
+	- When in compile, metrics are tracked every batch/epoch (can be time consuming)
+		- If you don't care what these metrics are during training, they should be left out
+		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile
+- Maybe profile memory usage to see what might be causing OOM issue?

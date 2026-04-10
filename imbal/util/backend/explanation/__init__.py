@@ -58,7 +58,7 @@ def lime_explain_tabular_sample(
     title['style'] = 'text-align: center'
     body.insert(0, title)
 
-    with open(figure_save_path, "w") as f:
+    with open(figure_save_path, "w", encoding='utf-8') as f:
         f.write(str(soup))
     print(f'LIME explanation saved to "{figure_save_path}"')
 
