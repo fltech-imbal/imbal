@@ -37,8 +37,7 @@ def build_model(input_shape: int) -> imbal.classification.Model:
     hidden2 = layers.Dense(12, activation="relu", name="hidden_layer2")(hidden1)
     hidden3 = layers.Dense(8, activation="relu", name="hidden_layer3")(hidden2)
     hidden4 = layers.Dense(6, activation="relu", name="hidden_layer4")(hidden3)
-    flatten = layers.Flatten()(hidden4)
-    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(flatten)
+    outputs = layers.Dense(1, activation="sigmoid", name="output_layer")(hidden4)
     built_model = imbal.classification.Model(inputs=inputs, outputs=outputs, name="sep_model")
     return built_model
 
@@ -51,25 +50,13 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
-              generate_decoder_branch=True,
+                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS"),
+                       imbal.metrics.TrueSkillStatistic(threshold=0.5, name="TSS")],
               )
-
-# model.cRT_fit(x_train,
-#           y_train,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           )
-
-# OPTIONAL: Use custom class weights during training
-# Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
-# making rare samples more important to the model loss function than with standard sampling.
-# In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
-# NOTE: Comment above call before running the below call.
 
 class_weights = {0: 0.9, 1: 0.1}
 
-model.cRT_fit(x_train,
+model.balanced_fit(x_train,
           y_train,
           class_weight=class_weights,
           batch_size=batch_size,
@@ -81,8 +68,20 @@ model.cRT_fit(x_train,
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
-loss, f1_score, hss = results
+loss, f1_score, hss, tss = results
+
+y_pred = model.predict(x_test)
+auc_metric = imbal.metrics.BoundedAUC(num_thresholds=50)
+auc_metric.update_state(y_test, y_pred)
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+print(f"Test TSS: {hss:.4f}")
+print(f"Test AUC: {auc_metric.result():.4f}")
+
+
+# ----------------------------
+# Visualization
+# ----------------------------
+imbal.classification.plot_confusion_matrix(y_test, y_pred)

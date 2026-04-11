@@ -1,3 +1,17 @@
+# t-SNE Visualization Tutorial (Classification)
+
+**Full Code:** [view source code](./imbal_tutorial_tsne_visualization_classification.py)
+
+**Train/Test Files**: [training data](./sep_model_training_classification.csv), [testing data](./sep_model_testing_classification.csv)
+
+
+---
+
+## 1. Core Code
+
+> This core code is a sample from the `balanced_fit` with Autoencoder tutorial code found [here](./AE/imbal_tutorial_balanced_fit_ae_classification_clear_sep.md)
+
+```python
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -16,9 +30,6 @@ target_column = "ln_peak_intensity"
 max_epochs = 300
 batch_size = 32
 
-# ----------------------------
-# Data
-# ----------------------------
 train_data = pd.read_csv("sep_model_training_classification.csv")
 test_data  = pd.read_csv("sep_model_testing_classification.csv")
 
@@ -28,9 +39,6 @@ y_test  = test_data[target_column].values.reshape(-1, 1).astype("float32")
 x_train = train_data.drop(columns=[target_column]).values.astype(np.float32)
 x_test  = test_data.drop(columns=[target_column]).values.astype(np.float32)
 
-# ----------------------------
-# Model
-# ----------------------------
 def build_model(input_shape: int) -> imbal.classification.Model:
     inputs = keras.Input(shape=(input_shape,), name="features")
     hidden1 = layers.Dense(18, activation="relu", name="hidden_layer1")(inputs)
@@ -44,10 +52,6 @@ def build_model(input_shape: int) -> imbal.classification.Model:
 
 model = build_model(x_train.shape[1])
 
-
-# ----------------------------
-# Training
-# ----------------------------
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
@@ -55,34 +59,67 @@ model.compile(loss="binary_crossentropy",
               generate_decoder_branch=True,
               )
 
-# model.cRT_fit(x_train,
-#           y_train,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           )
-
-# OPTIONAL: Use custom class weights during training
-# Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
-# making rare samples more important to the model loss function than with standard sampling.
-# In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
-# NOTE: Comment above call before running the below call.
-
 class_weights = {0: 0.9, 1: 0.1}
 
-model.cRT_fit(x_train,
+model.balanced_fit(x_train,
           y_train,
           class_weight=class_weights,
           batch_size=batch_size,
           epochs=max_epochs,
           )
+```
 
+---
 
-# ----------------------------
-# Evaluation
-# ----------------------------
-results = model.evaluate(x_test, y_test)
-loss, f1_score, hss = results
+## 2. t-SNE Visualization
 
-print(f"Test Loss: {loss:.4f}")
-print(f"Test F1Score: {f1_score:.4f}")
-print(f"Test HSS: {hss:.4f}")
+```python
+imbal.classification.tsne_visualization(
+    model,
+    x_train,
+    y_train.reshape(-1),
+    perplexity=20,
+)
+
+imbal.classification.tsne_visualization(
+    model,
+    x_test,
+    y_test.reshape(-1),
+    perplexity=20,
+)
+```
+
+### Explanation
+
+* **tsne_visualization** projects high-dimensional model representations into 2D space.
+
+* Internally, it extracts intermediate layer outputs (latent features) from the model.
+
+* These latent representations capture how the model "sees" the data.
+
+* **perplexity** controls how t-SNE balances local vs global structure.
+
+  * Lower values emphasize local clusters; higher values capture broader structure.
+
+* The visualization helps assess:
+
+  * Rare/common separability
+  * Feature learning quality
+  * Hidden layer structure
+
+---
+
+## 3. Results
+
+### Training Data
+
+![Model Results](../images/tsne_classification_train_visualizer.png)
+
+### Testing Data
+
+![Model Results](../images/tsne_classification_test_visualizer.png)
+
+The rare class, noted in orange, is visibly clustered at the tail end of the representation,
+implying the model is learning a solid representation for both common and rare samples.
+
+---

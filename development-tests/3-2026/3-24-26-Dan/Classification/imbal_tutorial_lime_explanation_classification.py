@@ -55,21 +55,9 @@ model.compile(loss="binary_crossentropy",
               generate_decoder_branch=True,
               )
 
-# model.cRT_fit(x_train,
-#           y_train,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           )
-
-# OPTIONAL: Use custom class weights during training
-# Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
-# making rare samples more important to the model loss function than with standard sampling.
-# In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
-# NOTE: Comment above call before running the below call.
-
 class_weights = {0: 0.9, 1: 0.1}
 
-model.cRT_fit(x_train,
+model.balanced_fit(x_train,
           y_train,
           class_weight=class_weights,
           batch_size=batch_size,
@@ -78,11 +66,15 @@ model.cRT_fit(x_train,
 
 
 # ----------------------------
-# Evaluation
+# Visualization
 # ----------------------------
-results = model.evaluate(x_test, y_test)
-loss, f1_score, hss = results
+labels = train_data.drop(columns=[target_column]).columns.tolist()
 
-print(f"Test Loss: {loss:.4f}")
-print(f"Test F1Score: {f1_score:.4f}")
-print(f"Test HSS: {hss:.4f}")
+imbal.classification.lime_explain_tabular_sample(
+    x_test[-1],
+    model,
+    x_train,
+    actual_label=int(y_test.reshape(-1)[-1]),
+    class_names=['Common', 'Rare'],
+    feature_names=labels
+)
