@@ -223,7 +223,7 @@ def generate_sample_weights(
         vectorized_function = np.vectorize(density_mapping)
         weights = vectorized_function(densities)
 
-    weights = verify_weight_scale(weights, show_warning=False, axis=None)
+    weights = verify_weight_scale(weights, show_warning=False)
     return weights
 
 def _local_kde_approximation(

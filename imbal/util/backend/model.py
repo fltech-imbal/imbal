@@ -3,7 +3,6 @@ import numpy as np
 import keras, warnings
 from keras.src.trainers.data_adapters import data_adapter_utils
 from keras.src.saving import serialization_lib
-from keras.src.trainers.data_adapters.py_dataset_adapter import PyDataset
 
 import imbal
 import imbal.util.backend as backend
@@ -34,7 +33,6 @@ class Model(keras.Model):
         self._mode_subpackage = None
         self._mode_enum = None
 
-
     def fit(
         self,
         x=None,
@@ -44,7 +42,8 @@ class Model(keras.Model):
         validation_split=None,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
+        seed=None,
         verbose_imbal=1,
         **kwargs
     ):
@@ -85,112 +84,23 @@ class Model(keras.Model):
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
-        if isinstance(x, PyDataset) or isinstance(y, tf.data.Dataset):
-            # TODO if passed as dataset, just call fit. Assume user handled everything
-            pass
-
-        if self._multi_weight(sample_weight, None):
-            return self._multi_weight_fit(
-                self.fit,
-                x=x,
-                y=y,
-                sample_weight=sample_weight,
-                validation_data=validation_data,
-                validation_split=validation_split,
-                batch_size=batch_size,
-                shuffle=shuffle,
-                stratify_batches=stratify_batches,
-                verbose_imbal=verbose_imbal,
-                **kwargs
-            )
-
-
-        if stratify_batches or self._use_decoder_branch:
-            x, y, sample_weight, stratify_batches = self._x_y_weight_split_data(x, y, sample_weight, stratify_batches)
-
-        """
-        NEAR SAME (3)
-        """
-        if sample_weight is None and not isinstance(x, tf.data.Dataset) and not isinstance(x, keras.utils.PyDataset):
-            sample_weight = np.ones(x.shape[0])
-
-        sample_weight = verify_weight_scale(sample_weight)
-
-        """
-        SAME (4)
-        """
-        if validation_split and validation_data is None:
-            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
-                x,
-                y,
-                sample_weights=sample_weight,
-                test_size=validation_split,
-            )
-            sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
-            validation_data = (val_x, val_y, val_sample_weight)
-
-        """
-        NEAR SAME (5)
-        """
-        if validation_data is not None:
-            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
-                val_x, val_y, val_sample_weight = validation_data.unpack()
-            else:
-                (
-                    val_x,
-                    val_y,
-                    val_sample_weight,
-                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
-
-            if self._use_decoder_branch:
-                val_y = [val_y, val_x]
-            val_sample_weight = verify_weight_scale(val_sample_weight)
-            validation_data = (val_x, val_y, val_sample_weight)
-
-        training_model = self
-        if self._use_decoder_branch:
-            training_model = self._extended_model
-            y = [y, x]
-
-        if stratify_batches:
-            if self._use_decoder_branch:
-                x = backend.MultiDatasetWithBatching(
-                    x,
-                    y,
-                    sample_weights=sample_weight,
-                    batch_size=batch_size,
-                    shuffle=shuffle,
-                    multi_output=True,
-                    output_label_index=0,
-                    mode=self._mode_enum
-                )
-            else:
-                x = self._mode_subpackage.DatasetWithBatching(
-                    x,
-                    y,
-                    sample_weights=sample_weight,
-                    batch_size=batch_size,
-                    shuffle=shuffle
-                )
-            y = None
-            sample_weight = None
-
-        history = keras.Model.fit(
-            training_model,
+        return self._enforced_fit(
             x=x,
             y=y,
+            class_weight=None,
+            sample_density=None,
             sample_weight=sample_weight,
-            validation_split=validation_split,
             validation_data=validation_data,
-            batch_size=None if stratify_batches else batch_size,
+            validation_densities=None,
+            validation_split=validation_split,
+            batch_size=batch_size,
             shuffle=shuffle,
+            stratify_batches=stratify_batches,
+            verbose_imbal=verbose_imbal,
+            seed=seed,
+            require_weighting=False,
             **kwargs
         )
-
-        self._use_decoder_branch = self._generate_decoder_branch
-
-        return history
 
     def _balanced_fit(
         self,
@@ -206,120 +116,29 @@ class Model(keras.Model):
         shuffle=True,
         stratify_batches=False,
         verbose_imbal=1,
+        seed=None,
         **kwargs
     ):
-        """
-        Ignore
-        """
-
-        """
-        SAME (1)
-        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
-        """
-        SAME (2)
-        """
-        if stratify_batches or self._use_decoder_branch:
-            x, y, sample_weight, stratify_batches = self._x_y_weight_split_data(x, y, sample_weight, stratify_batches)
-
-        """
-        NEAR SAME (3)
-        """
-        if sample_weight is None and not isinstance(x, tf.data.Dataset) and not isinstance(x, keras.utils.PyDataset):
-            sample_weight = self._auto_compute_weights(y, sample_weight, class_weight, sample_density)
-
-        """
-        SAME (4)
-        """
-        if validation_split and validation_data is None:
-            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
-                x,
-                y,
-                sample_weights=sample_weight,
-                test_size=validation_split,
-            )
-            sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
-            validation_data = (val_x, val_y, val_sample_weight)
-
-        """
-        NEAR SAME (5)
-        """
-        if validation_data is not None:
-            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
-                val_x, val_y, val_sample_weight = validation_data.unpack()
-            else:
-                (
-                    val_x,
-                    val_y,
-                    val_sample_weight,
-                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
-
-            if val_sample_weight is None:
-                if validation_densities is not None:
-                    val_sample_weight = imbal.regression.generate_sample_weights(validation_densities)
-                else:
-                    combined_y = np.concatenate((y, val_y), axis=0)
-                    combined_weights = self._auto_compute_weights(combined_y, None, class_weight, None)
-                    sample_weight = combined_weights[:y.shape[0]]
-                    sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-                    val_sample_weight = combined_weights[y.shape[0]:]
-                    val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
-                validation_data = (val_x, val_y, val_sample_weight)
-
-        return self.fit(
+        return self._enforced_fit(
             x=x,
             y=y,
+            class_weight=class_weight,
+            sample_density=sample_density,
             sample_weight=sample_weight,
+            validation_data=validation_data,
+            validation_densities=validation_densities,
+            validation_split=validation_split,
             batch_size=batch_size,
             shuffle=shuffle,
-            validation_data=validation_data,
-            validation_split=validation_split,
             stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
+            seed=seed,
+            require_weighting=True,
             **kwargs
         )
-
-    def _x_y_weight_split_data(
-        self,
-        x,
-        y,
-        sample_weight,
-        stratify_batches
-    ):
-        data = []
-        labels = []
-        weights = []
-        if isinstance(x, tf.data.Dataset):
-            if stratify_batches:
-                warnings.warn("In order to utilize batch stratification, data must be passed as a NumPy"
-                              "array, array-like, tensor, or PyDataset. Batch stratification has been"
-                              "disabled for this fit.")
-                stratify_batches=False
-            if self._use_decoder_branch:
-                warnings.warn("In order to utilize decoder branch generation, data must be passed as a NumPy"
-                              "array, array-like, tensor, or PyDataset. Decoder branch generation has been"
-                              "disabled for this fit.")
-                self._use_decoder_branch = False
-        elif isinstance(x, keras.utils.PyDataset):
-            for i in range(x.num_batches):
-                batch = x[i]
-                if len(batch) == 2:
-                    data.append(batch[0])
-                    labels.append(batch[1])
-                    weights.append(np.ones(len(batch[0])))
-                elif len(batch) == 3:
-                    data.append(batch[0])
-                    labels.append(batch[1])
-                    weights.append(batch[2])
-                else:
-                    raise RuntimeError("PyDataset could not be split into data, labels, and weights")
-            x = np.concatenate(data)
-            y = np.concatenate(labels)
-            sample_weight = np.concatenate(weights)
-        return x, y, sample_weight, stratify_batches
 
     def _decoupled_fit(
         self,
@@ -336,14 +155,10 @@ class Model(keras.Model):
         shuffle=True,
         stratify_batches=False,
         verbose_imbal=1,
+        seed=None,
         **kwargs
     ):
-        """
-        Ignore
-        """
-        """
-        SAME (1)
-        """
+
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
 
@@ -353,83 +168,25 @@ class Model(keras.Model):
             stage_one_epochs = epochs
             stage_two_epochs = None
 
-        """
-        SAME (4)
-        """
-        if validation_split and validation_data is None:
-            (x, y, sample_weight), (val_x, val_y, val_sample_weight) = self._mode_subpackage.split(
-                x,
-                y,
-                sample_weights=sample_weight,
-                test_size=validation_split,
-            )
-            sample_weight = verify_weight_scale(sample_weight, show_warning=False)
-            val_sample_weight = verify_weight_scale(val_sample_weight, show_warning=False)
-            validation_data = (val_x, val_y, val_sample_weight)
-
-        stage_one_x = x
-        stage_one_y = y
-
-        training_model = self
-        if self._use_decoder_branch:
-            training_model = self._extended_model
-            stage_one_y = [y, x]
-
-        val_x, stage_two_val_y, stage_two_val_sample_weight = None, None, None
-
-        if validation_data is not None:
-            if isinstance(validation_data, self._mode_subpackage.DatasetWithBatching):
-                val_x, val_y, val_sample_weight = validation_data.unpack()
-            else:
-                (
-                    val_x,
-                    val_y,
-                    val_sample_weight,
-                ) = data_adapter_utils.unpack_x_y_sample_weight(validation_data)
-                stage_two_val_y = val_y
-            if self._use_decoder_branch:
-                val_y = [val_y, val_x]
-            if val_sample_weight is None:
-                if self._mode_enum == ModelType.CLASSIFICATION:
-                    val_sample_weight = imbal.classification.generate_sample_weights(val_y, class_weight)
-                else:
-                    val_sample_weight = imbal.regression.generate_sample_weights(validation_densities)
-            stage_two_val_sample_weight = verify_weight_scale(val_sample_weight)
-            validation_data = (val_x, val_y, val_sample_weight)
 
         stage_one_sample_weights = np.ones(x.shape[0])
 
-        if stratify_batches:
-            if self._use_decoder_branch:
-                stage_one_x = backend.MultiDatasetWithBatching(
-                    x,
-                    stage_one_y,
-                    sample_weights=stage_one_sample_weights,
-                    batch_size=batch_size,
-                    shuffle=shuffle,
-                    multi_output=True,
-                    output_label_index=0,
-                    mode=self._mode_enum
-                )
-            else:
-                stage_one_x = self._mode_subpackage.DatasetWithBatching(
-                    x,
-                    stage_one_y,
-                    sample_weights=stage_one_sample_weights,
-                    batch_size=batch_size,
-                    shuffle=shuffle
-                )
-            stage_one_y = None
-            stage_one_sample_weights = None
-
-        stage_one_history = training_model.fit(
-            x=stage_one_x,
-            y=stage_one_y,
+        stage_one_history = self._enforced_fit(
+            x=x,
+            y=y,
+            class_weight=None,
+            sample_density=None,
             sample_weight=stage_one_sample_weights,
             validation_data=validation_data,
+            validation_densities=None,
             validation_split=validation_split,
-            epochs=stage_one_epochs,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
+            seed=seed,
+            require_weighting=False,
+            epochs=stage_one_epochs,
             **kwargs
         )
 
@@ -459,33 +216,105 @@ class Model(keras.Model):
                 layer.trainable = False
 
         second_stage_fit_kwargs = kwargs.copy()
-        second_stage_fit_kwargs['epochs'] = len(stage_one_history.epoch) if stage_two_epochs is None else stage_two_epochs
-        second_stage_fit_kwargs['sample_weight'] = sample_weight
-        second_stage_fit_kwargs['validation_data'] = None if validation_data is None else (val_x, stage_two_val_y, stage_two_val_sample_weight)
         second_stage_fit_kwargs['callbacks'] = None
-        second_stage_fit_kwargs['batch_size'] = batch_size
-        second_stage_fit_kwargs['shuffle'] = shuffle
-        second_stage_fit_kwargs['validation_split'] = validation_split
-        second_stage_fit_kwargs['stratify_batches'] = stratify_batches
 
         # Allow second stage overrides
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
         self._use_decoder_branch = False
-        stage_two_history = self._balanced_fit(
+        stage_two_history = self._enforced_fit(
             x=x,
             y=y,
             class_weight=class_weight,
-            validation_densities=validation_densities,
             sample_density=sample_density,
+            sample_weight=sample_weight,
+            validation_data=validation_data,
+            validation_densities=validation_densities,
+            validation_split=validation_split,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
+            seed=seed,
+            require_weighting=True,
+            epochs=len(stage_one_history.epoch) if stage_two_epochs is None else stage_two_epochs,
             **second_stage_fit_kwargs
         )
+
         self._use_decoder_branch = self._generate_decoder_branch
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
 
         return stage_one_history, stage_two_history  # In the future, potentially only second stage history is returned
+
+    def _enforced_fit(
+        self,
+        x=None,
+        y=None,
+        class_weight=None,
+        sample_density=None,
+        sample_weight=None,
+        validation_data=None,
+        validation_densities=None,
+        validation_split=None,
+        batch_size=32,
+        shuffle=True,
+        stratify_batches=False,
+        verbose_imbal=1,
+        seed=None,
+        require_weighting=False,
+        **kwargs
+    ):
+        (x, y, sample_weight), validation_data = self._prepare_training_data(
+            x=x,
+            y=y,
+            class_weight=class_weight,
+            sample_density=sample_density,
+            sample_weight=sample_weight,
+            validation_data=validation_data,
+            validation_densities=validation_densities,
+            validation_split=validation_split,
+            shuffle=shuffle,
+            seed=seed,
+            require_weighting=require_weighting
+        )
+
+        training_model = self._extended_model if self._use_decoder_branch else self
+
+        if sample_weight.shape[0] == 1:
+            sample_weight = sample_weight.reshape(-1)
+            if stratify_batches:
+                x, y, sample_weight = self._stratify_data(x, y, sample_weight, batch_size, shuffle)
+
+            history = keras.Model.fit(
+                training_model,
+                x=x,
+                y=y,
+                sample_weight=sample_weight,
+                validation_data=validation_data,
+                validation_split=validation_split,
+                batch_size=None if stratify_batches else batch_size,
+                shuffle=shuffle,
+                **kwargs
+            )
+        else:
+            history = self._multi_weight_fit(
+                model=training_model,
+                x=x,
+                y=y,
+                sample_weight=sample_weight,
+                validation_data=validation_data,
+                validation_split=validation_split,
+                batch_size=batch_size,
+                shuffle=shuffle,
+                stratify_batches=stratify_batches,
+                verbose_imbal=verbose_imbal,
+                **kwargs
+            )
+
+        self._use_decoder_branch = self._generate_decoder_branch
+
+        return history
 
     def compile(
         self,
@@ -608,17 +437,22 @@ class Model(keras.Model):
 
     def _multi_weight_fit(
         self,
-        fit_function,
+        model=None,
+        x=None,
+        y=None,
+        sample_weight=None,
+        validation_data=None,
+        validation_split=None,
+        batch_size=32,
+        shuffle=True,
+        stratify_batches=True,
         verbose_imbal=1,
+        class_weight=None,
         **kwargs
     ):
-        sample_weight = kwargs.pop('sample_weight', None)
-        class_weight = kwargs.pop('class_weight', None)
 
-        iterate_over = sample_weight if sample_weight is not None else class_weight
-        weight_type = 'sample weight' if sample_weight is not None else 'class weight'
+        weight_type = 'class weight' if class_weight is not None else 'sample weight'
         find_threshold = sample_weight is None
-        iterate_over = np.array(iterate_over)
 
         best_loss = None
         best_history = None
@@ -628,6 +462,8 @@ class Model(keras.Model):
         starting_model_weights = self.get_weights()
 
         def clone_callbacks(callbacks):
+            if callbacks is None:
+                return None
             cloned = []
             for cb in callbacks:
                 if hasattr(cb, "get_config"):
@@ -648,17 +484,13 @@ class Model(keras.Model):
 
             return cloned
 
-        serialized_kwargs = serialization_lib.SerializableDict(
-            callbacks=kwargs.pop('callbacks', None),
-        )
-
-        for index, weights in enumerate(iterate_over):
-            current_kwargs = kwargs.copy()
-            if sample_weight is not None:
-                current_kwargs['sample_weight'] = weights
+        for index, weights in enumerate(sample_weight):
+            if stratify_batches:
+                multi_fit_x, multi_fit_y, multi_fit_weights = self._stratify_data(x, y, weights, batch_size, shuffle)
             else:
-                current_kwargs['class_weight'] = weights
+                multi_fit_x, multi_fit_y, multi_fit_weights = x, y, sample_weight
 
+            current_kwargs = kwargs.copy()
             if 'callbacks' in kwargs:
                 current_kwargs['callbacks'] = clone_callbacks(kwargs['callbacks'])
 
@@ -668,14 +500,21 @@ class Model(keras.Model):
                     return str(array)
                 else:
                     return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
-
             if verbose_imbal > 1:
                 print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights)}')
-            history = fit_function(
+            history = keras.Model.fit(
+                model,
+                x=multi_fit_x,
+                y=multi_fit_y,
+                sample_weight=multi_fit_weights,
+                validation_data=validation_data,
+                validation_split=validation_split,
+                batch_size=batch_size,
+                shuffle=shuffle,
                 **current_kwargs
             )
             if verbose_imbal > 0:
-                print(f'[{index+1}/{len(iterate_over)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
+                print(f'[{index+1}/{len(sample_weight)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
 
             loss_metric = history.history.get('val_loss', None)
             if loss_metric is None:
@@ -696,10 +535,10 @@ class Model(keras.Model):
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
 
-        if sample_weight is not None:
-            self.best_sample_weights = sample_weight[best_weights_index]
-        else:
+        if class_weight is not None:
             self.best_class_weights = class_weight[best_weights_index]
+        else:
+            self.best_sample_weights = sample_weight[best_weights_index]
 
         self.set_weights(best_model_weights)
 
@@ -731,7 +570,7 @@ class Model(keras.Model):
         validation_split=None,
         shuffle=True,
         seed=None,
-        require_weighting = False
+        require_weighting=False
     ):
 
         assert isinstance(x, (tf.Tensor, np.ndarray))
@@ -768,12 +607,7 @@ class Model(keras.Model):
 
         # Ensure some validation weights exist
         if validation_data is not None:
-            if len(validation_data) == 2:
-                x_val, y_val = validation_data
-                w_val = None
-            else:
-                x_val, y_val, w_val = validation_data
-
+            x_val, y_val, w_val = self._unpack_validation(validation_data)
             w_val = self._auto_compute_weights(
                 y_val,
                 w_val,
@@ -784,7 +618,18 @@ class Model(keras.Model):
             if w_val.ndims == 1:
                 w_val = w_val[None, ...]
 
+            w_val = verify_weight_scale(w_val, show_warning=False)
+
+            assert w_val.shape[0] == sample_weight.shape[0]
+
+            if self._use_decoder_branch:
+                y_val = [y_val, x_val]
+
             validation_data = (x_val, y_val, w_val)
+
+        sample_weight = verify_weight_scale(sample_weight, show_warning=False)
+        if self._use_decoder_branch:
+            y = [y, x]
 
         return (x, y, sample_weight), validation_data
 
@@ -820,4 +665,43 @@ class Model(keras.Model):
             elif sample_weight is None:
                 sample_weight = np.ones(len(labels))
         return sample_weight
+
+
+    def _unpack_validation(self, validation_data):
+        if len(validation_data) == 2:
+            x_val, y_val = validation_data
+            w_val = None
+        else:
+            x_val, y_val, w_val = validation_data
+        return x_val, y_val, w_val
+
+    def _stratify_data(
+        self,
+        x,
+        y,
+        sample_weight,
+        batch_size,
+        shuffle
+    ):
+        if self._use_decoder_branch:
+            x = backend.MultiDatasetWithBatching(
+                x,
+                y,
+                sample_weights=sample_weight,
+                batch_size=batch_size,
+                shuffle=shuffle,
+                multi_output=True,
+                output_label_index=0,
+                mode=self._mode_enum
+            )
+        else:
+            x = self._mode_subpackage.DatasetWithBatching(
+                x,
+                y,
+                sample_weights=sample_weight,
+                batch_size=batch_size,
+                shuffle=shuffle
+            )
+        return x, None, None
+
 

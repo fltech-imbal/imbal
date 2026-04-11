@@ -71,9 +71,6 @@ def generate_sample_weights(
     balanced_mapping = {}
     weight_sum = 0
 
-    multi_weight = False
-    weights = None
-
     if isinstance(class_weights, dict):
         weights = np.vectorize(
             lambda x: class_weights.get(x, 1) / class_counts.get(x)
@@ -91,7 +88,6 @@ def generate_sample_weights(
                         'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
             else:
                 class_weights = np.array(class_weights)
-                multi_weight = True
 
                 if class_weights.shape[1] != len(unique_classes):
                     raise ValueError(
@@ -119,6 +115,6 @@ def generate_sample_weights(
             balanced_mapping.update({label: full_weight_mapping[label] / weight_sum / count * labels.shape[0]})
         weights = np.array([balanced_mapping[label] for label in labels])
 
-    weights = verify_weight_scale(weights, show_warning=False, axis=1 if multi_weight else None)
+    weights = verify_weight_scale(weights, show_warning=False)
     return weights
 
