@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$80%$ of the original training data ending up in the new training subset, and $20%$ of the
+$80\%$ of the original training data ending up in the new training subset, and $20\%$ of the
 original training data ending up in the validation set. Notably, `imbal.classification.split`
 performs a stratified split, aiming to maintain a similar class distribution between both
 the training and validation set.
@@ -27,7 +27,7 @@ Create validation split
 (x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.2)
 ```
 
-## 4. Model Compilation and Training
+## 3. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
 object, then performs a model fit on the training data. We call `Model.balanced_fit`
@@ -35,7 +35,9 @@ instead of the standard `Model.fit`, which will perform a class-balanced fit on 
 training data, where each data class is equally weighted. Alternatively, a list
 of class weights can optionally be provided, in which case a fit
 will be performed on each class weight candidate, and the fit with the
-best loss will be restored.
+best loss will be restored. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.
 
 Notably, the
 `imbal.classification.Model` object can take an extra parameter in its fit
@@ -77,7 +79,7 @@ Fit stopped after 69 epochs
 Restored weights from epoch 59
 ```
 
-## 3. Metrics and Results Visualization
+## 4. Metrics and Results Visualization
 
 The following code outputs the overall accuracy, as well as the
 accuracy for the frequent and rare data in both the training and

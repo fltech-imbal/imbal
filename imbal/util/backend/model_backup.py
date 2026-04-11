@@ -3,8 +3,6 @@ import numpy as np
 import keras, warnings
 from keras.src.trainers.data_adapters import data_adapter_utils
 from keras.src.saving import serialization_lib
-from keras.src.trainers.data_adapters.py_dataset_adapter import PyDataset
-
 import imbal
 import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
@@ -82,13 +80,14 @@ class Model(keras.Model):
 
         """
 
+        """
+        SAME (1)
+        """
         if not self._mode_enum or not self._mode_subpackage:
             raise NotImplementedError
-
-        if isinstance(x, PyDataset) or isinstance(y, tf.data.Dataset):
-            # TODO if passed as dataset, just call fit. Assume user handled everything
-            pass
-
+        """
+        SAME (2)
+        """
         if self._multi_weight(sample_weight, None):
             return self._multi_weight_fit(
                 self.fit,
@@ -320,6 +319,32 @@ class Model(keras.Model):
             y = np.concatenate(labels)
             sample_weight = np.concatenate(weights)
         return x, y, sample_weight, stratify_batches
+
+    def _auto_compute_weights(
+        self,
+        labels,
+        sample_weight,
+        class_weight,
+        sample_density
+    ):
+        if self._mode_enum == ModelType.CLASSIFICATION:
+            if sample_weight is not None and class_weight is not None:
+                warnings.warn('Both sample_weights and class_weights have been provided' +
+                              'to balanced_fit. class_weights will be ignored.')
+            if sample_weight is None:
+                sample_weight = self._mode_subpackage.generate_sample_weights(
+                    labels,
+                    class_weights=class_weight
+                )
+        else:
+            if sample_weight is not None and sample_density is not None:
+                warnings.warn('Both sample_weights and sample_densities have been provided' +
+                              'to balanced_fit. sample_densities will be ignored.')
+            if sample_weight is None:
+                if sample_density is None:
+                    raise ValueError('Must provide either sample_densities or sample_weights')
+                sample_weight = self._mode_subpackage.generate_sample_weights(sample_density)
+        return sample_weight
 
     def _decoupled_fit(
         self,
@@ -718,106 +743,4 @@ class Model(keras.Model):
             self.best_threshold = best_threshold
 
         return best_history
-
-    def _prepare_training_data(
-        self,
-        x=None,
-        y=None,
-        class_weight=None,
-        sample_density=None,
-        sample_weight=None,
-        validation_data=None,
-        validation_densities=None,
-        validation_split=None,
-        shuffle=True,
-        seed=None,
-        require_weighting = False
-    ):
-
-        assert isinstance(x, (tf.Tensor, np.ndarray))
-        assert isinstance(y, (tf.Tensor, np.ndarray))
-        # Assumptions
-        # - At least x is provided
-        # - Data in x is a NumPy array/tensor
-
-        # Order of operations:
-        # - Make sure all training data is weighted
-        # - Split validation data (if necessary)
-        # - Make sure all validation data is weighted
-
-        # Ensure some sample weights exist
-        sample_weight = self._auto_compute_weights(
-            y,
-            sample_weight,
-            class_weight,
-            sample_density,
-            require_weighting
-        )
-        if sample_weight.ndim == 1:
-            sample_weight = sample_weight[None, ...]
-
-        # Split validation data if necessary
-        if validation_split is not None and validation_data is None:
-            (x, y, sample_weight), validation_data = imbal.util.backend.split(
-                x, y, sample_weight,
-                test_size=validation_split,
-                shuffle=shuffle,
-                seed=seed,
-                mode=self._mode_enum
-            )
-
-        # Ensure some validation weights exist
-        if validation_data is not None:
-            if len(validation_data) == 2:
-                x_val, y_val = validation_data
-                w_val = None
-            else:
-                x_val, y_val, w_val = validation_data
-
-            w_val = self._auto_compute_weights(
-                y_val,
-                w_val,
-                class_weight,
-                validation_densities,
-                require_weighting
-            )
-            if w_val.ndims == 1:
-                w_val = w_val[None, ...]
-
-            validation_data = (x_val, y_val, w_val)
-
-        return (x, y, sample_weight), validation_data
-
-    def _auto_compute_weights(
-        self,
-        labels,
-        sample_weight,
-        class_weight,
-        sample_density,
-        require_weighting
-    ):
-        if self._mode_enum == ModelType.CLASSIFICATION:
-            if sample_weight is not None and class_weight is not None:
-                warnings.warn('Both sample_weights and class_weights have been provided' +
-                              'to balanced_fit. class_weights will be ignored.')
-
-            if sample_weight is None and require_weighting:
-                sample_weight = self._mode_subpackage.generate_sample_weights(
-                    labels,
-                    class_weights=class_weight
-                )
-            elif sample_weight is None:
-                sample_weight = np.ones(len(labels))
-        else:
-            if sample_weight is not None and sample_density is not None:
-                warnings.warn('Both sample_weights and sample_densities have been provided' +
-                              'to balanced_fit. sample_densities will be ignored.')
-
-            if sample_weight is None and require_weighting:
-                if sample_density is None:
-                    raise ValueError('Must provide either sample_densities or sample_weights')
-                sample_weight = self._mode_subpackage.generate_sample_weights(sample_density)
-            elif sample_weight is None:
-                sample_weight = np.ones(len(labels))
-        return sample_weight
 

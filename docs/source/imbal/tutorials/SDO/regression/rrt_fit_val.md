@@ -47,7 +47,7 @@ model during training.
 ## 4. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$90%$ of the original training data ending up in the new training subset, and $10%$ of the
+$90\%$ of the original training data ending up in the new training subset, and $10\%$ of the
 original training data ending up in the validation set. Notably, `imbal.regression.split`
 performs a stratified split, aiming to maintain a similar data distribution between both
 the training and validation set.
@@ -63,7 +63,11 @@ Create validation split
 ## 5. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
-object, then performs a model fit on the training data. Notably, the
+object, then performs a model fit on the training data. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.
+
+Notably, the
 `imbal.regression.Model` object can take an extra parameter in its `Model.fit`
 function, called `stratify_batches`. This parameter ensures that rarer
 samples are present in each batch during training.

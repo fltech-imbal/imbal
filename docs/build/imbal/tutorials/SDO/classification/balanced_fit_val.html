@@ -359,7 +359,7 @@ a model be initialized. The steps for doing so can be found <a class="reference 
 <section id="create-validation-split">
 <h2>2. Create Validation Split<a class="headerlink" href="#create-validation-split" title="Link to this heading">#</a></h2>
 <p>The code below splits the training data into a training subset and validation set, with
-<span class="math notranslate nohighlight">\(80%\)</span> of the original training data ending up in the new training subset, and <span class="math notranslate nohighlight">\(20%\)</span> of the
+<span class="math notranslate nohighlight">\(80\%\)</span> of the original training data ending up in the new training subset, and <span class="math notranslate nohighlight">\(20\%\)</span> of the
 original training data ending up in the validation set. Notably, <code class="docutils literal notranslate"><span class="pre">imbal.classification.split</span></code>
 performs a stratified split, aiming to maintain a similar class distribution between both
 the training and validation set.</p>
@@ -372,14 +372,16 @@ the training and validation set.</p>
 </div>
 </section>
 <section id="model-compilation-and-training">
-<h2>4. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
+<h2>3. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
 <p>The code below compiles the model is a manner identical to the <code class="docutils literal notranslate"><span class="pre">keras.Model</span></code>
 object, then performs a model fit on the training data. We call <code class="docutils literal notranslate"><span class="pre">Model.balanced_fit</span></code>
 instead of the standard <code class="docutils literal notranslate"><span class="pre">Model.fit</span></code>, which will perform a class-balanced fit on the
 training data, where each data class is equally weighted. Alternatively, a list
 of class weights can optionally be provided, in which case a fit
 will be performed on each class weight candidate, and the fit with the
-best loss will be restored.</p>
+best loss will be restored. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.</p>
 <p>Notably, the
 <code class="docutils literal notranslate"><span class="pre">imbal.classification.Model</span></code> object can take an extra parameter in its fit
 function, called <code class="docutils literal notranslate"><span class="pre">stratify_batches</span></code>. This parameter ensures that rarer
@@ -418,7 +420,7 @@ Restored weights from epoch 59
 </div>
 </section>
 <section id="metrics-and-results-visualization">
-<h2>3. Metrics and Results Visualization<a class="headerlink" href="#metrics-and-results-visualization" title="Link to this heading">#</a></h2>
+<h2>4. Metrics and Results Visualization<a class="headerlink" href="#metrics-and-results-visualization" title="Link to this heading">#</a></h2>
 <p>The following code outputs the overall accuracy, as well as the
 accuracy for the frequent and rare data in both the training and
 test sets, along with plotting confusion matrices for the
@@ -537,8 +539,8 @@ F1 Score: 0.0000
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files">Necessary Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdo-classification-setup">1. SDO Classification Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-validation-split">2. Create Validation Split</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">4. Model Compilation and Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">3. Metrics and Results Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">3. Model Compilation and Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">4. Metrics and Results Visualization</a></li>
 </ul>
 </li>
 <li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#wip">WIP</a></li>

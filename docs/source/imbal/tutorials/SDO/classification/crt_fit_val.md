@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$80%$ of the original training data ending up in the new training subset, and $20%$ of the
+$80\%$ of the original training data ending up in the new training subset, and $20\%$ of the
 original training data ending up in the validation set. Notably, `imbal.classification.split`
 performs a stratified split, aiming to maintain a similar class distribution between both
 the training and validation set.
@@ -35,7 +35,9 @@ instead of the standard `Model.fit`, which will perform a class-balanced fit on 
 training data, where each data class is equally weighted. Alternatively, a list
 of class weights can optionally be provided, in which case a fit
 will be performed on each class weight candidate, and the fit with the
-best loss will be restored.
+best loss will be restored. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.
 
 Notably, the
 `imbal.classification.Model` object can take an extra parameter in its fit

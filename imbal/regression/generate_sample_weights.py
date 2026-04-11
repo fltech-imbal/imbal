@@ -1,11 +1,9 @@
 import numpy as np
 from math import sqrt, pi, log
-
+from imbal.util.backend.tools import verify_weight_scale
 from sklearn.neighbors import KernelDensity
-
 from imbal.util.backend.sample_weighting import get_label_bin_bounds
 from scipy.interpolate import RegularGridInterpolator
-
 import tensorflow as tf
 
 def get_sample_densities(
@@ -225,8 +223,7 @@ def generate_sample_weights(
         vectorized_function = np.vectorize(density_mapping)
         weights = vectorized_function(densities)
 
-    weights = weights / np.sum(weights) * weights.shape[0]
-
+    weights = verify_weight_scale(weights, show_warning=False, axis=None)
     return weights
 
 def _local_kde_approximation(

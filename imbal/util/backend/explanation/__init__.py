@@ -83,7 +83,7 @@ def shap_explain_tabular_sample(
     if not isinstance(training_data, np.ndarray):
         raise TypeError('Training data must be a Numpy array.')
 
-    explainer = shap.Explainer(model, training_data)
+    explainer = shap.KernelExplainer(model, training_data)
     shap_values = explainer(np.expand_dims(sample, axis=0))
 
     if label_to_explain is None:
@@ -153,7 +153,7 @@ def shap_explain_tabular_dataset(
     if not isinstance(training_data, np.ndarray):
         raise TypeError('Training data must be a Numpy array.')
 
-    explainer = shap.Explainer(model, training_data)
+    explainer = shap.KernelExplainer(model, training_data)
     shap_values = explainer(dataset)
 
     if mode == 'classification':

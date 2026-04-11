@@ -68,22 +68,19 @@ class/sample weights
 2.  Between the 9 tutorials and t-SNE, add a tutorial on metrics  
       classification: F1, HSS, TSS, AUROC  
       regression: MAE, MSE, Correlation
+
+---
+## 4/7/26
 ## Tasks
-- Make sure multi-weight lists are support in `imbal.classification/regression.split`
-- Fix `imbal.Model` to take in multiple lists of weights for validation data
-	- sample weights and validation weights should have same number of rows
-	- Potentially, one "data cleaning" function to ensure data is always in a singular format, followed by the necessary calls (and loops for `multi_weight`)
-	- Potentially, everything passes though `multi_weight` (with singular weight lists being reshaped to $(1, N)$)
-	- For class weights, training and validation data can be class weighted individually (differences in distribution is minimal for larger datasets).
-- Try to fix `generate_decoder_branch`.
-	- Hopefully, we can avoid needing a Flatten layer for reliability
-- For validation tutorials, add additional supplement for specifying validation percent
+- Add `plot_roc` $\checkmark$
+	- Documentation $\checkmark$
 - Follow up with Karen about "TA teaching" class $\checkmark$
 - Make sure to register for Fall classes $\checkmark$
-- Make sure percent signs show for LaTeX in documentation
-- Make sure new documentation numbers are in-order
-- Make sure new section 3 description for documentation is on all validation tutorials
-- Get rid of "callback" explanation in tutorials in favor of more general reasoning for why we include validation data
+- Make sure percent signs show for LaTeX in documentation $\checkmark$
+- Make sure new documentation numbers are in-order $\checkmark$
+- Make sure new section 3 description for documentation is on all validation tutorials $\checkmark$
+- Get rid of "callback" explanation in tutorials in favor of more general reasoning for why we include validation data $\checkmark$
+- For validation tutorials, add additional supplement for specifying validation percent
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure to mention code is taken from that link in documentation
 	- Also refer to paper link from paper list
@@ -92,3 +89,44 @@ class/sample weights
 		- If you don't care what these metrics are during training, they should be left out
 		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile
 - Maybe profile memory usage to see what might be causing OOM issue?
+2.  Between the 9 tutorials and t-SNE, add a tutorial on metrics  
+      classification: F1, HSS, TSS, AUROC  
+      regression: MAE, MSE, Correlation
+#### Top Priority:
+- Make sure multi-weight lists are support in `imbal.classification/regression.split` $\checkmark$
+- Fix `imbal.Model` to take in multiple lists of weights for validation data
+	- sample weights and validation weights should have same number of rows
+	- Potentially, one "data cleaning" function to ensure data is always in a singular format, followed by the necessary calls (and loops for `multi_weight`)
+	- Potentially, everything passes though `multi_weight` (with singular weight lists being reshaped to $(1, N)$)
+	- For class weights, training and validation data can be class weighted individually (differences in distribution is minimal for larger datasets).
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
+
+---
+# 4/10/26
+## Tasks
+#### Top Priority:
+- Make sure multi-weight lists are support in `imbal.classification/regression.split` $\checkmark$
+- Fix `imbal.Model` to take in multiple lists of weights for validation data
+	- We are no longer supporting `PyDataset` or `Dataset` to be passed to our fit functions.
+		- Move `DatasetWithBatching` to `imbal.util`
+	- sample weights and validation weights should have same number of rows
+	- Potentially, one "data cleaning" function to ensure data is always in a singular format, followed by the necessary calls (and loops for `multi_weight`)
+	- Potentially, everything passes though `multi_weight` (with singular weight lists being reshaped to $(1, N)$)
+	- For class weights, training and validation data can be class weighted individually (differences in distribution is minimal for larger datasets).
+#### Low Priority:
+- For validation tutorials, add additional supplement for specifying validation percent
+- When making metric tutorial, considerations for putting metrics in/out of compile:
+	- When in compile, metrics are tracked every batch/epoch (can be time consuming)
+		- If you don't care what these metrics are during training, they should be left out
+		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile
+- Maybe profile memory usage to see what might be causing OOM issue?
+2.  Between the 9 tutorials and t-SNE, add a tutorial on metrics
+      classification: F1, HSS, TSS, AUROC  (HSS inside compile, F1 outside)
+      regression: MAE, MSE, Correlation
+  - [KernelExplainer](https://shap.readthedocs.io/en/latest/generated/shap.KernelExplainer.html#shap.KernelExplainer) vs general [Explainer](https://shap.readthedocs.io/en/latest/generated/shap.Explainer.html#shap.Explainer)
+  - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure to mention code is taken from that link in documentation
+	- Also refer to paper link from paper list
+  - Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability

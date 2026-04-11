@@ -359,7 +359,7 @@ a model be initialized. The steps for doing so can be found <a class="reference 
 <section id="create-validation-split">
 <h2>2. Create Validation Split<a class="headerlink" href="#create-validation-split" title="Link to this heading">#</a></h2>
 <p>The code below splits the training data into a training subset and validation set, with
-<span class="math notranslate nohighlight">\(90%\)</span> of the original training data ending up in the new training subset, and <span class="math notranslate nohighlight">\(10%\)</span> of the
+<span class="math notranslate nohighlight">\(90\%\)</span> of the original training data ending up in the new training subset, and <span class="math notranslate nohighlight">\(10\%\)</span> of the
 original training data ending up in the validation set. Notably, <code class="docutils literal notranslate"><span class="pre">imbal.regression.split</span></code>
 performs a stratified split, aiming to maintain a similar data distribution between both
 the training and validation set.</p>
@@ -374,9 +374,9 @@ the training and validation set.</p>
 <section id="model-compilation-and-training">
 <h2>3. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
 <p>The code below compiles the model is a manner identical to the <code class="docutils literal notranslate"><span class="pre">keras.Model</span></code>
-object, then performs a model fit on the training data. We employ the
-<code class="docutils literal notranslate"><span class="pre">keras.callbacks.EarlyStopping</span></code> callback to stop training once the
-validation loss begins to diverge.</p>
+object, then performs a model fit on the training data. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.</p>
 <p>Notably, the
 <code class="docutils literal notranslate"><span class="pre">imbal.regression.Model</span></code> object can take an extra parameter in its <code class="docutils literal notranslate"><span class="pre">Model.fit</span></code>
 function, called <code class="docutils literal notranslate"><span class="pre">stratify_batches</span></code>. This parameter ensures that rarer
@@ -418,7 +418,7 @@ Restored weights from epoch 99
 </div>
 </section>
 <section id="probability-density-distribution-and-results-visualization">
-<h2>3. Probability Density Distribution and Results Visualization<a class="headerlink" href="#probability-density-distribution-and-results-visualization" title="Link to this heading">#</a></h2>
+<h2>4. Probability Density Distribution and Results Visualization<a class="headerlink" href="#probability-density-distribution-and-results-visualization" title="Link to this heading">#</a></h2>
 <p>The following code plots a fitted KDE distribution for the training
 data over a histogram of the training data, along with a plot
 comparing the true and predicted values for individual test samples.</p>
@@ -519,7 +519,7 @@ MAE for log10 flux &gt;= -4: 1.419
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdo-setup">1. SDO Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-validation-split">2. Create Validation Split</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">3. Model Compilation and Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density-distribution-and-results-visualization">3. Probability Density Distribution and Results Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density-distribution-and-results-visualization">4. Probability Density Distribution and Results Visualization</a></li>
 </ul>
   </nav></div>
 

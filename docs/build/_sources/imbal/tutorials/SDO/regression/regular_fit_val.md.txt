@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$90%$ of the original training data ending up in the new training subset, and $10%$ of the
+$90\%$ of the original training data ending up in the new training subset, and $10\%$ of the
 original training data ending up in the validation set. Notably, `imbal.regression.split`
 performs a stratified split, aiming to maintain a similar data distribution between both
 the training and validation set.
@@ -30,9 +30,9 @@ Create validation split
 ## 3. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
-object, then performs a model fit on the training data. We employ the
-`keras.callbacks.EarlyStopping` callback to stop training once the
-validation loss begins to diverge.
+object, then performs a model fit on the training data. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.
 
 Notably, the
 `imbal.regression.Model` object can take an extra parameter in its `Model.fit`
@@ -77,7 +77,7 @@ Fit finished after 109 epochs
 Restored weights from epoch 99
 ```
 
-## 3. Probability Density Distribution and Results Visualization
+## 4. Probability Density Distribution and Results Visualization
 
 The following code plots a fitted KDE distribution for the training
 data over a histogram of the training data, along with a plot

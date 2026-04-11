@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$80%$ of the original training data ending up in the new training subset, and $20%$ of the
+$80%$ of the original training data ending up in the new training subset, and $20\%$ of the
 original training data ending up in the validation set. Notably, `imbal.classification.split`
 performs a stratified split, aiming to maintain a similar class distribution between both
 the training and validation set.
@@ -30,12 +30,12 @@ Create validation split
 ## 3. Model Compilation and Training
 
 The code below compiles the model is a manner identical to the `keras.Model`
-object, then performs a model fit on the training data. We employ the
-`keras.callbacks.EarlyStopping` callback to stop training once the
-validation loss begins to diverge.
+object, then performs a model fit on the training data. We monitor when
+the validation loss begins to diverge to determine when to end training,
+restoring the state of the model right before the divergence began.
 
 Notably, the
-`imbal.classification.Model` object can take an extra parameter in its `Model.fit`
+`imbal.classification.Model` object can take an extra parameter in its fit
 function, called `stratify_batches`. This parameter ensures that rarer
 samples are present in each batch during training.
 

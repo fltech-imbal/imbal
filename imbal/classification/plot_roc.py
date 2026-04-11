@@ -8,6 +8,18 @@ def plot_roc(
     predictions,
     save_figure=None,
 ):
+    """
+    Generates a simple ROC curve plot, based on the provided labels and predictions.
+
+    Args:
+        labels: A NumPy array of labels. Each label should be a binary value (0 for false,
+            1 for true).
+        predictions: A NumPy array of predictions. This should be the raw list of prediction
+            confidences, not a rounded predicted label.
+        save_figure: Optional, default :code:`None`. If set, specifies the path to save the
+            generated plot to.
+
+    """
     labels = labels.reshape(-1, 1)
     predictions = predictions.reshape(-1, 1)
     fpr, tpr, thresholds = roc_curve(labels, predictions, drop_intermediate=False)

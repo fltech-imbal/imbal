@@ -18,6 +18,7 @@ Located until the `imbal.classification` subpackage.
 - [optimize_metric_threshold](optimize_metric_threshold.md)
 - [interpolate_class_weights](interpolate_class_weights.md)
 - [plot_confusion_matrix](plot_confusion_matrix.md)
+- [plot_roc](plot_roc.md)
 
 ```{eval-rst}
 .. toctree::
