@@ -72,13 +72,16 @@ data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
-# If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
-# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+# If this is uncommented, be sure to also uncomment the indicated lines in the following two sections
+weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 
 """
 Create validation split
 """
-(x_train, y_train, sample_densities), (x_val, y_val, val_densities) =  imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+(x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+w_val = None
+# Uncomment below to use varying alphas for reciprocal importance (see above section)
+(x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
 
 """
 Compile and train model
@@ -97,8 +100,8 @@ history = model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    # sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    validation_data=(x_val, y_val),
+    sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
     epochs=500,
     batch_size=BATCH_SIZE,

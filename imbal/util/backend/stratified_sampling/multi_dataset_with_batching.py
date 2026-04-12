@@ -231,10 +231,6 @@ class MultiDatasetWithBatching(tf.keras.utils.PyDataset):
         else:
             output_labels = self._y_set
 
-        print(type(y_set))
-        print(len(y_set))
-        print(type(output_labels))
-        print(output_labels.shape)
         if output_labels.ndim == 1:
             self._comp_values = output_labels
         elif output_labels.ndim == 2:

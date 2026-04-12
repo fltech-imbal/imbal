@@ -1,14 +1,13 @@
 import tensorflow as tf
 import numpy as np
 import keras, warnings
-from keras.src.trainers.data_adapters import data_adapter_utils
 from keras.src.saving import serialization_lib
+import copy
 
 import imbal
 import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
 from imbal.util.backend.tools import verify_weight_scale
-import copy
 
 def mse_reconstruction_loss(y_true, y_pred):
     sq = tf.math.squared_difference(y_true, y_pred)
@@ -286,6 +285,11 @@ class Model(keras.Model):
             if stratify_batches:
                 x, y, sample_weight = self._stratify_data(x, y, sample_weight, batch_size, shuffle)
 
+            if validation_data is not None:
+                x_val, y_val, w_val = validation_data
+                w_val = w_val.reshape(-1)
+                validation_data = (x_val, y_val, w_val)
+
             history = keras.Model.fit(
                 training_model,
                 x=x,
@@ -502,12 +506,19 @@ class Model(keras.Model):
                     return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
             if verbose_imbal > 1:
                 print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights)}')
+
+            if validation_data is not None:
+                x_val, y_val, w_val = validation_data
+                current_val_data = (x_val, y_val, w_val[index])
+            else:
+                current_val_data = None
+
             history = keras.Model.fit(
                 model,
                 x=multi_fit_x,
                 y=multi_fit_y,
                 sample_weight=multi_fit_weights,
-                validation_data=validation_data,
+                validation_data=current_val_data,
                 validation_split=validation_split,
                 batch_size=batch_size,
                 shuffle=shuffle,
@@ -615,7 +626,7 @@ class Model(keras.Model):
                 validation_densities,
                 require_weighting
             )
-            if w_val.ndims == 1:
+            if w_val.ndim == 1:
                 w_val = w_val[None, ...]
 
             w_val = verify_weight_scale(w_val, show_warning=False)
