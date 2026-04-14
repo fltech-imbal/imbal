@@ -131,4 +131,5 @@ class/sample weights
   - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
 #### Miscellaneous:
-- Fixed a second LIME bug for Daniel (LIME by default does not work on binary classification. It must be converted to a 2-class classification, where the first class is false, and the second class is true) $\checkmark$
+- Fixed multiple LIME bugs for Daniel (LIME by default does not work on binary classification. It must be converted to a 2-class classification, where the first class is false, and the second class is true) $\checkmark$
+- Fixed a bug related to using model with AE when no metric are provided

@@ -395,15 +395,15 @@ class Model(keras.Model):
             else mse_reconstruction_loss
         )
 
-        model_metrics = kwargs.get('metrics', [None])
-        is_list_like = backend.tools.is_list_like(model_metrics[0])
-        updated_compile_kwargs['metrics'] = (
-            (
+        model_metrics = kwargs.get('metrics', None)
+        if model_metrics is None:
+            updated_compile_kwargs['metrics'] = ['mse']
+        else:
+            is_list_like = backend.tools.is_list_like(model_metrics[0])
+            updated_compile_kwargs['metrics'] = (
                 updated_compile_kwargs['metrics'] + [['mse']] if is_list_like
                 else [updated_compile_kwargs['metrics']] + [['mse']]
-            ) if model_metrics
-            else ['mse']
-        )
+            )
 
         self._extended_model.compile(**updated_compile_kwargs)
 
