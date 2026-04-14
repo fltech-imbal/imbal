@@ -53,13 +53,10 @@ def lime_explain_image_sample(
         image = np.repeat(image, 3, -1)
 
     def predict_fn(value):
-        print(value.shape, original_image.shape)
         if original_image.shape != value.shape[1:]:
             if original_image.ndim == 2 or original_image.ndim == 3 and original_image.shape[-1] == 1:
                 value = value[..., 0]
-                print('here', value.shape)
             value = value.reshape((value.shape[0], *original_image.shape))
-        print(value.shape)
         return model.predict(value)
 
     explainer = lime_image.LimeImageExplainer()

@@ -16,8 +16,11 @@ def lime_explain_tabular_sample(
     mode='classification',
     figure_save_path='lime-explanation.html'
 ):
+    original_sample = sample
 
     def predict_fn(value):
+        if original_sample.shape != value.shape[1:]:
+            value = value.reshape((value.shape[0], *original_sample.shape))
         return model.predict(value)
 
     explainer = lime_tabular.LimeTabularExplainer(

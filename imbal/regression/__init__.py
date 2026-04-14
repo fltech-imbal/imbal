@@ -1,5 +1,4 @@
 from .split import split
-from .dataset_with_batching import DatasetWithBatching
 from .generate_sample_weights import (
     get_sample_densities,
     generate_sample_weights

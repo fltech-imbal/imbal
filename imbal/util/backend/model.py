@@ -52,7 +52,7 @@ class Model(keras.Model):
 
         Args:
             x: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-                A NumPy array of data points, arranged as a column vector
+                A NumPy array of data points, arranged as a column vector.
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
