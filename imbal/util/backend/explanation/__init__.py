@@ -16,12 +16,12 @@ def lime_explain_tabular_sample(
     mode='classification',
     figure_save_path='lime-explanation.html'
 ):
-    original_sample = sample
-
     def predict_fn(value):
-        if original_sample.shape != value.shape[1:]:
-            value = value.reshape((value.shape[0], *original_sample.shape))
-        return model.predict(value)
+        predictions = model.predict(value)
+        if predictions.shape[-1] == 1:
+            inverse_predictions = 1 - predictions
+            predictions = np.concatenate([inverse_predictions, predictions], axis=-1)
+        return predictions
 
     explainer = lime_tabular.LimeTabularExplainer(
         training_data,
