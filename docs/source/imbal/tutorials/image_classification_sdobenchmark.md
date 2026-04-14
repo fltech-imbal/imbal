@@ -29,3 +29,5 @@ Each row corresponds to some additional modification to the approach:
 | Basic           | [Regular](SDO/classification/regular_fit.md)         | [Balanced](SDO/classification/balanced_fit.md)         | [cRT](SDO/classification/crt_fit.md)         |
 | With AE         | [Regular+AE](SDO/classification/regular_fit_ae.md)   | [Balanced+AE](SDO/classification/balanced_fit_ae.md)   | [cRT+AE](SDO/classification/crt_fit_ae.md)   |
 | With Validation | [Regular+val](SDO/classification/regular_fit_val.md) | [Balanced+val](SDO/classification/balanced_fit_val.md) | [cRT+val](SDO/classification/crt_fit_val.md) |
+
+[Using `imbal.metrics` in model classification](SDO/classification/metrics.md)

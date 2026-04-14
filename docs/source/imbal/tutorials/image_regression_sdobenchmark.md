@@ -29,3 +29,5 @@ Each row corresponds to some additional modification to the approach:
 | Basic           | [Regular](SDO/regression/regular_fit.md)         | [Balanced](SDO/regression/balanced_fit.md)         | [rRT](SDO/regression/rrt_fit.md)         |
 | With AE         | [Regular+AE](SDO/regression/regular_fit_ae.md)   | [Balanced+AE](SDO/regression/balanced_fit_ae.md)   | [rRT+AE](SDO/regression/rrt_fit_ae.md)   |
 | With Validation | [Regular+val](SDO/regression/regular_fit_val.md) | [Balanced+val](SDO/regression/balanced_fit_val.md) | [rRT+val](SDO/regression/rrt_fit_val.md) |
+
+[Using `imbal.metrics` in model regression](SDO/regression/metrics.md)

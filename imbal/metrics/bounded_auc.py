@@ -11,7 +11,7 @@ class BoundedAUC(AUC):
     which allows for limiting the AUC graph with an optional x minimum, x maximum,
     y minimum, and y maximum.
 
-    For a best approximation of the real AUC, :code:`predictions` should be
+    For the best approximation of the real AUC, :code:`predictions` should be
     distributed approximately uniformly in the range :code:`[0, 1]` (if
     :code:`from_logits=False`). The quality of the AUC approximation may be poor if
     this is not the case. Setting :code:`summation_method` to 'minoring' or 'majoring'

@@ -38,7 +38,9 @@ def lime_explain_tabular_sample(
     )
 
     if label_to_explain is None:
-        label_to_explain = model.predict(np.expand_dims(sample, axis=0))[0]
+        if sample.shape[0] != 1:
+            sample = sample[None, ...]
+        label_to_explain = predict_fn(sample)[0]
         if mode == 'classification':
             label_to_explain = label_to_explain.argmax()
         else:

@@ -370,7 +370,7 @@
 <p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/AUC">TensorFlow’s AUC class</a>
 which allows for limiting the AUC graph with an optional x minimum, x maximum,
 y minimum, and y maximum.</p>
-<p>For a best approximation of the real AUC, <code class="code docutils literal notranslate"><span class="pre">predictions</span></code> should be
+<p>For the best approximation of the real AUC, <code class="code docutils literal notranslate"><span class="pre">predictions</span></code> should be
 distributed approximately uniformly in the range <code class="code docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code> (if
 <code class="code docutils literal notranslate"><span class="pre">from_logits=False</span></code>). The quality of the AUC approximation may be poor if
 this is not the case. Setting <code class="code docutils literal notranslate"><span class="pre">summation_method</span></code> to ‘minoring’ or ‘majoring’
