@@ -35,8 +35,7 @@
               "title": "Notes 4-26"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -184,10 +183,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "fd2ffd65dc33e6db",
+  "active": "8e618089c67b810b",
   "lastOpenFiles": [
-    "Images/Pasted image 20260326161401.png",
     "Spring 2026 Notes/Notes 4-26.md",
+    "Images/Pasted image 20260326161401.png",
     "Spring 2026 Notes/Notes 3-26.md",
     "Proposal PDF.pdf",
     "Spring 2026 Notes/Notes 2-26.md",

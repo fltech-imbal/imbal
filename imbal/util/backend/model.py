@@ -396,13 +396,11 @@ class Model(keras.Model):
         )
 
         model_metrics = kwargs.get('metrics', None)
-        if model_metrics is None:
-            updated_compile_kwargs['metrics'] = ['mse']
-        else:
+        if model_metrics is not None:
             is_list_like = backend.tools.is_list_like(model_metrics[0])
             updated_compile_kwargs['metrics'] = (
-                updated_compile_kwargs['metrics'] + [['mse']] if is_list_like
-                else [updated_compile_kwargs['metrics']] + [['mse']]
+                updated_compile_kwargs['metrics'] + [[]] if is_list_like
+                else [updated_compile_kwargs['metrics']] + [[]]
             )
 
         self._extended_model.compile(**updated_compile_kwargs)

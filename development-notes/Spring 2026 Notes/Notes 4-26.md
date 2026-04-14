@@ -132,4 +132,4 @@ class/sample weights
 	- Hopefully, we can avoid needing a Flatten layer for reliability
 #### Miscellaneous:
 - Fixed multiple LIME bugs for Daniel (LIME by default does not work on binary classification. It must be converted to a 2-class classification, where the first class is false, and the second class is true) $\checkmark$
-- Fixed a bug related to using model with AE when no metric are provided
+- Fixed a bug related to using model with AE when no metric are provided $\checkmark$
