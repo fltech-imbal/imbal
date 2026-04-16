@@ -1,8 +1,7 @@
 import tensorflow as tf
 import numpy as np
-import keras, warnings
+import keras, warnings, copy, gc
 from keras.src.saving import serialization_lib
-import copy
 
 import imbal
 import imbal.util.backend as backend
@@ -170,13 +169,19 @@ class Model(keras.Model):
 
         stage_one_sample_weights = np.ones(x.shape[0])
 
+        if validation_data is not None:
+            x_val, y_val, w_val = validation_data
+            stage_one_validation = (x_val, y_val, np.ones(x_val.shape[0]))
+        else:
+            stage_one_validation = None
+
         stage_one_history = self._enforced_fit(
             x=x,
             y=y,
             class_weight=None,
             sample_density=None,
             sample_weight=stage_one_sample_weights,
-            validation_data=validation_data,
+            validation_data=stage_one_validation,
             validation_densities=None,
             validation_split=validation_split,
             batch_size=batch_size,
@@ -487,10 +492,11 @@ class Model(keras.Model):
             return cloned
 
         for index, weights in enumerate(sample_weight):
+            tf.keras.backend.clear_session()
             if stratify_batches:
                 multi_fit_x, multi_fit_y, multi_fit_weights = self._stratify_data(x, y, weights, batch_size, shuffle)
             else:
-                multi_fit_x, multi_fit_y, multi_fit_weights = x, y, sample_weight
+                multi_fit_x, multi_fit_y, multi_fit_weights = x, y, weights
 
             current_kwargs = kwargs.copy()
             if 'callbacks' in kwargs:
@@ -510,6 +516,12 @@ class Model(keras.Model):
                 current_val_data = (x_val, y_val, w_val[index])
             else:
                 current_val_data = None
+
+            if hasattr(self, 'compiled_metrics') and self.compiled_metrics:
+                reset_fn = getattr(self.compiled_metrics, 'reset_states', None) or getattr(self.compiled_metrics,
+                                                                                           'reset_state', None)
+                if reset_fn:
+                    reset_fn()
 
             history = keras.Model.fit(
                 model,
@@ -535,11 +547,18 @@ class Model(keras.Model):
             if best_loss is None or best_loss_of_run < best_loss:
                 best_loss = best_loss_of_run
                 best_history = history
-                del best_model_weights  # free previous
+                if best_model_weights is not None:
+                    del best_model_weights
                 best_model_weights = self.get_weights()
                 best_weights_index = index
 
+            if stratify_batches:
+                del multi_fit_x
+
             self.set_weights(starting_model_weights)
+
+        gc.collect()
+        tf.keras.backend.clear_session()
 
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
@@ -704,12 +723,13 @@ class Model(keras.Model):
                 mode=self._mode_enum
             )
         else:
-            x = self._mode_subpackage.DatasetWithBatching(
+            x = backend.DatasetWithBatching(
                 x,
                 y,
                 sample_weights=sample_weight,
                 batch_size=batch_size,
-                shuffle=shuffle
+                shuffle=shuffle,
+                mode=self._mode_enum
             )
         return x, None, None
 

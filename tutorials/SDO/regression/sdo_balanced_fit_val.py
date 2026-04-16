@@ -78,8 +78,8 @@ weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alp
 """
 Create validation split
 """
-(x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
-w_val = None
+# (x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+# w_val = None
 # Uncomment below to use varying alphas for reciprocal importance (see above section)
 (x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
 

@@ -1,6 +1,7 @@
 """
 Import packages
 """
+
 import imbal
 import os
 import numpy as np
@@ -18,8 +19,8 @@ def load_sdo_data(data_path):
         contents = file.read().strip()
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
-    # Load images (10 images per sample, 256x256 per image)
-    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    # Load images (10 images per sample, 128x128 per image)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 10), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
         image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
@@ -45,12 +46,10 @@ print(
 Build model
 """
 def build_simple_cnn():
-    input_layer = layers.Input((256, 256, 10))
+    input_layer = layers.Input((128, 128, 10))
     x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
     x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
-    x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
     x = layers.Conv2D(16, 3, activation='relu', padding='same', strides=(2, 2))(x)
-    x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
     x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Dense(32, activation='relu')(x)
     x = layers.Flatten()(x)
@@ -73,7 +72,7 @@ sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandw
 
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
 # If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
-# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
 
 """
 Compile and train model
@@ -93,7 +92,7 @@ model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    # sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
