@@ -1,17 +1,16 @@
 """
 Import packages
 """
-import keras.metrics
 import imbal
 import os
 import numpy as np
 from PIL import Image
-from keras import layers, optimizers, callbacks
+from keras import layers, optimizers, callbacks, metrics
 
 """
 Load data
 """
-SDO_DATA_PATH = '../regression/temp' # Ensure data is located at this path
+SDO_DATA_PATH = '../../data/SDOBenchmark' # Ensure data is located at this path
 
 def load_sdo_data(data_path):
     # Load labels (log peak flux)
@@ -23,7 +22,7 @@ def load_sdo_data(data_path):
     loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
-        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{1}.jpg')).convert('L')
+        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}.jpg')).convert('L')
         stacked_images = np.array(image_list).reshape(128, 128, 1) # Images stacked along channels
         loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
@@ -81,7 +80,7 @@ PATIENCE = 10
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 history = model.balanced_fit(
@@ -123,7 +122,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
