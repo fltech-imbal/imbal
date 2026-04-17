@@ -139,9 +139,9 @@ class/sample weights
 
 ## Tasks
 #### Top Priority:
-- Remove MSE metric from AE
+- Remove MSE metric from AE $\checkmark$
 - Make sure documentation specifies that the we the Kernel SHAP (and link to paper if not linked already)
-- Maybe profile memory usage to see what might be causing OOM issue?
+- Maybe profile memory usage to see what might be causing OOM issue? $\checkmark$
 - For validation tutorials, add additional supplement for specifying validation percent
 - When making metric tutorial, considerations for putting metrics in/out of compile:
 	- When in compile, metrics are tracked every batch/epoch (can be time consuming)

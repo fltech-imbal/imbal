@@ -19,11 +19,11 @@ def load_sdo_data(data_path):
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
     # Load images (10 images per sample, 256x256 per image)
-    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
-        image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
-        stacked_images = np.stack(image_list, axis=-1) # Images stacked along channels
+        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}.jpg')).convert('L')
+        stacked_images = np.array(image_list).reshape(128, 128, 1) # Images stacked along channels
         loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
     print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
@@ -45,7 +45,7 @@ print(
 Build model
 """
 def build_simple_cnn():
-    input_layer = layers.Input((256, 256, 10))
+    input_layer = layers.Input((128, 128, 1))
     x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
     x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
@@ -73,7 +73,7 @@ sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandw
 
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
 # If this is uncommented, be sure to also uncomment the indicated lines in the following two sections
-weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.4, 0.6, 0.8, 1.0])
 
 """
 Create validation split
@@ -86,8 +86,8 @@ Create validation split
 """
 Compile and train model
 """
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
@@ -102,7 +102,7 @@ history = model.balanced_fit(
     sample_density=sample_densities,
     sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
     validation_data=(x_val, y_val, w_val),
-    validation_densities=val_densities,
+    # validation_densities=val_densities,
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution,
