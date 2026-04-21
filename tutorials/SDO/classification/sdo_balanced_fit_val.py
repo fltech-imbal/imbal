@@ -1,12 +1,11 @@
 """
 Import packages
 """
-import keras.metrics
 import imbal
 import os
 import numpy as np
 from PIL import Image
-from keras import layers, optimizers, callbacks
+from keras import layers, optimizers, callbacks, metrics
 
 """
 Load data
@@ -20,11 +19,11 @@ def load_sdo_data(data_path):
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
     # Load images (10 images per sample, 256x256 per image)
-    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
-        image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
-        stacked_images = np.stack(image_list, axis=-1) # Images stacked along channels
+        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}.jpg')).convert('L')
+        stacked_images = np.array(image_list).reshape(128, 128, 1) # Images stacked along channels
         loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
     print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
@@ -48,7 +47,7 @@ print(
 Build model
 """
 def build_simple_cnn():
-    input_layer = layers.Input((256, 256, 10))
+    input_layer = layers.Input((128, 128, 1))
     x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
     x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
@@ -69,19 +68,19 @@ model = build_simple_cnn()
 Create validation split
 """
 
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.2)
+(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
 """
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 history = model.balanced_fit(
@@ -90,6 +89,7 @@ history = model.balanced_fit(
     validation_data=(x_val, y_val.reshape(-1, 1)),
     epochs=500,
     batch_size=BATCH_SIZE,
+    class_weight=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.4], [0.4, 0.4], [0.5, 0.5]],
     stratify_batches=True, # Ensure all batches have a similar data distribution
     callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
@@ -122,7 +122,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(

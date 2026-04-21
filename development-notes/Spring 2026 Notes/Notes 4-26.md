@@ -139,9 +139,10 @@ class/sample weights
 
 ## Tasks
 #### Top Priority:
-- Remove MSE metric from AE
+- Remove MSE metric from AE $\checkmark$
 - Make sure documentation specifies that the we the Kernel SHAP (and link to paper if not linked already)
-- Maybe profile memory usage to see what might be causing OOM issue?
+- LIME bug from Daniel? double check it
+- Maybe profile memory usage to see what might be causing OOM issue? $\checkmark$
 - For validation tutorials, add additional supplement for specifying validation percent
 - When making metric tutorial, considerations for putting metrics in/out of compile:
 	- When in compile, metrics are tracked every batch/epoch (can be time consuming)
@@ -149,6 +150,7 @@ class/sample weights
 		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile
 		- We recommend 0 or 1 metric
 			- classification: F1, HSS, TSS, AUROC  (HSS inside compile, F1 outside)
+				- Add GSS, J statistic, and Youden's index
 			- regression: MAE, MSE, Correlation
 				- For regression/single value metric, split into overall, frequent, and rare
 				- Focus on True Positive/False Negative
@@ -156,7 +158,12 @@ class/sample weights
 - visualization tutorial comes later
 	- Make sure to mention code is taken from that link in documentation
 	- Also refer to paper link from paper list
+	- For LIME classification tutorial
+		- Have two examples:
+			- Explaining an event that was detected correctly
+			- A mistake (false negative or false positive)
 #### Low Priority:
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure it works for binary classification with single output unit (convert to 2 class)
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
