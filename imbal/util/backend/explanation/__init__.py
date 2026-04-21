@@ -18,7 +18,7 @@ def lime_explain_tabular_sample(
 ):
     def predict_fn(value):
         predictions = model.predict(value)
-        if predictions.shape[-1] == 1:
+        if mode == "classification" and predictions.shape[-1] == 1:
             inverse_predictions = 1 - predictions
             predictions = np.concatenate([inverse_predictions, predictions], axis=-1)
         return predictions

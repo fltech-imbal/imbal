@@ -50,8 +50,6 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
-              metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
               generate_decoder_branch=True,
               )
 
@@ -68,13 +66,29 @@ model.balanced_fit(x_train,
 # ----------------------------
 # Visualization
 # ----------------------------
+
 labels = train_data.drop(columns=[target_column]).columns.tolist()
 
+target_sample_index = -1 # Get a rare sample, which is at the end of the data
+
 imbal.classification.lime_explain_tabular_sample(
-    x_test[-1],
+    x_test[target_sample_index],
     model,
     x_train,
-    actual_label=int(y_test.reshape(-1)[-1]),
+    actual_label=int(y_test.reshape(-1)[target_sample_index]),
     class_names=['Common', 'Rare'],
-    feature_names=labels
+    feature_names=labels,
+    figure_save_path="lime-explanation.html"
+)
+
+target_sample_index = -9 # Get an incorrectly predicted rare sample
+
+imbal.classification.lime_explain_tabular_sample(
+    x_test[target_sample_index],
+    model,
+    x_train,
+    actual_label=int(y_test.reshape(-1)[target_sample_index]),
+    class_names=['Common', 'Rare'],
+    feature_names=labels,
+    figure_save_path="lime-explanation-wrong.html"
 )

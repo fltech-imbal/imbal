@@ -53,9 +53,7 @@ densities = imbal.regression.get_sample_densities(labels_kde, kde)
 
 model.compile(loss="mean_squared_error",
               optimizer="adam",
-              metrics=[keras.metrics.MeanAbsoluteError(name="mae"),
-                       keras.metrics.MeanSquaredError(name="mse"),
-                       keras.metrics.PearsonCorrelation(name="pcc")],
+              metrics=[keras.metrics.MeanAbsoluteError(name="mae")],
               )
 
 from imbal.regression import reciprocal_importance
@@ -71,15 +69,58 @@ model.balanced_fit(x_train,
 # ----------------------------
 # Evaluation
 # ----------------------------
+rare_threshold = np.log(10.0)
+
+common_mask = y_test.reshape(-1) < rare_threshold
+rare_mask = y_test.reshape(-1) >= rare_threshold
+
 y_pred = model.predict(x_test)
 
 results = model.evaluate(x_test, y_test)
-loss, mae, mse, pcc = results
+loss, mae = results
+
+mae_common_metric = keras.metrics.MeanAbsoluteError(name="common_mae")
+mae_common_metric.update_state(y_test[common_mask], y_pred[common_mask])
+mae_common = mae_common_metric.result()
+
+mae_rare_metric = keras.metrics.MeanAbsoluteError(name="rare_mae")
+mae_rare_metric.update_state(y_test[rare_mask], y_pred[rare_mask])
+mae_rare = mae_rare_metric.result()
+
+mse_metric = keras.metrics.MeanSquaredError(name="mse")
+mse_metric.update_state(y_test, y_pred)
+mse = mse_metric.result()
+
+mse_common_metric = keras.metrics.MeanSquaredError(name="common_mse")
+mse_common_metric.update_state(y_test[common_mask], y_pred[common_mask])
+mse_common = mse_common_metric.result()
+
+mse_rare_metric = keras.metrics.MeanSquaredError(name="rare_mse")
+mse_rare_metric.update_state(y_test[rare_mask], y_pred[rare_mask])
+mse_rare = mse_rare_metric.result()
+
+pcc_metric = keras.metrics.PearsonCorrelation(name="pcc", axis=0)
+pcc_metric.update_state(y_test, y_pred)
+pcc = pcc_metric.result().numpy()
+
+pcc_common_metric = keras.metrics.PearsonCorrelation(name="common_pcc", axis=0)
+pcc_common_metric.update_state(y_test[common_mask], y_pred[common_mask])
+pcc_common = pcc_common_metric.result().numpy()
+
+pcc_rare_metric = keras.metrics.PearsonCorrelation(name="rare_pcc", axis=0)
+pcc_rare_metric.update_state(y_test[rare_mask], y_pred[rare_mask])
+pcc_rare = pcc_rare_metric.result().numpy()
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test MAE: {mae:.4f}")
+print(f"Test Common Sample MAE: {mae_common:.4f}")
+print(f"Test Rare Sample MAE: {mae_rare:.4f}")
 print(f"Test MSE: {mse:.4f}")
+print(f"Test Common Sample MSE: {mse_common:.4f}")
+print(f"Test Rare Sample MSE: {mse_rare:.4f}")
 print(f"Test PCC: {pcc:.4f}")
+print(f"Test Common Sample PCC: {pcc_common:.4f}")
+print(f"Test Rare Sample PCC: {pcc_rare:.4f}")
 
 
 # ----------------------------

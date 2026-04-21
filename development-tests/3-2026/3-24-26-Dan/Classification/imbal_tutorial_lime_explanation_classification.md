@@ -1,9 +1,8 @@
 # LIME Explanation Tutorial (Classification)
 
-**Full Code:** [view source code](./imbal_tutorial_lime_explanation_classification.py)
+**Full Code:** [view source code](imbal_tutorial_lime_explanation_classification.py)
 
 **Train/Test Files**: [training data](./sep_model_training_classification.csv), [testing data](./sep_model_testing_classification.csv)
-
 
 ---
 
@@ -71,16 +70,20 @@ model.balanced_fit(x_train,
 
 ---
 
-## 2. LIME Explanation
+## 2. LIME Explanations
+
+### A. Correct Prediction Example
 
 ```python
 labels = train_data.drop(columns=[target_column]).columns.tolist()
 
+target_sample_index = -1  # Get a rare sample, which is at the end of the data
+
 imbal.classification.lime_explain_tabular_sample(
-    x_test[-1],
+    x_test[target_sample_index],
     model,
     x_train,
-    actual_label=y_test.reshape(-1)[-1],
+    actual_label=int(y_test.reshape(-1)[target_sample_index]),
     class_names=['Common', 'Rare'],
     feature_names=labels
 )
@@ -88,14 +91,128 @@ imbal.classification.lime_explain_tabular_sample(
 
 ### Explanation
 
+This example explains a sample where the model prediction matches the actual class.
 
+* `labels` stores the feature names so the explanation is readable.
+* `target_sample_index = -1` selects a rare-class sample from the test set.
+* `lime_explain_tabular_sample(...)` generates a local explanation for that one prediction.
+
+---
+
+### B. Incorrect Prediction Example
+
+```python
+labels = train_data.drop(columns=[target_column]).columns.tolist()
+
+target_sample_index = 0  # Example index for a misclassified sample
+
+imbal.classification.lime_explain_tabular_sample(
+    x_test[target_sample_index],
+    model,
+    x_train,
+    actual_label=int(y_test.reshape(-1)[target_sample_index]),
+    class_names=['Common', 'Rare'],
+    feature_names=labels
+)
+```
+
+### Explanation
+
+This second example is structured the same way, but it focuses on a sample where the model prediction is incorrect.
+
+* The code is identical except for the selected sample index.
+* By choosing a misclassified test point, we can compare which local feature contributions aligned with the wrong class.
+* This is useful for diagnosing borderline cases, conflicting signals, or places where the model learned the wrong local pattern.
 
 ---
 
 ## 3. Results
 
-![Model Results](../images/lime_explanation_visualizer.png)
+### Correct Prediction
 
+![Model Results](../images/lime_classification.png)
 
+### Incorrect Prediction
+
+![Incorrect Prediction Results](../images/lime_classification_wrong_prediction.png)
+
+---
+
+## 4. Understanding the LIME Output
+
+The LIME visualization explains **why the model predicted the way it did**.
+
+### Layout Guide (how to read the figure)
+
+* **Top left** has the **prediction probabilities** for each class (Common vs Rare).
+* **Top right** has the **contribution values** (feature weights) showing how each feature pushes the prediction toward Common (blue) or Rare (orange).
+* **Bottom middle** has the **feature values** used for this specific sample.
+
+Note: The **feature values** in this model are not the actual values (e.g. speed) but rather normalized values between 0 and 1 or -1 and 1.
+
+---
+
+## 5. Interpreting the Difference Between the Two Explanations
+
+### Correct Prediction: Why the model predicted **Rare** successfully
+
+In the first explanation, the model predicts **Rare** with very high confidence:
+
+* **Common: 0.04**
+* **Rare: 0.96**
+
+The strongest feature contributions are concentrated on the **Rare** side, especially:
+
+* `CME_DONKI_speed_norm`
+* `Halo`
+* `CME_CDAW_LinearSpeed_norm`
+
+These features all push in the same direction. Their values are also relatively strong for this sample:
+
+* `CME_DONKI_speed_norm = 0.78`
+* `Halo = 1.00`
+* `CME_CDAW_LinearSpeed_norm = 0.85`
+
+That makes this prediction locally consistent: the most influential features reinforce each other, so the model has a clear signal for **Rare**.
+
+---
+
+### Incorrect Prediction: Why the model predicted **Common** even though the actual label is **Rare**
+
+In the second explanation, the model predicts **Common** with essentially full confidence, even though the actual label is **Rare**.
+
+The important difference is that the strongest local evidence is now weighted toward **Common**, not **Rare**. In particular:
+
+* `CME_DONKI_speed_norm`
+* `DONKI_half_width_norm`
+* `CME_CDAW_MPA_norm`
+
+push the prediction toward **Common**.
+
+At the same time, there are still some features pushing toward **Rare**, such as:
+
+* `CME_DONKI_longitude_norm`
+* `Halo`
+* `CME_DONKI_latitude_norm`
+* `CME_CDAW_LinearSpeed_norm`
+
+So this sample has a more mixed explanation than the correct one.
+
+---
+
+### Why the prediction might have been wrong
+
+The likely reason for the error is that the local feature pattern is conflicting.
+
+In the correct example, the top contributors mostly agree and strongly support **Rare**. In the incorrect example, the features are split across both classes, and the features pushing toward **Common** appear to dominate the local model.
+
+A few things stand out:
+
+* `CME_DONKI_speed_norm = 0.34` is much lower than in the correct example (`0.78`), so one of the strongest Rare-driving signals is weaker here.
+* `DONKI_half_width_norm = 0.75` contributes toward **Common** in the incorrect case, and it is one of the larger blue contributions.
+* `CME_CDAW_MPA_norm = 0.20` also supports **Common**, adding to the left-side evidence.
+* Although `Halo = 1.00` still supports **Rare**, it is not enough by itself to overcome the stronger combined Common-side contributions.
+
+This suggests the model may be seeing this sample as more similar to **Common** examples in the training distribution, even though its true label is **Rare**.
 
 ---
