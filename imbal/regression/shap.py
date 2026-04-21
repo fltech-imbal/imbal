@@ -13,7 +13,7 @@ def shap_explain_tabular_sample(
     show=True
 ):
     """
-    Utilizes SHAP to generate an explanation for the classification of a particular sample
+    Utilizes kernel SHAP to generate an explanation for the classification of a particular sample
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
@@ -65,7 +65,7 @@ def shap_explain_tabular_dataset(
     show=True,
 ):
     """
-    Utilizes SHAP to generate an explanation for the classification of a particular dataset
+    Utilizes kernel SHAP to generate an explanation for the classification of a particular dataset
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:

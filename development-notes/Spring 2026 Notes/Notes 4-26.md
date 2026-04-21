@@ -140,21 +140,23 @@ class/sample weights
 ## Tasks
 #### Top Priority:
 - Remove MSE metric from AE $\checkmark$
-- Make sure documentation specifies that the we the Kernel SHAP (and link to paper if not linked already)
-- LIME bug from Daniel? double check it
+- Make sure documentation specifies that the we the Kernel SHAP (and link to paper if not linked already) $\checkmark$
+	- For images, I have previously used SHAP's gradient explainer. Based on what I could find, `GradientExplainer` is faster for neural networks, but only works on neural networks and is therefore not truly model agnostic (like kernel SHAP)
+	- Is this an issue? Should I switch to kernel for everything? Should I maybe use `GradientExplainer` for everything?
+- LIME bug from Daniel? $\checkmark$
 - Maybe profile memory usage to see what might be causing OOM issue? $\checkmark$
-- For validation tutorials, add additional supplement for specifying validation percent
-- When making metric tutorial, considerations for putting metrics in/out of compile:
-	- When in compile, metrics are tracked every batch/epoch (can be time consuming)
-		- If you don't care what these metrics are during training, they should be left out
-		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile
-		- We recommend 0 or 1 metric
+- Re-run all previous tutorials $\checkmark$
+- For validation tutorials, add additional supplement for specifying validation percent $\checkmark$
+- When making metric tutorial, considerations for putting metrics in/out of compile: $\checkmark$
+	- When in compile, metrics are tracked every batch/epoch (can be time consuming) $\checkmark$
+		- If you don't care what these metrics are during training, they should be left out $\checkmark$
+		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile $\checkmark$
+		- We recommend 0 or 1 metric $\checkmark$
 			- classification: F1, HSS, TSS, AUROC  (HSS inside compile, F1 outside)
 				- Add GSS, J statistic, and Youden's index
-			- regression: MAE, MSE, Correlation
-				- For regression/single value metric, split into overall, frequent, and rare
-				- Focus on True Positive/False Negative
-					- Maybe False Positive, but True Negatives are too frequent
+			- regression: MAE, MSE, Correlation $\checkmark$
+				- For regression/single value metric, split into overall, frequent, and rare $\checkmark$
+		
 - visualization tutorial comes later
 	- Make sure to mention code is taken from that link in documentation
 	- Also refer to paper link from paper list
@@ -162,6 +164,8 @@ class/sample weights
 		- Have two examples:
 			- Explaining an event that was detected correctly
 			- A mistake (false negative or false positive)
+		- Focus on True Positive/False Negative 
+					Maybe False Positive, but True Negatives are too frequent
 #### Low Priority:
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure it works for binary classification with single output unit (convert to 2 class)

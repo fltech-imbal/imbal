@@ -1,4 +1,3 @@
-from skimage.segmentation import mark_boundaries
 from matplotlib import pyplot as plt
 import numpy as np
 import imbal.util.backend.explanation as explanation
@@ -97,7 +96,7 @@ def shap_explain_tabular_sample(
 
 ):
     """
-    Utilizes SHAP to generate an explanation for the classification of a particular sample
+    Utilizes kernel SHAP to generate an explanation for the classification of a particular sample
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
@@ -156,7 +155,7 @@ def shap_explain_tabular_dataset(
     save_figure=False,
 ):
     """
-    Utilizes SHAP to generate an explanation for the classification of a particular dataset
+    Utilizes kernel SHAP to generate an explanation for the classification of a particular dataset
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:

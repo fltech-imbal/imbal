@@ -14,7 +14,7 @@ a model be initialized. The steps for doing so can be found [here](setup.md).
 ## 2. Create Validation Split
 
 The code below splits the training data into a training subset and validation set, with
-$80\%$ of the original training data ending up in the new training subset, and $20\%$ of the
+$90\%$ of the original training data ending up in the new training subset, and $10\%$ of the
 original training data ending up in the validation set. Notably, `imbal.classification.split`
 performs a stratified split, aiming to maintain a similar class distribution between both
 the training and validation set.
@@ -24,7 +24,7 @@ the training and validation set.
 Create validation split
 """
 
-(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.2)
+(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
 ```
 
 ## 3. Model Compilation and Training
@@ -45,14 +45,17 @@ function, called `stratify_batches`. This parameter ensures that rarer
 samples are present in each batch during training.
 
 ```python
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+"""
+Compile and train model
+"""
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 history = model.balanced_fit(
@@ -61,6 +64,7 @@ history = model.balanced_fit(
     validation_data=(x_val, y_val.reshape(-1, 1)),
     epochs=500,
     batch_size=BATCH_SIZE,
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
     stratify_batches=True, # Ensure all batches have a similar data distribution
     callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
@@ -98,11 +102,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
@@ -110,7 +110,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
@@ -129,46 +129,89 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: 0.0000
-F1 Score: 0.0000
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 15ms/step
+Heikde Skill Score: 0.0057
+F1 Score: 0.0482
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix.png"/>
 </div>
 
+### Optional: Multi-weight fit
+
 By enabling the optional class weight variation in section 2:
 
 ```python
-model.balanced_fit(
+history = model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
-    epochs=EPOCHS,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    # validation_split=0.1,
+    epochs=500,
     batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
+    stratify_batches=True, # Ensure all batches have a similar data distribution
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
 ```
 
 we get the following results:
 
-# WIP
-
 ```text
 (after training output)
-[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+[3/3] Fitted after 58 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
-
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: 0.0000
-F1 Score: 0.0000
+...
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.0039
+F1 Score: 0.0478
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-class-weights.png"/>
+</div>
+
+### Optional: Validation via `validation_split`
+
+By commenting out the code in section two, and modifying the commented code in section three:
+
+```python
+# In section 2...
+
+# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+
+# ... the during fit (section 3) ...
+
+history = model.balanced_fit(
+    x_train,
+    y_train.reshape(-1, 1),
+    # validation_data=(x_val, y_val.reshape(-1, 1)),
+    validation_split=0.1,
+    epochs=500,
+    batch_size=BATCH_SIZE,
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
+    stratify_batches=True, # Ensure all batches have a similar data distribution
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
+```
+
+we get the following results:
+
+```text
+(after training output)
+
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.0039
+F1 Score: 0.0478
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-split.png"/>
 </div>

@@ -170,7 +170,7 @@ class Model(keras.Model):
         stage_one_sample_weights = np.ones(x.shape[0])
 
         if validation_data is not None:
-            x_val, y_val, w_val = validation_data
+            x_val, y_val, w_val = self._unpack_validation(validation_data)
             stage_one_validation = (x_val, y_val, np.ones(x_val.shape[0]))
         else:
             stage_one_validation = None

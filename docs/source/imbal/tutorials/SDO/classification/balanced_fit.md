@@ -32,12 +32,12 @@ Compile and train model
 """
 LEARNING_RATE = 5e-5
 EPOCHS = 20
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 model.balanced_fit(
@@ -105,11 +105,11 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: 0.0613
-F1 Score: 0.0952
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0625
+F1 Score: 0.1031
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -136,9 +136,9 @@ we get the following results:
 [3/3] Fitted after 20 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
 ```

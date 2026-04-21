@@ -68,7 +68,7 @@ model = build_simple_cnn()
 Create validation split
 """
 
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
@@ -86,10 +86,11 @@ model.compile(
 history = model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    validation_data=(x_val, y_val.reshape(-1, 1)),
+    # validation_data=(x_val, y_val.reshape(-1, 1)),
+    validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
-    class_weight=[[0.1, 0.9], [0.2, 0.8], [0.3, 0.4], [0.4, 0.4], [0.5, 0.5]],
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
     stratify_batches=True, # Ensure all batches have a similar data distribution
     callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
@@ -110,11 +111,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 

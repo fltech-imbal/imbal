@@ -139,10 +139,11 @@ def _stratified_classification_split(
     test_size = round(test_size, 2)
     unique_labels = np.unique(y_set)
 
+    y_flatten = y_set.reshape(-1)
+
     if shuffle:
         rng = np.random.default_rng(seed)
         len_data = len(x_set)
-        y_flatten = y_set.reshape(-1)
         for class_label in unique_labels:
             indices = np.arange(len_data)[y_flatten == class_label]
             shuffled_indices = indices.copy()
@@ -154,9 +155,9 @@ def _stratified_classification_split(
     x_train, y_train, w_train = [], [], []
     x_test, y_test, w_test = [], [], []
     for class_label in unique_labels:
-        x_subset = x_set[y_set == class_label]
-        y_subset = y_set[y_set == class_label]
-        w_subset = sample_weights[..., y_set == class_label]
+        x_subset = x_set[y_flatten == class_label]
+        y_subset = y_set[y_flatten == class_label]
+        w_subset = sample_weights[..., y_flatten == class_label]
         test_amount = ceil(test_size * len(x_subset))
         x_train.append(x_subset[test_amount:])
         y_train.append(y_subset[test_amount:])

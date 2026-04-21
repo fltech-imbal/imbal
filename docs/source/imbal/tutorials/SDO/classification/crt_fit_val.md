@@ -45,20 +45,25 @@ function, called `stratify_batches`. This parameter ensures that rarer
 samples are present in each batch during training.
 
 ```python
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+"""
+Compile and train model
+"""
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 history = model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
-    validation_data=(x_val, y_val.reshape(-1, 1)),
+    # validation_data=(x_val, y_val.reshape(-1, 1)),
+    validation_split=0.1,
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution
@@ -75,8 +80,8 @@ The above code should produce the standard TensorFlow output for model
 training and evaluation, followed by something similar to:
 
 ```text
-Fit stopped after 11, 11 epochs
-Restored weights from epoch 1 during stage 1
+Fit stopped after 19, 19 epochs
+Restored weights from epoch 9 during stage 1
 ```
 
 ## 4. Metrics and Results Visualization
@@ -98,11 +103,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
@@ -110,7 +111,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
@@ -129,46 +130,89 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: 0.0004
-F1 Score: 0.0396
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0149
+F1 Score: 0.0563
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix.png"/>
 </div>
 
+### Optional: Multi-weight fit
+
 By enabling the optional class weight variation in section 2:
 
 ```python
-model.rRT_fit(
+history = model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
-    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
-    epochs=EPOCHS,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    # validation_split=0.1,
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
+    epochs=500,
     batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
+    stratify_batches=True, # Ensure all batches have a similar data distribution
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
 ```
 
 we get the following results:
 
-# WIP
-
 ```text
 (after training output)
-[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+[3/3] Fitted after 81 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: 0.0000
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 16ms/step
+Heikde Skill Score: -0.0031
 F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix-class-weights.png"/>
+</div>
+
+### Optional: Validation via `validation_split`
+
+By commenting out the code in section two, and modifying the commented code in section three:
+
+```python
+# In section 2...
+
+# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+
+# ... the during fit (section 3) ...
+
+history = model.cRT_fit(
+    x_train,
+    y_train.reshape(-1, 1),
+    # validation_data=(x_val, y_val.reshape(-1, 1)),
+    validation_split=0.1,
+    epochs=500,
+    batch_size=BATCH_SIZE,
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
+    stratify_batches=True, # Ensure all batches have a similar data distribution
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
+```
+
+we get the following results:
+
+```text
+(after training output)
+
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 17ms/step
+Heikde Skill Score: 0.0005
+F1 Score: 0.0461
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix-split.png"/>
 </div>

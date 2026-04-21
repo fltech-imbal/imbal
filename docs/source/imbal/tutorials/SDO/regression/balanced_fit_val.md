@@ -28,6 +28,10 @@ KDE_BIN_COUNT=32
 # Determine KDE fit for data, then extract sample densities
 data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
 sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
+
+# The below line can be uncommented to test multiple alpha values for reciprocal importance
+# If this is uncommented, be sure to also uncomment the indicated lines in the following two sections
+# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 ```
 
 ## 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
@@ -56,8 +60,10 @@ the training and validation set.
 """
 Create validation split
 """
-
-(x_train, y_train, sample_densities), (x_val, y_val, val_densities) =  imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+(x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+w_val = None
+# Uncomment below and comment out above to use varying alphas for reciprocal importance (see above section)
+# (x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
 ```
 
 ## 5. Model Compilation and Training
@@ -76,8 +82,8 @@ samples are present in each batch during training.
 """
 Compile and train model
 """
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
@@ -90,9 +96,10 @@ history = model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    # sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    validation_data=(x_val, y_val),
+    # sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
+    # validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution,
@@ -109,8 +116,8 @@ The above code should produce the standard TensorFlow output for model
 training and evaluation, followed by something similar to:
 
 ```text
-Fit stopped after 69 epochs
-Restored weights from epoch 59
+Fit stopped after 16 epochs
+Restored weights from epoch 6
 ```
 
 ## 6. Probability Density Distribution and Results Visualization
@@ -123,19 +130,13 @@ comparing the true and predicted values for individual test samples.
 """
 Probability Density Distribution and Results Visualization
 """
-KDE_BIN_COUNT=32
-
 test_rare_mask = y_test > -4
 test_frequent_mask = ~test_rare_mask
 print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.astype(np.int32)))
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_train)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
@@ -153,7 +154,6 @@ print(
 )
 
 data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
-
 imbal.regression.plot_kde_1d(
     y_train,
     data_kde_bandwidth,
@@ -167,18 +167,17 @@ imbal.regression.plot_true_vs_predictions(
     test_predictions,
     save_figure='sample-sdo-balanced-fit-val-label-vs-prediction-plot.png'
 )
-)
 ```
 
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.113
-MAE for log10 flux >= -4: 0.699
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+MAE for log10 flux < -4: 1.251
+MAE for log10 flux >= -4: 1.639
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -186,43 +185,94 @@ MAE for log10 flux >= -4: 0.699
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot.png"/>
 </div>
 
+### Optional: Multi-weight fit
+
 By enabling the optional alpha variation in section 3:
 
 ```python
-# The below line can be uncommented to test multiple alpha values for reciprocal importance
-# If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
-weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+# (x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+# w_val = None
+# Uncomment below and comment out above to use varying alphas for reciprocal importance (see above section)
+(x_train, y_train, sample_weight), (x_val, y_val, w_val) = imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
 
 # ...then during fit...
 
-model.balanced_fit(
+history = model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    epochs=EPOCHS,
+    sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    validation_data=(x_val, y_val, w_val),
+    validation_densities=val_densities,
+    # validation_split=0.1,
+    epochs=500,
     batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
+    stratify_batches=True, # Ensure all batches have a similar data distribution,
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
 ```
 
 we get the following results:
 
-# WIP
-
 ```text
 (after training output)
-[3/3] Fitted after 20 epochs for sample weight candidate at index 2
+[3/3] Fitted after 27 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 1
-
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.321
-MAE for log10 flux >= -4: 2.601
+...
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+MAE for log10 flux < -4: 1.307
+MAE for log10 flux >= -4: 0.983
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-data-distribution-alphas.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot-alphas.png"/>
+</div>
+
+### Optional: Validation via `validation_split`
+
+By commenting out the code from section 2, and modifying the commented lines in section 3:
+
+```python
+# In section 2...
+
+# (x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
+# w_val = None
+# Uncomment below and comment out above to use varying alphas for reciprocal importance (see above section)
+# (x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
+
+# ...then during fit (section 3) ...
+
+history = model.balanced_fit(
+    x_train,
+    y_train,
+    sample_density=sample_densities,
+    # sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # validation_data=(x_val, y_val, w_val),
+    # validation_densities=val_densities,
+    validation_split=0.1,
+    epochs=500,
+    batch_size=BATCH_SIZE,
+    stratify_batches=True, # Ensure all batches have a similar data distribution,
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
+```
+
+we get the following results:
+
+```text
+(after training output)
+
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
+MAE for log10 flux < -4: 1.265
+MAE for log10 flux >= -4: 0.693
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-data-distribution-split.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot-split.png"/>
 </div>

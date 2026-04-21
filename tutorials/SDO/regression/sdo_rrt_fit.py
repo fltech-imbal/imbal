@@ -80,7 +80,7 @@ Compile and train model
 """
 LEARNING_RATE = 5e-5
 EPOCHS = 20
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -103,19 +103,13 @@ model.evaluate(x_test, y_test)
 """
 Probability Density Distribution and Results Visualization
 """
-KDE_BIN_COUNT=32
-
 test_rare_mask = y_test > -4
 test_frequent_mask = ~test_rare_mask
 print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.astype(np.int32)))
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data

@@ -66,13 +66,13 @@ model = build_simple_cnn()
 Create validation split
 """
 
-(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
+# (x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
 """
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
@@ -84,7 +84,8 @@ model.compile(
 history = model.fit(
     x_train,
     y_train,
-    validation_data=(x_val, y_val),
+    # validation_data=(x_val, y_val),
+    validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution,
@@ -107,11 +108,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data

@@ -69,12 +69,12 @@ Compile and train model
 """
 LEARNING_RATE = 5e-5
 EPOCHS = 20
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 model.fit(
@@ -98,11 +98,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
@@ -110,7 +106,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(

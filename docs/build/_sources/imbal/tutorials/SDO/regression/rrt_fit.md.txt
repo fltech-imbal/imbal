@@ -58,7 +58,7 @@ Compile and train model
 """
 LEARNING_RATE = 5e-5
 EPOCHS = 20
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -92,19 +92,13 @@ comparing the true and predicted values for individual test samples.
 """
 Probability Density Distribution and Results Visualization
 """
-KDE_BIN_COUNT=32
-
 test_rare_mask = y_test > -4
 test_frequent_mask = ~test_rare_mask
 print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.astype(np.int32)))
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
@@ -122,7 +116,6 @@ print(
 )
 
 data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
-
 imbal.regression.plot_kde_1d(
     y_train,
     data_kde_bandwidth,
@@ -136,18 +129,17 @@ imbal.regression.plot_true_vs_predictions(
     test_predictions,
     save_figure='sample-sdo-rrt-fit-label-vs-prediction-plot.png'
 )
-)
 ```
 
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.036
-MAE for log10 flux >= -4: 1.960
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.216
+MAE for log10 flux >= -4: 0.620
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -180,13 +172,13 @@ we get the following results:
 ```text
 (after training output)
 [3/3] Fitted after 20 epochs for sample weight candidate at index 2
-Restoring model weights from fit on sample weight candidate at index 0
+Restoring model weights from fit on sample weight candidate at index 2
 
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.370
-MAE for log10 flux >= -4: 3.167
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.186
+MAE for log10 flux >= -4: 0.723
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

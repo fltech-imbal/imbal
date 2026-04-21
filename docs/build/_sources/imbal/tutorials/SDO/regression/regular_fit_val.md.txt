@@ -43,8 +43,8 @@ samples are present in each batch during training.
 """
 Compile and train model
 """
-LEARNING_RATE = 5e-5
-BATCH_SIZE = 64
+LEARNING_RATE = 2e-4
+BATCH_SIZE = 256
 PATIENCE = 10
 
 model.compile(
@@ -57,6 +57,7 @@ history = model.fit(
     x_train,
     y_train,
     validation_data=(x_val, y_val),
+    # validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution,
@@ -73,8 +74,8 @@ The above code should produce the standard TensorFlow output for model
 training and evaluation, followed by something similar to:
 
 ```text
-Fit finished after 109 epochs
-Restored weights from epoch 99
+Fit stopped after 89 epochs
+Restored weights from epoch 79
 ```
 
 ## 4. Probability Density Distribution and Results Visualization
@@ -95,11 +96,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
@@ -136,14 +133,56 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.375
-MAE for log10 flux >= -4: 1.419
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
+MAE for log10 flux < -4: 1.455
+MAE for log10 flux >= -4: 1.010
 ```
  
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-data-distribution.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-label-vs-prediction-plot.png"/>
+</div>
+
+### Optional: Validation via `validation_split`
+
+By commenting out the code from section 2, and modifying the commented lines in section 3:
+
+```python
+# In section 2...
+
+# The below line can be uncommented to test multiple alpha values for reciprocal importance
+# If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
+# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+
+# ...then during fit (section 3) ...
+
+history = model.fit(
+    x_train,
+    y_train,
+    # validation_data=(x_val, y_val),
+    validation_split=0.1,
+    epochs=500,
+    batch_size=BATCH_SIZE,
+    stratify_batches=True, # Ensure all batches have a similar data distribution,
+    callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
+```
+
+we get the following results:
+
+```text
+(after training output)
+
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+MAE for log10 flux < -4: 1.382
+MAE for log10 flux >= -4: 1.049
+```
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-data-distribution-split.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-label-vs-prediction-plot-split.png"/>
 </div>

@@ -27,6 +27,9 @@ from keras import layers, optimizers, callbacks
 """
 Load data
 """
+"""
+Load data
+"""
 SDO_DATA_PATH = '../../data/SDOBenchmark' # Ensure data is located at this path
 
 def load_sdo_data(data_path):
@@ -36,11 +39,11 @@ def load_sdo_data(data_path):
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
     # Load images (10 images per sample, 256x256 per image)
-    loaded_images = np.zeros((len(loaded_data_fluxes), 256, 256, 10), dtype=np.float32)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
-        image_list = [Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}_image_{x}.jpg')).convert('L') for x in range(10)]
-        stacked_images = np.stack(image_list, axis=-1) # Images stacked along channels
+        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}.jpg')).convert('L')
+        stacked_images = np.array(image_list).reshape(128, 128, 1) # Images stacked along channels
         loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
 
     print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
@@ -60,19 +63,18 @@ print(
 ```
 
 The above code should generate an output similar to the following.
-The output below is the result of loading the first 50 samples from
-the training and test sets.
+The output below is the result of loading the training and test sets.
 
 ```text
-Loading SDO samples [500/500]
-500 data samples loaded successfully
-Loading SDO samples [100/100]
-100 data samples loaded successfully
+Loading SDO samples [5000/5000]
+5000 data samples loaded successfully
+Loading SDO samples [600/600]
+600 data samples loaded successfully
 Loaded data with the following shapes:
-	x_train: (500, 256, 256, 10)
-	y_train: (500,)
-	x_test: (100, 256, 256, 10)
-	y_test (100,)
+	x_train: (5000, 128, 128, 1)
+	y_train: (5000,)
+	x_test: (600, 128, 128, 1)
+	y_test (600,)
 ```
 
 ## 3. Build the Model
@@ -87,7 +89,7 @@ might normally instance a `keras.Model` object, we instead instance a
 Build model
 """
 def build_simple_cnn():
-    input_layer = layers.Input((256, 256, 10))
+    input_layer = layers.Input((128, 128, 1))
     x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
     x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
@@ -112,30 +114,27 @@ Model: "model"
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
-│ input_layer (InputLayer)        │ (None, 256, 256, 10)   │             0 │
+│ input_layer (InputLayer)        │ (None, 128, 128, 1)    │             0 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ conv2d (Conv2D)                 │ (None, 254, 254, 32)   │         2,912 │
+│ conv2d (Conv2D)                 │ (None, 128, 128, 8)    │            80 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ max_pooling2d (MaxPooling2D)    │ (None, 127, 127, 32)   │             0 │
+│ conv2d_1 (Conv2D)               │ (None, 64, 64, 8)      │           584 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ conv2d_1 (Conv2D)               │ (None, 125, 125, 64)   │        18,496 │
+│ conv2d_2 (Conv2D)               │ (None, 64, 64, 16)     │         1,168 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ max_pooling2d_1 (MaxPooling2D)  │ (None, 62, 62, 64)     │             0 │
+│ conv2d_3 (Conv2D)               │ (None, 32, 32, 16)     │         2,320 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ conv2d_2 (Conv2D)               │ (None, 60, 60, 128)    │        73,856 │
+│ conv2d_4 (Conv2D)               │ (None, 32, 32, 32)     │         4,640 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ max_pooling2d_2 (MaxPooling2D)  │ (None, 30, 30, 128)    │             0 │
+│ conv2d_5 (Conv2D)               │ (None, 16, 16, 32)     │         9,248 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ global_average_pooling2d        │ (None, 128)            │             0 │
-│ (GlobalAveragePooling2D)        │                        │               │
+│ dense (Dense)                   │ (None, 16, 16, 32)     │         1,056 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense (Dense)                   │ (None, 128)            │        16,512 │
+│ flatten (Flatten)               │ (None, 8192)           │             0 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dropout (Dropout)               │ (None, 128)            │             0 │
-├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_1 (Dense)                 │ (None, 1)              │           129 │
+│ dense_1 (Dense)                 │ (None, 1)              │         8,193 │
 └─────────────────────────────────┴────────────────────────┴───────────────┘
- Total params: 111,905 (437.13 KB)
- Trainable params: 111,905 (437.13 KB)
+ Total params: 27,289 (106.60 KB)
+ Trainable params: 27,289 (106.60 KB)
  Non-trainable params: 0 (0.00 B)
 ```

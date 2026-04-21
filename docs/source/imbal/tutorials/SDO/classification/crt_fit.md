@@ -32,18 +32,18 @@ Compile and train model
 """
 LEARNING_RATE = 5e-5
 EPOCHS = 20
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', keras.metrics.F1Score(threshold=0.5)],
+    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
 model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
-    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -74,11 +74,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
@@ -86,7 +82,7 @@ y_test = y_test.reshape(-1, 1)
 hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
-f1 = keras.metrics.F1Score(threshold=0.5)
+f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
@@ -105,11 +101,11 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-Heikde Skill Score: -0.0366
-F1 Score: 0.0000
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 15ms/step
+Heikde Skill Score: 0.0295
+F1 Score: 0.0645
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -136,9 +132,9 @@ we get the following results:
 [3/3] Fitted after 20 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
 ```

@@ -65,11 +65,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
@@ -106,11 +102,11 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Number of test samples with log10 flux < -4: 98
-Number of test samples with log10 flux >= -4: 2
-
-MAE for log10 flux < -4: 1.350
-MAE for log10 flux >= -4: 3.204
+Number of test samples with log10 flux < -4: 586
+Number of test samples with log10 flux >= -4: 14
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+MAE for log10 flux < -4: 1.383
+MAE for log10 flux >= -4: 2.944
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
