@@ -37088,25 +37088,25 @@
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.js.map </script></head><body><h1 style="text-align: center">Explanation for "Rare" (Actual label: Rare)</h1>
-<div class="lime top_div" id="top_div45LHH1TGKTPDFVZ"></div>
+//# sourceMappingURL=bundle.js.map </script></head><body><h1 style="text-align: center">Explanation for "Common" (Actual label: Rare)</h1>
+<div class="lime top_div" id="top_div7D9ROMSFLQWZ260"></div>
 <script>
-        var top_div = d3.select('#top_div45LHH1TGKTPDFVZ').classed('lime top_div', true);
+        var top_div = d3.select('#top_div7D9ROMSFLQWZ260').classed('lime top_div', true);
         
             var pp_div = top_div.append('div')
                                 .classed('lime predict_proba', true);
             var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["Common", "Rare"], [0.04431337118148804, 0.955686628818512]);
+            var pp = new lime.PredictProba(pp_svg, ["Common", "Rare"], [0.9999911189079285, 8.87539135874249e-06]);
             
         
         var exp_div;
             var exp = new lime.Explanation(["Common", "Rare"]);
         
                 exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["CME_DONKI_speed_norm > 0.22", 0.15238779587808948], ["Halo > 0.00", 0.10545801010632151], ["0.27 < CME_DONKI_longitude_norm <= 0.48", 0.056651450912916075], ["CME_CDAW_LinearSpeed_norm > 0.19", 0.023871622444704855], ["CME_CDAW_MPA_norm <= 0.23", 0.01875131887441172], ["CME_DONKI_latitude_norm > 0.63", 0.012156807488528456], ["DONKI_half_width_norm > 0.36", -0.008366263647305376]], 1, exp_div);
+                exp.show([["CME_DONKI_speed_norm > 0.22", -0.07624210327283124], ["DONKI_half_width_norm > 0.36", -0.03864254056278002], ["CME_DONKI_longitude_norm <= 0.27", 0.03812645307581294], ["Halo > 0.00", 0.0201655156806076], ["CME_CDAW_MPA_norm <= 0.23", -0.017066172267203614], ["0.52 < CME_DONKI_latitude_norm <= 0.63", 0.01601048646197213], ["CME_CDAW_LinearSpeed_norm > 0.19", 0.014130839734552982]], 0, exp_div);
                 
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["CME_DONKI_speed_norm", "0.78", 0.15238779587808948], ["Halo", "1.00", 0.10545801010632151], ["CME_DONKI_longitude_norm", "0.33", 0.056651450912916075], ["CME_CDAW_LinearSpeed_norm", "0.85", 0.023871622444704855], ["CME_CDAW_MPA_norm", "0.16", 0.01875131887441172], ["CME_DONKI_latitude_norm", "0.66", 0.012156807488528456], ["DONKI_half_width_norm", "0.52", -0.008366263647305376]], 1, raw_div);
+            exp.show_raw_tabular([["CME_DONKI_speed_norm", "0.34", -0.07624210327283124], ["DONKI_half_width_norm", "0.75", -0.03864254056278002], ["CME_DONKI_longitude_norm", "0.25", 0.03812645307581294], ["Halo", "1.00", 0.0201655156806076], ["CME_CDAW_MPA_norm", "0.20", -0.017066172267203614], ["CME_DONKI_latitude_norm", "0.55", 0.01601048646197213], ["CME_CDAW_LinearSpeed_norm", "0.60", 0.014130839734552982]], 0, raw_div);
         
         </script>
 </body></html>

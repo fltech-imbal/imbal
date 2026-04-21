@@ -37088,25 +37088,25 @@
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=bundle.js.map </script></head><body><h1 style="text-align: center">Explanation for "Rare" (Actual label: Rare)</h1>
-<div class="lime top_div" id="top_div45LHH1TGKTPDFVZ"></div>
+//# sourceMappingURL=bundle.js.map </script></head><body><h1 style="text-align: center">Explanation for "2.238" (Actual label: 4.7551)</h1>
+<div class="lime top_div" id="top_div7D9ROMSFLQWZ260"></div>
 <script>
-        var top_div = d3.select('#top_div45LHH1TGKTPDFVZ').classed('lime top_div', true);
+        var top_div = d3.select('#top_div7D9ROMSFLQWZ260').classed('lime top_div', true);
         
-            var pp_div = top_div.append('div')
-                                .classed('lime predict_proba', true);
-            var pp_svg = pp_div.append('svg').style('width', '100%');
-            var pp = new lime.PredictProba(pp_svg, ["Common", "Rare"], [0.04431337118148804, 0.955686628818512]);
-            
         
+                    var pp_div = top_div.append('div')
+                                        .classed('lime predicted_value', true);
+                    var pp_svg = pp_div.append('svg').style('width', '100%');
+                    var pp = new lime.PredictedValue(pp_svg, 2.2380306720733643, -1.6726224422454834, 3.627401351928711);
+                    
         var exp_div;
-            var exp = new lime.Explanation(["Common", "Rare"]);
+            var exp = new lime.Explanation(["negative", "positive"]);
         
-                exp_div = top_div.append('div').classed('lime explanation', true);
-                exp.show([["CME_DONKI_speed_norm > 0.22", 0.15238779587808948], ["Halo > 0.00", 0.10545801010632151], ["0.27 < CME_DONKI_longitude_norm <= 0.48", 0.056651450912916075], ["CME_CDAW_LinearSpeed_norm > 0.19", 0.023871622444704855], ["CME_CDAW_MPA_norm <= 0.23", 0.01875131887441172], ["CME_DONKI_latitude_norm > 0.63", 0.012156807488528456], ["DONKI_half_width_norm > 0.36", -0.008366263647305376]], 1, exp_div);
-                
+            exp_div = top_div.append('div').classed('lime explanation', true);
+            exp.show([["CME_DONKI_speed_norm > 0.22", 1.4799204024173935], ["DONKI_half_width_norm > 0.36", 0.5946264419241514], ["0.27 < CME_DONKI_longitude_norm <= 0.48", -0.33779392594055085], ["Halo > 0.00", 0.3185502517837148], ["CME_CDAW_LinearSpeed_norm > 0.19", 0.2944284196591238], ["0.39 < CME_DONKI_latitude_norm <= 0.52", 0.18817751150336756], ["0.23 < CME_CDAW_MPA_norm <= 0.45", 0.0919471462506595]], 1, exp_div);
+            
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["CME_DONKI_speed_norm", "0.78", 0.15238779587808948], ["Halo", "1.00", 0.10545801010632151], ["CME_DONKI_longitude_norm", "0.33", 0.056651450912916075], ["CME_CDAW_LinearSpeed_norm", "0.85", 0.023871622444704855], ["CME_CDAW_MPA_norm", "0.16", 0.01875131887441172], ["CME_DONKI_latitude_norm", "0.66", 0.012156807488528456], ["DONKI_half_width_norm", "0.52", -0.008366263647305376]], 1, raw_div);
+            exp.show_raw_tabular([["CME_DONKI_speed_norm", "0.34", 1.4799204024173935], ["DONKI_half_width_norm", "0.57", 0.5946264419241514], ["CME_DONKI_longitude_norm", "0.44", -0.33779392594055085], ["Halo", "1.00", 0.3185502517837148], ["CME_CDAW_LinearSpeed_norm", "0.27", 0.2944284196591238], ["CME_DONKI_latitude_norm", "0.49", 0.18817751150336756], ["CME_CDAW_MPA_norm", "0.24", 0.0919471462506595]], 1, raw_div);
         
         </script>
 </body></html>
