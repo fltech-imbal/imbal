@@ -152,8 +152,8 @@ class/sample weights
 		- If you don't care what these metrics are during training, they should be left out $\checkmark$
 		- If the metric itself is already time consuming (AUROC), it should probably be left out of the compile $\checkmark$
 		- We recommend 0 or 1 metric $\checkmark$
-			- classification: F1, HSS, TSS, AUROC  (HSS inside compile, F1 outside)
-				- Add GSS, J statistic, and Youden's index
+			- classification: F1, HSS, TSS, AUROC  (HSS inside compile, F1 outside) $\checkmark$
+				- Add GSS, J statistic, and Youden's index $\checkmark$
 			- regression: MAE, MSE, Correlation $\checkmark$
 				- For regression/single value metric, split into overall, frequent, and rare $\checkmark$
 		

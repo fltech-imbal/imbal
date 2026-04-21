@@ -10,7 +10,7 @@ All the source code in this tutorial can be found at `imbal/tutorials/SDO/regres
 
 ## Common Regression Metrics
 
-Some common regressions metrics that are used are listed below, with links to their documentation.
+Some common regression metrics that are used are listed below, with links to their documentation.
 - [keras.metrics.MeanAbsoluteError](https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanAbsoluteError)
 - [keras.metrics.MeanSquaredError](https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanSquaredError)
 - [keras.metrics.PearsonCorrelation](https://keras.io/api/metrics/classification_metrics/#pearsoncorrelation-class)
@@ -82,3 +82,53 @@ Now that we have our predictions, and have split them by their frequency, we can
 to our metric objects to gain insight into the model's performance. It is worth noting that Metric objects typically
 store their results in a TensorFlow Tensor object. Therefore, we will convert the tensor to a NumPy scalar
 in order to print just the metric itself, without any of the additional information about the tensor it was stored in.
+
+```python
+from keras import metrics
+
+mse_overall = metrics.MeanSquaredError()
+mse_overall.update_state(y_test, test_predictions)
+print('Overall MSE:', mse_overall.result().numpy())
+mse_frequent = metrics.MeanSquaredError()
+mse_frequent.update_state(test_labels_frequent, test_predictions_frequent)
+print('Frequent sample MSE:', mse_frequent.result().numpy())
+mse_rare = metrics.MeanSquaredError()
+mse_rare.update_state(test_labels_rare, test_predictions_rare)
+print('Rare sample MSE:', mse_rare.result().numpy(), '\n')
+
+mae_overall = metrics.MeanAbsoluteError()
+mae_overall.update_state(y_test, test_predictions)
+print('Overall MAE:', mae_overall.result().numpy())
+mae_frequent = metrics.MeanAbsoluteError()
+mae_frequent.update_state(test_labels_frequent, test_predictions_frequent)
+print('Frequent sample MAE:', mae_frequent.result().numpy())
+mae_rare = metrics.MeanAbsoluteError()
+mae_rare.update_state(test_labels_rare, test_predictions_rare)
+print('Rare sample MAE:', mae_rare.result().numpy(), '\n')
+
+pcc_overall = metrics.PearsonCorrelation()
+pcc_overall.update_state(y_test, test_predictions)
+print('Overall PCC:', pcc_overall.result().numpy())
+pcc_frequent = metrics.PearsonCorrelation()
+pcc_frequent.update_state(test_labels_frequent, test_predictions_frequent)
+print('Frequent sample PCC:', pcc_frequent.result().numpy())
+pcc_rare = metrics.PearsonCorrelation()
+pcc_rare.update_state(test_labels_rare, test_predictions_rare)
+print('Rare sample PCC:', pcc_rare.result().numpy(), '\n')
+```
+
+The code above should yield output similar to the following:
+
+```text
+Overall MSE: 1.7918983
+Frequent sample MSE: 1.8190947
+Rare sample MSE: 0.6535388 
+
+Overall MAE: 0.89384747
+Frequent sample MAE: 0.9010623
+Rare sample MAE: 0.5918519 
+
+Overall PCC: 0.574065
+Frequent sample PCC: 0.5519897
+Rare sample PCC: 0.4519744
+```

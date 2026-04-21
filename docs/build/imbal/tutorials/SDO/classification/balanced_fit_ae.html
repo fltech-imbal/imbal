@@ -448,6 +448,8 @@ F1 Score: 0.0477
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-confusion-matrix.png"/>
 </div>
+<section id="optional-multi-weight-fit">
+<h3>Optional: Multi-weight fit<a class="headerlink" href="#optional-multi-weight-fit" title="Link to this heading">#</a></h3>
 <p>By enabling the optional class weight variation in section 2:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
     <span class="n">x_train</span><span class="p">,</span>
@@ -474,6 +476,7 @@ F1 Score: 0.0000
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-confusion-matrix-class-weights.png"/>
 </div>
+</section>
 </section>
 </section>
 
@@ -509,7 +512,10 @@ F1 Score: 0.0000
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files">Necessary Files</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sdo-classification-setup">1. SDO Classification Setup</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">2. Model Compilation and Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">3. Metrics and Results Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">3. Metrics and Results Visualization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-multi-weight-fit">Optional: Multi-weight fit</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

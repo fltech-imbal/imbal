@@ -350,7 +350,7 @@ of the ways to use metrics, along with code examples. This tutorial uses the cod
 All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/regression/metrics.py</span></code>.</p>
 <section id="common-regression-metrics">
 <h2>Common Regression Metrics<a class="headerlink" href="#common-regression-metrics" title="Link to this heading">#</a></h2>
-<p>Some common regressions metrics that are used are listed below, with links to their documentation.</p>
+<p>Some common regression metrics that are used are listed below, with links to their documentation.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanAbsoluteError">keras.metrics.MeanAbsoluteError</a></p></li>
 <li><p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/MeanSquaredError">keras.metrics.MeanSquaredError</a></p></li>
@@ -419,6 +419,53 @@ we can apply the same masks to both the predictions and our original samples.</p
 to our metric objects to gain insight into the model’s performance. It is worth noting that Metric objects typically
 store their results in a TensorFlow Tensor object. Therefore, we will convert the tensor to a NumPy scalar
 in order to print just the metric itself, without any of the additional information about the tensor it was stored in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">metrics</span>
+
+<span class="n">mse_overall</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+<span class="n">mse_overall</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Overall MSE:&#39;</span><span class="p">,</span> <span class="n">mse_overall</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">mse_frequent</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+<span class="n">mse_frequent</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_frequent</span><span class="p">,</span> <span class="n">test_predictions_frequent</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequent sample MSE:&#39;</span><span class="p">,</span> <span class="n">mse_frequent</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">mse_rare</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanSquaredError</span><span class="p">()</span>
+<span class="n">mse_rare</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_rare</span><span class="p">,</span> <span class="n">test_predictions_rare</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Rare sample MSE:&#39;</span><span class="p">,</span> <span class="n">mse_rare</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">mae_overall</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">()</span>
+<span class="n">mae_overall</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Overall MAE:&#39;</span><span class="p">,</span> <span class="n">mae_overall</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">mae_frequent</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">()</span>
+<span class="n">mae_frequent</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_frequent</span><span class="p">,</span> <span class="n">test_predictions_frequent</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequent sample MAE:&#39;</span><span class="p">,</span> <span class="n">mae_frequent</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">mae_rare</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">MeanAbsoluteError</span><span class="p">()</span>
+<span class="n">mae_rare</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_rare</span><span class="p">,</span> <span class="n">test_predictions_rare</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Rare sample MAE:&#39;</span><span class="p">,</span> <span class="n">mae_rare</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">pcc_overall</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">PearsonCorrelation</span><span class="p">()</span>
+<span class="n">pcc_overall</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Overall PCC:&#39;</span><span class="p">,</span> <span class="n">pcc_overall</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">pcc_frequent</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">PearsonCorrelation</span><span class="p">()</span>
+<span class="n">pcc_frequent</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_frequent</span><span class="p">,</span> <span class="n">test_predictions_frequent</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Frequent sample PCC:&#39;</span><span class="p">,</span> <span class="n">pcc_frequent</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<span class="n">pcc_rare</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">PearsonCorrelation</span><span class="p">()</span>
+<span class="n">pcc_rare</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_rare</span><span class="p">,</span> <span class="n">test_predictions_rare</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Rare sample PCC:&#39;</span><span class="p">,</span> <span class="n">pcc_rare</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The code above should yield output similar to the following:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Overall MSE: 1.7918983
+Frequent sample MSE: 1.8190947
+Rare sample MSE: 0.6535388 
+
+Overall MAE: 0.89384747
+Frequent sample MAE: 0.9010623
+Rare sample MAE: 0.5918519 
+
+Overall PCC: 0.574065
+Frequent sample PCC: 0.5519897
+Rare sample PCC: 0.4519744
+</pre></div>
+</div>
 </section>
 </section>
 

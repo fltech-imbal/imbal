@@ -126,7 +126,6 @@ print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.ast
 # Predict on test data
 test_predictions = model.predict(x_test).reshape(-1)
 
-print(test_predictions.shape, y_test.shape)
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data

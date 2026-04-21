@@ -345,14 +345,99 @@
 Keras includes a variety of metric object, and <code class="docutils literal notranslate"><span class="pre">imbal</span></code> provides several
 additional metrics for use, a full list of which can be found on
 <a class="reference internal" href="../../../metrics/metrics.html"><span class="std std-doc">this page</span></a>. This tutorial will explain some
-of the ways to use metrics, along with code examples.</p>
-<p>Throughout this tutorial, we will make use of the following metrics:</p>
+of the ways to use metrics, along with code examples. This tutorial uses the code in the
+<a class="reference internal" href="balanced_fit.html"><span class="std std-doc">Balanced Fit</span></a> tutorial as a foundation.
+All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/classification/metrics.py</span></code>.</p>
+<section id="common-classification-metrics">
+<h2>Common Classification Metrics<a class="headerlink" href="#common-classification-metrics" title="Link to this heading">#</a></h2>
+<p>Some common classification metrics that are used are listed below, with links to their documentation.</p>
 <ul class="simple">
 <li><p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/F1Score">keras.metrics.F1Score</a></p></li>
+<li><p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/AUC">keras.metrics.AUC</a></p></li>
 <li><p><a class="reference internal" href="../../../metrics/heikde_skill_score.html"><span class="std std-doc">imbal.metrics.HeikdeSkillScore</span></a></p></li>
 <li><p><a class="reference internal" href="../../../metrics/true_skill_statistic.html"><span class="std std-doc">imbal.metrics.TrueSkillStatistic</span></a></p></li>
-<li><p><a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/metrics/AUC">keras.metrics.AUC</a></p></li>
+<li><p><a class="reference internal" href="../../../metrics/gilbert_skill_score.html"><span class="std std-doc">imbal.metrics.GilbertSkillScore</span></a></p></li>
+<li><p><a class="reference internal" href="../../../metrics/j_statistic.html"><span class="std std-doc">imbal.metrics.JStatistic</span></a></p></li>
+<li><p><a class="reference internal" href="../../../metrics/youdens_index.html"><span class="std std-doc">imbal.metrics.YoudensIndex</span></a></p></li>
 </ul>
+</section>
+<section id="how-to-use-metric-objects">
+<h2>How to use Metric objects<a class="headerlink" href="#how-to-use-metric-objects" title="Link to this heading">#</a></h2>
+<p>When using wither <code class="docutils literal notranslate"><span class="pre">keras</span></code> or <code class="docutils literal notranslate"><span class="pre">imbal</span></code> Metric objects in your program, there are two
+main places in your code where you will use them.</p>
+<ol class="arabic simple">
+<li><p>Passing the metrics into <code class="docutils literal notranslate"><span class="pre">Model.compile</span></code>, in which case the metrics will be monitored during training</p></li>
+<li><p>Using the Metric object directly, after training your model, to compute metrics on your test set.</p></li>
+</ol>
+<p>Some considerations should be made when deciding when to use Metric objects. For example, any metric passed to
+<code class="docutils literal notranslate"><span class="pre">Model.compile</span></code> will be computed every single epoch, for both the training and validation sets (if a validation
+set is provided). This can be time-consuming if the computation required to compute the metric is already
+inherently time-consuming (such as computing <code class="docutils literal notranslate"><span class="pre">AUC</span></code>), or if you are passing multiple metrics to <code class="docutils literal notranslate"><span class="pre">Model.compile</span></code>. For this reason, we recommend
+either passing a single metric to <code class="docutils literal notranslate"><span class="pre">Model.compile</span></code>, or no metrics at all. The metric(s) passed to <code class="docutils literal notranslate"><span class="pre">Model.compile</span></code> should
+only be those metrics, other than your loss function, which you are considered with monitoring during training.</p>
+</section>
+<section id="necessary-files">
+<h2>Necessary Files<a class="headerlink" href="#necessary-files" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>All the source code in this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/SDO/classification/metrics.py</span></code></p></li>
+<li><p>The training data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/training</span></code></p></li>
+<li><p>The test data for this tutorial can be found at <code class="docutils literal notranslate"><span class="pre">imbal/tutorials/data/SDOBenchmark/test</span></code></p></li>
+</ul>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="applying-metric-objects-to-predictions">
+<h1>Applying <code class="docutils literal notranslate"><span class="pre">Metric</span></code> Objects To Predictions<a class="headerlink" href="#applying-metric-objects-to-predictions" title="Link to this heading">#</a></h1>
+<p>Now that we have our predictions, and have split them by their frequency, we can pass the labels and predictions
+to our metric objects to gain insight into the model’s performance. It is worth noting that Metric objects typically
+store their results in a TensorFlow Tensor object. Therefore, we will convert the tensor to a NumPy array, and retrieve
+the first value
+in order to print just the metric itself, without any of the additional information about the tensor it was stored in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Predict on test data</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Calculate metrics</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;F1 Score:&#39;</span><span class="p">,</span> <span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeikdeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Heikde Skill Score:&#39;</span><span class="p">,</span> <span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">tss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">TrueSkillStatistic</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">tss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;True Skill Statistic:&#39;</span><span class="p">,</span> <span class="n">tss</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">auroc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">AUC</span><span class="p">()</span>
+<span class="n">auroc</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AUROC:&#39;</span><span class="p">,</span> <span class="n">auroc</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+
+<span class="n">gss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">GilbertSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">gss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Gilbert Skill Score:&#39;</span><span class="p">,</span> <span class="n">gss</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">j_statistic</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">JStatistic</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">j_statistic</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;J Statistic:&#39;</span><span class="p">,</span> <span class="n">j_statistic</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">youdens</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">YoudensIndex</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">youdens</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Youden</span><span class="se">\&#39;</span><span class="s1">s Index:&#39;</span><span class="p">,</span> <span class="n">youdens</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The code above should yield output similar to the following:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>F1 Score: 0.049216997
+Heikde Skill Score: 0.0042018816
+True Skill Statistic: 0.065577745
+AUROC: 0.6919186
+Gilbert Skill Score: 0.0021053618
+J Statistic: 0.065577745
+Youden&#39;s Index: 0.065577745
+</pre></div>
+</div>
+<p>Note that True Skill Statistic, J Statistic, and Youden’s Index are produce the same result.</p>
 </section>
 
 
@@ -375,6 +460,25 @@ of the ways to use metrics, along with code examples.</p>
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Using <code class="docutils literal notranslate"><span class="pre">imbal.metric</span></code> In Model Classification</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#common-classification-metrics">Common Classification Metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-use-metric-objects">How to use Metric objects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#necessary-files">Necessary Files</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-metric-objects-to-predictions">Applying <code class="docutils literal notranslate"><span class="pre">Metric</span></code> Objects To Predictions</a></li>
+</ul>
+
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">

@@ -113,6 +113,8 @@ F1 Score: 0.0477
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-confusion-matrix.png"/>
 </div>
 
+### Optional: Multi-weight fit
+
 By enabling the optional class weight variation in section 2:
 
 ```python
