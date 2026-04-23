@@ -12,11 +12,10 @@ def shap_explain_image_sample(
         actual_label=None,
         label_to_explain=None,
         show=True,
-        save_figure=False,
-        figure_save_path='shap-image-explanation.png'
+        save_figure=None
 ):
     """
-    Utilizes SHAP's `GradientExplainer <https://shap.readthedocs.io/en/latest/generated/shap.GradientExplainer.html>`_ to generate an explanation for the classification of a particular image
+    Utilizes SHAP's `KernelExplainer <https://shap.readthedocs.io/en/latest/generated/shap.KernelExplainer.html>`_ to generate an explanation for the classification of a particular image
     by a given model. For more about SHAP, see :doc:`this page </imbal/shap-explanation>`.
 
     Args:
@@ -56,7 +55,7 @@ def shap_explain_image_sample(
 
     background = training_data[np.random.choice(training_data.shape[0], num_samples, replace=False)]
 
-    e = shap.GradientExplainer(model, background)
+    e = shap.KernelExplainer(model, background)
 
     shap_values = e.shap_values(np.array([image]))
 
@@ -76,10 +75,10 @@ def shap_explain_image_sample(
         title_string += f' (Actual label: {actual_label})'
     plt.suptitle(title_string)
 
-    if save_figure:
-        plt.savefig(figure_save_path)
-    if show:
-        plt.show()
+    if save_figure is not None:
+        plt.savefig(save_figure)
+
+    plt.show()
 
 def shap_explain_tabular_sample(
     sample,

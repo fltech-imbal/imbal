@@ -484,6 +484,8 @@ MAE for log10 flux &gt;= -4: 1.824
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-data-distribution.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-label-vs-prediction-plot.png"/>
 </div>
+<section id="optional-exploring-sample-weight-candidates">
+<h3>Optional: Exploring sample weight candidates<a class="headerlink" href="#optional-exploring-sample-weight-candidates" title="Link to this heading">#</a></h3>
 <p>By enabling the optional alpha variation in section 3:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The below line can be uncommented to test multiple alpha values for reciprocal importance</span>
 <span class="c1"># If this is uncommented, be sure to also uncomment &#39;sample_weight=weight_candidates&#39; in the following section</span>
@@ -518,6 +520,7 @@ MAE for log10 flux &gt;= -4: 1.592
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-data-distribution-alphas.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-ae-label-vs-prediction-plot-alphas.png"/>
 </div></section>
+</section>
 </section>
 
 
@@ -554,7 +557,10 @@ MAE for log10 flux &gt;= -4: 1.592
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-sample-densities">2. Calculate Sample Densities</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-testing-multiple-hand-picked-alpha-values-for-sample-weights">3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">4. Model Compilation and Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density-distribution-and-results-visualization">5. Probability Density Distribution and Results Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-density-distribution-and-results-visualization">5. Probability Density Distribution and Results Visualization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-exploring-sample-weight-candidates">Optional: Exploring sample weight candidates</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

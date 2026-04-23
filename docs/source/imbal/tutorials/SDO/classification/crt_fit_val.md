@@ -124,6 +124,12 @@ imbal.classification.plot_confusion_matrix(
     test_predictions,
     save_figure='sample-sdo-crt-fit-val-confusion-matrix.png'
 )
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-crt-fit-val-roc.png'
+)
 ```
 
 Below are examples of what the generated output and plots should look 
@@ -132,16 +138,17 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
-Heikde Skill Score: 0.0149
-F1 Score: 0.0563
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.0035
+F1 Score: 0.0430
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-roc.png"/>
 </div>
 
-### Optional: Multi-weight fit
+### Optional: Exploring candidates for class weights
 
 By enabling the optional class weight variation in section 2:
 
@@ -163,18 +170,18 @@ we get the following results:
 
 ```text
 (after training output)
-[3/3] Fitted after 81 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
 19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 16ms/step
-Heikde Skill Score: -0.0031
+Heikde Skill Score: -0.0142
 F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix-class-weights.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-roc-class-weights.png"/>
 </div>
 
 ### Optional: Validation via `validation_split`
@@ -208,11 +215,12 @@ we get the following results:
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 17ms/step
-Heikde Skill Score: 0.0005
-F1 Score: 0.0461
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.2241
+F1 Score: 0.2400
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-confusion-matrix-split.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-crt-fit-val-roc-split.png"/>
 </div>

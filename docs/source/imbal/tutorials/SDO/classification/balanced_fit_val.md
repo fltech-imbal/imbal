@@ -64,7 +64,7 @@ history = model.balanced_fit(
     validation_data=(x_val, y_val.reshape(-1, 1)),
     epochs=500,
     batch_size=BATCH_SIZE,
-    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
     stratify_batches=True, # Ensure all batches have a similar data distribution
     callbacks=[callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 )
@@ -123,6 +123,12 @@ imbal.classification.plot_confusion_matrix(
     test_predictions,
     save_figure='sample-sdo-balanced-fit-val-confusion-matrix.png'
 )
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-balanced-fit-val-roc.png'
+)
 ```
 
 Below are examples of what the generated output and plots should look 
@@ -131,16 +137,17 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 15ms/step
-Heikde Skill Score: 0.0057
-F1 Score: 0.0482
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.0054
+F1 Score: 0.0506
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc.png"/>
 </div>
 
-### Optional: Multi-weight fit
+### Optional: Exploring candidates for class weights
 
 By enabling the optional class weight variation in section 2:
 
@@ -162,18 +169,18 @@ we get the following results:
 
 ```text
 (after training output)
-[3/3] Fitted after 58 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 ...
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0039
-F1 Score: 0.0478
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0000
+F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-class-weights.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc-class-weights.png"/>
 </div>
 
 ### Optional: Validation via `validation_split`
@@ -207,11 +214,12 @@ we get the following results:
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0039
-F1 Score: 0.0478
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0002
+F1 Score: 0.0456
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-split.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc-split.png"/>
 </div>

@@ -405,7 +405,7 @@ samples are present in each batch during training.</p>
     <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
     <span class="n">epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
-    <span class="n">class_weight</span><span class="o">=</span><span class="p">[[</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,],</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]],</span>
+    <span class="c1"># class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],</span>
     <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Ensure all batches have a similar data distribution</span>
     <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">callbacks</span><span class="o">.</span><span class="n">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="s1">&#39;val_loss&#39;</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="n">PATIENCE</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
 <span class="p">)</span>
@@ -461,22 +461,29 @@ training and test set.</p>
     <span class="n">test_predictions</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-balanced-fit-val-confusion-matrix.png&#39;</span>
 <span class="p">)</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_roc</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-balanced-fit-val-roc.png&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 15ms/step
-Heikde Skill Score: 0.0057
-F1 Score: 0.0482
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+Heikde Skill Score: 0.0054
+F1 Score: 0.0506
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc.png"/>
 </div>
-<section id="optional-multi-weight-fit">
-<h3>Optional: Multi-weight fit<a class="headerlink" href="#optional-multi-weight-fit" title="Link to this heading">#</a></h3>
+<section id="optional-exploring-candidates-for-class-weights">
+<h3>Optional: Exploring candidates for class weights<a class="headerlink" href="#optional-exploring-candidates-for-class-weights" title="Link to this heading">#</a></h3>
 <p>By enabling the optional class weight variation in section 2:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
     <span class="n">x_train</span><span class="p">,</span>
@@ -493,18 +500,18 @@ F1 Score: 0.0482
 </div>
 <p>we get the following results:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
-[3/3] Fitted after 58 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 0
 ...
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0039
-F1 Score: 0.0478
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0000
+F1 Score: 0.0000
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-class-weights.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc-class-weights.png"/>
 </div>
 </section>
 <section id="optional-validation-via-validation-split">
@@ -534,13 +541,14 @@ F1 Score: 0.0478
 
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0039
-F1 Score: 0.0478
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
+Heikde Skill Score: 0.0002
+F1 Score: 0.0456
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-confusion-matrix-split.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-roc-split.png"/>
 </div></section>
 </section>
 </section>
@@ -579,7 +587,7 @@ F1 Score: 0.0478
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-validation-split">2. Create Validation Split</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">3. Model Compilation and Training</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-and-results-visualization">4. Metrics and Results Visualization</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-multi-weight-fit">Optional: Multi-weight fit</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-exploring-candidates-for-class-weights">Optional: Exploring candidates for class weights</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-validation-via-validation-split">Optional: Validation via <code class="docutils literal notranslate"><span class="pre">validation_split</span></code></a></li>
 </ul>
 </li>

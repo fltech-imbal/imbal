@@ -68,7 +68,7 @@ model = build_simple_cnn()
 Create validation split
 """
 
-# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
@@ -130,4 +130,10 @@ imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='sample-sdo-regular-fit-val-confusion-matrix.png'
+)
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-regular-fit-val-roc.png'
 )

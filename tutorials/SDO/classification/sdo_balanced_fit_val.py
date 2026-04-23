@@ -68,7 +68,7 @@ model = build_simple_cnn()
 Create validation split
 """
 
-# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
@@ -86,8 +86,8 @@ model.compile(
 history = model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    # validation_data=(x_val, y_val.reshape(-1, 1)),
-    validation_split=0.1,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    # validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
     # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
@@ -131,4 +131,10 @@ imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='sample-sdo-balanced-fit-val-confusion-matrix.png'
+)
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-balanced-fit-val-roc.png'
 )

@@ -119,3 +119,9 @@ imbal.classification.plot_confusion_matrix(
     test_predictions,
     save_figure='sample-sdo-regular-fit-confusion-matrix.png'
 )
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-regular-fit-roc.png'
+)

@@ -185,7 +185,7 @@ MAE for log10 flux >= -4: 1.639
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-val-label-vs-prediction-plot.png"/>
 </div>
 
-### Optional: Multi-weight fit
+### Optional: Exploring sample weight candidates
 
 By enabling the optional alpha variation in section 3:
 

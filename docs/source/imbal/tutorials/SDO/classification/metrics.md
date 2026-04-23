@@ -6,6 +6,7 @@ additional metrics for use, a full list of which can be found on
 [this page](../../../metrics/metrics.md). This tutorial will explain some
 of the ways to use metrics, along with code examples. This tutorial uses the code in the
 [Balanced Fit](balanced_fit.md) tutorial as a foundation.
+
 All the source code in this tutorial can be found at `imbal/tutorials/SDO/classification/metrics.py`.
 
 ## Common Classification Metrics

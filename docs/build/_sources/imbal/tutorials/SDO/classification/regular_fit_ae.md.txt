@@ -88,6 +88,12 @@ imbal.classification.plot_confusion_matrix(
     test_predictions,
     save_figure='sample-sdo-regular-fit-ae-confusion-matrix.png'
 )
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-regular-fit-ae-roc.png'
+)
 ```
 
 Below are examples of what the generated output and plots should look 
@@ -96,11 +102,12 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-ae-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-ae-roc.png"/>
 </div>

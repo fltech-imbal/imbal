@@ -80,7 +80,7 @@ model.compile(
 model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
+    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -119,4 +119,10 @@ imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='sample-sdo-balanced-fit-confusion-matrix.png'
+)
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-balanced-fit-roc.png'
 )
