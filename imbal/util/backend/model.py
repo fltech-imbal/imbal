@@ -454,11 +454,11 @@ class Model(keras.Model):
         shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
-        class_weight=None,
+        class_weights=None,
         **kwargs
     ):
 
-        weight_type = 'class weight' if class_weight is not None else 'sample weight'
+        weight_type = 'class weight' if class_weights is not None else 'sample weight'
         find_threshold = sample_weight is None
 
         best_loss = None
@@ -563,8 +563,8 @@ class Model(keras.Model):
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
 
-        if class_weight is not None:
-            self.best_class_weights = class_weight[best_weights_index]
+        if class_weights is not None:
+            self.best_class_weights = class_weights[best_weights_index]
         else:
             self.best_sample_weights = sample_weight[best_weights_index]
 

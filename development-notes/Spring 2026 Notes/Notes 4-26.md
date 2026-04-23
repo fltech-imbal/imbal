@@ -141,8 +141,8 @@ class/sample weights
 #### Top Priority:
 - Remove MSE metric from AE $\checkmark$
 - Make sure documentation specifies that the we the Kernel SHAP (and link to paper if not linked already) $\checkmark$
-	- For images, I have previously used SHAP's gradient explainer. Based on what I could find, `GradientExplainer` is faster for neural networks, but only works on neural networks and is therefore not truly model agnostic (like kernel SHAP)
-	- Is this an issue? Should I switch to kernel for everything? Should I maybe use `GradientExplainer` for everything?
+	- For images, I have previously used SHAP's gradient explainer. Based on what I could find, `GradientExplainer` is faster for neural networks, but only works on neural networks and is therefore not truly model agnostic (like kernel SHAP) $\checkmark$
+	- Is this an issue? Should I switch to kernel for everything? Should I maybe use `GradientExplainer` for everything? $\checkmark$
 - LIME bug from Daniel? $\checkmark$
 - Maybe profile memory usage to see what might be causing OOM issue? $\checkmark$
 - Re-run all previous tutorials $\checkmark$
@@ -156,8 +156,17 @@ class/sample weights
 				- Add GSS, J statistic, and Youden's index $\checkmark$
 			- regression: MAE, MSE, Correlation $\checkmark$
 				- For regression/single value metric, split into overall, frequent, and rare $\checkmark$
-		
-- visualization tutorial comes later
+#### Low Priority:
+- [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure it works for binary classification with single output unit (convert to 2 class)
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
+
+# 4/21/26
+## Tasks
+#### High Priority
+- Add plots to metric tutorials (true v predicted, confusion matrix, AUROC) (!!!)
+- visualization tutorial comes later (!!!)
 	- Make sure to mention code is taken from that link in documentation
 	- Also refer to paper link from paper list
 	- For LIME classification tutorial
@@ -165,8 +174,16 @@ class/sample weights
 			- Explaining an event that was detected correctly
 			- A mistake (false negative or false positive)
 		- Focus on True Positive/False Negative 
-					Maybe False Positive, but True Negatives are too frequent
+			- Maybe False Positive, but True Negatives are too frequent
+	- SHAP
+	- TSNE
+- Replace `GradientExplainer` with `KernelExplainer`, because model-agnostic
+- Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
+- Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
+- Make sure class weights are printed for multi-weighted fit on classification side (the stuff is already there to make it work, it just isn't happening)
+- Get rid of "\[3/3]" for multi-fit supplements
 #### Low Priority:
+- AUROC plots for classification tutorials
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure it works for binary classification with single output unit (convert to 2 class)
 - Try to fix `generate_decoder_branch`.
