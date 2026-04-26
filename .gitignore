@@ -2,3 +2,4 @@
 .venv
 build
 imbal/build
+imbal.egg-info
