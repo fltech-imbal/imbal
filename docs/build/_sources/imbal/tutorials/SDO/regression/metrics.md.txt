@@ -115,6 +115,12 @@ print('Frequent sample PCC:', pcc_frequent.result().numpy())
 pcc_rare = metrics.PearsonCorrelation()
 pcc_rare.update_state(test_labels_rare, test_predictions_rare)
 print('Rare sample PCC:', pcc_rare.result().numpy(), '\n')
+
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-metrics-label-vs-prediction-plot.png'
+)
 ```
 
 The code above should yield output similar to the following:
@@ -132,3 +138,9 @@ Overall PCC: 0.574065
 Frequent sample PCC: 0.5519897
 Rare sample PCC: 0.4519744
 ```
+
+Lastly, the `imbal.regression.plot_true_vs_predictions` function should produce the following plot:
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-label-vs-prediction-plot.png"/>
+</div>

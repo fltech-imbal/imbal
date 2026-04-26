@@ -450,6 +450,12 @@ in order to print just the metric itself, without any of the additional informat
 <span class="n">pcc_rare</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">PearsonCorrelation</span><span class="p">()</span>
 <span class="n">pcc_rare</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">test_labels_rare</span><span class="p">,</span> <span class="n">test_predictions_rare</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Rare sample PCC:&#39;</span><span class="p">,</span> <span class="n">pcc_rare</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">plot_true_vs_predictions</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-metrics-label-vs-prediction-plot.png&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>The code above should yield output similar to the following:</p>
@@ -466,7 +472,10 @@ Frequent sample PCC: 0.5519897
 Rare sample PCC: 0.4519744
 </pre></div>
 </div>
-</section>
+<p>Lastly, the <code class="docutils literal notranslate"><span class="pre">imbal.regression.plot_true_vs_predictions</span></code> function should produce the following plot:</p>
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-label-vs-prediction-plot.png"/>
+</div></section>
 </section>
 
 

@@ -34,4 +34,5 @@ Each row corresponds to some additional modification to the approach:
 
 - [Using `imbal.metrics` in model classification](SDO/classification/metrics.md)
 - [Model representation visualization using t-SNE](SDO/classification/visualization.md)
-- [Prediction explanation using LIME and SHAP](SDO/classification/explanation.md)
+- [Prediction explanation using LIME](SDO/classification/explanation_lime.md)
+- [Prediction explanation using SHAP](SDO/classification/explanation_shap.md)

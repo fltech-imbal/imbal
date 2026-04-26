@@ -126,7 +126,6 @@ print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.ast
 # Predict on test data
 test_predictions = model.predict(x_test).reshape(-1)
 
-
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
 test_predictions_frequent = test_predictions[test_frequent_mask] # Mask frequent test data
@@ -163,3 +162,9 @@ print('Frequent sample PCC:', pcc_frequent.result().numpy())
 pcc_rare = metrics.PearsonCorrelation()
 pcc_rare.update_state(test_labels_rare, test_predictions_rare)
 print('Rare sample PCC:', pcc_rare.result().numpy(), '\n')
+
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-metrics-label-vs-prediction-plot.png'
+)
