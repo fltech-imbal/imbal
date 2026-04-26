@@ -81,7 +81,6 @@ def lime_explain_image_sample(
 
     temp, mask = explanation.get_image_and_mask(
         label_to_explain,
-        positive_only=False,
         num_features=num_features,
         hide_rest=False
     )

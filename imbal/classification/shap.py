@@ -4,15 +4,14 @@ import imbal.util.backend.explanation as explanation
 import shap
 
 def shap_explain_image_sample(
-        image,
-        model,
-        training_data,
-        num_samples=100,
-        class_names=None,
-        actual_label=None,
-        label_to_explain=None,
-        show=True,
-        save_figure=None
+    image,
+    model,
+    training_data,
+    num_samples=100,
+    class_names=None,
+    actual_label=None,
+    label_to_explain=None,
+    save_figure=None
 ):
     """
     Utilizes SHAP's `KernelExplainer <https://shap.readthedocs.io/en/latest/generated/shap.KernelExplainer.html>`_ to generate an explanation for the classification of a particular image
