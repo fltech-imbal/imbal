@@ -1,1 +1,0 @@
-= (True Negative + False Positive) * (True Negative + False Negative) / Sample Size
