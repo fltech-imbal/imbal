@@ -195,10 +195,10 @@ class/sample weights
 # 4/23/26
 ## Tasks
 #### High Priority
-- LIME, SHAP, and GradCam are separate tutorials
-- For LIME, rerun with positive only
-- Plots in *METRIC TUTORIALS* (!!!)
-	- Explain visualizations where appropriate
+- LIME, SHAP, and GradCam are separate tutorials $\checkmark$
+- For LIME, rerun with positive only $\checkmark$
+- Plots in *METRIC TUTORIALS* (!!!) $\checkmark$
+	- Explain visualizations where appropriate $\checkmark$
 - visualization tutorials  $\checkmark$
 	- Also refer to paper link from paper list $\checkmark$
 	- For LIME classification tutorial $\checkmark$
@@ -207,13 +207,14 @@ class/sample weights
 			- A mistake (false negative or false positive) $\checkmark$
 		- Focus on True Positive/False Negative $\checkmark$
 			- Maybe False Positive, but True Negatives are too frequent  $\checkmark$
-	- SHAP
 - Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
 - Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
 - Make sure class weights are printed for multi-weighted fit on classification side (the stuff is already there to make it work, it just isn't happening)
 - pip-installable $\checkmark$
 - restructured GitHub $\checkmark$
-
+- Documentation now publicly available [here](https://fltech-imbal.github.io/imbal/index.html) $\checkmark$
+- Created `fltech-imbal` GitHub organization, transferred ownership of repo $\checkmark$
+ 
 #### Low Priority:
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure it works for binary classification with single output unit (convert to 2 class)
