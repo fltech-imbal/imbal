@@ -75,9 +75,6 @@ labels = train_data.drop(columns=[target_column]).columns.tolist()
 
 target_sample_index = -1  # choose a rare sample to explain
 
-print(x_test.shape)
-print(x_train.shape)
-
 imbal.regression.shap_explain_tabular_sample(
     x_test[target_sample_index],
     model,

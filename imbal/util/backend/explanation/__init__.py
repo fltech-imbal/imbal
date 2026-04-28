@@ -115,10 +115,15 @@ def shap_explain_tabular_sample(
             output_names=class_names
         )
     else:
+        values = np.asarray(shap_values.values[0]).squeeze()
+        base_values = np.asarray(shap_values.base_values[0]).squeeze()
+
+        if np.asarray(base_values).ndim == 0:
+            base_values = np.asarray(base_values).item()
 
         single_class_expl = shap.Explanation(
-            values=shap_values.values[0],
-            base_values=shap_values.base_values[0],
+            values=values,
+            base_values=base_values,
             data=shap_values.data[0],
             feature_names=feature_names,
             output_names=class_names
