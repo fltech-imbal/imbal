@@ -115,9 +115,6 @@ def shap_explain_tabular_sample(
             output_names=class_names
         )
     else:
-        print("values shape:", shap_values.values.shape)
-        print("base_values shape:", np.shape(shap_values.base_values))
-        print("data shape:", np.shape(shap_values.data))
 
         single_class_expl = shap.Explanation(
             values=shap_values.values[0],
@@ -130,7 +127,6 @@ def shap_explain_tabular_sample(
     if plot_type == 'bar':
         ax = shap.plots.bar(single_class_expl, show=False)
     elif plot_type == 'waterfall':
-        plt.subplots_adjust(left=0.5)
         ax = shap.plots.waterfall(single_class_expl, show=False)
     else:
         raise ValueError('Invalid plot type')
