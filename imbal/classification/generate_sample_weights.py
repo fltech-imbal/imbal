@@ -3,7 +3,7 @@ from imbal.util.backend.tools import verify_weight_scale
 
 def generate_sample_weights(
         labels,
-        class_weights=None
+        class_weight=None
     ):
     """
     Generates a list of weights, where the index of each weight corresponds to the label
@@ -20,7 +20,7 @@ def generate_sample_weights(
 
     Args:
         labels: A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-        class_weights: A dictionary or list of mappings from class label to weight. If
+        class_weight: A dictionary or list of mappings from class label to weight. If
             no weight mapping is provided, each class will be weighted equally (samples of
             more frequent classes will be weighted lower, and vice versa). If
             a dictionary is provided, keys will be interpreted as class labels, and the corresponding
@@ -71,17 +71,17 @@ def generate_sample_weights(
     balanced_mapping = {}
     weight_sum = 0
 
-    if isinstance(class_weights, dict):
+    if isinstance(class_weight, dict):
         weights = np.vectorize(
             lambda x: class_weights.get(x, 1) / class_counts.get(x)
         )(labels)
     else:
-        if class_weights is None:
+        if class_weight is None:
             for cls in unique_classes:
                 full_weight_mapping[cls] = 1
                 weight_sum += full_weight_mapping[cls]
         else:
-            class_weights = np.array(class_weights)
+            class_weights = np.array(class_weight)
             if class_weights.ndim == 1:
                 if len(class_weights) != len(unique_classes):
                     raise ValueError(
