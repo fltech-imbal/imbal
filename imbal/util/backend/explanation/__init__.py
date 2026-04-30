@@ -115,6 +115,20 @@ def shap_explain_tabular_sample(
             output_names=class_names
         )
     else:
+        # NOTE:
+        # For single-target regression, SHAP returns values with shape (n_features, 1)
+        # and base_values with shape (1,) after selecting a single sample.
+        #
+        # However, shap.plots (e.g., waterfall) expect a single explanation with:
+        #   - values: shape (n_features,)
+        #   - base_values: scalar
+        #
+        # If we pass (n_features, 1), SHAP interprets it as multiple outputs and raises:
+        # "The waterfall plot can currently only plot a single explanation..."
+        #
+        # Therefore, we squeeze the singleton output dimension and convert base_values
+        # to a Python scalar (instead of a 0-D NumPy array), ensuring compatibility
+        # with SHAP plotting APIs.
         values = np.asarray(shap_values.values[0]).squeeze()
         base_values = np.asarray(shap_values.base_values[0]).squeeze()
 

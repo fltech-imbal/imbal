@@ -148,7 +148,7 @@ The SHAP visualization explains **why the model predicted the way it did** by at
 
 * The plot starts from a **baseline value** (shown near the bottom as (E[f(X)])).
 * Feature contributions are then added step-by-step to reach the final prediction (f(x)).
-* Features on the **right side (red)** push the prediction **higher toward the target class being explained**.
+* Features on the **right side (red)** push the prediction **higher toward the prediction class being explained**.
 * Features on the **left side (blue)** push the prediction **lower, away from that class**.
 * The final prediction is shown at the top as (f(x)).
 
@@ -170,7 +170,7 @@ The most important aspect is the **magnitude of the contributions**:
 
 * `CME_DONKI_speed_norm` contributes **+0.36**
 * `CME_CDAW_LinearSpeed_norm` contributes **+0.34**
-* `Halo` contributes **+0.17`
+* `Halo` contributes **+0.17**
 
 These are large, consistent positive contributions that strongly increase the prediction toward Rare.
 

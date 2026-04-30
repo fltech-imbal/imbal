@@ -73,7 +73,7 @@ model.balanced_fit(
 # ----------------------------
 labels = train_data.drop(columns=[target_column]).columns.tolist()
 
-target_sample_index = -1  # choose a rare sample to explain
+target_sample_index = -6  # choose a rare sample to explain
 
 imbal.regression.shap_explain_tabular_sample(
     x_test[target_sample_index],

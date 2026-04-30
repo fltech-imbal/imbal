@@ -74,8 +74,7 @@ model.balanced_fit(
 
 ## 2. LIME Explanations
 
-### A. Small Error
-Prediction Example
+### A. Small Error Prediction Example
 
 ```python
 labels = train_data.drop(columns=[target_column]).columns.tolist()
@@ -154,22 +153,9 @@ Note: The **feature values** in this model are not the raw physical values but n
 
 ## 5. Interpreting the Difference Between the Two Explanations
 
-### A. Side-by-side comparison of feature values
-
-To understand the difference between the two predictions, we focus only on the **top 3 features** in each LIME explanation. These represent the strongest local drivers of the model’s output.
-
-In both cases, speed-related features are expected to play an important role, so their presence (or absence) among the top contributors is particularly informative.
-
-| Feature                   | Small Error Example | Large Error Example |
-| ------------------------- |---------------------|---------------------|
-| CME_DONKI_speed_norm      | ~0.45               | ~0.34               |
-| DONKI_half_width_norm     | ~0.69               | ~0.57               |
-| CME_DONKI_longitude_norm  | ~0.52               | ~0.44               |
-| CME_CDAW_LinearSpeed_norm | ~0.23               | ~0.27               |
-
 ---
 
-### B. Why the first prediction is much closer to the true value
+### A. Why the first prediction is much closer to the true value
 
 In the small error example, the top 3 features are consistent and reinforce each other.
 
@@ -186,7 +172,7 @@ This leads to a prediction that stays close to the true value.
 
 ---
 
-### C. Why the large error prediction is far from the true value
+### B. Why the large error prediction is far from the true value
 
 In the large error example, the composition of the top features changes.
 
