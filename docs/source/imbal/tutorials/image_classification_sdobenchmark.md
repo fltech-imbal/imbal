@@ -22,7 +22,7 @@ Each column corresponds to a type of fit that can be performed with `imbal.class
 Each row corresponds to some additional modification to the approach:
 - Basic: The basic approach, with no additional modification
 - With AE: Includes automatic autoencoder branch generation
-- With Val: Includes splitting of validation data and using early stopping to end training
+- With Val: Includes splitting of validation data, used to reduce overfitting and allows for comparison between the performance of multiple class weight candidates
 
 |                 | Regular Fit                                          | Balanced Fit                                           | cRT Fit                                      |
 |-----------------|------------------------------------------------------|--------------------------------------------------------|----------------------------------------------|
