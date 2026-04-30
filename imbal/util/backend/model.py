@@ -621,6 +621,7 @@ class Model(keras.Model):
             sample_density,
             require_weighting
         )
+        print(sample_weight)
         if sample_weight.ndim == 1:
             sample_weight = sample_weight[None, ...]
 

@@ -104,7 +104,7 @@ This example explains a sample where the model prediction matches the actual cla
 ```python
 labels = train_data.drop(columns=[target_column]).columns.tolist()
 
-target_sample_index = 0  # Example index for a misclassified sample
+target_sample_index = -9  # Example index for a misclassified sample
 
 imbal.classification.lime_explain_tabular_sample(
     x_test[target_sample_index],
@@ -167,11 +167,7 @@ The strongest feature contributions are concentrated on the **Rare** side, espec
 * `Halo`
 * `CME_CDAW_LinearSpeed_norm`
 
-These features all push in the same direction. Their values are also relatively strong for this sample:
-
-* `CME_DONKI_speed_norm = 0.78`
-* `Halo = 1.00`
-* `CME_CDAW_LinearSpeed_norm = 0.85`
+These features all push in the same direction.
 
 That makes this prediction locally consistent: the most influential features reinforce each other, so the model has a clear signal for **Rare**.
 
@@ -202,17 +198,10 @@ So this sample has a more mixed explanation than the correct one.
 
 ### Why the prediction might have been wrong
 
-The likely reason for the error is that the local feature pattern is conflicting.
+The likely reason for the error is that the **local model built by LIME is dominated by signals pointing toward Common**, even though the global model prediction boundary would ideally classify this as Rare.
 
-In the correct example, the top contributors mostly agree and strongly support **Rare**. In the incorrect example, the features are split across both classes, and the features pushing toward **Common** appear to dominate the local model.
+A key detail is that the **largest feature weight (≈ 0.08) comes from `CME_DONKI_speed_norm`, and it points toward Common**. This is important because LIME is approximating the model *locally* around this instance. In that local neighborhood, increasing the speed feature would actually make the prediction *more* likely to be **Common**, which is counterintuitive given that higher speed is generally associated with Rare events.
 
-A few things stand out:
-
-* `CME_DONKI_speed_norm = 0.34` is much lower than in the correct example (`0.78`), so one of the strongest Rare-driving signals is weaker here.
-* `DONKI_half_width_norm = 0.75` contributes toward **Common** in the incorrect case, and it is one of the larger blue contributions.
-* `CME_CDAW_MPA_norm = 0.20` also supports **Common**, adding to the left-side evidence.
-* Although `Halo = 1.00` still supports **Rare**, it is not enough by itself to overcome the stronger combined Common-side contributions.
-
-This suggests the model may be seeing this sample as more similar to **Common** examples in the training distribution, even though its true label is **Rare**.
+This suggests the model may be seeing this sample as more similar to **Common** examples in the training distribution in its local neighborhood, even though its true label is **Rare**.
 
 ---
