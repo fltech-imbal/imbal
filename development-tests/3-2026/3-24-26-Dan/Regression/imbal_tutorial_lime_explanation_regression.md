@@ -74,12 +74,12 @@ model.balanced_fit(
 
 ## 2. LIME Explanations
 
-### A. Correct Prediction Example
+### A. Small Error Prediction Example
 
 ```python
 labels = train_data.drop(columns=[target_column]).columns.tolist()
 
-target_sample_index = -1
+target_sample_index = -6
 
 imbal.regression.lime_explain_tabular_sample(
     x_test[target_sample_index],
@@ -92,17 +92,17 @@ imbal.regression.lime_explain_tabular_sample(
 
 ### Explanation
 
-This example explains a **correct regression prediction**.
+This example explains a **close regression prediction**.
 
 * `labels` stores the feature names for readability.
-* `target_sample_index = -1` selects a sample near the end of the dataset.
+* `target_sample_index = -6` selects a sample near the end of the dataset.
 * `lime_explain_tabular_sample(...)` generates a local explanation for that prediction.
 
 Instead of class probabilities, we interpret **how features push the prediction higher or lower**.
 
 ---
 
-### B. Incorrect Prediction Example
+### B. Large Error Prediction Example
 
 ```python
 target_sample_index = -5
@@ -118,36 +118,23 @@ imbal.regression.lime_explain_tabular_sample(
 
 ### Explanation
 
-This example shows a **numerically incorrect prediction** that also leads to a **functional classification error**.
-
-An event is defined as:
-
-**Event if:**
-
-ln_peak_intensity ≥ ln(10)
-
-In this case:
-
-* The **true value exceeds the threshold (event)**
-* The **predicted value is below the threshold (no event)**
-
-So even though this is regression, it results in a **missed detection**.
+This example shows a **far regression prediction** that is not within a reasonable margin.
 
 ---
 
 ## 3. Results
 
-### Correct Prediction
+### Small Error Prediction
 
-![Correct Prediction](../images/lime_regression.png)
+![Small Error Prediction](../images/lime_regression.png)
 
-### Incorrect Prediction
+### Large Error Prediction
 
-![Incorrect Prediction](../images/lime_regression_wrong_prediction.png)
+![Large Error Prediction](../images/lime_regression_wrong_prediction.png)
 
 ---
 
-## 4. Understanding the LIME Output (Regression)
+## 4. Understanding the LIME Output
 
 The LIME visualization explains **why the model predicted the value that it did**.
 
@@ -160,96 +147,47 @@ The LIME visualization explains **why the model predicted the value that it did*
   * **Blue (negative)** → pushes the prediction **lower**
 * **Bottom middle** shows the **feature values** for this specific sample.
 
-Note: The **feature values** in this model are not the actual values (e.g. speed) but rather normalized values between 0 and 1 or -1 and 1.
+Note: The **feature values** in this model are not the raw physical values but normalized values (typically between 0 and 1).
 
 ---
 
 ## 5. Interpreting the Difference Between the Two Explanations
 
-### Correct Prediction: Why the model predicted a high value successfully
+---
 
-In the first explanation, the model predicts a **high value** that correctly exceeds the event threshold.
+### A. Why the first prediction is much closer to the true value
 
-* **Predicted: ~5.61**
-* **Actual: ~8.69**
+In the small error example, the top 3 features are consistent and reinforce each other.
 
-Even though the prediction is slightly lower than the true value, it is still **well above ln(10)**, so the event is correctly detected.
+* Both **speed-related features appear in the top 3**:
 
-The strongest feature contributions are concentrated on the **positive (upward)** side, especially:
+  * `CME_DONKI_speed_norm`
+  * `CME_CDAW_LinearSpeed_norm`
 
-* `CME_DONKI_speed_norm`
-* `Halo`
-* `CME_CDAW_LinearSpeed_norm`
+* These features contribute in the same direction and are supported by another feature (such as width or longitude).
 
-These features all push the prediction higher, and their values are relatively strong for this sample:
+Because the model is relying on multiple speed-related signals at the same time, the overall pattern is stable. The strongest contributors are also among the most physically meaningful features, and they are not being contradicted by other inputs.
 
-* `CME_DONKI_speed_norm = 0.78`
-* `Halo = 1.00`
-* `CME_CDAW_LinearSpeed_norm = 0.85`
-
-This makes the prediction locally consistent: the most influential features reinforce each other, giving the model a clear signal for a **high-intensity event**.
+This leads to a prediction that stays close to the true value.
 
 ---
 
-### Incorrect Prediction: Why the model predicted too low
+### B. Why the large error prediction is far from the true value
 
-In the second explanation, the model predicts a value that falls **below the event threshold**, even though the actual value corresponds to an event.
+In the large error example, the composition of the top features changes.
 
-* **Predicted: ~2.24**
-* **Actual: ~4.76**
+* Only **one speed-related feature appears in the top 3**
+* The second speed-related feature is pushed down to around **5th place**
 
-Since **2.24 < ln(10)**, the model fails to detect the event.
+Instead, the top contributors include features such as:
 
-The important difference is that the strongest local evidence is now **less consistently pushing upward**. Instead, the explanation shows a more mixed pattern.
-
-#### Key differences in the feature contributions
-
-**Weaker positive drivers:**
-
-* `CME_DONKI_speed_norm = 0.34` (much lower than 0.78 in the correct case)
-
-→ One of the strongest upward-driving signals is significantly reduced.
-
-**Stronger negative influence:**
-
-* `CME_DONKI_longitude_norm` contributes negatively (blue)
-
-→ This actively pulls the prediction downward.
-
-**Mixed feature signals:**
-
-Some features still push upward:
-
+* `DONKI_half_width_norm`
 * `Halo`
-* `CME_CDAW_LinearSpeed_norm`
 
-But others push downward:
+This shift matters because the model is no longer relying primarily on both speed signals at the same time. While one speed feature still contributes, it is not reinforced by the other.
 
-* `CME_DONKI_longitude_norm`
-* additional threshold-based splits
+At the same time, features like `Halo` become more influential, introducing a different type of signal that does not align as directly with the main drivers of the prediction.
 
-→ The explanation is **less aligned** compared to the correct case.
-
-**Shift in feature importance:**
-
-* `DONKI_half_width_norm` becomes a stronger contributor
-* However, its effect does not compensate for the weakened speed signal
-
----
-
-### Why the prediction might have been wrong
-
-The likely reason for the error is that the **local feature pattern is conflicting**.
-
-In the correct example, the top contributors mostly agree and strongly push the prediction upward. In the incorrect example, the contributions are split between increasing and decreasing the prediction, and the **downward forces are strong enough to dominate**.
-
-A few key takeaways:
-
-* The model relies heavily on `CME_DONKI_speed_norm` as a primary signal.
-* When that signal is weak, other features can override the prediction.
-* Negative contributions (like longitude effects) can significantly suppress the output.
-* Even strong positive signals (like `Halo = 1.00`) may not be enough on their own.
-
-This suggests the model interprets this sample as more similar to **lower-intensity events** in the training data, leading to a missed detection despite the true label being above the threshold.
+As a result, the top features are less consistent with each other, and the model combines a set of signals that do not point as clearly in one direction. This leads to a prediction that is further from the true value.
 
 ---

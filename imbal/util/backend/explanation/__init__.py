@@ -88,12 +88,20 @@ def shap_explain_tabular_sample(
     if not isinstance(training_data, np.ndarray):
         raise TypeError('Training data must be a Numpy array.')
 
-    explainer = shap.KernelExplainer(model, training_data)
+    def predict_fn(value):
+        predictions = model.predict(value)
+        if mode == 'classification' and predictions.shape[-1] == 1:
+            predictions = np.concatenate([1 - predictions, predictions], axis=-1)
+        return predictions
+
+    explainer = shap.KernelExplainer(predict_fn, training_data)
     shap_values = explainer(np.expand_dims(sample, axis=0))
 
     if label_to_explain is None:
         label_to_explain = model.predict(np.expand_dims(sample, axis=0))[0]
         if mode == 'classification':
+            if label_to_explain.shape[-1] == 1:
+                label_to_explain = np.concatenate([1 - label_to_explain, label_to_explain], axis=-1)
             label_to_explain = label_to_explain.argmax()
         else:
             label_to_explain = f'{label_to_explain[0]:.3f}'
@@ -107,9 +115,29 @@ def shap_explain_tabular_sample(
             output_names=class_names
         )
     else:
+        # NOTE:
+        # For single-target regression, SHAP returns values with shape (n_features, 1)
+        # and base_values with shape (1,) after selecting a single sample.
+        #
+        # However, shap.plots (e.g., waterfall) expect a single explanation with:
+        #   - values: shape (n_features,)
+        #   - base_values: scalar
+        #
+        # If we pass (n_features, 1), SHAP interprets it as multiple outputs and raises:
+        # "The waterfall plot can currently only plot a single explanation..."
+        #
+        # Therefore, we squeeze the singleton output dimension and convert base_values
+        # to a Python scalar (instead of a 0-D NumPy array), ensuring compatibility
+        # with SHAP plotting APIs.
+        values = np.asarray(shap_values.values[0]).squeeze()
+        base_values = np.asarray(shap_values.base_values[0]).squeeze()
+
+        if np.asarray(base_values).ndim == 0:
+            base_values = np.asarray(base_values).item()
+
         single_class_expl = shap.Explanation(
-            values=shap_values.values[0],
-            base_values=shap_values.base_values[0],
+            values=values,
+            base_values=base_values,
             data=shap_values.data[0],
             feature_names=feature_names,
             output_names=class_names

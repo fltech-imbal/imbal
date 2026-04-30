@@ -221,3 +221,22 @@ class/sample weights
 	- Make sure to mention code is taken from that link in documentation
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
+
+---
+# 4/28/26
+## Tasks
+#### High Priority
+- In tutorials, change variable `weight_candidates` to `sample_weight_candidates`
+	- Also where appropriate `sample_weight` to `sample_weight_candidates`
+- Double check that `[3/3] Fitted after....` lines are all removed... seems like maybe one was missing in `balanced_fit_val` for multiple weight candidates
+- Make sure final output message for multi-fit should also use class weights instead of index, make sure it does
+- Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
+- Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
+- Make sure class weights are printed for multi-weighted fit on classification side (the stuff is already there to make it work, it just isn't happening)
+- Add mention of reducing overfit and multiple weight candidates to "with val" section of documentation (above 3x3 tables)
+#### Low Priority:
+- [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
+	- Make sure it works for binary classification with single output unit (convert to 2 class)
+	- Make sure to mention code is taken from that link in documentation
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
