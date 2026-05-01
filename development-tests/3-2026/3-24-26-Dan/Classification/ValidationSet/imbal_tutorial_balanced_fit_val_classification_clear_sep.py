@@ -57,11 +57,14 @@ model.compile(loss="binary_crossentropy",
                        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
               )
 
+PATIENCE = 30
+
 # model.balanced_fit(x_train,
 #                    y_train,
 #                    validation_data=(x_val, y_val.reshape(-1, 1)),
 #                    batch_size=batch_size,
 #                    epochs=max_epochs,
+#                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 #                    )
 
 # OPTIONAL: Use custom class weights during training
@@ -70,14 +73,16 @@ model.compile(loss="binary_crossentropy",
 # In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
 # NOTE: Comment above call before running the below call.
 
-class_weights = {0: 0.9, 1: 0.1}
+# weight pairs represent [common_class_weight, rare_class_weight]
+class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
 
 model.balanced_fit(x_train,
           y_train,
           validation_data=(x_val, y_val.reshape(-1, 1)),
-          class_weight=class_weights,
+          class_weights=class_weight_candidates,
           batch_size=batch_size,
           epochs=max_epochs,
+          callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
           )
 
 

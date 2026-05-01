@@ -13,7 +13,7 @@ tf.keras.utils.set_random_seed(
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 300
+max_epochs = 500
 batch_size = 32
 
 # ----------------------------
@@ -46,7 +46,7 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 # Validation Set
 # ----------------------------
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1, seed=seed)
 
 # ----------------------------
 # Training
@@ -54,16 +54,18 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")
-                       ],
+                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
               )
 
-model.fit(x_train,
-          y_train,
-          validation_data=(x_val, y_val.reshape(-1, 1)),
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
+PATIENCE = 30
+
+history = model.fit(x_train,
+                    y_train,
+                    validation_data=(x_val, y_val.reshape(-1, 1)),
+                    batch_size=batch_size,
+                    epochs=max_epochs,
+                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+                    )
 
 
 # ----------------------------
@@ -71,6 +73,9 @@ model.fit(x_train,
 # ----------------------------
 results = model.evaluate(x_test, y_test)
 loss, f1_score, hss = results
+
+print(f'Fit stopped after {len(history.history["loss"])} epochs')
+print(f'Restored weights from epoch {len(history.history["loss"]) - PATIENCE}')
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")

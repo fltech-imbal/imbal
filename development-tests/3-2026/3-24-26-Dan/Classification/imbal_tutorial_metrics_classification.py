@@ -55,11 +55,11 @@ model.compile(loss="binary_crossentropy",
 class_weights = {0: 0.9, 1: 0.1}
 
 model.balanced_fit(x_train,
-          y_train,
-          class_weight=class_weights,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
+                   y_train,
+                   class_weight=class_weights,
+                   batch_size=batch_size,
+                   epochs=max_epochs,
+                   )
 
 
 # ----------------------------
@@ -106,3 +106,5 @@ print(f"Test Critical Success Index: {critical_success_index_metric.result().num
 # Visualization
 # ----------------------------
 imbal.classification.plot_confusion_matrix(y_test, y_pred)
+
+imbal.classification.plot_roc(y_test, y_pred)
