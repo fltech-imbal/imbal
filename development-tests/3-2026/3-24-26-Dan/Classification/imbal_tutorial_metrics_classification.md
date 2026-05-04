@@ -107,20 +107,20 @@ print(f"Test Critical Success Index: {critical_success_index_metric.result().num
 
 ---
 
-## 5. Confusion Matrix
+## 5. Confusion Matrix and ROC Curve
 
-Imbal supports plotting a basic confusion matrix for classification style problems.
+Imbal supports plotting a basic confusion matrix and ROC curve for classification style problems.
 
 ```python
 imbal.classification.plot_confusion_matrix(y_test, y_pred)
+
+imbal.classification.plot_roc(y_test, y_pred)
 ```
 
 ### Results
 
 ![Confusion Matrix](../images/metrics_classification_confusion_matrix_visualizer.png)
 
+![ROC Curve](../images/metrics_classification_roc_curve_visualizer.png)
+
 ---
-
-## 6. AUC Curve
-
-wip

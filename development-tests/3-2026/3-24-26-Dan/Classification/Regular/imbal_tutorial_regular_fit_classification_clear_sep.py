@@ -65,6 +65,7 @@ model.fit(x_train,
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
+y_pred = model.predict(x_test)
 loss, f1_score, hss = results
 
 print(f"Test Loss: {loss:.4f}")

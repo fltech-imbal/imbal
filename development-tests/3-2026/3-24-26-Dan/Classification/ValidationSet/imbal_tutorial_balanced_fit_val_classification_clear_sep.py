@@ -13,7 +13,7 @@ tf.keras.utils.set_random_seed(
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 300
+max_epochs = 500
 batch_size = 32
 
 # ----------------------------
@@ -59,13 +59,13 @@ model.compile(loss="binary_crossentropy",
 
 PATIENCE = 30
 
-# model.balanced_fit(x_train,
-#                    y_train,
-#                    validation_data=(x_val, y_val.reshape(-1, 1)),
-#                    batch_size=batch_size,
-#                    epochs=max_epochs,
-#                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-#                    )
+model.balanced_fit(x_train,
+                   y_train,
+                   validation_data=(x_val, y_val.reshape(-1, 1)),
+                   batch_size=batch_size,
+                   epochs=max_epochs,
+                   callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+                   )
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -76,14 +76,14 @@ PATIENCE = 30
 # weight pairs represent [common_class_weight, rare_class_weight]
 class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
 
-model.balanced_fit(x_train,
-          y_train,
-          validation_data=(x_val, y_val.reshape(-1, 1)),
-          class_weights=class_weight_candidates,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-          )
+# model.balanced_fit(x_train,
+#           y_train,
+#           validation_data=(x_val, y_val.reshape(-1, 1)),
+#           class_weight=class_weight_candidates,
+#           batch_size=batch_size,
+#           epochs=max_epochs,
+#           callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+#           )
 
 
 # ----------------------------

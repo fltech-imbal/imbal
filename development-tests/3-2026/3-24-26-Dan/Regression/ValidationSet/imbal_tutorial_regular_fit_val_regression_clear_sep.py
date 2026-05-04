@@ -13,7 +13,7 @@ tf.keras.utils.set_random_seed(
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 300
+max_epochs = 500
 batch_size = 32
 
 # ----------------------------
@@ -58,11 +58,14 @@ model.compile(loss="mean_squared_error",
               metrics=["mae"],
               )
 
+PATIENCE = 30
+
 model.fit(x_train,
           y_train,
           validation_data=(x_val, y_val.reshape(-1, 1)),
           batch_size=batch_size,
           epochs=max_epochs,
+          callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
           )
 
 

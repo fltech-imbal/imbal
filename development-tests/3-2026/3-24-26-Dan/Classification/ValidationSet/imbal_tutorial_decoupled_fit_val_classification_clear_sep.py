@@ -13,7 +13,7 @@ tf.keras.utils.set_random_seed(
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 300
+max_epochs = 500
 batch_size = 32
 
 # ----------------------------
@@ -57,12 +57,15 @@ model.compile(loss="binary_crossentropy",
                        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
               )
 
-# model.cRT_fit(x_train,
-#               y_train,
-#               validation_data=(x_val, y_val.reshape(-1, 1)),
-#               batch_size=batch_size,
-#               epochs=max_epochs,
-#               )
+PATIENCE = 30
+
+model.cRT_fit(x_train,
+              y_train,
+              validation_data=(x_val, y_val.reshape(-1, 1)),
+              batch_size=batch_size,
+              epochs=max_epochs,
+              callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+              )
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -70,15 +73,17 @@ model.compile(loss="binary_crossentropy",
 # In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
 # NOTE: Comment above call before running the below call.
 
-class_weights = {0: 0.9, 1: 0.1}
+# weight pairs represent [common_class_weight, rare_class_weight]
+class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
 
-model.cRT_fit(x_train,
-          y_train,
-          validation_data=(x_val, y_val.reshape(-1, 1)),
-          class_weight=class_weights,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
+# model.cRT_fit(x_train,
+#               y_train,
+#               validation_data=(x_val, y_val.reshape(-1, 1)),
+#               class_weight=class_weight_candidates,
+#               batch_size=batch_size,
+#               epochs=max_epochs,
+#               callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+#               )
 
 
 # ----------------------------

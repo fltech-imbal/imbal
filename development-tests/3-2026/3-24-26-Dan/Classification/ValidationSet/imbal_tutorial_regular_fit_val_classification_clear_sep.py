@@ -74,9 +74,6 @@ history = model.fit(x_train,
 results = model.evaluate(x_test, y_test)
 loss, f1_score, hss = results
 
-print(f'Fit stopped after {len(history.history["loss"])} epochs')
-print(f'Restored weights from epoch {len(history.history["loss"]) - PATIENCE}')
-
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")

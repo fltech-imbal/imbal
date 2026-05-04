@@ -114,7 +114,7 @@ imbal.regression.plot_true_vs_predictions(y_test,
 
 ---
 
-## 8. Optional: Using Explicit Sample Weights
+## 5. Optional: Using Explicit Sample Weights
 
 Alternatively, you can manually convert the sample densities into training weights and pass those weights to `balanced_fit`. This gives you more direct control over how strongly rare samples are emphasized during training.
 
