@@ -52,7 +52,7 @@ def build_simple_cnn():
     x = layers.Conv2D(16, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
     x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
-    x = layers.Dense(32, activation='relu')(x)
+    x = layers.Dense(32, activation='relu')(x),
     x = layers.Flatten()(x)
     output_layer = layers.Dense(1)(x)
 

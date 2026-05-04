@@ -372,7 +372,7 @@
 <h1>generate_sample_weights<a class="headerlink" href="#generate-sample-weights" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.classification.generate_sample_weights">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">generate_sample_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.generate_sample_weights" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">generate_sample_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.generate_sample_weights" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
 <p>Generates a list of weights, where the index of each weight corresponds to the label
 at the index of the provides list of labels. The sum of all weights in the returned
@@ -388,7 +388,7 @@ default behavaiors.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>labels</strong> – A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p></li>
-<li><p><strong>class_weights</strong> – A dictionary or list of mappings from class label to weight. If
+<li><p><strong>class_weight</strong> – A dictionary or list of mappings from class label to weight. If
 no weight mapping is provided, each class will be weighted equally (samples of
 more frequent classes will be weighted lower, and vice versa). If
 a dictionary is provided, keys will be interpreted as class labels, and the corresponding
@@ -516,7 +516,7 @@ at the index of the provides list of labels.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>

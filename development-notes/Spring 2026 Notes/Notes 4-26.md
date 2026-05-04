@@ -230,12 +230,29 @@ class/sample weights
 	- Also where appropriate `sample_weight` to `sample_weight_candidates` $\checkmark$
 - Double check that `[3/3] Fitted after....` lines are all removed... seems like maybe one was missing in `balanced_fit_val` for multiple weight candidates $\checkmark$
 - Make sure final output message for multi-fit should also use class weights instead of index $\checkmark$
-- Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
-- Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
+
 - Add mention of reducing overfit and multiple weight candidates to "with val" section of documentation (above 3x3 tables)
-#### Low Priority:
+
+---
+# 4/30/26
+## Tasks
+#### High priority
+- Installation guide (!!!) $\checkmark$
+- Add QR code on thank you page that leads to repository $\checkmark$
+- Use `format_array_string` or whatever it's called for class weight print at end of multi-fit
+- Ask a CS student to try and install and run a tutorial
+- Ask a CS student to help with presentation timing and comments
+- Thorough scan of documentation
+	- Make sure to get tutorial code and documentation draft by Monday
+		- Documentation of each function
+		- Tutorials based on heliophysics tabular/image data
+			- 3x3 tutorials, metrics, t-SNE, LIME, SHAP (tabular)
+		- Installation guide
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure it works for binary classification with single output unit (convert to 2 class)
 	- Make sure to mention code is taken from that link in documentation
+- Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
+- Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
+#### Low Priority:
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability

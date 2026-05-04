@@ -11,8 +11,8 @@ import sys
 
 
 project = 'imbal'
-copyright = '2025, Dr. Philip Chan, Thomas Galletta'
-author = 'Dr. Philip Chan, Thomas Galletta'
+copyright = '2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta'
+author = 'Dr. Philip Chan, Thomas Galletta, Daniel Acosta'
 release = ''
 
 # -- General configuration ---------------------------------------------------

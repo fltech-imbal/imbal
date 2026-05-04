@@ -382,7 +382,7 @@ hand-picked alpha values to your density values, which can then be passed to you
 model during training.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The below line can be uncommented to test multiple alpha values for reciprocal importance</span>
 <span class="c1"># If this is uncommented, be sure to also uncomment &#39;sample_weight=weight_candidates&#39; in the following section</span>
-<span class="c1"># weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])</span>
+<span class="c1"># sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])</span>
 </pre></div>
 </div>
 </section>
@@ -411,7 +411,7 @@ which ensures that rarer samples are present in each batch during training.</p>
     <span class="n">x_train</span><span class="p">,</span>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
-    <span class="c1"># sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="c1"># sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
     <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
     <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Ensure all batches have a similar data distribution</span>
@@ -506,7 +506,6 @@ MAE for log10 flux &gt;= -4: 1.824
 </div>
 <p>we get the following results:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
-[3/3] Fitted after 20 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 2
 
 Number of test samples with log10 flux &lt; -4: 586
@@ -598,7 +597,7 @@ MAE for log10 flux &gt;= -4: 1.592
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>
