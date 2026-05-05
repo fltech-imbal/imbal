@@ -23,13 +23,11 @@ class TestStratifiedSplit(unittest.TestCase):
         - By comparing with the original data before splitting, that
           data-label-weight associations are preserved.
         """
-        data = np.arange(20).reshape(-1, 1)
-        labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2]).reshape(-1, 1)
-        weights = np.random.rand(20).reshape(-1, 1)
+        data = np.arange(20)
+        labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2])
+        weights = np.arange(20)
 
-        train_set, test_set = imc.split(data, labels, weights, test_size=0.25)
-        x_train, y_train, w_train = train_set.get_unzipped()
-        x_test, y_test, w_test = test_set.get_unzipped()
+        (x_train, y_train, w_train), (x_test, y_test, w_test) = imc.split(data, labels, weights, test_size=0.25)
 
         _, train_unique_counts = np.unique(y_train, return_counts=True)
         _, test_unique_counts = np.unique(y_test, return_counts=True)
@@ -70,13 +68,9 @@ class TestStratifiedSplit(unittest.TestCase):
         labels = labels[indices].reshape(-1, 1)
         weights = weights[indices].reshape(-1, 1)
 
-        train_set, test_set = imr.split(data, labels, weights, test_size=0.20)
-        x_train, y_train, w_train = train_set.get_unzipped()
-        x_test, y_test, w_test = test_set.get_unzipped()
+        (x_train, y_train, w_train), (x_test, y_test, w_test) = imr.split(data, labels, weights, test_size=0.20)
 
-        x_combined = np.concatenate((x_train, x_test))
         y_combined = np.concatenate((y_train, y_test))
-        w_combined = np.concatenate((w_train, w_test))
 
         combined_label_uniques, counts = np.unique(y_combined, return_counts=True)
 

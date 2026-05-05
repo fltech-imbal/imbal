@@ -240,14 +240,14 @@ class/sample weights
 - Installation guide (!!!) $\checkmark$
 - Add QR code on thank you page that leads to repository $\checkmark$
 - Use `format_array_string` or whatever it's called for class weight print at end of multi-fit $\checkmark$
-- Ask a CS student to try and install and run a tutorial
+- Ask a CS student to try and install and run a tutorial $\checkmark$
 - Ask a CS student to help with presentation timing and comments
-- Thorough scan of documentation
-	- Make sure to get tutorial code and documentation draft by Monday
-		- Documentation of each function
+- Thorough scan of documentation $\checkmark$
+	- Make sure to get tutorial code and documentation draft by Monday $\checkmark$
+		- Documentation of each function $\checkmark$
 		- Tutorials based on heliophysics tabular/image data
 			- 3x3 tutorials, metrics, t-SNE, LIME, SHAP (tabular)
-		- Installation guide
+		- Installation guide $\checkmark$
 - [Keras GradCam](https://keras.io/examples/vision/grad_cam/) how easily can we wrap this and implement in imbal?
 	- Make sure it works for binary classification with single output unit (convert to 2 class)
 	- Make sure to mention code is taken from that link in documentation

@@ -303,7 +303,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_image_sample.html">lime_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_image_sample.html">shap_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
 <li class="toctree-l1"><a class="reference internal" href="optimize_metric_threshold.html">optimize_metric_threshold</a></li>
@@ -374,31 +373,32 @@
 <dt class="sig sig-object py" id="imbal.classification.generate_sample_weights">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">generate_sample_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.generate_sample_weights" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
-<p>Generates a list of weights, where the index of each weight corresponds to the label
-at the index of the provides list of labels. The sum of all weights in the returned
-list of weights will be normalized to <span class="math notranslate nohighlight">\(n\)</span>.</p>
-<p>Normally, it is standard to normalize weights to <span class="math notranslate nohighlight">\(1\)</span>. However, when no weights
-are provided to Tensorflow, its default behavior is to assign a weight of <span class="math notranslate nohighlight">\(1\)</span>
-to each sample, meaning the total weight for the dataset is <span class="math notranslate nohighlight">\(n\)</span>. Straying from
-this pattern would affect the scale of calculated loss values, which would also
-have an impact on how learning rates perform, therefore we have decided to align
-our weight generation implementations as closely as possible with Tensorflow’s
-default behavaiors.</p>
+<p>Generates a list of sample weights for the provided labels, such that the sum
+of all weights in the returned list of weights will be normalized to <span class="math notranslate nohighlight">\(n\)</span>, and
+such that the sum of each sample weight of a given class is proportional to some
+class weight ratio (ex. 50/50 for binary labels).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A list of samples weights of size <span class="math notranslate nohighlight">\(n\)</span> is normalized to sum to <span class="math notranslate nohighlight">\(n\)</span>, since
+by default TensorFlow’s samples weights are <span class="math notranslate nohighlight">\(1\)</span> per sample. This normalization
+ensures that average sample weight is still <span class="math notranslate nohighlight">\(1\)</span>, while still addressing class
+imbalance.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>labels</strong> – A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p></li>
-<li><p><strong>class_weight</strong> – A dictionary or list of mappings from class label to weight. If
-no weight mapping is provided, each class will be weighted equally (samples of
-more frequent classes will be weighted lower, and vice versa). If
+<li><p><strong>labels</strong> – A NumPy array of labels, arranged as a row vector, a <span class="math notranslate nohighlight">\(n\)</span> by <span class="math notranslate nohighlight">\(1\)</span> column vector,
+or list of one-hot vectors.</p></li>
+<li><p><strong>class_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A dictionary or list of mappings from class label to
+weight. If unspecified, each class will be weighted equally (ex. 50/50 for binary labels). If
 a dictionary is provided, keys will be interpreted as class labels, and the corresponding
-values interpreted as the fraction of the final weight the class should take up. If a
-list is provided, the entries in the list will be assumed the fraction of the final weight
+values interpreted as the proportion of the final sum weight the class should take up. If a
+list is provided, the entries in the list will be assumed the proportion of the final sum weight
 the class should take up, sorted in ascending order by classes present in <code class="code docutils literal notranslate"><span class="pre">labels</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A normalized list of weights, where the index of each weight corresponds to the label
+<dd class="field-even"><p>A list of weights, where the index of each weight corresponds to the label
 at the index of the provides list of labels.</p>
 </dd>
 </dl>
@@ -412,7 +412,7 @@ at the index of the provides list of labels.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">generate_sample_weights</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="p">{</span> <span class="mi">0</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.4</span> <span class="p">})</span>
 
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
-<span class="go">[0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.0 2.0]</span>
+<span class="go">[0.75 0.75 0.75 0.75 0.75 0.75 0.75 0.75 2.   2.  ]</span>
 </pre></div>
 </div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">imbal</span>

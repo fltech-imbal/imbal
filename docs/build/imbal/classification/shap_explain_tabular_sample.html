@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="shap_explain_tabular_dataset" href="shap_explain_tabular_dataset.html" />
-    <link rel="prev" title="shap_explain_image_sample" href="shap_explain_image_sample.html" />
+    <link rel="prev" title="lime_explain_tabular_sample" href="lime_explain_tabular_sample.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -301,7 +301,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_image_sample.html">lime_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_image_sample.html">shap_explain_image_sample</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
 <li class="toctree-l1"><a class="reference internal" href="optimize_metric_threshold.html">optimize_metric_threshold</a></li>
@@ -368,45 +367,6 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="shap-explain-tabular-sample">
 <h1>shap_explain_tabular_sample<a class="headerlink" href="#shap-explain-tabular-sample" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="imbal.classification.shap_explain_tabular_sample">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">shap_explain_tabular_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_to_explain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bar'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shap-explanation.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.shap_explain_tabular_sample" title="Link to this definition">#</a></dt>
-<dd><p>Bases:</p>
-<p>Utilizes kernel SHAP to generate an explanation for the classification of a particular sample
-by a given model. For more about SHAP, see <a class="reference internal" href="../shap-explanation.html"><span class="doc">this page</span></a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sample</strong> – The sample to generate a SHAP explanation for.</p></li>
-<li><p><strong>model</strong> – The PyTorch model to generate a SHAP explanation from.</p></li>
-<li><p><strong>training_data</strong> – A Numpy array containing the data the given model was trained on.</p></li>
-<li><p><strong>class_names</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. An array of strings, which maps
-class labels (as integer indices) to class names. Used to label the
-generated figure.</p></li>
-<li><p><strong>feature_names</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. An array of strings, which maps
-features (by integer index) to feature names. Used to label the
-generated figure.</p></li>
-<li><p><strong>actual_label</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The actual label for the sample
-being explained. Used to label the generated figure.</p></li>
-<li><p><strong>label_to_explain</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The label of the class
-you wish to generate an explanation for. This label need not be the same
-as the true label for the provided image. When set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, the
-label that is predicted by the model will be explained.</p></li>
-<li><p><strong>plot_type</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">&quot;bar&quot;</span></code>. The type of plot to generate. Available options are
-<code class="code docutils literal notranslate"><span class="pre">&quot;bar&quot;</span></code> and <code class="code docutils literal notranslate"><span class="pre">&quot;waterfall&quot;</span></code>. See <a class="reference external" href="https://shap.readthedocs.io/en/latest/api_examples.html#plots">SHAP documentation</a>.</p></li>
-<li><p><strong>show</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">True</span></code>. Whether to show the generated figure. If set to
-<code class="code docutils literal notranslate"><span class="pre">False</span></code>, the figure can be further modified before displaying or saving it.</p></li>
-<li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">False</span></code>. Whether to save the generated figure.</p></li>
-<li><p><strong>figure_save_path</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">&quot;shap-explanation.png&quot;</span></code>. The path to
-save the generated figure to.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Assume a TensorFlow model is already saved to &#39;model&#39;</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -486,12 +446,12 @@ src="../../_static/classification/shap_tabular_sample/shap-explanation-override-
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="shap_explain_image_sample.html"
+       href="lime_explain_tabular_sample.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">shap_explain_image_sample</p>
+        <p class="prev-next-title">lime_explain_tabular_sample</p>
       </div>
     </a>
     <a class="right-next"
@@ -522,7 +482,6 @@ src="../../_static/classification/shap_tabular_sample/shap-explanation-override-
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.shap_explain_tabular_sample"><code class="docutils literal notranslate"><span class="pre">shap_explain_tabular_sample</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-examples">Plot Examples</a></li>
 </ul>
   </nav></div>

@@ -301,7 +301,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_image_sample.html">lime_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_image_sample.html">shap_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">optimize_metric_threshold</a></li>
@@ -397,21 +396,22 @@ maximum value threshold values to test.</p></li>
 </dd>
 </dl>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">imbal.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_metric_threshold</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">imbal.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_metric_threshold</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 
-<span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">metric</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">metric</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
-<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">optimize_metric_threshold</span><span class="p">(</span>
-    <span class="n">predictions</span><span class="p">,</span>
-    <span class="n">labels</span><span class="p">,</span>
-    <span class="n">metric</span>
-<span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">best_threshold</span> <span class="o">=</span> <span class="n">optimize_metric_threshold</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">predictions</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">labels</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">metric</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
 
-<span class="c1"># The resulting value of best_threshold is 0.7</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="go">0.7</span>
 </pre></div>
 </div>
 </dd></dl>
