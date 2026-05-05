@@ -1,6 +1,6 @@
 .idea
 .venv
-build
+./build
 imbal/build
 __pycache__/
 *.pyc
