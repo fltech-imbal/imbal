@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "imbal"
-version = "0.3.1"
+version = "0.3.2"
 description = "A Python package to address issues in Deep Learning on Imbalanced Data"
 readme = "README.md"
 requires-python = ">=3.10"
