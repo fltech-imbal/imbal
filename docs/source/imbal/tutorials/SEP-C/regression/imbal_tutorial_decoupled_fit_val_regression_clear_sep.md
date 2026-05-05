@@ -177,13 +177,13 @@ model.rRT_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression_simple_weights.png)
+![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression_explore_alphas.png)
 
 > **NOTE:** at the end of training, the index of the best class weight is printed. For future testing, ensure you take note of the index
 > that was printed out, as this is the index of the "ideal" hyperparameter setting given the search space. When running more tests, 
 > use the "ideal" hyperparameter to generate your sample weights for the best performance.
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression_simple_weights_visualizer.png)
+![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression_explore_alphas_visualizer.png)
 
 This optional approach simplifies the weighting strategy while still benefiting from validation monitoring and early stopping.
 
