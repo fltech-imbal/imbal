@@ -425,20 +425,37 @@ in order to print just the metric itself, without any of the additional informat
 <span class="n">youdens</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">YoudensIndex</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">youdens</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Youden</span><span class="se">\&#39;</span><span class="s1">s Index:&#39;</span><span class="p">,</span> <span class="n">youdens</span><span class="o">.</span><span class="n">result</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-metrics-confusion-matrix.png&#39;</span>
+<span class="p">)</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_roc</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-metrics-roc.png&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>The code above should yield output similar to the following:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>F1 Score: 0.049216997
-Heikde Skill Score: 0.0042018816
-True Skill Statistic: 0.065577745
-AUROC: 0.6919186
-Gilbert Skill Score: 0.0021053618
-J Statistic: 0.065577745
-Youden&#39;s Index: 0.065577745
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>F1 Score: 0.050909087
+Heikde Skill Score: 0.0056890277
+True Skill Statistic: 0.10921502
+AUROC: 0.72805953
+Gilbert Skill Score: 0.00285263
+J Statistic: 0.10921502
+Youden&#39;s Index: 0.10921502
 </pre></div>
 </div>
 <p>Note that True Skill Statistic, J Statistic, and Youden’s Index are produce the same result.</p>
-</section>
+<p>Lastly, the <code class="docutils literal notranslate"><span class="pre">imbal.classificaiton.plot_confusion_matrix</span></code> and <code class="docutils literal notranslate"><span class="pre">imbal.classification.plot_roc</span></code> functions
+produce the following plots:</p>
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-roc.png"/>
+</div></section>
 
 
                 </article>
@@ -514,7 +531,7 @@ Youden&#39;s Index: 0.065577745
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>

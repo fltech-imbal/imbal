@@ -12,7 +12,6 @@ Located until the `imbal.classification` subpackage.
 - [tsne_visualization](tsne_visualization.md)
 - [lime_explain_image_sample](lime_explain_image_sample.md)
 - [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
-- [shap_explain_image_sample](shap_explain_image_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
 - [optimize_metric_threshold](optimize_metric_threshold.md)

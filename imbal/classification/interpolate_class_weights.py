@@ -27,16 +27,17 @@ def interpolate_class_weights(
 
     .. code::
 
-        from imbal.classification import interpolate_class_weights
+        >>> from imbal.classification import interpolate_class_weights
 
-        class_weights = interpolate_class_weights([1, 2, 3, 4], [4, 3, 2, 1], steps=5)
+        >>> class_weights = interpolate_class_weights([1, 2, 3, 4], [4, 3, 2, 1], steps=5)
 
-        # The resulting value of class_weights is shown below:
-        # [[0.1   0.2   0.3   0.4  ]
-        #  [0.175 0.225 0.275 0.325]
-        #  [0.25  0.25  0.25  0.25 ]
-        #  [0.325 0.275 0.225 0.175]
-        #  [0.4   0.3   0.2   0.1  ]]
+        >>> print(class_weights)
+
+        [[0.1   0.2   0.3   0.4  ]
+         [0.175 0.225 0.275 0.325]
+         [0.25  0.25  0.25  0.25 ]
+         [0.325 0.275 0.225 0.175]
+         [0.4   0.3   0.2   0.1  ]]
 
     """
 

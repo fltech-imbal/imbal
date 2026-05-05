@@ -44,7 +44,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/classification/lime_explain_tabular_sample';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="shap_explain_image_sample" href="shap_explain_image_sample.html" />
+    <link rel="next" title="shap_explain_tabular_sample" href="shap_explain_tabular_sample.html" />
     <link rel="prev" title="lime_explain_image_sample" href="lime_explain_image_sample.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -301,7 +301,6 @@
 <li class="toctree-l1"><a class="reference internal" href="tsne_visualization.html">tsne_visualization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_image_sample.html">lime_explain_image_sample</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_image_sample.html">shap_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
 <li class="toctree-l1"><a class="reference internal" href="optimize_metric_threshold.html">optimize_metric_threshold</a></li>
@@ -370,7 +369,7 @@
 <h1>lime_explain_tabular_sample<a class="headerlink" href="#lime-explain-tabular-sample" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.classification.lime_explain_tabular_sample">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">lime_explain_tabular_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_to_explain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lime-explanation.html'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.lime_explain_tabular_sample" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">lime_explain_tabular_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_to_explain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lime-explanation.html'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.lime_explain_tabular_sample" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
 <p>Utilizes LIME to generate an explanation for the classification of a particular sample
 by a given model. For more about LIME, see <a class="reference internal" href="../lime-explanation.html"><span class="doc">this page</span></a>.</p>
@@ -378,29 +377,28 @@ by a given model. For more about LIME, see <a class="reference internal" href=".
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sample</strong> – The sample to generate a LIME explanation for.</p></li>
-<li><p><strong>model</strong> – The PyTorch model to generate a LIME explanation from.</p></li>
+<li><p><strong>model</strong> – The TensorFlow model to generate a LIME explanation from.</p></li>
 <li><p><strong>training_data</strong> – The data the given model was trained on.</p></li>
 <li><p><strong>num_samples</strong> – Optional, default 100. The number of local samples to perform for
 the LIME local approximation. See <a class="reference external" href="https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image">LIME documentation</a>.</p></li>
 <li><p><strong>class_names</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. An array of strings, which maps
-class labels (as integer indices) to class names. Used to label the
+class labels (as integer indices) to class names. If specified, is used to label the
 generated figure.</p></li>
 <li><p><strong>feature_names</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. An array of strings, which maps
-features (by integer index) to feature names. Use to label the
+features (by integer index) to feature names. If specified, is used to label the
 generated figure.</p></li>
-<li><p><strong>label_to_explain</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The label of the class
-you wish to generate an explanation for. This label need not be the same
-as the true label for the provided image. When set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, the
-label that is predicted by the model will be explained.</p></li>
 <li><p><strong>actual_label</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The true label of the
-provided image. Used only to label the generated figure.</p></li>
+provided image. If specified, is used only to label the generated figure.</p></li>
+<li><p><strong>label_to_explain</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. The label of the class
+you wish to generate an explanation for. When set to <code class="code docutils literal notranslate"><span class="pre">None</span></code>, the
+label that is predicted by the model will be explained. This label need not be the same
+as the true label for the provided image.</p></li>
 <li><p><strong>figure_save_path</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">&quot;lime-explanation.html&quot;</span></code>. The path to
 save the generated HTML figure to.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="code docutils literal notranslate"><span class="pre">None</span></code>, or a tuple <code class="code docutils literal notranslate"><span class="pre">(fig,</span> <span class="pre">ax)</span></code> containing a MatPlotLib Figure and Axes object, if
-<code class="code docutils literal notranslate"><span class="pre">return_figure</span></code> is set to <code class="code docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<dd class="field-even"><p>The path that the resulting figure was saved to, as a string.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -493,11 +491,11 @@ src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanat
       </div>
     </a>
     <a class="right-next"
-       href="shap_explain_image_sample.html"
+       href="shap_explain_tabular_sample.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">shap_explain_image_sample</p>
+        <p class="prev-next-title">shap_explain_tabular_sample</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -559,7 +557,7 @@ src="../../_static/classification/lime_tabular_explanation/lime_tabular_explanat
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>

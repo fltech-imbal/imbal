@@ -3,7 +3,6 @@ from typing import Tuple
 from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 
 class FalsePositiveRate(ConfusionMatrixMetric):
     def __init__(
@@ -39,15 +38,8 @@ class FalsePositiveRate(ConfusionMatrixMetric):
             y_pred: NDArray | Tensor,
             sample_weight: NDArray | Tensor | None = None
     ):
-        def optimized_update() -> None:
-            ocmc.ensure_updated_metrics(y_true, y_pred, sample_weight)
-            self._false_positives.assign(ocmc.fp())
-            self._negatives.assign(ocmc.neg())
-        def manual_update() -> None:
-            self._false_positives.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
-            self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
-
-        tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
+        self._false_positives.assign_add(weighted_sum((1 - y_true) * y_pred, sample_weight))
+        self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
 
     def result(self) -> Tensor:
         return self._false_positives / self._negatives

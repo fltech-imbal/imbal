@@ -1,9 +1,9 @@
 imbal documentation
 ===================
 
-Hello!
+Hello! Welcome to the imbal documentation.
 
-Welcome to the imbal documentation.
+:doc:`Installation guide </imbal/installation>`
 
 Subpackages:
 

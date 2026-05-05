@@ -3,7 +3,6 @@ from typing import Tuple
 from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 from keras.src.metrics import metrics_utils
 
 class TrueSkillStatistic(ConfusionMatrixMetric):
@@ -111,32 +110,19 @@ class TrueSkillStatistic(ConfusionMatrixMetric):
             y_pred: NDArray | Tensor,
             sample_weight: NDArray | Tensor | None = None
     ):
-        """
-        For internal class use only. Updates the confusion metric, with
-        options for calling upon pre-computed confusion matrix values
-        """
-        def optimized_update() -> None:
-            ocmc.ensure_updated_metrics(y_true, y_pred, sample_weight)
-            self._true_positives.assign(ocmc.tp())
-            self._positives.assign(ocmc.pos())
-            self._false_positives.assign(ocmc.fp())
-            self._negatives.assign(ocmc.neg())
-        def manual_update() -> None:
-            metrics_utils.update_confusion_matrix_variables(
-                {
-                    metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positives,
-                    metrics_utils.ConfusionMatrix.FALSE_POSITIVES: self._false_positives
-                },
-                y_true,
-                y_pred,
-                metrics_utils.parse_init_thresholds(None, self._threshold),
-                sample_weight=sample_weight
-            )
+        metrics_utils.update_confusion_matrix_variables(
+            {
+                metrics_utils.ConfusionMatrix.TRUE_POSITIVES: self._true_positives,
+                metrics_utils.ConfusionMatrix.FALSE_POSITIVES: self._false_positives
+            },
+            y_true,
+            y_pred,
+            metrics_utils.parse_init_thresholds(None, self._threshold),
+            sample_weight=sample_weight
+        )
 
-            self._positives.assign_add(weighted_sum(y_true, sample_weight))
-            self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
-
-        tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
+        self._positives.assign_add(weighted_sum(y_true, sample_weight))
+        self._negatives.assign_add(weighted_sum(1 - y_true, sample_weight))
 
     def result(self) -> Tensor:
         """

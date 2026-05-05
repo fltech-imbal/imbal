@@ -41,8 +41,6 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/metrics/heikde_skill_score';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -365,107 +363,6 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="imbal-metrics-heikdeskillscore">
 <h1>imbal.metrics.HeikdeSkillScore<a class="headerlink" href="#imbal-metrics-heikdeskillscore" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="imbal.metrics.HeikdeSkillScore">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.metrics.</span></span><span class="sig-name descname"><span class="pre">HeikdeSkillScore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'heikde_skill_score'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.HeikdeSkillScore" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="confusion_matrix_metric.html#imbal.metrics.util.ConfusionMatrixMetric" title="imbal.metrics.util.confusion_matrix_metric.ConfusionMatrixMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConfusionMatrixMetric</span></code></a></p>
-<p>Computes the Heikde Skill Score.</p>
-<p>Formula:</p>
-<div class="math notranslate nohighlight">
-\[\text{Heikde Skill Score} = \frac{true\_positive + true\_negative - expected\_correct}{sample\_size - expected\_correct}\]</div>
-<p>Note that <span class="math notranslate nohighlight">\(expected\_correct\)</span> is equal to <a class="reference internal" href="submetrics/expected_correct.html"><span class="doc">this sub-metric</span></a>.</p>
-<p>This quotient the “skill” of a system. Assuming a system
-will not perform worse than random, the output range is <code class="code docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code>.
-An output of <code class="code docutils literal notranslate"><span class="pre">0</span></code> means the system is entirely unskilled (guessing
-randomly), while an output of <code class="code docutils literal notranslate"><span class="pre">1</span></code> means the system is entirely
-skilled (guessing perfectly).</p>
-<p>Example usage:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">metric</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeikdeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.7</span><span class="p">],[</span><span class="mf">0.2</span><span class="p">,</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.6</span><span class="p">],[</span><span class="mf">0.6</span><span class="p">,</span><span class="mf">0.8</span><span class="p">,</span><span class="mf">0.0</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-<span class="n">metric</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>For use in TensorFlow’s <code class="code docutils literal notranslate"><span class="pre">model.compile</span></code> function, this class
-can be passed as a class instance or as any of the following string type
-aliases:</p>
-<ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HeikdeSkillScore&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;heikde_skill_score&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;hss&quot;</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">&quot;HSS&quot;</span></code></p></li>
-</ul>
-<p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
-    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hss&quot;</span><span class="p">]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-<p><strong>Note:</strong> Where appropriate, documentation for functions from <code class="code docutils literal notranslate"><span class="pre">tf.keras.Metric</span></code> has been
-overridden to be more descriptive. Any other non-descriptive documentation of individual functions
-on this page is due to a lack of documentation in TensorFlow’s original source code. Still, TensorFlow’s
-documentation and source code for the <code class="code docutils literal notranslate"><span class="pre">Metric</span></code> class can be found <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Metric">here</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>threshold</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">0.5</span></code>. The value which a given
-prediction must be above in order to be considered a positive
-guess. All predictions below or equal to this threshold will be
-considered a negative guess.</p></li>
-<li><p><strong>name</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">&quot;heikde_skill_score&quot;</span></code>. String name
-of the metric instance.</p></li>
-<li><p><strong>dtype</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. Data type of the metric result.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Heikde skill score.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="imbal.metrics.HeikdeSkillScore.result">
-<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#imbal.metrics.HeikdeSkillScore.result" title="Link to this definition">#</a></dt>
-<dd><p>Computes the current value of the metric based on the accumulated data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The Heikde skill score of the accumulated data.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="imbal.metrics.HeikdeSkillScore.reset_state">
-<span class="sig-name descname"><span class="pre">reset_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#imbal.metrics.HeikdeSkillScore.reset_state" title="Link to this definition">#</a></dt>
-<dd><p>Reset all of the metric state variables.</p>
-<p>This function is called between epochs/steps,
-when a metric is evaluated during training.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="imbal.metrics.HeikdeSkillScore.update_state">
-<span class="sig-name descname"><span class="pre">update_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#imbal.metrics.HeikdeSkillScore.update_state" title="Link to this definition">#</a></dt>
-<dd><p>Updates the state of the metric by accumulating all relevant statistics used to calculate the metric.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>y_true</strong> – The ground truth labels.</p></li>
-<li><p><strong>y_pred</strong> – The predicted labels.</p></li>
-<li><p><strong>sample_weight</strong> – The weight of each sample in the provided batch.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -508,23 +405,6 @@ when a metric is evaluated during training.</p>
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.HeikdeSkillScore"><code class="docutils literal notranslate"><span class="pre">HeikdeSkillScore</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.HeikdeSkillScore.result"><code class="docutils literal notranslate"><span class="pre">HeikdeSkillScore.result()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.HeikdeSkillScore.reset_state"><code class="docutils literal notranslate"><span class="pre">HeikdeSkillScore.reset_state()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.metrics.HeikdeSkillScore.update_state"><code class="docutils literal notranslate"><span class="pre">HeikdeSkillScore.update_state()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -558,7 +438,7 @@ when a metric is evaluated during training.</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>

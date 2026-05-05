@@ -303,7 +303,6 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">tsne_visualization</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_image_sample.html">lime_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="lime_explain_tabular_sample.html">lime_explain_tabular_sample</a></li>
-<li class="toctree-l1"><a class="reference internal" href="shap_explain_image_sample.html">shap_explain_image_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_sample.html">shap_explain_tabular_sample</a></li>
 <li class="toctree-l1"><a class="reference internal" href="shap_explain_tabular_dataset.html">shap_explain_tabular_dataset</a></li>
 <li class="toctree-l1"><a class="reference internal" href="optimize_metric_threshold.html">optimize_metric_threshold</a></li>
@@ -372,7 +371,7 @@
 <h1>tsne_visualization<a class="headerlink" href="#tsne-visualization" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.classification.tsne_visualization">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">tsne_visualization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representation_layer_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.tsne_visualization" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.classification.</span></span><span class="sig-name descname"><span class="pre">tsne_visualization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representation_layer_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perplexity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_figure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.tsne_visualization" title="Link to this definition">#</a></dt>
 <dd><p>Bases:</p>
 <p>Provides a visualization of a model’s representation space using
 TSNE.</p>
@@ -393,8 +392,6 @@ layer of the provided model.</p></li>
 <li><p><strong>perplexity</strong> – Optional, default <span class="math notranslate nohighlight">\(30\)</span>. See <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html">sklearn.manifold.TSNE</a>.
 The suggested perplexity value from the <cite>paper which introduced t-SNE &lt;https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf&gt;_</cite>
 is from 5 to 50.</p></li>
-<li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If set to a string, will save the
-resultant plot to the specified path.</p></li>
 <li><p><strong>s</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If not <code class="code docutils literal notranslate"><span class="pre">None</span></code>, a list of floats of length
 equal to the number of classes, where each float represents the marker size for the
 class when plotted, in sorted order. See <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">matplotlib.pyplot.scatter</a>.</p></li>
@@ -404,6 +401,8 @@ class when plotted, in sorted order. See <a class="reference external" href="htt
 <li><p><strong>marker</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If not <code class="code docutils literal notranslate"><span class="pre">None</span></code>, a list of marker shapes for each
 class when plotted, in sorted order. See <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html">matplotlib.pyplot.scatter</a>.</p>
 </p></li>
+<li><p><strong>save_figure</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. If set to a string, the
+resultant plot with be saved to the specified path.</p></li>
 </ul>
 </dd>
 </dl>
@@ -564,7 +563,7 @@ the middle of the plot in this example).</p>
 
   <p class="copyright">
     
-      © Copyright 2025, Dr. Philip Chan, Thomas Galletta.
+      © Copyright 2025, Dr. Philip Chan, Thomas Galletta, Daniel Acosta.
       <br/>
     
   </p>

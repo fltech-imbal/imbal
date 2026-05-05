@@ -37,21 +37,22 @@ def optimize_metric_threshold(
 
     .. code::
 
-        from imbal.classification import optimize_metric_threshold
-        import numpy as np
-        import keras
+        >>> from imbal.classification import optimize_metric_threshold
+        >>> import numpy as np
+        >>> import keras
 
-        labels = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]).reshape(-1, 1)
-        predictions = np.array([0.5, 0.2, 0.7, 0.4, 0.1, 0.3, 0.8, 0.9, 0.8, 0.6]).reshape(-1, 1)
-        metric = keras.metrics.F1Score(threshold=0.5)
+        >>> labels = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]).reshape(-1, 1)
+        >>> predictions = np.array([0.5, 0.2, 0.7, 0.4, 0.1, 0.3, 0.8, 0.9, 0.8, 0.6]).reshape(-1, 1)
+        >>> metric = keras.metrics.F1Score(threshold=0.5)
 
-        best_threshold = optimize_metric_threshold(
-            predictions,
-            labels,
-            metric
-        )
+        >>> best_threshold = optimize_metric_threshold(
+        >>>     predictions,
+        >>>     labels,
+        >>>     metric
+        >>> )
 
-        # The resulting value of best_threshold is 0.7
+        >>> print(best_threshold)
+        0.7
 
     """
     num_steps = int(floor(threshold_range[1] - threshold_range[0])/step_size) + 1

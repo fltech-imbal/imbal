@@ -81,7 +81,7 @@ Create validation split
 # (x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
 # w_val = None
 # Uncomment below and comment out above to use varying alphas for reciprocal importance (see above section)
-(x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
+(x_train, y_train, sample_weight_candidates), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
 
 """
 Compile and train model
@@ -100,7 +100,7 @@ history = model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
     validation_data=(x_val, y_val, w_val),
     # validation_densities=val_densities,
     # validation_split=0.1,
@@ -125,7 +125,6 @@ print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.ast
 
 # Predict on test data
 test_predictions = model.predict(x_test).reshape(-1)
-
 
 test_predictions_rare = test_predictions[test_rare_mask] # Mask rare test data
 test_labels_rare = y_test[test_rare_mask] # Mask predictions on rare test data
@@ -163,3 +162,9 @@ print('Frequent sample PCC:', pcc_frequent.result().numpy())
 pcc_rare = metrics.PearsonCorrelation()
 pcc_rare.update_state(test_labels_rare, test_predictions_rare)
 print('Rare sample PCC:', pcc_rare.result().numpy(), '\n')
+
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-metrics-label-vs-prediction-plot.png'
+)

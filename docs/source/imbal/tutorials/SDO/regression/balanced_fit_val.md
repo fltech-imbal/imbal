@@ -31,7 +31,7 @@ sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandw
 
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
 # If this is uncommented, be sure to also uncomment the indicated lines in the following two sections
-# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+# sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 ```
 
 ## 3. Optional: Testing Multiple Hand-Picked Alpha Values For Sample Weights
@@ -44,8 +44,8 @@ model during training.
 
 ```python
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
-# If this is uncommented, be sure to also uncomment 'sample_weight=weight_candidates' in the following section
-# weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+# If this is uncommented, be sure to also uncomment 'sample_weight=sample_weight_candidates' in the following section
+# sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 ```
 
 ## 4. Create Validation Split
@@ -63,7 +63,7 @@ Create validation split
 (x_train, y_train, sample_densities), (x_val, y_val, val_densities) = imbal.regression.split(x_train, y_train, sample_densities, test_size=0.1)
 w_val = None
 # Uncomment below and comment out above to use varying alphas for reciprocal importance (see above section)
-# (x_train, y_train, sample_weight), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, weight_candidates, test_size=0.1)
+# (x_train, y_train, sample_weight_candidates), (x_val, y_val, w_val) =  imbal.regression.split(x_train, y_train, sample_weight_candidates, test_size=0.1)
 ```
 
 ## 5. Model Compilation and Training
@@ -96,7 +96,7 @@ history = model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    # sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
     validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
     # validation_split=0.1,
@@ -216,7 +216,6 @@ we get the following results:
 
 ```text
 (after training output)
-[3/3] Fitted after 27 epochs for sample weight candidate at index 2
 Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux < -4: 586

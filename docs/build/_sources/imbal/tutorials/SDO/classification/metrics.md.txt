@@ -82,18 +82,38 @@ print('J Statistic:', j_statistic.result().numpy()[0])
 youdens = imbal.metrics.YoudensIndex(threshold=0.5)
 youdens.update_state(y_test, test_predictions)
 print('Youden\'s Index:', youdens.result().numpy()[0])
+
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-metrics-confusion-matrix.png'
+)
+
+imbal.classification.plot_roc(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-metrics-roc.png'
+)
 ```
 
 The code above should yield output similar to the following:
 
 ```text
-F1 Score: 0.049216997
-Heikde Skill Score: 0.0042018816
-True Skill Statistic: 0.065577745
-AUROC: 0.6919186
-Gilbert Skill Score: 0.0021053618
-J Statistic: 0.065577745
-Youden's Index: 0.065577745
+F1 Score: 0.050909087
+Heikde Skill Score: 0.0056890277
+True Skill Statistic: 0.10921502
+AUROC: 0.72805953
+Gilbert Skill Score: 0.00285263
+J Statistic: 0.10921502
+Youden's Index: 0.10921502
 ```
 
 Note that True Skill Statistic, J Statistic, and Youden's Index are produce the same result.
+
+Lastly, the `imbal.classificaiton.plot_confusion_matrix` and `imbal.classification.plot_roc` functions
+produce the following plots:
+
+<div style="display: flex; gap: 8px; max-width: 100%;">
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-confusion-matrix.png"/>
+<img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-metrics-roc.png"/>
+</div>

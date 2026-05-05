@@ -19,7 +19,7 @@ class Model(keras.Model):
         super().__init__(*args, **kwargs)
 
         self.best_sample_weights = None
-        self.best_class_weights = None
+        self.best_class_weight = None
         self.best_metric_threshold = None
 
         self._generate_decoder_branch = False
@@ -55,7 +55,7 @@ class Model(keras.Model):
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
+                overrides :code:`class_weight`. Optionally, a 2D list of sample weights can be provided, in which case
                 the model will be fit once all class weights provided, with the final model weights being set to the
                 final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -312,6 +312,7 @@ class Model(keras.Model):
                 x=x,
                 y=y,
                 sample_weight=sample_weight,
+                class_weight=class_weight,
                 validation_data=validation_data,
                 validation_split=validation_split,
                 batch_size=batch_size,
@@ -454,11 +455,11 @@ class Model(keras.Model):
         shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
-        class_weights=None,
+        class_weight=None,
         **kwargs
     ):
 
-        weight_type = 'class weight' if class_weights is not None else 'sample weight'
+        weight_type = 'class weight' if class_weight is not None else 'sample weight'
         find_threshold = sample_weight is None
 
         best_loss = None
@@ -491,6 +492,13 @@ class Model(keras.Model):
 
             return cloned
 
+        def format_array_string(array):
+            array = np.array(array)
+            if array.shape[0] < 7:
+                return str(array)
+            else:
+                return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
+
         for index, weights in enumerate(sample_weight):
             tf.keras.backend.clear_session()
             if stratify_batches:
@@ -502,14 +510,8 @@ class Model(keras.Model):
             if 'callbacks' in kwargs:
                 current_kwargs['callbacks'] = clone_callbacks(kwargs['callbacks'])
 
-            def format_array_string(array):
-                array = np.array(array)
-                if array.shape[0] < 7:
-                    return str(array)
-                else:
-                    return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
             if verbose_imbal > 1:
-                print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights)}')
+                print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights if weight_type == "sample weight" else class_weight[index])}')
 
             if validation_data is not None:
                 x_val, y_val, w_val = validation_data
@@ -562,9 +564,11 @@ class Model(keras.Model):
 
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
+            if weight_type == 'class weight':
+                print(f'Class weights of best fit: {format_array_string(class_weight[best_weights_index])}')
 
-        if class_weights is not None:
-            self.best_class_weights = class_weights[best_weights_index]
+        if class_weight is not None:
+            self.best_class_weight = class_weight[best_weights_index]
         else:
             self.best_sample_weights = sample_weight[best_weights_index]
 
@@ -620,6 +624,7 @@ class Model(keras.Model):
             sample_density,
             require_weighting
         )
+        print(sample_weight)
         if sample_weight.ndim == 1:
             sample_weight = sample_weight[None, ...]
 
@@ -671,13 +676,13 @@ class Model(keras.Model):
     ):
         if self._mode_enum == ModelType.CLASSIFICATION:
             if sample_weight is not None and class_weight is not None:
-                warnings.warn('Both sample_weights and class_weights have been provided' +
-                              'to balanced_fit. class_weights will be ignored.')
+                warnings.warn('Both sample_weights and class_weight have been provided' +
+                              'to balanced_fit. class_weight will be ignored.')
 
             if sample_weight is None and require_weighting:
                 sample_weight = self._mode_subpackage.generate_sample_weights(
                     labels,
-                    class_weights=class_weight
+                    class_weight=class_weight
                 )
             elif sample_weight is None:
                 sample_weight = np.ones(len(labels))
