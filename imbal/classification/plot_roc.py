@@ -16,8 +16,22 @@ def plot_roc(
             1 for true).
         predictions: A NumPy array of predictions. This should be the raw list of prediction
             confidences, not a rounded predicted label.
-        save_figure: Optional, default :code:`None`. If set, specifies the path to save the
-            generated plot to.
+        save_figure: Optional, default :code:`None`. If set to a string, the
+            resultant plot with be saved to the specified path.
+
+    Example:
+
+    .. code::
+
+        >>> from imbal.classification import plot_roc
+        >>> import numpy as np
+
+        >>> labels = np.array([0, 0, 1, 1])
+        >>> predictions = np.array([0.2, 0.7, 0.4, .9])
+
+        >>> # Plots a confusion matrix with one true positive, one false
+        >>> # positive, one false negative, and one true negative
+        >>> plot_roc(labels, predictions)
 
     """
     labels = labels.reshape(-1, 1)

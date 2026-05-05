@@ -7,7 +7,7 @@ from .expected_correct import ExpectedCorrect
 from .true_skill_statistic import TrueSkillStatistic
 from .j_statistic import JStatistic
 from .youdens_index import YoudensIndex
-from .heikde_skill_score import HeikdeSkillScore
+from .heidke_skill_score import HeidkeSkillScore
 from .gilbert_skill_score import GilbertSkillScore
 from .critical_success_index import CriticalSuccessIndex
 from .bounded_auc import BoundedAUC
@@ -24,7 +24,7 @@ IMBAL_OBJECTS = {
     ExpectedTrueNegative,
     ExpectedCorrect,
     TrueSkillStatistic,
-    HeikdeSkillScore,
+    HeidkeSkillScore,
     GilbertSkillScore,
     CriticalSuccessIndex,
     BoundedAUC
@@ -53,8 +53,8 @@ ALL_OBJECTS_DICT.update(
         'TSS' : TrueSkillStatistic,
         'j_statistic' : TrueSkillStatistic,
         'youdens_index' : TrueSkillStatistic,
-        'hss' : HeikdeSkillScore,
-        'HSS' : HeikdeSkillScore,
+        'hss' : HeidkeSkillScore,
+        'HSS' : HeidkeSkillScore,
         'gss' : GilbertSkillScore,
         'GSS' : GilbertSkillScore,
         'gs' : GilbertSkillScore,

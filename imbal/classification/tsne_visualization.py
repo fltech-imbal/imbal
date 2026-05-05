@@ -6,10 +6,10 @@ def tsne_visualization(
     labels,
     representation_layer_index=-2,
     perplexity=30,
-    save_figure=None,
     s=None,
     c=None,
-    marker=None
+    marker=None,
+    save_figure=None
 ):
     """
 
@@ -32,8 +32,6 @@ def tsne_visualization(
         perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
             The suggested perplexity value from the `paper which introduced t-SNE <https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf>_`
             is from 5 to 50.
-        save_figure: Optional, default :code:`None`. If set to a string, will save the
-            resultant plot to the specified path.
         s: Optional, default :code:`None`. If not :code:`None`, a list of floats of length
             equal to the number of classes, where each float represents the marker size for the
             class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
@@ -41,6 +39,8 @@ def tsne_visualization(
             class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
         marker: Optional, default :code:`None`. If not :code:`None`, a list of marker shapes for each
             class when plotted, in sorted order. See `matplotlib.pyplot.scatter <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.scatter.html>`_.
+        save_figure: Optional, default :code:`None`. If set to a string, the
+            resultant plot with be saved to the specified path.
 
     Returns: :code:`None`
 

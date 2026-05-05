@@ -492,6 +492,13 @@ class Model(keras.Model):
 
             return cloned
 
+        def format_array_string(array):
+            array = np.array(array)
+            if array.shape[0] < 7:
+                return str(array)
+            else:
+                return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
+
         for index, weights in enumerate(sample_weight):
             tf.keras.backend.clear_session()
             if stratify_batches:
@@ -503,12 +510,6 @@ class Model(keras.Model):
             if 'callbacks' in kwargs:
                 current_kwargs['callbacks'] = clone_callbacks(kwargs['callbacks'])
 
-            def format_array_string(array):
-                array = np.array(array)
-                if array.shape[0] < 7:
-                    return str(array)
-                else:
-                    return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
             if verbose_imbal > 1:
                 print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights if weight_type == "sample weight" else class_weight[index])}')
 
@@ -564,7 +565,7 @@ class Model(keras.Model):
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
             if weight_type == 'class weight':
-                print(f'Class weights of best fit: {class_weight[best_weights_index]}')
+                print(f'Class weights of best fit: {format_array_string(class_weight[best_weights_index])}')
 
         if class_weight is not None:
             self.best_class_weight = class_weight[best_weights_index]

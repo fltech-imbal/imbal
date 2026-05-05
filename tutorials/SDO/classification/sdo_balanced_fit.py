@@ -104,7 +104,7 @@ test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
 f1 = metrics.F1Score(threshold=0.5)

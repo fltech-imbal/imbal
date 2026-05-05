@@ -5,19 +5,23 @@ def split(
         x_set,
         y_set,
         sample_weights=None,
-        test_size=None,
+        test_size=0.2,
         train_size=None,
         seed=None,
         shuffle=True
     ) -> tuple:
     """
+        Performs a stratified split, creating two subsets of the provided data that
+        is as close to the specified split percentage as possible, while maintaining that
+        the data distribution within the subsets is as close to the original distribution
+        of the data as possible.
 
         Args:
             x_set: A NumPy array of data points, arranged as a column vector
             y_set: A NumPy array of labels, arranged as a column vector
             sample_weights: Optional, default :code:`None`. A NumPy array of weights,
                 arranged as a column vector.
-            test_size: Optional, default :code:`None`. The percentage of data that
+            test_size: Optional, default :code:`0.2`. The percentage of data that
                 should be contained in the test split.
             train_size: Optional, default :code:`None`. The percentage of data that
                 should be contained in the train split. If specified, overrides the
@@ -27,14 +31,14 @@ def split(
             shuffle: Optional, default :code:`True`. Whether to shuffle the data before splitting.
 
         Returns:
-            Two SimpleDataset objects in a tuple of the form :code:`(train_dataset, test_dataset)`.
-
-        Data is stratified by class, ensuring that data is spread
-        as closely to the specified split percentage as possible across the train and test splits.
+            Two tuples, which are both length 3 if :code:`sample_weights` is specified, otherwise length 2.
 
         Example:
 
          .. code-block:: python
+
+            >>> import imbal
+            >>> import numpy as np
 
             >>> data = np.arange(21).reshape(-1,1)
             >>> labels = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]).reshape(-1,1)

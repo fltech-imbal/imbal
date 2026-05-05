@@ -2,7 +2,6 @@ from numpy.typing import NDArray
 from typing import Tuple
 from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
-from imbal.experimental.optimize_confusion_metric_callback import OptimizeConfusionMetricCallback as ocmc
 import tensorflow as tf
 
 class ExpectedTrueNegative(ConfusionMatrixMetric):
@@ -42,17 +41,10 @@ class ExpectedTrueNegative(ConfusionMatrixMetric):
             sample_weight: NDArray | Tensor | None = None
     ):
 
-        def optimized_update() -> None:
-            ocmc.ensure_updated_metrics(y_true, y_pred, sample_weight)
-            self._negative.assign(ocmc.neg())
-            self._predicted_negative.assign(ocmc.pneg())
-            self._sample_size.assign(ocmc.ss())
-        def manual_update() -> None:
-            self._negative.assign_add(weighted_sum(1 - y_true, sample_weight))
-            self._predicted_negative.assign_add(weighted_sum(1 - y_pred, sample_weight))
-            self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
+        self._negative.assign_add(weighted_sum(1 - y_true, sample_weight))
+        self._predicted_negative.assign_add(weighted_sum(1 - y_pred, sample_weight))
+        self._sample_size.assign_add(weighted_sum(tf.ones(tf.shape(y_true), dtype=self.dtype), sample_weight))
 
-        tf.cond(ocmc.is_enabled(), optimized_update, manual_update)
 
     def result(self) -> Tensor:
         return self._negative * self._predicted_negative /  self._sample_size

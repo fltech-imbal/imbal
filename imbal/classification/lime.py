@@ -1,5 +1,4 @@
-from lime import lime_image, lime_tabular
-from skimage.segmentation import mark_boundaries
+from lime import lime_image
 from matplotlib import pyplot as plt
 import numpy as np
 import imbal.util.backend.explanation as explanation
@@ -20,27 +19,25 @@ def lime_explain_image_sample(
 
     Args:
         image: The image to generate a LIME explanation for.
-        model: The PyTorch model to generate a LIME explanation from.
+        model: The TensorFlow model to generate a LIME explanation from.
         num_samples: Optional, default 100. The number of local samples to perform for
             the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
-        num_features: Optional, default 100000. The maximum number of features to present
+        num_features: Optional, default 5. The maximum number of features to present
             in the explanation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
         class_names: Optional, default :code:`None`. An array of strings, which maps
-            class labels (as integer indices) to class names. Used to label the
+            class labels (as integer indices) to class names. If specified, is used to label the
             generated figure.
         actual_label: Optional, default :code:`None`. The true label of the
-            provided image. Used only to label the generated figure.
+            provided image. If specified, is used only to label the generated figure.
         label_to_explain: Optional, default :code:`None`. The label of the class
-            you wish to generate an explanation for. This label need not be the same
-            as the true label for the provided image. When set to :code:`None`, the
-            label that is predicted by the model will be explained.
-        return_figure: Optional, default :code:`False`. When set to :code:`True`, the
-            Matplotlib Figure and Axes objects associated with the generated figure will
-            be returned.
+            you wish to generate an explanation for. When set to :code:`None`, the
+            label that is predicted by the model will be explained. This label need not be the same
+            as the true label for the provided image.
+        save_figure: Optional, default :code:`None`. If set to a string, the
+            resultant plot with be saved to the specified path.
 
     Returns:
-        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
-        :code:`return_figure` is set to :code:`True`.
+        :code:`None`
     """
     if len(image.shape) < 2 or len(image.shape) > 3:
         raise ValueError('"image" must be a 2D or 3D array (height, width, channels)')
@@ -109,7 +106,6 @@ def lime_explain_image_sample(
         plt.savefig(save_figure)
 
     plt.show()
-    return None
 
 def lime_explain_tabular_sample(
         sample,
@@ -118,8 +114,8 @@ def lime_explain_tabular_sample(
         num_samples=100,
         class_names=None,
         feature_names=None,
-        label_to_explain=None,
         actual_label=None,
+        label_to_explain=None,
         figure_save_path='lime-explanation.html'
 ):
     """
@@ -128,28 +124,27 @@ def lime_explain_tabular_sample(
 
     Args:
         sample: The sample to generate a LIME explanation for.
-        model: The PyTorch model to generate a LIME explanation from.
+        model: The TensorFlow model to generate a LIME explanation from.
         training_data: The data the given model was trained on.
         num_samples: Optional, default 100. The number of local samples to perform for
             the LIME local approximation. See `LIME documentation <https://lime-ml.readthedocs.io/en/latest/lime.html#module-lime.lime_image>`_.
         class_names: Optional, default :code:`None`. An array of strings, which maps
-            class labels (as integer indices) to class names. Used to label the
+            class labels (as integer indices) to class names. If specified, is used to label the
             generated figure.
         feature_names: Optional, default :code:`None`. An array of strings, which maps
-            features (by integer index) to feature names. Use to label the
+            features (by integer index) to feature names. If specified, is used to label the
             generated figure.
-        label_to_explain: Optional, default :code:`None`. The label of the class
-            you wish to generate an explanation for. This label need not be the same
-            as the true label for the provided image. When set to :code:`None`, the
-            label that is predicted by the model will be explained.
         actual_label: Optional, default :code:`None`. The true label of the
-            provided image. Used only to label the generated figure.
+            provided image. If specified, is used only to label the generated figure.
+        label_to_explain: Optional, default :code:`None`. The label of the class
+            you wish to generate an explanation for. When set to :code:`None`, the
+            label that is predicted by the model will be explained. This label need not be the same
+            as the true label for the provided image.
         figure_save_path: Optional, default :code:`"lime-explanation.html"`. The path to
             save the generated HTML figure to.
 
     Returns:
-        :code:`None`, or a tuple :code:`(fig, ax)` containing a MatPlotLib Figure and Axes object, if
-        :code:`return_figure` is set to :code:`True`.
+        The path that the resulting figure was saved to, as a string.
     """
     return explanation.lime_explain_tabular_sample(
         sample,

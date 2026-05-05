@@ -239,7 +239,7 @@ class/sample weights
 #### High priority
 - Installation guide (!!!) $\checkmark$
 - Add QR code on thank you page that leads to repository $\checkmark$
-- Use `format_array_string` or whatever it's called for class weight print at end of multi-fit
+- Use `format_array_string` or whatever it's called for class weight print at end of multi-fit $\checkmark$
 - Ask a CS student to try and install and run a tutorial
 - Ask a CS student to help with presentation timing and comments
 - Thorough scan of documentation
