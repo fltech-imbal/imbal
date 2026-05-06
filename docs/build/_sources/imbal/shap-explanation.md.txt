@@ -1,6 +1,6 @@
-# SHAP Model Explanation
+# SHAP Prediction Explanation
 
-Our SHAP model explanation implementations are a wrapper around the original *SHapley Additive
+Our SHAP prediction explanation implementations are a wrapper around the original *SHapley Additive
 exPlanations* (SHAP) implementation, which can be found
 [on this GitHub repository](https://github.com/shap/shap). The full SHAP documentation
 can be found [here](https://shap.readthedocs.io/en/latest/index.html), and the original research

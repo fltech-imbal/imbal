@@ -7,3 +7,4 @@ from .optimize_metric_threshold import optimize_metric_threshold
 from .interpolate_class_weights import interpolate_class_weights
 from .plot_confusion_matrix import plot_confusion_matrix
 from .plot_roc import plot_roc
+from .shap import shap_explain_tabular_dataset, shap_explain_tabular_sample
