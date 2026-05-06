@@ -1,7 +1,7 @@
 .idea
 .venv
 ./build
-imbal/build
+./imbal/build
 __pycache__/
 *.pyc
 *.pyo

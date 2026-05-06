@@ -1,6 +1,6 @@
-# LIME Model Explanation
+# LIME Prediction Explanation
 
-Our LIME model explanation implementations are a wrapper around the original *Local Interpretable
+Our LIME prediction explanation implementations are a wrapper around the original *Local Interpretable
 Model-Agnostic Explanations* (LIME) implementation, which can be found
 [on this GitHub repository](https://github.com/marcotcr/lime). The full LIME documentation
 can be found [here](https://lime-ml.readthedocs.io/en/latest/), and the original research
