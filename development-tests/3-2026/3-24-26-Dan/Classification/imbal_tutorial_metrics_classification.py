@@ -67,6 +67,9 @@ model.balanced_fit(x_train,
 # ----------------------------
 y_pred = model.predict(x_test)
 
+auc_metric = keras.metrics.AUC(num_thresholds=50)
+auc_metric.update_state(y_test, y_pred)
+
 results = model.evaluate(x_test, y_test)
 loss, hss = results
 
@@ -90,6 +93,8 @@ gilbert_skill_score_metric.update_state(y_test, y_pred)
 
 critical_success_index_metric = imbal.metrics.CriticalSuccessIndex(threshold=0.5)
 critical_success_index_metric.update_state(y_test, y_pred)
+
+
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test HSS: {hss:.4f}")

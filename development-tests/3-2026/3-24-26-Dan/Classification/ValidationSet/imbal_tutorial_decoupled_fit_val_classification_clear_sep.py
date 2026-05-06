@@ -46,7 +46,7 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 # Validation Set
 # ----------------------------
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+(x_train, y_train), (x_val, y_val) = imbal.classification.split(x_train, y_train, test_size=0.1)
 
 # ----------------------------
 # Training
@@ -74,8 +74,9 @@ model.cRT_fit(x_train,
 # NOTE: Comment above call before running the below call.
 
 # weight pairs represent [common_class_weight, rare_class_weight]
-class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
 
+# class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
+#
 # model.cRT_fit(x_train,
 #               y_train,
 #               validation_data=(x_val, y_val.reshape(-1, 1)),

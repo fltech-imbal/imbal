@@ -22,7 +22,7 @@ model.compile(
     optimizer="adam",
     metrics=[
         tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS"),
+        imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
     ],
 )
 ```
