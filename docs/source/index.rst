@@ -3,6 +3,13 @@ imbal documentation
 
 Hello! Welcome to the imbal documentation.
 
+imbal is a Tensorflow/Keras extension for machine learning
+
+- Addresses issues related to imbalanced data
+- Handles both classification (e.g. SEP/non-SEP) and regression (e.g. SEP intensity) tasks
+- Handles both tabular and image data
+
+
 :doc:`Installation guide </imbal/installation>`
 
 Subpackages:
@@ -12,13 +19,21 @@ Subpackages:
 - :doc:`Regression </imbal/regression/regression>`
 - :doc:`Util </imbal/util/util>`
 
-Information on select tools used:
+Information on incorporated tools:
 
-- :doc:`LIME Model Explanation </imbal/lime-explanation>`
-- :doc:`SHAP Model Explanation </imbal/shap-explanation>`
+- :doc:`t-SNE Model Explantation </imbal/tsne-explanation>`
+- :doc:`LIME Prediction Explanation </imbal/lime-explanation>`
+- :doc:`SHAP Prediction Explanation </imbal/shap-explanation>`
 
 Code tutorials can be found :doc:`here </imbal/tutorials/tutorials>`
 
+Contact us
+------------------
+
+For feedback or questions, please reach out to us through one of the following emails:
+
+- tgalletta2022@my.fit.edu
+- dacosta2022@my.fit.edu
 
 .. toctree::
     :hidden:

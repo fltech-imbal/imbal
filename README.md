@@ -3,7 +3,7 @@
 - Classification (e.g. SEP/non-SEP) and regression (e.g. SEP intensity) tasks
 - Tabular and image data
 
-Documentation, tutorialas, and installation guide can be found [here](https://fltech-imbal.github.io/imbal/).
+Documentation, tutorials, and installation guide can be found [here](https://fltech-imbal.github.io/imbal/).
 
 ## Overview
 - Training methods

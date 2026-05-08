@@ -30,7 +30,7 @@ def tsne_visualization(
             model to extract the representation from. Defaults to the second to last
             layer of the provided model.
         perplexity: Optional, default :math:`30`. See `sklearn.manifold.TSNE <https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html>`_.
-            The suggested perplexity value from the `paper which introduced t-SNE <https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf>_`
+            The suggested perplexity value from the `paper which introduced t-SNE <https://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf>`_
             is from 5 to 50.
         s: Optional, default :code:`None`. If not :code:`None`, a list of floats of length
             equal to the number of classes, where each float represents the marker size for the

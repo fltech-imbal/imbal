@@ -46,7 +46,7 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 # Validation Set
 # ----------------------------
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1, seed=seed)
+(x_train, y_train), (x_val, y_val) = imbal.classification.split(x_train, y_train, test_size=0.1, seed=seed)
 
 # ----------------------------
 # Training

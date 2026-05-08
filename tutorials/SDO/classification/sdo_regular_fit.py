@@ -18,7 +18,7 @@ def load_sdo_data(data_path):
         contents = file.read().strip()
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
-    # Load images (10 images per sample, 256x256 per image)
+    # Load images (10 images per sample, 128x128 per image)
     loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')

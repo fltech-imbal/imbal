@@ -89,6 +89,4 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 # ----------------------------
 # Visualization
 # ----------------------------
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(y_test, predictions)

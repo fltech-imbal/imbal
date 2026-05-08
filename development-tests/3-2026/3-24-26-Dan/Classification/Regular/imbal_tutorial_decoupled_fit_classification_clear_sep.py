@@ -50,14 +50,14 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               )
 
-# model.cRT_fit(x_train,
-#               y_train,
-#               batch_size=batch_size,
-#               epochs=max_epochs,
-#               )
+model.cRT_fit(x_train,
+              y_train,
+              batch_size=batch_size,
+              epochs=max_epochs,
+              )
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -65,25 +65,22 @@ model.compile(loss="binary_crossentropy",
 # In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
 # NOTE: Comment above call before running the below call.
 
-class_weights = {0: 0.8, 1: 0.2}
-
-model.cRT_fit(x_train,
-          y_train,
-          class_weight=class_weights,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
+# class_weights = {0: 0.8, 1: 0.2}
+#
+# model.cRT_fit(x_train,
+#           y_train,
+#           class_weight=class_weights,
+#           batch_size=batch_size,
+#           epochs=max_epochs,
+#           )
 
 
 # ----------------------------
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
-y_pred = model.predict(x_test)
 loss, f1_score, hss = results
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
-
-imbal.classification.plot_confusion_matrix(y_test, y_pred)
