@@ -253,7 +253,12 @@ class/sample weights
 	- Make sure to mention code is taken from that link in documentation
 - Explain what "weight candidate index" means in output for documentation, help the user interpret what that means (refer to section where alphas are specified)
 - Documentation for multi-weight fit should include that best weights/class weights and index are saved in the model object in particular fields.
+- Incorporate finding decision thresholds in validation set (sweep thresholds across validation set)
+	- Sweeping class weights
+	- For each model, sweep decision threshold and find best thresholds for that class weight
+	- For `imbal`, just one "fold" with early stopping. Sweeping is based on validation set
 #### Low Priority:
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
+
 
