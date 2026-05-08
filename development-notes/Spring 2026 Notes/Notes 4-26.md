@@ -1,4 +1,4 @@
-## Tasks
+ ## Tasks
 - HSS and F1 for final print in classification (no accuracies) $\checkmark$
 	- Use following wording for regression print: $\checkmark$
 	- Testing only (remove testing metrics) $\checkmark$
