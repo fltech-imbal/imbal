@@ -3,7 +3,9 @@
 ## Requirements
 
 As an extension of many of the features available in TensorFlow, `imbal` is subject to
-the sample hardware, system, and software requirements as TensorFlow.
+the sample hardware, system, and software requirements as TensorFlow. We recommend
+following TensorFlow's installation tutorial first, and guaranteeing you have a
+working installation of TensorFlow, before installing `imbal`.
 
 A full overview of how to ensure these requirements are met can be found on [this TensorFlow
 documentation page](https://www.tensorflow.org/install/pip).

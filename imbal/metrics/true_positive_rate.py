@@ -27,6 +27,7 @@ class TruePositiveRate(ConfusionMatrixMetric):
 
         self._true_positives = None
         self._positives = None
+        self._direction = 'up'
 
     def _build(
         self,

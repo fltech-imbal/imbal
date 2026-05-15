@@ -49,7 +49,7 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
-              metrics=[imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
+              metrics=[imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               )
 
 class_weights = {0: 0.9, 1: 0.1}

@@ -306,6 +306,16 @@ class Model(keras.Model):
                 shuffle=shuffle,
                 **kwargs
             )
+
+            if self._mode_enum == ModelType.CLASSIFICATION:
+                _, best_threshold, _ = self._optimize_metric(
+                    training_model,
+                    x,
+                    y,
+                    validation_data,
+                    verbose_imbal
+                )
+                self.best_metric_threshold = best_threshold
         else:
             history = self._multi_weight_fit(
                 model=training_model,
@@ -325,6 +335,73 @@ class Model(keras.Model):
         self._use_decoder_branch = self._generate_decoder_branch
 
         return history
+
+    def _optimize_metric(
+        self,
+        model,
+        x,
+        y,
+        validation_data,
+        verbose_imbal
+    ):
+        if len (model.metrics) > 1 and len(model.metrics[1].metrics) > 0:
+            compare_metric = model.metrics[1].metrics[0]
+        else:
+            if self._mode_enum == ModelType.CLASSIFICATION:
+                compare_metric = keras.metrics.F1Score(threshold=0.5)
+            else:
+                compare_metric = keras.metrics.MeanAbsoluteError()
+
+        if validation_data is None:
+            x_metric, y_metric = x, y
+        else:
+            x_metric, y_metric, _ = validation_data
+
+        def minimize(current, best):
+            return current < best
+        def maximize(current, best):
+            return current > best
+
+        compare_function = minimize
+        if hasattr(compare_metric, "_direction"):
+            if compare_metric._direction == 'up':
+                compare_function = maximize
+            else:
+                compare_function = minimize
+
+        best_metric_result = None
+        best_threshold = None
+        predictions = self.predict(x_metric)
+
+        if self._mode_enum == ModelType.REGRESSION:
+            compare_metric.reset_state()
+            compare_metric.update_state(y_true=y_metric, y_pred=predictions)
+            metric_result = compare_metric.result().numpy()
+            if verbose_imbal > 0:
+                print(f'Result of testing metric "{compare_metric.name}" for previous fit: {metric_result:.4f}')
+            return metric_result, None, compare_function
+
+        for i in range(1, 10):
+            compare_metric.reset_state()
+            rounded_predictions = (predictions > i/10).astype(np.int32)
+            compare_metric.update_state(y_true=y_metric, y_pred=rounded_predictions)
+            current_metric_result = compare_metric.result().numpy()
+            current_threshold = i/10
+
+            if current_metric_result.ndim > 0:
+                current_metric_result = current_metric_result[0]
+
+            if verbose_imbal > 1:
+                print(f'Result of testing metric "{compare_metric.name}" with decision threshold {current_threshold}: {current_metric_result:.4f}')
+
+            if best_metric_result is None or compare_function(current_metric_result, best_metric_result):
+                best_metric_result = current_metric_result
+                best_threshold = current_threshold
+
+        if verbose_imbal > 0:
+            print(f'Best decision threshold based on metric "{compare_metric.name}": {best_threshold}')
+
+        return best_metric_result, best_threshold, compare_function
 
     def compile(
         self,
@@ -443,7 +520,7 @@ class Model(keras.Model):
                 return True
         return False
 
-    def _multi_weight_fit(
+    def _multi_weight_fit (
         self,
         model=None,
         x=None,
@@ -460,14 +537,14 @@ class Model(keras.Model):
     ):
 
         weight_type = 'class weight' if class_weight is not None else 'sample weight'
-        find_threshold = sample_weight is None
 
-        best_loss = None
         best_history = None
         best_model_weights = None
         best_weights_index = None
+        best_metric_result = None
+        best_threshold = None
 
-        starting_model_weights = self.get_weights()
+        starting_model_weights = model.get_weights()
 
         def clone_callbacks(callbacks):
             if callbacks is None:
@@ -539,25 +616,25 @@ class Model(keras.Model):
             if verbose_imbal > 0:
                 print(f'[{index+1}/{len(sample_weight)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
 
-            loss_metric = history.history.get('val_loss', None)
-            if loss_metric is None:
-                loss_metric = history.history.get('loss', None)
+            current_metric_result, current_threshold, compare_function = self._optimize_metric(
+                model,
+                x,
+                y,
+                validation_data,
+                verbose_imbal
+            )
 
-            best_loss_index = np.argmin(loss_metric)
-            best_loss_of_run = loss_metric[best_loss_index]
 
-            if best_loss is None or best_loss_of_run < best_loss:
-                best_loss = best_loss_of_run
-                best_history = history
-                if best_model_weights is not None:
-                    del best_model_weights
-                best_model_weights = self.get_weights()
+            if best_metric_result is None or compare_function(current_metric_result, best_metric_result):
+                best_metric_result = current_metric_result
+                best_threshold = current_threshold
                 best_weights_index = index
+                best_model_weights = model.get_weights()
 
             if stratify_batches:
                 del multi_fit_x
 
-            self.set_weights(starting_model_weights)
+            model.set_weights(starting_model_weights)
 
         gc.collect()
         tf.keras.backend.clear_session()
@@ -572,21 +649,8 @@ class Model(keras.Model):
         else:
             self.best_sample_weights = sample_weight[best_weights_index]
 
-        self.set_weights(best_model_weights)
-
-        if find_threshold and len(self.compiled_metrics._metrics) > 0:
-            compare_metric = self.compiled_metrics._metrics[0]
-            best_result = None
-            best_threshold = None
-            predictions = self.predict(kwargs['x'], kwargs['y'])
-            for i in range(1, 10):
-                compare_metric.reset_state()
-                rounded_predictions = (predictions > i/10).astype(np.int32)
-                compare_metric.update_state(y_true=kwargs['y'], y_pred=rounded_predictions)
-                if best_result is None or compare_metric.result()[0] > best_result:
-                    best_result = compare_metric.result()[0]
-                    best_threshold = i/10
-            self.best_threshold = best_threshold
+        self.best_metric_threshold = best_threshold
+        model.set_weights(best_model_weights)
 
         return best_history
 
@@ -624,7 +688,7 @@ class Model(keras.Model):
             sample_density,
             require_weighting
         )
-        print(sample_weight)
+
         if sample_weight.ndim == 1:
             sample_weight = sample_weight[None, ...]
 
