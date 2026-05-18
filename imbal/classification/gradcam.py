@@ -53,22 +53,13 @@ def gradcam_explain_image_sample(
         return_heatmap: Whether to return the raw heatmap too.
 
     Returns:
-    If return_heatmap is False:
-        numpy.ndarray:
-            Superimposed RGB Grad-CAM visualization image with
-            shape (H, W, 3) and dtype uint8.
 
-    If return_heatmap is True:
-        tuple[numpy.ndarray, numpy.ndarray]:
-            A tuple containing:
+        If :code:`return_heatmap` is False, returns a NumPy array containing
+        a superimposed RGB Grad-CAM visualization image with shape (H, W, 3) and dtype uint8.
+        If :code:`return_heatmap` is True, returns a tuple :code:`(image, map)`, where :code:`image`
+        is the superimposed RGB image, and :code:`map` is a NumPy array containing a normalized
+        Grad-CAM heatmap with shape (H, W) and values in the range :math:`[0, 1]`.
 
-            - superimposed_img:
-              RGB Grad-CAM visualization image with shape (H, W, 3)
-              and dtype uint8.
-
-            - heatmap:
-              Normalized Grad-CAM heatmap with shape (H, W) and
-              values in the range [0, 1].
     """
     if not isinstance(sample, np.ndarray):
         raise TypeError("Sample must be a NumPy array.")

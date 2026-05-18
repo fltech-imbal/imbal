@@ -21,6 +21,7 @@ class ExpectedTruePositive(ConfusionMatrixMetric):
         self._positive = None
         self._predicted_positive = None
         self._sample_size = None
+        self._direction = 'up'
 
     def _build(
         self,

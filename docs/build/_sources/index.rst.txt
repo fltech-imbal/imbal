@@ -21,7 +21,7 @@ Subpackages:
 
 Information on incorporated tools:
 
-- :doc:`t-SNE Model Explantation </imbal/tsne-explanation>`
+- :doc:`t-SNE Visualization of Latent/Representation Space </imbal/tsne-explanation>`
 - :doc:`LIME Prediction Explanation </imbal/lime-explanation>`
 - :doc:`SHAP Prediction Explanation </imbal/shap-explanation>`
 

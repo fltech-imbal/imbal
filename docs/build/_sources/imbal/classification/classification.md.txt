@@ -14,6 +14,7 @@ Located until the `imbal.classification` subpackage.
 - [lime_explain_tabular_sample](lime_explain_tabular_sample.md)
 - [shap_explain_tabular_sample](shap_explain_tabular_sample.md)
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
+- [gradcam_explain_image_sample](gradcam_explain_image_sample.md)
 - [optimize_metric_threshold](optimize_metric_threshold.md)
 - [interpolate_class_weights](interpolate_class_weights.md)
 - [plot_confusion_matrix](plot_confusion_matrix.md)

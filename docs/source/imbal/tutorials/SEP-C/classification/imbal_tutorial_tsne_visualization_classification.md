@@ -56,7 +56,7 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               generate_decoder_branch=True,
               )
 
@@ -114,7 +114,7 @@ imbal.classification.tsne_visualization(
 
 ### Training Data
 
-![Model Results](../images/tsne_classification_train_visualizer.png)
+![Model Results](../../../../_static/tutorials/SEP-C/tsne_classification_train_visualizer.png)
 
 ### Testing Data
 

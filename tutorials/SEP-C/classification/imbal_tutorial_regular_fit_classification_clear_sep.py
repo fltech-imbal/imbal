@@ -50,7 +50,7 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")
                        ],
               )
 
