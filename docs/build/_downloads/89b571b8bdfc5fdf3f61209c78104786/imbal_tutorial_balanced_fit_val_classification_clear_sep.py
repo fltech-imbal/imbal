@@ -59,13 +59,14 @@ model.compile(loss="binary_crossentropy",
 
 PATIENCE = 30
 
-model.balanced_fit(x_train,
-                   y_train,
-                   validation_data=(x_val, y_val.reshape(-1, 1)),
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-                   )
+model.balanced_fit(
+    x_train,
+    y_train,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    batch_size=batch_size,
+    epochs=max_epochs,
+    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -74,16 +75,17 @@ model.balanced_fit(x_train,
 # NOTE: Comment above call before running the below call.
 
 # weight pairs represent [common_class_weight, rare_class_weight]
-class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
-
-# model.balanced_fit(x_train,
-#           y_train,
-#           validation_data=(x_val, y_val.reshape(-1, 1)),
-#           class_weight=class_weight_candidates,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-#           )
+# class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
+#
+# model.balanced_fit(
+#     x_train,
+#     y_train,
+#     validation_data=(x_val, y_val.reshape(-1, 1)),
+#     class_weight=class_weight_candidates,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+#     callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+# )
 
 
 # ----------------------------
@@ -95,3 +97,25 @@ loss, f1_score, hss = results
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+
+if model.best_metric_threshold is not None:
+    best_threshold = model.best_metric_threshold
+    test_predictions = model.predict(x_test)
+    test_predictions = test_predictions.reshape(-1, 1)
+    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+    best_threshold = model.best_metric_threshold
+    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+    hss.update_state(y_test, test_predictions)
+
+    f1 = keras.metrics.F1Score(threshold=best_threshold)
+    f1.update_state(y_test, test_predictions)
+
+    if model.best_class_weights is not None:
+        print(f'Best class weights: {model.best_class_weights}')
+
+    print(
+        f'Best found threshold: {model.best_metric_threshold}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+        f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+    )

@@ -26,8 +26,11 @@ class Model(backend.Model):
         y=None,
         class_weight=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_split=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
@@ -45,18 +48,22 @@ class Model(backend.Model):
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
             class_weight: Optional, default :code:`None`. If left as default, equal class weighting is used.
                 A list of class weights, or a dictionary mapping class
-                labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
-                the model will be fit once using each class weight list provided, with the final model weights being set to the
-                model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
-            sample_weight: Optional, default :code:`None`. If set, overrides behavior of :code:`class_weights`. A list of sample weights. If specified,
-                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once using each sample weight list provided, with the final model weights being set to the
-                final model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+                labels to class weights. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of class weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
+                See "Using Multiple Weight Candidates" below for more details.
+            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
+                overrides :code:`class_weight`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
+                See "Using Multiple Weight Candidates" below for more details.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
             validation_split: Optional, default :code:`None`. A float value representing the proportion of the
                     provided training data to split off into a separate dataset used for model validation.
+            epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The batch size to use during training.
             shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -74,37 +81,46 @@ class Model(backend.Model):
 
         .. code-block:: python
 
-            # Assume MNIST data is already loaded in '(x_train, y_train), (x_test, y_test)'
-
-            inputs = keras.Input(shape=(28,28,1))
-            x = layers.Conv2D(8, (3, 3), strides=(2, 2), activation='relu', padding='same')(inputs)
-            x = layers.Conv2D(16, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
-            x = layers.Flatten()(x)
-            x = layers.Dense(16, activation='relu')(x)
-            x = layers.Flatten()(x)
-            output = layers.Dense(10, activation='softmax')(x)
-
-            model =  imbal.classification.Model(inputs=inputs, outputs=output)
-
-            model.compile(
-                loss="sparse_categorical_crossentropy",
-                optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-                metrics=["accuracy"]
-            )
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
 
             model.balanced_fit(
                 x_train,
                 y_train,
+                class_weight=[0.8, 0.2],
+                batch_size=64,
                 validation_split=0.2
             )
+
+        Example using multiple class weight candidates:
+
+        .. code-block:: python
+
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
+
+            model.balanced_fit(
+                x_train,
+                y_train,
+                class_weight=[[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]],
+                batch_size=64,
+                validation_split=0.2
+            )
+
+            best_threshold = model.best_metric_threshold
+            best_class_weights = model.best_class_weights
+
         """
         return super()._balanced_fit(
             x=x,
             y=y,
             class_weight=class_weight,
             sample_weight=sample_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_split=validation_split,
+            epochs=epochs,
             batch_size=batch_size,
             shuffle=shuffle,
             stratify_batches=stratify_batches,
@@ -118,6 +134,8 @@ class Model(backend.Model):
         y=None,
         class_weight=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_split=None,
         epochs=1,
@@ -137,14 +155,17 @@ class Model(backend.Model):
                 A Numpy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            class_weight: Optional, default :code:`None`. A list of class weights, or a dictionary mapping class
-                labels to class weights. Optionally, a 2D list of class weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            class_weight: Optional, default :code:`None`. If left as default, equal class weighting is used.
+                A list of class weights, or a dictionary mapping class
+                labels to class weights. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of class weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
+                See "Using Multiple Weight Candidates" below for more details.
             sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`class_weights`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+                overrides :code:`class_weight`. Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
+                See "Using Multiple Weight Candidates" below for more details.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_.
@@ -172,30 +193,35 @@ class Model(backend.Model):
         Example:
 
         .. code-block:: python
-            # Assume MNIST data is already loaded in '(x_train, y_train), (x_test, y_test)'
 
-            inputs = keras.Input(shape=(28,28,1))
-            x = layers.Conv2D(8, (3, 3), strides=(2, 2), activation='relu', padding='same')(inputs)
-            x = layers.Conv2D(16, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
-            x = layers.Flatten()(x)
-            x = layers.Dense(16, activation='relu')(x)
-            x = layers.Flatten()(x)
-            output = layers.Dense(10, activation='softmax')(x)
-
-            model =  imbal.classification.Model(inputs=inputs, outputs=output)
-
-            model.compile(
-                loss="sparse_categorical_crossentropy",
-                optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-                metrics=["accuracy"],
-                representation_layer_index=-2
-            )
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
 
             model.cRT_fit(
                 x_train,
                 y_train,
+                class_weight=[0.8, 0.2],
+                batch_size=64,
                 validation_split=0.2
             )
+
+        Example using multiple class weight candidates:
+
+        .. code-block:: python
+
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
+
+            model.cRT_fit(
+                x_train,
+                y_train,
+                class_weight=[[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]],
+                batch_size=64,
+                validation_split=0.2
+            )
+
+            best_threshold = model.best_metric_threshold
+            best_class_weights = model.best_class_weights
 
         """
         return self._decoupled_fit(
@@ -203,6 +229,8 @@ class Model(backend.Model):
             y=y,
             sample_weight=sample_weight,
             class_weight=class_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_split=validation_split,
             epochs=epochs,

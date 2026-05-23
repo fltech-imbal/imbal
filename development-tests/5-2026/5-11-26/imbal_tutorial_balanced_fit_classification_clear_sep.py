@@ -49,16 +49,16 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
-              # metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-              #          imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
+              metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               )
 
-model.balanced_fit(x_train,
-                   y_train,
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   verbose_imbal=2
-                   )
+# model.balanced_fit(x_train,
+#                    y_train,
+#                    batch_size=batch_size,
+#                    epochs=max_epochs,
+#                    verbose_imbal=2
+#                    )
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -66,14 +66,16 @@ model.balanced_fit(x_train,
 # In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
 # NOTE: Comment above call before running the below call.
 
-# class_weights = {0: 0.9, 1: 0.1}
-#
-# model.balanced_fit(x_train,
-#           y_train,
-#           class_weight=class_weights,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           )
+class_weight_candidates = [[0.9, 0.1,], [0.8, 0.2], [0.5, 0.5]]
+
+model.balanced_fit(
+    x_train,
+    y_train,
+    class_weight=class_weight_candidates,
+    batch_size=batch_size,
+    epochs=max_epochs,
+    verbose_imbal=2
+)
 
 
 # ----------------------------
@@ -87,3 +89,15 @@ print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
 
 print('Best threshold:', model.best_metric_threshold)
+print('Best class weights:', model.best_class_weight)
+
+better_f1 = keras.metrics.F1Score(threshold=model.best_metric_threshold)
+better_hss = imbal.metrics.HeidkeSkillScore(threshold=model.best_metric_threshold)
+
+predictions = model.predict(x_test)
+
+better_f1.update_state(y_test, predictions)
+better_hss.update_state(y_test, predictions)
+
+print('new f1:', better_f1.result()[0].numpy())
+print('new hss:', better_hss.result()[0].numpy())

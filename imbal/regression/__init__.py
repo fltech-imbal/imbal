@@ -15,3 +15,4 @@ from .lime import lime_explain_tabular_sample
 from .shap import shap_explain_tabular_sample, shap_explain_tabular_dataset
 from .model import Model
 from .plot_true_vs_predictions import plot_true_vs_predictions
+from .balanced_weights import balanced_weights

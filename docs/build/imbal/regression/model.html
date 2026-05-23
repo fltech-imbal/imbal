@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="split" href="split.html" />
-    <link rel="prev" title="DatasetWithBatching" href="dataset_with_batching.html" />
+    <link rel="prev" title="Regression" href="regression.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -294,7 +294,6 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="dataset_with_batching.html">DatasetWithBatching</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="split.html">split</a></li>
 <li class="toctree-l1"><a class="reference internal" href="get_sample_densities.html">get_sample_densities</a></li>
@@ -368,6 +367,7 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="model">
 <h1>Model<a class="headerlink" href="#model" title="Link to this heading">#</a></h1>
+<p>t</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="imbal.regression.Model">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">imbal.regression.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.Model" title="Link to this definition">#</a></dt>
@@ -392,10 +392,11 @@ the model fitting process.</p>
 A NumPy array of data points, arranged as a column vector</p></li>
 <li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).</p>
 </p></li>
-<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
-overrides behavior of <code class="code docutils literal notranslate"><span class="pre">sample_density</span></code>. Optionally, a 2D list of sample weights can be provided, in which case
-the model will be fit once using each sample weight list provided, with the final model weights being set to the
-model weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights.
+Optionally, a 2D list of sample weights can be provided, in which case
+the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+final weights from the fit which best optimizes the first metric passed during <code class="code docutils literal notranslate"><span class="pre">Model.compile</span></code> (default <code class="code docutils literal notranslate"><span class="pre">keras.metrics.MeanAbsoluteError</span></code>).
+See “Using Multiple Weight Candidates” below for more details.</p></li>
 <li><p><strong>sample_density</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. Must be specified if <code class="code docutils literal notranslate"><span class="pre">sample_weight</span></code> is <code class="code docutils literal notranslate"><span class="pre">None</span></code>.
 A list of sample probability densities, which will be
 used to generate sample weights using reciprocal importance.
@@ -427,40 +428,39 @@ at successive epochs, as well as validation loss values and validation metrics v
 </dd>
 </dl>
 <p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume regression data is already loaded in &#39;(x_train, y_train), (x_test, y_test)&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume data has been loaded as &#39;(x_train, y_train), (x_test, y_test)&#39;, and</span>
+<span class="c1"># we have a compiled model</span>
 
-<span class="n">input_shape</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-<span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span>  <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-
-<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span>
-    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">),</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mse&quot;</span><span class="p">]</span>
-<span class="p">)</span>
-
-<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
-    <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">bin_count</span><span class="o">=</span><span class="mi">32</span>
-<span class="p">)</span>
-<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
-    <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">kde_bandwidth</span>
-<span class="p">)</span>
+<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">kde_bandwidth</span><span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
     <span class="n">x_train</span><span class="p">,</span>
     <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">sample_density</span><span class="o">=</span><span class="n">densities</span><span class="p">,</span>
+    <span class="n">sample_densities</span><span class="o">=</span><span class="n">densities</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+<p>Example using multiple class weight candidates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume data has been loaded as &#39;(x_train, y_train), (x_test, y_test)&#39;, and</span>
+<span class="c1"># we have a compiled model</span>
+
+<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">kde_bandwidth</span><span class="p">)</span>
+<span class="n">weight_candidates</span> <span class="o">=</span> <span class="n">reciprocal_importance</span><span class="p">(</span><span class="n">densities</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="p">,</span>
+    <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight_candidates</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="p">)</span>
+
+<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span>
+<span class="n">best_sample_weights</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_sample_weights</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -480,10 +480,11 @@ A Numpy array of data points, arranged as a column vector</p>
 <li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
 </p></li>
-<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
-overrides <code class="code docutils literal notranslate"><span class="pre">sample_densities</span></code>. Optionally, a 2D list of sample weights can be provided, in which case
-the model will be fit once all class weights provided, with the final model weights being set to the
-final weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights.
+Optionally, a 2D list of sample weights can be provided, in which case
+the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+final weights from the fit which best optimizes the first metric passed during <code class="code docutils literal notranslate"><span class="pre">Model.compile</span></code> (default <code class="code docutils literal notranslate"><span class="pre">keras.metrics.MeanAbsoluteError</span></code>).
+See “Using Multiple Weight Candidates” below for more details.</p></li>
 <li><p><strong>sample_density</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample probability densities.
 If unspecified, <code class="code docutils literal notranslate"><span class="pre">sample_weight</span></code> must be specified.</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
@@ -521,41 +522,39 @@ values (if applicable).</p>
 </dd>
 </dl>
 <p>Example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume regression data is already loaded in &#39;(x_train, y_train), (x_test, y_test)&#39;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume data has been loaded as &#39;(x_train, y_train), (x_test, y_test)&#39;, and</span>
+<span class="c1"># we have a compiled model</span>
 
-<span class="n">input_shape</span> <span class="o">=</span> <span class="n">x_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-<span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">input_shape</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
-<span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-
-<span class="n">model</span> <span class="o">=</span>  <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
-
-<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;mse&quot;</span><span class="p">,</span>
-    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">),</span>
-    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mse&quot;</span><span class="p">],</span>
-    <span class="n">representation_layer_index</span><span class="o">=-</span><span class="mi">2</span>
-<span class="p">)</span>
-
-<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span>
-    <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">bin_count</span><span class="o">=</span><span class="mi">32</span>
-<span class="p">)</span>
-<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span>
-    <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">kde_bandwidth</span>
-<span class="p">)</span>
+<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">kde_bandwidth</span><span class="p">)</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">rRT_fit</span><span class="p">(</span>
     <span class="n">x_train</span><span class="p">,</span>
     <span class="n">y_train</span><span class="p">,</span>
-    <span class="n">sample_density</span><span class="o">=</span><span class="n">densities</span><span class="p">,</span>
+    <span class="n">sample_densities</span><span class="o">=</span><span class="n">densities</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
 <span class="p">)</span>
+</pre></div>
+</div>
+<p>Example using multiple class weight candidates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume data has been loaded as &#39;(x_train, y_train), (x_test, y_test)&#39;, and</span>
+<span class="c1"># we have a compiled model</span>
+
+<span class="n">kde_bandwidth</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">fit_kde</span><span class="p">(</span><span class="n">y_train</span><span class="p">)</span>
+<span class="n">densities</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">get_sample_densities</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">kde_bandwidth</span><span class="p">)</span>
+<span class="n">weight_candidates</span> <span class="o">=</span> <span class="n">reciprocal_importance</span><span class="p">(</span><span class="n">densities</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">rRT_fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="p">,</span>
+    <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight_candidates</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="p">)</span>
+
+<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span>
+<span class="n">best_sample_weights</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_sample_weights</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -590,11 +589,29 @@ in generated.</p></li>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inputs</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">28</span><span class="p">,</span><span class="mi">28</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">()(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span>  <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inputs</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;sparse_categorical_crossentropy&quot;</span><span class="p">,</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">),</span>
+    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;accuracy&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="imbal.regression.Model.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose_imbal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.Model.fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stratify_batches</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose_imbal</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.Model.fit" title="Link to this definition">#</a></dt>
 <dd><p>An extension of <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">TensorFlow’s model.fit function</a>
 that allows for data batches to be stratified if desired.</p>
 <dl class="field-list simple">
@@ -606,10 +623,11 @@ A NumPy array of data points, arranged as a column vector.</p>
 <li><p><strong>y</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.</p>
 </p></li>
-<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights. If specified,
-overrides <code class="code docutils literal notranslate"><span class="pre">class_weight</span></code>. Optionally, a 2D list of sample weights can be provided, in which case
-the model will be fit once all class weights provided, with the final model weights being set to the
-final weights from the fit with the best <code class="code docutils literal notranslate"><span class="pre">val_loss</span></code> (or <code class="code docutils literal notranslate"><span class="pre">loss</span></code> if no validation is specified).</p></li>
+<li><p><strong>sample_weight</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample weights.
+Optionally, a 2D list of sample weights can be provided, in which case
+the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+final weights from the fit which best optimizes the first metric passed during <code class="code docutils literal notranslate"><span class="pre">Model.compile</span></code>.
+See “Using Multiple Weight Candidates” below for more details.</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 The data used to validate the model during training.
 See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
@@ -635,6 +653,18 @@ Only used when <code class="code docutils literal notranslate"><span class="pre"
 at successive epochs, as well as validation loss values and validation metrics values (if applicable).</p>
 </dd>
 </dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assume data has been loaded as &#39;(x_train, y_train), (x_test, y_test)&#39;, and</span>
+<span class="c1"># we have a compiled model</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">x_train</span><span class="p">,</span>
+    <span class="n">y_train</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.2</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">
@@ -659,6 +689,19 @@ calling the decoupled fit`, specifying a callback in
 
 </dd></dl>
 
+<section id="using-multiple-weight-candidates">
+<h2>Using Multiple Weight Candidates<a class="headerlink" href="#using-multiple-weight-candidates" title="Link to this heading">#</a></h2>
+<p>When a 2D list of sample weights is provided to any fit function in this class, a
+special fit will be performed to determine the weights which produce the best results.</p>
+<ol class="arabic simple">
+<li><p>The initial weights of the model</p></li>
+<li><p>The model is fit on the first list of sample weights</p></li>
+<li><p>Using the validation set (or training set, if no validation set is specified), the model is evaluated using the first metric passed to <code class="docutils literal notranslate"><span class="pre">Model.compile</span></code> (defaults to <code class="docutils literal notranslate"><span class="pre">keras.metrics.MeanAbsoluteError</span></code> if no metric is specified)</p></li>
+<li><p>The sample weights are recorded, along with the model’s weights</p></li>
+<li><p>The initial weights of the model are restored, and this process repeats from step 2 using the next list of sample weights. If a set of sample weights outperforms the previous best, the record of the sample weights and model weights is updated</p></li>
+<li><p>After all fits have been performed, the model weights of the best performing fit are restored, and the best performing sample weights are saved in <code class="docutils literal notranslate"><span class="pre">Model.best_sample_weights</span></code></p></li>
+</ol>
+</section>
 <section id="comparison-of-fit-methods-on-tabular-data">
 <h2>Comparison of Fit Methods on Tabular Data<a class="headerlink" href="#comparison-of-fit-methods-on-tabular-data" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -685,12 +728,12 @@ calling the decoupled fit`, specifying a callback in
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="dataset_with_batching.html"
+       href="regression.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">DatasetWithBatching</p>
+        <p class="prev-next-title">Regression</p>
       </div>
     </a>
     <a class="right-next"
@@ -729,6 +772,7 @@ calling the decoupled fit`, specifying a callback in
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.override_second_stage_fit_parameters"><code class="docutils literal notranslate"><span class="pre">Model.override_second_stage_fit_parameters()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-weight-candidates">Using Multiple Weight Candidates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-tabular-data">Comparison of Fit Methods on Tabular Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-image-data">Comparison of Fit Methods on Image Data</a></li>
 </ul>

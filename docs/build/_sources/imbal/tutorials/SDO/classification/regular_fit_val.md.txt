@@ -168,17 +168,22 @@ history = model.fit(
 we get the following results:
 
 ```text
-(after training output)
-
+Best decision threshold based on metric "f1_score": 0.1
+Fit stopped after 14 epochs
+Restored weights from epoch 4
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1446
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 8ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-confusion-matrix-split.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-regular-fit-val-roc-split.png"/>
-
 </div>

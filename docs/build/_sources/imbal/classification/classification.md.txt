@@ -3,7 +3,6 @@
 Located until the `imbal.classification` subpackage.
 
 ## Classes:
-- [DatasetWithBatching](dataset_with_batching.md)
 - [Model](model.md)
 
 ## Functions:
@@ -26,7 +25,6 @@ Located until the `imbal.classification` subpackage.
     :maxdepth: 2
     :caption: Contents:
 
-    DatasetWithBatching <dataset_with_batching>
     Model <model>
     split <split>
     generate_sample_weights <generate_sample_weights>

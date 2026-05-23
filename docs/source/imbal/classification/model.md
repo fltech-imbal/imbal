@@ -7,7 +7,23 @@
 
 ## Using Multiple Weight Candidates
 
+When a 2D list of sample weights (or class weights) is provided to any fit function in this class, a
+special fit will be performed to determine the weights which produce the best results.
+
+1. The initial weights of the model
+2. The model is fit on the first list of sample weights (class weights)
+3. Using the validation set (or training set, if no validation set is specified), the model is evaluated using the first metric passed to `Model.compile` (defaults to `keras.metrics.F1Score` if no metric is specified)
+4. The decision threshold for the metric above is varied, and the model tested using the metric at each decision threshold
+5. The decision threshold that performed best is recorded, along with the sample weights (class weights) that produced the result, and the model's weights
+6. The initial weights of the model are restored, and this process repeats from step 2 using the next list of sample weights (class weights). If a set of sample weights (class weights) outperforms the previous best, the record of the best threshold, sample weights (class weights), and model weights is updated
+7. After all fits have been performed, the model weights of the best performing fit are restored, the best performing metric threshold is saved in `Model.best_metric_threshold`, and the best performing sample weights (class weights) are saved in `Model.best_sample_weights` (`Model.best_class_weights`)
+
 ## Using Validation Data
+
+Whenever validation data is provided during a model fit, the best decision threshold for the first
+metric passed in `Model.compile` (defaults to `keras.metrics.F1Score` if no metric is specified)
+is determined. Multiple decision thresholds are tested, and the decision threshold that best
+optimizes the metric is saved to `Model.best_metric_threshold`.
 
 ## Comparison of Fit Methods on Tabular Data
 - A comparison of the performance of the different fit options in this class on tabular data can be found [here](comparison_of_fit_methods_tabular.md).

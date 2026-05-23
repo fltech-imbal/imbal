@@ -19,8 +19,9 @@ class Model(keras.Model):
         super().__init__(*args, **kwargs)
 
         self.best_sample_weights = None
-        self.best_class_weight = None
+        self.best_class_weights = None
         self.best_metric_threshold = None
+        self.best_weight_index = None
 
         self._generate_decoder_branch = False
         self._use_decoder_branch = False
@@ -36,12 +37,14 @@ class Model(keras.Model):
         x=None,
         y=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_split=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=True,
-        seed=None,
         verbose_imbal=1,
         **kwargs
     ):
@@ -54,15 +57,18 @@ class Model(keras.Model):
                 A NumPy array of data points, arranged as a column vector.
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`class_weight`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_weight: Optional, default :code:`None`. A list of sample weights.
+                Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile`.
+                See "Using Multiple Weight Candidates" below for more details.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
             validation_split: Optional, default :code:`None`. A float value representing the proportion of the
                     provided training data to split off into a separate dataset used for model validation.
+            epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The batch size to use during training.
             shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -77,6 +83,20 @@ class Model(keras.Model):
             A History object. Its History.history attribute is a record of training loss values and metrics values
             at successive epochs, as well as validation loss values and validation metrics values (if applicable).
 
+        Example:
+
+        .. code-block:: python
+
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
+
+            model.fit(
+                x_train,
+                y_train,
+                batch_size=64,
+                validation_split=0.2
+            )
+
         """
 
         if not self._mode_enum or not self._mode_subpackage:
@@ -88,14 +108,16 @@ class Model(keras.Model):
             class_weight=None,
             sample_density=None,
             sample_weight=sample_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_densities=None,
             validation_split=validation_split,
+            epochs=epochs,
             batch_size=batch_size,
             shuffle=shuffle,
             stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
-            seed=seed,
             require_weighting=False,
             **kwargs
         )
@@ -107,9 +129,12 @@ class Model(keras.Model):
         class_weight=None,
         sample_density=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
         validation_split=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
@@ -126,9 +151,12 @@ class Model(keras.Model):
             class_weight=class_weight,
             sample_density=sample_density,
             sample_weight=sample_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_densities=validation_densities,
             validation_split=validation_split,
+            epochs=epochs,
             batch_size=batch_size,
             shuffle=shuffle,
             stratify_batches=stratify_batches,
@@ -145,6 +173,8 @@ class Model(keras.Model):
         class_weight=None,
         sample_weight=None,
         sample_density=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
         validation_split=None,
@@ -181,6 +211,8 @@ class Model(keras.Model):
             class_weight=None,
             sample_density=None,
             sample_weight=stage_one_sample_weights,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=stage_one_validation,
             validation_densities=None,
             validation_split=validation_split,
@@ -232,6 +264,8 @@ class Model(keras.Model):
             class_weight=class_weight,
             sample_density=sample_density,
             sample_weight=sample_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_densities=validation_densities,
             validation_split=validation_split,
@@ -258,9 +292,12 @@ class Model(keras.Model):
         class_weight=None,
         sample_density=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
         validation_split=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
@@ -269,6 +306,11 @@ class Model(keras.Model):
         require_weighting=False,
         **kwargs
     ):
+        self.best_sample_weights = None
+        self.best_class_weights = None
+        self.best_metric_threshold = None
+        self.best_weight_index = None
+
         (x, y, sample_weight), validation_data = self._prepare_training_data(
             x=x,
             y=y,
@@ -284,11 +326,16 @@ class Model(keras.Model):
         )
 
         training_model = self._extended_model if self._use_decoder_branch else self
+        initial_weights = training_model.get_weights()
 
         if sample_weight.shape[0] == 1:
             sample_weight = sample_weight.reshape(-1)
+
             if stratify_batches:
-                x, y, sample_weight = self._stratify_data(x, y, sample_weight, batch_size, shuffle)
+                x_train, y_train, w_train = self._stratify_data(x, y, sample_weight, batch_size, shuffle)
+            else:
+                x_train, y_train = x, y
+                w_train = sample_weight
 
             if validation_data is not None:
                 x_val, y_val, w_val = validation_data
@@ -297,21 +344,28 @@ class Model(keras.Model):
 
             history = keras.Model.fit(
                 training_model,
-                x=x,
-                y=y,
-                sample_weight=sample_weight,
+                x=x_train,
+                y=y_train,
+                sample_weight=w_train,
                 validation_data=validation_data,
                 validation_split=validation_split,
+                epochs=epochs,
                 batch_size=None if stratify_batches else batch_size,
                 shuffle=shuffle,
                 **kwargs
             )
 
+            if class_weight is not None:
+                self.best_class_weights = class_weight
+            else:
+                self.best_sample_weights = sample_weight
+
             if self._mode_enum == ModelType.CLASSIFICATION:
                 _, best_threshold, _ = self._optimize_metric(
-                    training_model,
+                    self,
                     x,
                     y,
+                    sample_weight,
                     validation_data,
                     verbose_imbal
                 )
@@ -323,14 +377,48 @@ class Model(keras.Model):
                 y=y,
                 sample_weight=sample_weight,
                 class_weight=class_weight,
+                candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+                candidate_evaluation_class_weight=candidate_evaluation_class_weight,
                 validation_data=validation_data,
                 validation_split=validation_split,
+                epochs=epochs,
                 batch_size=batch_size,
                 shuffle=shuffle,
                 stratify_batches=stratify_batches,
                 verbose_imbal=verbose_imbal,
                 **kwargs
             )
+
+        # if len(history.history['loss']) != epochs and validation_data is not None:
+        #     final_epochs = np.argmin(history.history['val_loss'])
+        #
+        #
+        #     best_weights = self.best_class_weights if self.best_class_weights is not None else self.best_sample_weights
+        #
+        #     x_val, y_val, w_val = validation_data
+        #     x_final = np.concatenate((x, x_val), axis=0)
+        #     print(x_final.shape)
+        #     y_final = np.concatenate((y, y_val), axis=0)
+        #     print(y_final.shape)
+        #     w_final = np.concatenate((best_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
+        #     print(w_final.shape)
+        #     if verbose_imbal > 0:
+        #         print('Performing final fit using combined training and validation data')
+        #
+        #     if 'callbacks' in kwargs:
+        #         kwargs['callbacks'] = None
+        #
+        #     training_model.set_weights(initial_weights)
+        #     history = keras.Model.fit(
+        #         training_model,
+        #         x=x_final,
+        #         y=y_final,
+        #         sample_weight=w_final,
+        #         epochs=final_epochs,
+        #         batch_size=None if stratify_batches else batch_size,
+        #         shuffle=shuffle,
+        #         **kwargs
+        #     )
 
         self._use_decoder_branch = self._generate_decoder_branch
 
@@ -341,16 +429,22 @@ class Model(keras.Model):
         model,
         x,
         y,
+        sample_weight,
         validation_data,
         verbose_imbal
     ):
-        if len (model.metrics) > 1 and len(model.metrics[1].metrics) > 0:
-            compare_metric = model.metrics[1].metrics[0]
+        weights = None
+        if len(model.metrics) > 1 and hasattr(model.metrics[1], '_flat_weighted_metrics') and model.metrics[1]._flat_weighted_metrics[0] is not None:
+            compare_metric = model.metrics[1]._flat_weighted_metrics[0].metrics[0]
+            weights = sample_weight
+        elif len(model.metrics) > 1 and hasattr(model.metrics[1], '_flat_metrics') and model.metrics[1]._flat_metrics[0] is not None:
+            compare_metric = model.metrics[1]._flat_metrics[0].metrics[0]
         else:
             if self._mode_enum == ModelType.CLASSIFICATION:
                 compare_metric = keras.metrics.F1Score(threshold=0.5)
             else:
                 compare_metric = keras.metrics.MeanAbsoluteError()
+                weights = sample_weight
 
         if validation_data is None:
             x_metric, y_metric = x, y
@@ -371,11 +465,14 @@ class Model(keras.Model):
 
         best_metric_result = None
         best_threshold = None
-        predictions = self.predict(x_metric)
+        predictions = model.predict(x_metric)
+
+        if self._use_decoder_branch:
+            y_metric = y_metric[0]
 
         if self._mode_enum == ModelType.REGRESSION:
             compare_metric.reset_state()
-            compare_metric.update_state(y_true=y_metric, y_pred=predictions)
+            compare_metric.update_state(y_true=y_metric, y_pred=predictions, sample_weight=weights)
             metric_result = compare_metric.result().numpy()
             if verbose_imbal > 0:
                 print(f'Result of testing metric "{compare_metric.name}" for previous fit: {metric_result:.4f}')
@@ -384,7 +481,8 @@ class Model(keras.Model):
         for i in range(1, 10):
             compare_metric.reset_state()
             rounded_predictions = (predictions > i/10).astype(np.int32)
-            compare_metric.update_state(y_true=y_metric, y_pred=rounded_predictions)
+
+            compare_metric.update_state(y_true=y_metric, y_pred=rounded_predictions, sample_weight=weights)
             current_metric_result = compare_metric.result().numpy()
             current_threshold = i/10
 
@@ -434,6 +532,26 @@ class Model(keras.Model):
 
         Returns:
             None
+
+        Example:
+
+        .. code-block:: python
+
+            inputs = keras.Input(shape=(28,28,1))
+            x = layers.Conv2D(8, (3, 3), strides=(2, 2), activation='relu', padding='same')(inputs)
+            x = layers.Conv2D(16, (3, 3), strides=(2, 2), activation='relu', padding='same')(x)
+            x = layers.Flatten()(x)
+            x = layers.Dense(16, activation='relu')(x)
+            x = layers.Flatten()(x)
+            output = layers.Dense(10, activation='softmax')(x)
+
+            model =  imbal.classification.Model(inputs=inputs, outputs=output)
+
+            model.compile(
+                loss="sparse_categorical_crossentropy",
+                optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+                metrics=["accuracy"]
+            )
         """
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
@@ -528,6 +646,9 @@ class Model(keras.Model):
         sample_weight=None,
         validation_data=None,
         validation_split=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=True,
@@ -545,6 +666,20 @@ class Model(keras.Model):
         best_threshold = None
 
         starting_model_weights = model.get_weights()
+
+        if candidate_evaluation_sample_weight is not None:
+            candidate_evaluation_weights = candidate_evaluation_sample_weight
+        else:
+            if self._mode_enum == ModelType.CLASSIFICATION:
+                candidate_evaluation_weights = imbal.classification.generate_sample_weights(
+                    y,
+                    class_weight=candidate_evaluation_class_weight
+                )
+            else:
+                raise RuntimeError(
+                    'To perform a a fit with multiple weight candidates for regression, '
+                    'some candidate evaluation weights must be specified'
+                )
 
         def clone_callbacks(callbacks):
             if callbacks is None:
@@ -609,6 +744,7 @@ class Model(keras.Model):
                 sample_weight=multi_fit_weights,
                 validation_data=current_val_data,
                 validation_split=validation_split,
+                epochs=epochs,
                 batch_size=batch_size,
                 shuffle=shuffle,
                 **current_kwargs
@@ -617,10 +753,11 @@ class Model(keras.Model):
                 print(f'[{index+1}/{len(sample_weight)}] Fitted after {len(history.history.get("loss"))} epochs for {weight_type} candidate at index {index}')
 
             current_metric_result, current_threshold, compare_function = self._optimize_metric(
-                model,
+                self,
                 x,
                 y,
-                validation_data,
+                candidate_evaluation_weights,
+                current_val_data,
                 verbose_imbal
             )
 
@@ -630,6 +767,7 @@ class Model(keras.Model):
                 best_threshold = current_threshold
                 best_weights_index = index
                 best_model_weights = model.get_weights()
+                best_history = history
 
             if stratify_batches:
                 del multi_fit_x
@@ -645,10 +783,11 @@ class Model(keras.Model):
                 print(f'Class weights of best fit: {format_array_string(class_weight[best_weights_index])}')
 
         if class_weight is not None:
-            self.best_class_weight = class_weight[best_weights_index]
+            self.best_class_weights = class_weight[best_weights_index]
         else:
             self.best_sample_weights = sample_weight[best_weights_index]
 
+        self.best_weight_index = best_weights_index
         self.best_metric_threshold = best_threshold
         model.set_weights(best_model_weights)
 

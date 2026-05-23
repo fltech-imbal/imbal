@@ -100,11 +100,17 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
+Best decision threshold based on metric "f1_score": 0.1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1381
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
