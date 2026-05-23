@@ -76,7 +76,7 @@ model = build_simple_cnn()
 Compile and train model
 """
 LEARNING_RATE = 5e-5
-EPOCHS = 20
+EPOCHS = 100
 BATCH_SIZE = 256
 
 model.compile(
@@ -88,7 +88,7 @@ model.compile(
 model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    # class_weight={0: 0.505, 1: 0.495},
+    class_weight={0: 0.9, 1: 0.1},
     # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
@@ -100,7 +100,6 @@ model.evaluate(x_test, y_test.reshape(-1, 1))
 """
 Data and results visualization
 """
-KDE_BIN_COUNT=32
 
 test_rare_mask = y_test == 1
 test_frequent_mask = ~test_rare_mask
@@ -108,11 +107,7 @@ print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask)
 print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
 # Predict on test data
-test_predictions = []
-for i in range(0, len(x_test), BATCH_SIZE):
-    batch = x_test[i:i+BATCH_SIZE]
-    test_predictions.append(model.predict(batch))
-test_predictions = np.concatenate(test_predictions, axis=0)
+test_predictions = model.predict(x_test)
 test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
@@ -147,7 +142,7 @@ if len(true_positives) > 0:
     imbal.classification.gradcam_explain_image_sample(
         sample=true_positives[0],
         model=model,
-        class_names=["common", "rare"],
+        class_names=["not X-class", "X-class"],
         actual_label=1,
         show=True,
         save_figure=True,
@@ -158,7 +153,7 @@ if len(false_positives) > 0:
     imbal.classification.gradcam_explain_image_sample(
         sample=false_positives[0],
         model=model,
-        class_names=["common", "rare"],
+        class_names=["not X-class", "X-class"],
         actual_label=0,
         show=True,
         save_figure=True,

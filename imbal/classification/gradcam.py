@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 import matplotlib as mpl
 
+
 def _find_last_conv_layer_name(model):
     for layer in reversed(model.layers):
         if isinstance(layer, tf.keras.layers.Conv2D):
@@ -141,6 +142,9 @@ def gradcam_explain_image_sample(
     if display_img.max() <= 1.0:
         display_img = display_img * 255.0
 
+    # Keep a clean copy of the original image for side-by-side display.
+    original_display_img = np.clip(display_img, 0, 255).astype("uint8")
+
     # Resize the normalized heatmap to image size so it can control opacity.
     # Low-importance pixels get alpha 0, so they do not show up as blue.
     heatmap_resized = tf.keras.utils.array_to_img(heatmap[..., np.newaxis])
@@ -179,9 +183,33 @@ def gradcam_explain_image_sample(
         title_string += f" (Actual label: {actual_label_display})"
 
     if save_figure or show:
-        plt.imshow(superimposed_img)
-        plt.title(title_string)
-        plt.axis("off")
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+        axes[0].imshow(original_display_img)
+        axes[0].set_title("Original image")
+        axes[0].axis("off")
+
+        axes[1].imshow(superimposed_img)
+        axes[1].set_title("Grad-CAM highlights")
+        axes[1].axis("off")
+
+        # Add a colorbar showing Grad-CAM importance intensity.
+        # Using a dedicated axis keeps the colorbar outside the image.
+        norm = mpl.colors.Normalize(vmin=0, vmax=1)
+        sm = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+        sm.set_array([])
+
+        # Reserve space on the right side for the colorbar.
+        fig.subplots_adjust(right=0.88)
+
+        # Create a dedicated axis for the colorbar.
+        cbar_ax = fig.add_axes([0.90, 0.20, 0.02, 0.60])
+
+        cbar = fig.colorbar(sm, cax=cbar_ax)
+        cbar.set_label("Importance intensity")
+
+        fig.suptitle(title_string)
+        fig.subplots_adjust(top=0.88, right=0.88, wspace=0.15)
 
         if save_figure:
             plt.savefig(figure_save_path, bbox_inches="tight", pad_inches=0.1)
@@ -189,7 +217,7 @@ def gradcam_explain_image_sample(
         if show:
             plt.show()
         else:
-            plt.close()
+            plt.close(fig)
 
     if return_heatmap:
         return superimposed_img, heatmap
