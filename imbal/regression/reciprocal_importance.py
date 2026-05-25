@@ -22,7 +22,7 @@ def reciprocal_importance(
             :code:`end` will be interpolated and used to calculate reciprocal
             importance weights. If set to a list, the values within the list
             will be used as the alpha values for calculating reciprocal importance.
-        steps: Optional, default :code:`10`. Only used if :code:`alpha` is set to a
+        steps: Optional, default :code:`11`. Only used if :code:`alpha` is set to a
             tuple. The number of steps to perform when interpolating between the
             range of alpha values provided.
 

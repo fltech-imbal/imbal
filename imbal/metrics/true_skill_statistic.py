@@ -89,6 +89,7 @@ class TrueSkillStatistic(ConfusionMatrixMetric):
         self._positives = None
         self._false_positives = None
         self._negatives = None
+        self._direction = 'up'
 
     def _build(
         self,

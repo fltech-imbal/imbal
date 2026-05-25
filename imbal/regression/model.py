@@ -26,9 +26,12 @@ class Model(backend.Model):
         y=None,
         sample_density=None,
         sample_weight=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
         validation_split=None,
+        epochs=1,
         batch_size=32,
         shuffle=True,
         stratify_batches=False,
@@ -37,17 +40,18 @@ class Model(backend.Model):
     ):
         """
         Performs a density-balanced fit, where by default, each instance is equally weighted
-        in a manner that is inversely proportional to the instance's probability density during
-        the model fitting process.
+        in a manner that is inversely proportional to the instance's probability density (reciprocal importance)
+        during the model fitting process.
 
         Args:
             x: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A NumPy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides behavior of :code:`sample_density`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once using each sample weight list provided, with the final model weights being set to the
-                model weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_weight: Optional, default :code:`None`. A list of sample weights.
+                Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.MeanAbsoluteError`).
+                See "Using Multiple Weight Candidates" below for more details.
             sample_density: Optional, default :code:`None`. Must be specified if :code:`sample_weight` is :code:`None`.
                 A list of sample probability densities, which will be
                 used to generate sample weights using reciprocal importance.
@@ -60,6 +64,8 @@ class Model(backend.Model):
                 without sample weights.
             validation_split: Optional, default :code:`None`. A float value representing the proportion of the
                     provided training data to split off into a separate dataset used for model validation.
+            epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+                The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The batch size to use during training.
             shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -77,49 +83,53 @@ class Model(backend.Model):
 
         .. code-block:: python
 
-            # Assume regression data is already loaded in '(x_train, y_train), (x_test, y_test)'
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
 
-            input_shape = x_train.shape[1:]
-            inputs = keras.Input(shape=input_shape)
-            x = layers.Dense(18, activation='relu')(inputs)
-            x = layers.Dense(9, activation='relu')(x)
-            x = layers.Flatten()(x)
-            x = layers.Dense(6, activation='relu')(x)
-            x = layers.Flatten()(x)
-            output = layers.Dense(1)(x)
-
-            model =  imbal.regression.Model(inputs=inputs, outputs=output)
-
-            model.compile(
-                loss="mse",
-                optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-                metrics=["mse"]
-            )
-
-            kde_bandwidth = imbal.regression.fit_kde(
-                y_train,
-                bin_count=32
-            )
-            densities = imbal.regression.get_sample_densities(
-                y_train,
-                kde_bandwidth
-            )
+            kde_bandwidth = imbal.regression.fit_kde(y_train)
+            densities = imbal.regression.get_sample_densities(y_train, kde_bandwidth)
 
             model.balanced_fit(
                 x_train,
                 y_train,
-                sample_density=densities,
+                sample_densities=densities,
+                batch_size=64,
                 validation_split=0.2
             )
+
+        Example using multiple class weight candidates:
+
+        .. code-block:: python
+
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
+
+            kde_bandwidth = imbal.regression.fit_kde(y_train)
+            densities = imbal.regression.get_sample_densities(y_train, kde_bandwidth)
+            weight_candidates = reciprocal_importance(densities, alpha=[0.2, 0.5, 0.8, 1.0])
+
+            model.balanced_fit(
+                x_train,
+                y_train,
+                sample_weight=weight_candidates,
+                batch_size=64,
+                validation_split=0.2
+            )
+
+            best_threshold = model.best_metric_threshold
+            best_sample_weights = model.best_sample_weights
         """
         return super()._balanced_fit(
             x=x,
             y=y,
             sample_density=sample_density,
             sample_weight=sample_weight,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_densities=validation_densities,
             validation_split=validation_split,
+            epochs=epochs,
             batch_size=batch_size,
             shuffle=shuffle,
             stratify_batches=stratify_batches,
@@ -133,6 +143,8 @@ class Model(backend.Model):
         y=None,
         sample_weight=None,
         sample_density=None,
+        candidate_evaluation_sample_weight=None,
+        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_split=None,
         validation_densities=None,
@@ -153,10 +165,11 @@ class Model(backend.Model):
                 A Numpy array of data points, arranged as a column vector
             y: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 A Numpy array of labels, arranged as a row vector, column vector, or list of one-hot vectors.
-            sample_weight: Optional, default :code:`None`. A list of sample weights. If specified,
-                overrides :code:`sample_densities`. Optionally, a 2D list of sample weights can be provided, in which case
-                the model will be fit once all class weights provided, with the final model weights being set to the
-                final weights from the fit with the best :code:`val_loss` (or :code:`loss` if no validation is specified).
+            sample_weight: Optional, default :code:`None`. A list of sample weights.
+                Optionally, a 2D list of sample weights can be provided, in which case
+                the model will be fit once for each list of sample weights provided, with the final model weights being set to the
+                final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.MeanAbsoluteError`).
+                See "Using Multiple Weight Candidates" below for more details.
             sample_density: Optional, default :code:`None`. A list of sample probability densities.
                 If unspecified, :code:`sample_weight` must be specified.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -190,41 +203,41 @@ class Model(backend.Model):
 
         .. code-block:: python
 
-            # Assume regression data is already loaded in '(x_train, y_train), (x_test, y_test)'
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
 
-            input_shape = x_train.shape[1:]
-            inputs = keras.Input(shape=input_shape)
-            x = layers.Dense(18, activation='relu')(inputs)
-            x = layers.Dense(9, activation='relu')(x)
-            x = layers.Flatten()(x)
-            x = layers.Dense(6, activation='relu')(x)
-            x = layers.Flatten()(x)
-            output = layers.Dense(1)(x)
-
-            model =  imbal.regression.Model(inputs=inputs, outputs=output)
-
-            model.compile(
-                loss="mse",
-                optimizer=keras.optimizers.Adam(learning_rate=1e-4),
-                metrics=["mse"],
-                representation_layer_index=-2
-            )
-
-            kde_bandwidth = imbal.regression.fit_kde(
-                y_train,
-                bin_count=32
-            )
-            densities = imbal.regression.get_sample_densities(
-                y_train,
-                kde_bandwidth
-            )
+            kde_bandwidth = imbal.regression.fit_kde(y_train)
+            densities = imbal.regression.get_sample_densities(y_train, kde_bandwidth)
 
             model.rRT_fit(
                 x_train,
                 y_train,
-                sample_density=densities,
+                sample_densities=densities,
+                batch_size=64,
                 validation_split=0.2
             )
+
+        Example using multiple class weight candidates:
+
+        .. code-block:: python
+
+            # Assume data has been loaded as '(x_train, y_train), (x_test, y_test)', and
+            # we have a compiled model
+
+            kde_bandwidth = imbal.regression.fit_kde(y_train)
+            densities = imbal.regression.get_sample_densities(y_train, kde_bandwidth)
+            weight_candidates = reciprocal_importance(densities, alpha=[0.2, 0.5, 0.8, 1.0])
+
+            model.rRT_fit(
+                x_train,
+                y_train,
+                sample_weight=weight_candidates,
+                batch_size=64,
+                validation_split=0.2
+            )
+
+            best_threshold = model.best_metric_threshold
+            best_sample_weights = model.best_sample_weights
 
         """
         return self._decoupled_fit(
@@ -232,6 +245,8 @@ class Model(backend.Model):
             y=y,
             sample_weight=sample_weight,
             sample_density=sample_density,
+            candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
+            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_split=validation_split,
             validation_densities=validation_densities,

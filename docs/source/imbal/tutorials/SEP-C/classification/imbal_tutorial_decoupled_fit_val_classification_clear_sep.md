@@ -22,7 +22,7 @@ model.compile(
     optimizer="adam",
     metrics=[
         tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS"),
+        imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
     ],
 )
 ```
@@ -75,12 +75,40 @@ loss, f1_score, hss = results
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+
+if model.best_metric_threshold is not None:
+    best_threshold = model.best_metric_threshold
+    test_predictions = model.predict(x_test)
+    test_predictions = test_predictions.reshape(-1, 1)
+    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+    best_threshold = model.best_metric_threshold
+    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+    hss.update_state(y_test, test_predictions)
+
+    f1 = keras.metrics.F1Score(threshold=best_threshold)
+    f1.update_state(y_test, test_predictions)
+
+    print(
+        f'Best found threshold {model.best_metric_threshold}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+        f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+    )
 ```
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_classification.png)
-
+```text
+Best decision threshold based on metric "F1Score": 0.7
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.2524 - HSS: 0.2265 - loss: 0.2412          
+Test Loss: 0.2412
+Test F1Score: 0.2524
+Test HSS: 0.2265
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 910us/step
+Best found threshold 0.7
+HSS using Best Threshold: 0.3438
+F1Score using Best Threshold: 0.3636
+```
 ---
 
 ## 3. Optional: Using Class Weights
@@ -109,7 +137,19 @@ model.cRT_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_classification_explore_class_weights.png)
+```text
+Best decision threshold based on metric "F1Score": 0.6
+Restoring model weights from fit on class weight candidate at index 0
+Class weights of best fit: [0.9 0.1]
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.6667 - HSS: 0.6589 - loss: 0.0664   
+Test Loss: 0.0664
+Test F1Score: 0.6667
+Test HSS: 0.6589
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
+Best found threshold 0.1
+HSS using Best Threshold: 0.4283
+F1Score using Best Threshold: 0.4444
+```
 
 > **NOTE:** at the end of training, the index of the best class weight is printed. For convenience, the associated class weight is also printed out.
 

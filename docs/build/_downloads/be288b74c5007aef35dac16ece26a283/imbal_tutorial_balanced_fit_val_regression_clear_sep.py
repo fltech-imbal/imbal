@@ -52,8 +52,8 @@ kde = imbal.regression.fit_kde(labels_kde)
 densities = imbal.regression.get_sample_densities(labels_kde, kde)
 
 # Comment the below out if using the explore alphas version of the call
-sample_weights = imbal.regression.generate_sample_weights(densities)
-(x_train, y_train, sw), (x_val, y_val, sw_val) =  imbal.regression.split(x_train, y_train, sample_weights=sample_weights, test_size=0.2)
+# sample_weights = imbal.regression.generate_sample_weights(densities)
+# (x_train, y_train, sw), (x_val, y_val, sw_val) =  imbal.regression.split(x_train, y_train, sample_weights=sample_weights, test_size=0.2)
 
 # ----------------------------
 # Training
@@ -66,28 +66,29 @@ model.compile(loss="mean_squared_error",
 
 PATIENCE = 30
 
-model.balanced_fit(x_train,
-                   y_train,
-                   validation_data = (x_val, y_val.reshape(-1, 1), sw_val),
-                   sample_weight=sw,
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-                   )
-
-# Uncomment the below if you want to try exploring different alpha values
-# from imbal.regression import reciprocal_importance
-# weight_candidates = reciprocal_importance(densities, alpha=[0.2, 0.5, 0.8, 1.0])
-# (x_train, y_train, sw_candidates), (x_val, y_val, sw_val) =  imbal.regression.split(x_train, y_train, sample_weights=weight_candidates, test_size=0.2)
-#
 # model.balanced_fit(x_train,
 #                    y_train,
-#                    validation_data=(x_val, y_val.reshape(-1, 1), sw_val),
-#                    sample_weight=sw_candidates,
+#                    validation_data = (x_val, y_val.reshape(-1, 1), sw_val),
+#                    sample_weight=sw,
 #                    batch_size=batch_size,
 #                    epochs=max_epochs,
 #                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
 #                    )
+
+# Uncomment the below if you want to try exploring different alpha values
+from imbal.regression import reciprocal_importance
+weight_candidates = reciprocal_importance(densities, alpha=[0.2, 0.5, 0.8, 1.0])
+(x_train, y_train, sw_candidates), (x_val, y_val, sw_val) =  imbal.regression.split(x_train, y_train, sample_weights=weight_candidates, test_size=0.2)
+
+model.balanced_fit(x_train,
+                   y_train,
+                   validation_data=(x_val, y_val.reshape(-1, 1), sw_val),
+                   sample_weight=sw_candidates,
+                   batch_size=batch_size,
+                   epochs=max_epochs,
+                   callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)],
+                   verbose_imbal=2
+                   )
 
 
 # ----------------------------

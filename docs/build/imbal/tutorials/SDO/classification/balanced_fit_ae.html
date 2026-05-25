@@ -444,11 +444,17 @@ training and test set.</p>
 </div>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;f1_score&quot;: 0.6
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 9ms/step - accuracy: 0.1867 - f1_score: 0.0287 - loss: 0.7479
+Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
-Heikde Skill Score: 0.0092
-F1 Score: 0.0526
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step
+Heikde Skill Score: 0.0054
+F1 Score: 0.0506
+
+Best threshold: 0.6
+Heikde Skill Score using Best Threshold: -0.0173
+F1 Score using Best Threshold: 0.0000
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -470,13 +476,20 @@ F1 Score: 0.0526
 </div>
 <p>we get the following results:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
-Restoring model weights from fit on sample weight candidate at index 0
-
+Best decision threshold based on metric &quot;f1_score&quot;: 0.5
+Restoring model weights from fit on class weight candidate at index 2
+Class weights of best fit: [0.5 0.5]
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 10ms/step - accuracy: 0.5750 - f1_score: 0.0326 - loss: 0.6927
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0000
-F1 Score: 0.0000
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step
+Heikde Skill Score: 0.0227
+F1 Score: 0.0659
+
+Best class weights: [0.5, 0.5]
+Best threshold: 0.5
+Heikde Skill Score using Best Threshold: 0.0227
+F1 Score using Best Threshold: 0.0659
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">

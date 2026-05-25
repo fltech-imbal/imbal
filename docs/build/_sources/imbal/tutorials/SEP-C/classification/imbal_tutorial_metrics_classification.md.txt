@@ -103,7 +103,7 @@ print(f"Test Critical Success Index: {critical_success_index_metric.result().num
 
 ### Example Output
 
-![Model Results](../images/metrics_classification.png)
+![Model Results](../../../../_static/tutorials/SEP-C/metrics_classification.png)
 
 ---
 

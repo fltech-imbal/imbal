@@ -83,6 +83,7 @@ class CriticalSuccessIndex(ConfusionMatrixMetric):
         self._true_positive = None
         self._false_positive = None
         self._false_negative = None
+        self._direction = 'up'
 
     def _build(
         self,

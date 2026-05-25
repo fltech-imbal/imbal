@@ -65,7 +65,6 @@ def optimize_metric_threshold(
             metric.reset_state()
             metric.update_state(labels, thresholded_predictions, sample_weight=sample_weight)
             metric_value = metric.result()
-            print(metric_value)
         else:
             metric_value = metric(thresholded_predictions, labels, sample_weight=sample_weight)
         if (best_metric is None or

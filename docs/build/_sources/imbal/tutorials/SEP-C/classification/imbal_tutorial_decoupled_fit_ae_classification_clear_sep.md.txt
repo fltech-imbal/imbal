@@ -22,7 +22,7 @@ model.compile(
     optimizer="adam",
     metrics=[
         tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS"),
+        imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
     ],
     generate_decoder_branch=True,
 )
@@ -68,17 +68,46 @@ loss, f1_score, hss = results
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+
+if model.best_metric_threshold is not None:
+    best_threshold = model.best_metric_threshold
+    test_predictions = model.predict(x_test)
+    test_predictions = test_predictions.reshape(-1, 1)
+    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+    best_threshold = model.best_metric_threshold
+    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+    hss.update_state(y_test, test_predictions)
+
+    f1 = keras.metrics.F1Score(threshold=best_threshold)
+    f1.update_state(y_test, test_predictions)
+
+    print(
+        f'Best found threshold {model.best_metric_threshold}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+        f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+    )
 ```
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_classification.png)
+```text
+Best decision threshold based on metric "F1Score": 0.9
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.3871 - HSS: 0.3683 - loss: 0.1572   
+Test Loss: 0.1572
+Test F1Score: 0.3871
+Test HSS: 0.3683
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
+Best found threshold 0.9
+HSS using Best Threshold: 0.6594
+F1Score using Best Threshold: 0.6667
+```
 
 ---
 
 ## 3. Optional: Using Class Weights
 
-Alternatively, you can manually specify class weights during training. Replace the `model.balanced_fit` call with:
+Alternatively, you can manually specify class weights during training. Replace the `model.cRT_fit` call with:
 
 ```python
 class_weights = {0: 0.9, 1: 0.1}
@@ -94,9 +123,19 @@ model.cRT_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_ae_classification_class_weights.png)
+```text
+Best decision threshold based on metric "F1Score": 0.7
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.6286 - HSS: 0.6201 - loss: 0.0741   
+Test Loss: 0.0741
+Test F1Score: 0.6286
+Test HSS: 0.6201
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 836us/step
+Best found threshold 0.7
+HSS using Best Threshold: 0.6170
+F1Score using Best Threshold: 0.6250
+```
 
-This optional approach gives you manual control over class importance, while `balanced_fit` automates the process.
+This optional approach gives you manual control over class importance, while `cRT_fit` automates the process.
 
 --- 
 

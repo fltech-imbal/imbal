@@ -107,23 +107,29 @@ imbal.classification.plot_roc(
 )
 ```
 
-### Optional: Exploring candidates for class weights
-
 Below are examples of what the generated output and plots should look 
 like for the above code.
 
 ```text
+Best decision threshold based on metric "f1_score": 0.5
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step - accuracy: 0.6600 - f1_score: 0.0893 - loss: 0.6811
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-Heikde Skill Score: 0.0409
-F1 Score: 0.0806
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 8ms/step
+Heikde Skill Score: 0.0476
+F1 Score: 0.0893
+
+Best threshold: 0.5
+Heikde Skill Score using Best Threshold: 0.0476
+F1 Score using Best Threshold: 0.0893
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-roc.png"/>
 </div>
+
+### Optional: Exploring candidates for class weights
 
 By enabling the optional class weight variation in section 2:
 
@@ -142,13 +148,20 @@ we get the following results:
 
 ```text
 (after training output)
-Restoring model weights from fit on sample weight candidate at index 0
-
+Best decision threshold based on metric "f1_score": 0.5
+Restoring model weights from fit on class weight candidate at index 2
+Class weights of best fit: [0.5 0.5]
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step - accuracy: 0.0983 - f1_score: 0.0459 - loss: 0.7096
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
-Heikde Skill Score: 0.0000
-F1 Score: 0.0000
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step
+Heikde Skill Score: 0.0004
+F1 Score: 0.0459
+
+Best class weights: [0.5, 0.5]
+Best threshold: 0.5
+Heikde Skill Score using Best Threshold: 0.0004
+F1 Score using Best Threshold: 0.0459
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
