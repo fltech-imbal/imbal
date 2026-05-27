@@ -54,25 +54,27 @@ densities = imbal.regression.get_sample_densities(labels_kde, kde)
 
 model.compile(loss="mean_squared_error",
               optimizer="adam",
-              metrics=["mae"],
+              weighted_metrics=["mae"],
               generate_decoder_branch=True,
               )
 
-# model.rRT_fit(x_train,
-#               y_train,
-#               sample_density=densities,
-#               batch_size=batch_size,
-#               epochs=max_epochs,
-#               )
+model.rRT_fit(
+    x_train,
+    y_train,
+    sample_density=densities,
+    batch_size=batch_size,
+    epochs=max_epochs,
+)
 
-from imbal.regression import reciprocal_importance
-weights = reciprocal_importance(densities, alpha=1.2)
-model.rRT_fit(x_train,
-              y_train,
-              sample_weight=weights,
-              batch_size=batch_size,
-              epochs=max_epochs,
-              )
+# from imbal.regression import reciprocal_importance
+# weights = reciprocal_importance(densities, alpha=1.2)
+# model.rRT_fit(
+#     x_train,
+#     y_train,
+#     sample_weight=weights,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+# )
 
 
 # ----------------------------

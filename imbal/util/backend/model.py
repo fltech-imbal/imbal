@@ -389,36 +389,43 @@ class Model(keras.Model):
                 **kwargs
             )
 
-        # if len(history.history['loss']) != epochs and validation_data is not None:
-        #     final_epochs = np.argmin(history.history['val_loss'])
-        #
-        #
-        #     best_weights = self.best_class_weights if self.best_class_weights is not None else self.best_sample_weights
-        #
-        #     x_val, y_val, w_val = validation_data
-        #     x_final = np.concatenate((x, x_val), axis=0)
-        #     print(x_final.shape)
-        #     y_final = np.concatenate((y, y_val), axis=0)
-        #     print(y_final.shape)
-        #     w_final = np.concatenate((best_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
-        #     print(w_final.shape)
-        #     if verbose_imbal > 0:
-        #         print('Performing final fit using combined training and validation data')
-        #
-        #     if 'callbacks' in kwargs:
-        #         kwargs['callbacks'] = None
-        #
-        #     training_model.set_weights(initial_weights)
-        #     history = keras.Model.fit(
-        #         training_model,
-        #         x=x_final,
-        #         y=y_final,
-        #         sample_weight=w_final,
-        #         epochs=final_epochs,
-        #         batch_size=None if stratify_batches else batch_size,
-        #         shuffle=shuffle,
-        #         **kwargs
-        #     )
+        if validation_data is not None:
+            final_epochs = np.argmin(history.history['val_loss'])
+            x_val, y_val, w_val = validation_data
+            x_final = np.concatenate((x, x_val), axis=0)
+            y_final = np.concatenate((y, y_val), axis=0)
+
+            if self.best_sample_weights is not None:
+                w_final = np.concatenate((self.best_sample_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
+            else:
+                w_final = imbal.classification.generate_sample_weights(
+                    y_final,
+                    class_weight=self.best_class_weights
+                )
+
+            if verbose_imbal > 0:
+                print('Performing final fit using combined training and validation data')
+
+            if 'callbacks' in kwargs:
+                kwargs['callbacks'] = None
+
+            print(x_final.shape)
+            print(y_final.shape)
+            print(w_final.shape)
+            if stratify_batches:
+                x_final, y_final, w_final = self._stratify_data(x_final, y_final, w_final, batch_size, shuffle)
+
+            training_model.set_weights(initial_weights)
+            history = keras.Model.fit(
+                training_model,
+                x=x_final,
+                y=y_final,
+                sample_weight=w_final,
+                epochs=final_epochs,
+                batch_size=None if stratify_batches else batch_size,
+                shuffle=shuffle,
+                **kwargs
+            )
 
         self._use_decoder_branch = self._generate_decoder_branch
 
@@ -883,7 +890,7 @@ class Model(keras.Model):
                               'to balanced_fit. class_weight will be ignored.')
 
             if sample_weight is None and require_weighting:
-                sample_weight = self._mode_subpackage.generate_sample_weights(
+                sample_weight = imbal.classification.generate_sample_weights(
                     labels,
                     class_weight=class_weight
                 )

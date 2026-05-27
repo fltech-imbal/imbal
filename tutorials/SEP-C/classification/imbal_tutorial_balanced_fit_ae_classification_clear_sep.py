@@ -55,12 +55,12 @@ model.compile(loss="binary_crossentropy",
               generate_decoder_branch=True,
               )
 
-# model.balanced_fit(
-#     x_train,
-#     y_train,
-#     batch_size=batch_size,
-#     epochs=max_epochs
-# )
+model.balanced_fit(
+    x_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=max_epochs
+)
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -104,6 +104,6 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

@@ -53,24 +53,26 @@ densities = imbal.regression.get_sample_densities(labels_kde, kde)
 
 model.compile(loss="mean_squared_error",
               optimizer="adam",
-              metrics=["mae"],
+              weighted_metrics=["mae"],
               )
 
-# model.balanced_fit(x_train,
-#                    y_train,
-#                    sample_density=densities,
-#                    batch_size=batch_size,
-#                    epochs=max_epochs,
-#                    )
+# model.balanced_fit(
+#     x_train,
+#     y_train,
+#     sample_density=densities,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+# )
 
-from imbal.regression import reciprocal_importance
-weights = reciprocal_importance(densities, alpha=0.8)
-model.balanced_fit(x_train,
-                   y_train,
-                   sample_weight=weights,
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   )
+# from imbal.regression import reciprocal_importance
+# weights = reciprocal_importance(densities, alpha=0.8)
+# model.balanced_fit(
+#     x_train,
+#     y_train,
+#     sample_weight=weights,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+# )
 
 
 # ----------------------------
@@ -101,6 +103,7 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 # ----------------------------
 # Visualization
 # ----------------------------
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions,
+)

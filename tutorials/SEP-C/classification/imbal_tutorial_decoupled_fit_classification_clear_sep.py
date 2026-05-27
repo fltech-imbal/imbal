@@ -67,7 +67,7 @@ model.cRT_fit(
 # NOTE: Comment above call before running the below call.
 
 # class_weights = {0: 0.8, 1: 0.2}
-
+#
 # model.cRT_fit(
 #     x_train,
 #     y_train,
@@ -105,6 +105,6 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
