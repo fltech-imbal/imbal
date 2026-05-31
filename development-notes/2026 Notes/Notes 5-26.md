@@ -166,7 +166,47 @@ Ensure table below $\checkmark$
 ## Tasks
 #### High Priority
 - Update tutorials to reflect metric-based validation
+
+Weighted metrics test:
+- Classification
+	- Reg $\checkmark$
+	- Reg + AE $\checkmark$
+	- Reg + val $\checkmark$
+	- Bal $\checkmark$ $\checkmark$
+	- Bal + AE $\checkmark$ $\checkmark$
+	- Bal + val $\checkmark$ $\checkmark$
+	- cRT $\checkmark$ $\checkmark$
+	- cRT + AE $\checkmark$ $\checkmark$
+	- cRT + val $\checkmark$ $\checkmark$
+- Regression
+	- Reg $\checkmark$
+	- Reg + AE $\checkmark$
+	- Reg + val $\checkmark$
+	- Bal $\checkmark$
+	- Bal + AE $\checkmark$ $\checkmark$
+	- Bal + val $\checkmark$ $\checkmark$
+	- rRT $\checkmark$
+	- rRT + AE $\checkmark$ $\checkmark$
+	- rRT + val $\checkmark$ $\checkmark$
+
+'Final training with combined training and validation set' test:
+- Classification
+	- Reg + val $\checkmark$
+	- Bal + val $\checkmark$ $\checkmark$
+	- cRT + val $\checkmark$ $\checkmark$
+- Regression
+	- Reg + val $\checkmark$
+	- Bal + val $\checkmark$ $\checkmark$
+	- rRT + val $\checkmark$ $\checkmark$
+#### High Priority:
+- Updating Model documentation to reflect changes for `weighted_metrics` (in particular, with multiple candidates)
+	- Combined training + validation
+		- Trained for best epoch number from first stage, using best weights found across all candidates
+- Update tutorials to reflect changes to fit functions (`weighted_metrics`, final fit train + validation?)
+- See if there were low priority tasks that have been looked over from previous meetings
+	- Send an email to Dr. Chan with the compiled list
 #### Low Priority:
 - Allow user to specify thresholds in fits using validation
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
+

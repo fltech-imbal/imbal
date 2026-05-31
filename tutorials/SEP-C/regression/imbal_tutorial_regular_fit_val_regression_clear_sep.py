@@ -55,18 +55,19 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 model.compile(loss="mean_squared_error",
               optimizer="adam",
-              metrics=["mae"],
+              weighted_metrics=["mae"],
               )
 
 PATIENCE = 30
 
-model.fit(x_train,
-          y_train,
-          validation_data=(x_val, y_val.reshape(-1, 1)),
-          batch_size=batch_size,
-          epochs=max_epochs,
-          callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-          )
+model.fit(
+    x_train,
+    y_train,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    batch_size=batch_size,
+    epochs=max_epochs,
+    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
 
 
 # ----------------------------
