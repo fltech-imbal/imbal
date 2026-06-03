@@ -22,9 +22,9 @@ def gradcam_explain_image_sample(
     actual_value=None,
     preprocess_fn=None,
     alpha=0.4,
-    importance_threshold=0.5,
-    positive_cmap="Reds",
-    negative_cmap="Blues",
+    positive_importance_threshold=0.5,
+    negative_importance_threshold=0.5,
+    cmap="jet",
     figure_save_path="gradcam-regression-explanation.png",
     save_figure=False,
     show=True,
@@ -50,60 +50,35 @@ def gradcam_explain_image_sample(
         preprocess_fn: Optional preprocessing function applied before
             prediction.
         alpha: Maximum heatmap overlay opacity.
-        importance_threshold: Minimum normalized importance required for a
-            region to appear in the overlay.
-        positive_cmap: Matplotlib colormap name used for regions that
-            increase the predicted value.
-        negative_cmap: Matplotlib colormap name used for regions that
-            decrease the predicted value.
+        positive_importance_threshold: Minimum normalized positive importance
+            required for a region to appear in the overlay.
+        negative_importance_threshold: Minimum normalized negative importance
+            required for a region to appear in the overlay.
+        cmap: Matplotlib diverging colormap name. Negative values are shown on
+            the blue side, positive values are shown on the red side, and values
+            near zero use the middle color of the colormap.
         figure_save_path: Path where the figure is saved if save_figure=True.
         save_figure: Whether to save the visualization.
         show: Whether to display the visualization.
-        return_heatmap: Whether to return the raw heatmaps too.
+        return_heatmap: Whether to return the raw heatmap too.
 
     Returns:
-        If return_heatmap is False:
-            tuple[numpy.ndarray, numpy.ndarray]:
-                A tuple containing:
+        If return_heatmap is False, returns a NumPy array containing a
+        superimposed RGB Grad-CAM visualization image with shape (H, W, 3) and
+        dtype uint8.
 
-                - positive_superimposed_img:
-                  RGB Grad-CAM visualization image highlighting regions
-                  associated with large increases in the predicted value,
-                  with shape (H, W, 3) and dtype uint8.
+        If return_heatmap is True, returns a tuple containing:
 
-                - negative_superimposed_img:
-                  RGB Grad-CAM visualization image highlighting regions
-                  associated with large decreases in the predicted value,
-                  with shape (H, W, 3) and dtype uint8.
+            - superimposed_img:
+              RGB Grad-CAM visualization image highlighting regions associated
+              with large increases or decreases in the predicted value, with
+              shape (H, W, 3) and dtype uint8.
 
-        If return_heatmap is True:
-            tuple[
-                numpy.ndarray,
-                numpy.ndarray,
-                numpy.ndarray,
-                numpy.ndarray,
-            ]:
-                A tuple containing:
-
-                - positive_superimposed_img:
-                  RGB Grad-CAM visualization image highlighting regions
-                  associated with large increases in the predicted value,
-                  with shape (H, W, 3) and dtype uint8.
-
-                - negative_superimposed_img:
-                  RGB Grad-CAM visualization image highlighting regions
-                  associated with large decreases in the predicted value,
-                  with shape (H, W, 3) and dtype uint8.
-
-                - positive_heatmap:
-                  Normalized Grad-CAM heatmap representing regions that
-                  positively contribute to the regression output, with
-                  shape (H, W) and values in the range [0, 1].
-
-                - negative_heatmap:
-                  Normalized Grad-CAM heatmap representing regions that
-                  negatively contribute to the regression output, with
-                  shape (H, W) and values in the range [0, 1].
+            - signed_heatmap:
+              Normalized signed Grad-CAM heatmap, with shape (H, W) and values
+              in the range [-1, 1]. Positive values represent regions that
+              increase the predicted value, while negative values represent
+              regions that decrease the predicted value.
 """
     if not isinstance(sample, np.ndarray):
         raise TypeError("Sample must be a NumPy array.")
@@ -136,7 +111,7 @@ def gradcam_explain_image_sample(
         # For regression, the model output itself is the target y-value.
         # For classification, this would normally be the pre-softmax score.
         if preds.shape.rank == 1:
-            regression_output = preds
+            target_regression_output = preds
             predicted_value = float(preds[0])
         else:
             if output_index < 0 or output_index >= preds.shape[-1]:
@@ -144,26 +119,25 @@ def gradcam_explain_image_sample(
                     f"output_index={output_index} is out of bounds for model "
                     f"output shape {preds.shape}."
                 )
-            regression_output = preds[:, output_index]
+            target_regression_output = preds[:, output_index]
             predicted_value = float(preds[0, output_index])
 
-    grads = tape.gradient(regression_output, last_conv_layer_output)
+    output_gradients = tape.gradient(target_regression_output, last_conv_layer_output)
 
-    if grads is None:
+    if output_gradients is None:
         raise ValueError(
             "Could not compute gradients. Make sure the selected layer is "
             "connected to the model output."
         )
 
-    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    pooled_grads = tf.reduce_mean(output_gradients, axis=(0, 1, 2))
 
     conv_output = last_conv_layer_output[0]
 
     # Original Grad-CAM computes:
     #     sum_k alpha_k * A_k
     #
-    # The previous version immediately applied ReLU, which only kept positive
-    # influence. Here we keep the signed map first so that we can separate:
+    # Here we keep the signed map so that we can show:
     #     positive values -> large increases
     #     negative values -> large decreases
     raw_heatmap = conv_output @ pooled_grads[..., tf.newaxis]
@@ -176,14 +150,16 @@ def gradcam_explain_image_sample(
     negative_max = np.max(negative_heatmap)
 
     if positive_max == 0:
-        positive_heatmap = np.zeros_like(positive_heatmap)
+        normalized_positive_heatmap = np.zeros_like(positive_heatmap)
     else:
-        positive_heatmap = positive_heatmap / positive_max
+        normalized_positive_heatmap = positive_heatmap / positive_max
 
     if negative_max == 0:
-        negative_heatmap = np.zeros_like(negative_heatmap)
+        normalized_negative_heatmap = np.zeros_like(negative_heatmap)
     else:
-        negative_heatmap = negative_heatmap / negative_max
+        normalized_negative_heatmap = negative_heatmap / negative_max
+
+    signed_heatmap = normalized_positive_heatmap - normalized_negative_heatmap
 
     display_img = original_img.astype("float32")
 
@@ -195,8 +171,11 @@ def gradcam_explain_image_sample(
 
     original_display_img = np.clip(display_img, 0, 255).astype("uint8")
 
-    def make_superimposed_img(heatmap, cmap):
-        heatmap_uint8 = np.uint8(255 * heatmap)
+    def make_superimposed_img(heatmap):
+        # Convert the signed heatmap from [-1, 1] to [0, 1] so it can be
+        # passed into a Matplotlib diverging colormap.
+        heatmap_for_colormap = (heatmap + 1.0) / 2.0
+        heatmap_uint8 = np.uint8(255 * heatmap_for_colormap)
         colormap = mpl.colormaps[cmap]
         colormap_colors = colormap(np.arange(256))[:, :3]
         colorized_heatmap = colormap_colors[heatmap_uint8]
@@ -207,18 +186,35 @@ def gradcam_explain_image_sample(
         )
         colorized_heatmap = tf.keras.utils.img_to_array(colorized_heatmap)
 
-        heatmap_resized = tf.keras.utils.array_to_img(heatmap[..., np.newaxis])
-        heatmap_resized = heatmap_resized.resize(
+        positive_resized = tf.keras.utils.array_to_img(
+            normalized_positive_heatmap[..., np.newaxis]
+        )
+        positive_resized = positive_resized.resize(
             (original_img.shape[1], original_img.shape[0])
         )
-        heatmap_resized = tf.keras.utils.img_to_array(heatmap_resized).squeeze()
-        heatmap_resized = heatmap_resized / 255.0
+        positive_resized = tf.keras.utils.img_to_array(positive_resized).squeeze()
+        positive_resized = positive_resized / 255.0
 
-        alpha_mask = np.where(
-            heatmap_resized >= importance_threshold,
+        negative_resized = tf.keras.utils.array_to_img(
+            normalized_negative_heatmap[..., np.newaxis]
+        )
+        negative_resized = negative_resized.resize(
+            (original_img.shape[1], original_img.shape[0])
+        )
+        negative_resized = tf.keras.utils.img_to_array(negative_resized).squeeze()
+        negative_resized = negative_resized / 255.0
+
+        positive_alpha_mask = np.where(
+            positive_resized >= positive_importance_threshold,
             alpha,
             0.0,
         )
+        negative_alpha_mask = np.where(
+            negative_resized >= negative_importance_threshold,
+            alpha,
+            0.0,
+        )
+        alpha_mask = np.maximum(positive_alpha_mask, negative_alpha_mask)
         alpha_mask = alpha_mask[..., np.newaxis]
 
         superimposed_img = (
@@ -229,15 +225,7 @@ def gradcam_explain_image_sample(
 
         return superimposed_img
 
-    positive_superimposed_img = make_superimposed_img(
-        positive_heatmap,
-        positive_cmap,
-    )
-
-    negative_superimposed_img = make_superimposed_img(
-        negative_heatmap,
-        negative_cmap,
-    )
+    superimposed_img = make_superimposed_img(signed_heatmap)
 
     title_string = (
         "Grad-CAM regression explanation "
@@ -248,49 +236,32 @@ def gradcam_explain_image_sample(
         title_string += f" (Actual value: {actual_value})"
 
     if save_figure or show:
-        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+        fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
         axes[0].imshow(original_display_img)
         axes[0].set_title("Original image")
         axes[0].axis("off")
 
-        axes[1].imshow(positive_superimposed_img)
-        axes[1].set_title("Large increases in value")
+        axes[1].imshow(superimposed_img)
+        axes[1].set_title("Red increases value, blue decreases value")
         axes[1].axis("off")
 
-        axes[2].imshow(negative_superimposed_img)
-        axes[2].set_title("Large decreases in value")
-        axes[2].axis("off")
-
-        positive_norm = mpl.colors.Normalize(vmin=0, vmax=1)
-        positive_sm = mpl.cm.ScalarMappable(
-            norm=positive_norm,
-            cmap=positive_cmap,
+        norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+        sm = mpl.cm.ScalarMappable(
+            norm=norm,
+            cmap=cmap,
         )
-        positive_sm.set_array([])
+        sm.set_array([])
 
-        positive_cbar = fig.colorbar(
-            positive_sm,
+        cbar = fig.colorbar(
+            sm,
             ax=axes[1],
             fraction=0.046,
             pad=0.04,
         )
-        positive_cbar.set_label("Increase intensity")
-
-        negative_norm = mpl.colors.Normalize(vmin=0, vmax=1)
-        negative_sm = mpl.cm.ScalarMappable(
-            norm=negative_norm,
-            cmap=negative_cmap,
-        )
-        negative_sm.set_array([])
-
-        negative_cbar = fig.colorbar(
-            negative_sm,
-            ax=axes[2],
-            fraction=0.046,
-            pad=0.04,
-        )
-        negative_cbar.set_label("Decrease intensity")
+        cbar.set_label("Signed contribution intensity")
+        cbar.set_ticks([-1, 0, 1])
+        cbar.set_ticklabels(["Decrease", "Neutral", "Increase"])
 
         fig.suptitle(title_string)
 
@@ -305,11 +276,6 @@ def gradcam_explain_image_sample(
             plt.close(fig)
 
     if return_heatmap:
-        return (
-            positive_superimposed_img,
-            negative_superimposed_img,
-            positive_heatmap,
-            negative_heatmap,
-        )
+        return superimposed_img, signed_heatmap
 
-    return positive_superimposed_img, negative_superimposed_img
+    return superimposed_img

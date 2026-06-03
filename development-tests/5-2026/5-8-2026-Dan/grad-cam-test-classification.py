@@ -76,7 +76,7 @@ model = build_simple_cnn()
 Compile and train model
 """
 LEARNING_RATE = 5e-5
-EPOCHS = 100
+EPOCHS = 200
 BATCH_SIZE = 256
 
 model.compile(
@@ -85,14 +85,19 @@ model.compile(
     metrics=['accuracy', metrics.F1Score(threshold=0.5)],
 )
 
+sample_weights = imbal.classification.generate_sample_weights(y_train, class_weight={0: 0.9, 1: 0.1})
+(x_train, y_train, sw_train), (x_val, y_val, sw_val) = imbal.classification.split(x_train, y_train, sample_weights=sample_weights, test_size=0.2)
+
 model.balanced_fit(
     x_train,
     y_train.reshape(-1, 1),
-    class_weight={0: 0.9, 1: 0.1},
+    sample_weight=sw_train,
+    #class_weight={0: 0.9, 1: 0.1},
     # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
+    stratify_batches=True, # Ensure all batches have a similar data distribution
+    validation_data=(x_val, y_val.reshape(-1, 1), sw_val)
 )
 
 model.evaluate(x_test, y_test.reshape(-1, 1))
@@ -123,39 +128,160 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-rounded_predictions = np.round(test_predictions).astype(np.int32).reshape(-1)
-y_test_flat = y_test.reshape(-1)
-
-true_positive_mask = (y_test_flat == 1) & (rounded_predictions == 1)
-false_positive_mask = (y_test_flat == 0) & (rounded_predictions == 1)
-
-true_positives = x_test[true_positive_mask]
-false_positives = x_test[false_positive_mask]
-
 imbal.classification.plot_confusion_matrix(
     y_test,
     test_predictions,
     save_figure='classification-explanation-confusion-matrix.png'
 )
 
-if len(true_positives) > 0:
+rounded_predictions = np.round(test_predictions).astype(np.int32).reshape(-1)
+y_test_flat = y_test.reshape(-1)
+
+true_positive_mask = (y_test_flat == 1) & (rounded_predictions == 1)
+false_positive_mask = (y_test_flat == 0) & (rounded_predictions == 1)
+true_negative_mask = (y_test_flat == 0) & (rounded_predictions == 0)
+false_negative_mask = (y_test_flat == 1) & (rounded_predictions == 0)
+
+tp_indices = np.where(true_positive_mask)[0]
+fp_indices = np.where(false_positive_mask)[0]
+tn_indices = np.where(true_negative_mask)[0]
+fn_indices = np.where(false_negative_mask)[0]
+
+print("Number of true positives:", len(tp_indices))
+print("Number of false positives:", len(fp_indices))
+print("Number of true negatives:", len(tn_indices))
+print("Number of false negatives:", len(fn_indices))
+
+
+def corner_intensity_features(img, patch=10):
+    """
+    Extract corner-based similarity features.
+
+    This does NOT assume corners are black.
+    It compares the gray/intensity structure of the four corners.
+    """
+    img = img.squeeze()
+
+    corners = [
+        img[:patch, :patch],        # top-left
+        img[:patch, -patch:],       # top-right
+        img[-patch:, :patch],       # bottom-left
+        img[-patch:, -patch:]       # bottom-right
+    ]
+
+    features = []
+
+    for corner in corners:
+        features.extend([
+            np.mean(corner),        # average gray level
+            np.std(corner),         # variation / texture
+            np.min(corner),         # darkest value
+            np.max(corner)          # brightest value
+        ])
+
+    return np.array(features)
+
+
+if len(tp_indices) > 0 and len(fp_indices) > 0 and len(tn_indices) > 0 and len(fn_indices) > 0:
+    tp_features = np.array([
+        corner_intensity_features(x_test[i], patch=10)
+        for i in tp_indices
+    ])
+
+    fp_features = np.array([
+        corner_intensity_features(x_test[i], patch=10)
+        for i in fp_indices
+    ])
+
+    tn_features = np.array([
+        corner_intensity_features(x_test[i], patch=10)
+        for i in tn_indices
+    ])
+
+    fn_features = np.array([
+        corner_intensity_features(x_test[i], patch=10)
+        for i in fn_indices
+    ])
+
+    best_distance = np.inf
+    best_group = None
+
+    for a, tp_i in enumerate(tp_indices):
+        for b, fp_i in enumerate(fp_indices):
+            for c, tn_i in enumerate(tn_indices):
+                for d, fn_i in enumerate(fn_indices):
+                    distance = (
+                            np.linalg.norm(tp_features[a] - fp_features[b]) +
+                            np.linalg.norm(tp_features[a] - tn_features[c]) +
+                            np.linalg.norm(tp_features[a] - fn_features[d]) +
+                            np.linalg.norm(fp_features[b] - tn_features[c]) +
+                            np.linalg.norm(fp_features[b] - fn_features[d]) +
+                            np.linalg.norm(tn_features[c] - fn_features[d])
+                    )
+
+                    if distance < best_distance:
+                        best_distance = distance
+                        best_group = (tp_i, fp_i, tn_i, fn_i)
+
+    tp_idx, fp_idx, tn_idx, fn_idx = best_group
+
+    print("Selected similar true positive index:", tp_idx)
+    print("Selected similar false positive index:", fp_idx)
+    print("Selected similar true negative index:", tn_idx)
+    print("Selected similar false negative index:", fn_idx)
+    print("Total corner feature distance:", best_distance)
+
+    print("TP actual label:", y_test_flat[tp_idx])
+    print("TP predicted probability:", test_predictions.reshape(-1)[tp_idx])
+
+    print("FP actual label:", y_test_flat[fp_idx])
+    print("FP predicted probability:", test_predictions.reshape(-1)[fp_idx])
+
+    print("TN actual label:", y_test_flat[tn_idx])
+    print("TN predicted probability:", test_predictions.reshape(-1)[tn_idx])
+
+    print("FN actual label:", y_test_flat[fn_idx])
+    print("FN predicted probability:", test_predictions.reshape(-1)[fn_idx])
+
     imbal.classification.gradcam_explain_image_sample(
-        sample=true_positives[0],
+        sample=x_test[tp_idx],
         model=model,
         class_names=["not X-class", "X-class"],
         actual_label=1,
         show=True,
         save_figure=True,
-        figure_save_path='grad-cam-classification-true-positive-explanation.png'
+        figure_save_path='images/grad-cam-classification-true-positive-similar-corners.png'
     )
 
-if len(false_positives) > 0:
     imbal.classification.gradcam_explain_image_sample(
-        sample=false_positives[0],
+        sample=x_test[fp_idx],
         model=model,
         class_names=["not X-class", "X-class"],
         actual_label=0,
         show=True,
         save_figure=True,
-        figure_save_path='grad-cam-classification-false-positive-explanation.png'
+        figure_save_path='images/grad-cam-classification-false-positive-similar-corners.png'
     )
+
+    imbal.classification.gradcam_explain_image_sample(
+        sample=x_test[tn_idx],
+        model=model,
+        class_names=["not X-class", "X-class"],
+        actual_label=0,
+        show=True,
+        save_figure=True,
+        figure_save_path='images/grad-cam-classification-true-negative-similar-corners.png'
+    )
+
+    imbal.classification.gradcam_explain_image_sample(
+        sample=x_test[fn_idx],
+        model=model,
+        class_names=["not X-class", "X-class"],
+        actual_label=1,
+        show=True,
+        save_figure=True,
+        figure_save_path='images/grad-cam-classification-false-negative-similar-corners.png'
+    )
+
+else:
+    print("Could not find true positives, false positives, true negatives, and false negatives.")
