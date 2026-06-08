@@ -84,8 +84,8 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
 ```
 
@@ -94,12 +94,11 @@ if model.best_metric_threshold is not None:
 ```text
 Best decision threshold based on metric "F1Score": 0.3
 24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.7586 - HSS: 0.7540 - loss: 0.0554       
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
 Test Loss: 0.0554
 Test F1Score: 0.7586
 Test HSS: 0.7540
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 986us/step
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 956us/step
 Best found threshold: 0.3
-HSS using Best Threshold: 0.7695
 F1Score using Best Threshold: 0.7742
+HSS using Best Threshold: 0.7695
 ```

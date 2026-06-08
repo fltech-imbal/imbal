@@ -59,13 +59,14 @@ model.compile(loss="binary_crossentropy",
 
 PATIENCE = 30
 
-history = model.fit(x_train,
-                    y_train,
-                    validation_data=(x_val, y_val.reshape(-1, 1)),
-                    batch_size=batch_size,
-                    epochs=max_epochs,
-                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-                    )
+history = model.fit(
+    x_train,
+    y_train,
+    validation_data=(x_val, y_val.reshape(-1, 1)),
+    batch_size=batch_size,
+    epochs=max_epochs,
+    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
 
 
 # ----------------------------
@@ -93,6 +94,6 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

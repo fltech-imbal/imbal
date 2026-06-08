@@ -91,23 +91,22 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
 ```
 
 ### Example Output
 
 ```text
-Best decision threshold based on metric "F1Score": 0.7
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.2524 - HSS: 0.2265 - loss: 0.2412          
-Test Loss: 0.2412
-Test F1Score: 0.2524
-Test HSS: 0.2265
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 910us/step
-Best found threshold 0.7
-HSS using Best Threshold: 0.3438
-F1Score using Best Threshold: 0.3636
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.4528 - HSS: 0.4370 - loss: 0.2092   
+Test Loss: 0.2092
+Test F1Score: 0.4528
+Test HSS: 0.4370
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 889us/step
+Best found threshold: 0.9
+F1Score using Best Threshold: 0.6154
+HSS using Best Threshold: 0.6059
 ```
 ---
 
@@ -138,17 +137,17 @@ model.cRT_fit(
 ### Results
 
 ```text
-Best decision threshold based on metric "F1Score": 0.6
 Restoring model weights from fit on class weight candidate at index 0
 Class weights of best fit: [0.9 0.1]
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.6667 - HSS: 0.6589 - loss: 0.0664   
-Test Loss: 0.0664
-Test F1Score: 0.6667
-Test HSS: 0.6589
+Performing final fit using combined training and validation data
+...  
+Test Loss: 0.0544
+Test F1Score: 0.6471
+Test HSS: 0.6392
 24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
-Best found threshold 0.1
-HSS using Best Threshold: 0.4283
-F1Score using Best Threshold: 0.4444
+Best found threshold: 0.4
+F1Score using Best Threshold: 0.6857
+HSS using Best Threshold: 0.6785
 ```
 
 > **NOTE:** at the end of training, the index of the best class weight is printed. For convenience, the associated class weight is also printed out.

@@ -51,8 +51,7 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")
-                       ],
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               generate_decoder_branch=True,
               )
 
@@ -89,7 +88,7 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
 

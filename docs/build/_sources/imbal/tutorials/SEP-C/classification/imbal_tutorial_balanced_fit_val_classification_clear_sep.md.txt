@@ -94,23 +94,22 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
 ```
 
 ### Example Output
 
 ```text
-Best decision threshold based on metric "F1Score": 0.8
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.2979 - HSS: 0.2740 - loss: 0.2669          
-Test Loss: 0.2669
-Test F1Score: 0.2979
-Test HSS: 0.2740
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 958us/step
-Best found threshold: 0.8
-HSS using Best Threshold: 0.4461
-F1Score using Best Threshold: 0.4615
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.2766 - HSS: 0.2520 - loss: 0.2317          
+Test Loss: 0.2317
+Test F1Score: 0.2766
+Test HSS: 0.2520
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 927us/step
+Best found threshold: 0.9
+F1Score using Best Threshold: 0.6286
+HSS using Best Threshold: 0.6201
 ```
 
 ---
@@ -142,22 +141,16 @@ model.balanced_fit(
 ### Results
 
 ```text
-Best decision threshold based on metric "F1Score": 0.9
-Restoring model weights from fit on class weight candidate at index 1
-Class weights of best fit: [0.8 0.2]
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.5581 - HSS: 0.5466 - loss: 0.0921          
-Test Loss: 0.0921
-Test F1Score: 0.5581
-Test HSS: 0.5466
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step 
-Best class weights: [0.8, 0.2]
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6471 - HSS: 0.6392 - loss: 0.0986   
+Test Loss: 0.0986
+Test F1Score: 0.6471
+Test HSS: 0.6392
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
+Best class weights: [0.9, 0.1]
 Best found threshold: 0.3
-HSS using Best Threshold: 0.4318
-F1Score using Best Threshold: 0.4483
+F1Score using Best Threshold: 0.5789
+HSS using Best Threshold: 0.5687
 ```
-
-> **NOTE:** at the end of training, the index of the best class weight is printed. For convenience, the associated class weight is also printed out.
-
 This optional approach allows the function to explore different class weights, helping find the best hyperparameter values for the model while still using validation data and early stopping.
 
 ---

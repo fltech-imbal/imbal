@@ -84,23 +84,22 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )
 ```
 
 ### Example Output
 
 ```text
-Best decision threshold based on metric "F1Score": 0.9
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.3871 - HSS: 0.3683 - loss: 0.1572   
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.3871 - HSS: 0.3683 - loss: 0.1572   
 Test Loss: 0.1572
 Test F1Score: 0.3871
 Test HSS: 0.3683
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
-Best found threshold 0.9
-HSS using Best Threshold: 0.6594
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 954us/step
+Best found threshold: 0.9
 F1Score using Best Threshold: 0.6667
+HSS using Best Threshold: 0.6594
 ```
 
 ---
@@ -124,15 +123,14 @@ model.cRT_fit(
 ### Results
 
 ```text
-Best decision threshold based on metric "F1Score": 0.7
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.6286 - HSS: 0.6201 - loss: 0.0741   
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6286 - HSS: 0.6201 - loss: 0.0741   
 Test Loss: 0.0741
 Test F1Score: 0.6286
 Test HSS: 0.6201
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 836us/step
-Best found threshold 0.7
-HSS using Best Threshold: 0.6170
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 943us/step
+Best found threshold: 0.7
 F1Score using Best Threshold: 0.6250
+HSS using Best Threshold: 0.6170
 ```
 
 This optional approach gives you manual control over class importance, while `cRT_fit` automates the process.

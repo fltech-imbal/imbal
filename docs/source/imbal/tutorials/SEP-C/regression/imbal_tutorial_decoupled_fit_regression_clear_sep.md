@@ -94,8 +94,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_regression.png)
-
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 2.6929 - mae: 1.2303 
+Test Loss: 2.6929
+Test MAE: 1.2303
+Common sample MAE (< ln(10)): 1.2228
+Rare sample MAE (>= ln(10)): 1.6055
+```
 ---
 
 ## 4. Visualization
@@ -103,9 +108,10 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 The model’s predictions are visualized by plotting true values against predicted values to assess performance and highlight rare vs. frequent samples.
 
 ```python
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions,
+)
 ```
 
 ### Example Output
@@ -143,7 +149,13 @@ model.rRT_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_custom_alpha_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 2.3280 - mae: 1.0937
+Test Loss: 2.3280
+Test MAE: 1.0937
+Common sample MAE (< ln(10)): 1.0869
+Rare sample MAE (>= ln(10)): 1.4342
+```
 
 ![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_custom_alpha_regression_visualizer.png)
 

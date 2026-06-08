@@ -57,6 +57,12 @@ class Model(backend.Model):
                 the model will be fit once for each list of sample weights provided, with the final model weights being set to the
                 final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
                 See "Using Multiple Weight Candidates" below for more details.
+            candidate_evaluation_sample_weight: Optional, default :code:`None`. If set, overrides :code:`candidate_evaluation_class_weight`.
+                When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
+                the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
+            candidate_evaluation_class_weight: Optional, default :code:`None`. When performing a fit with multiple weights candidates,
+                determines what class weighting should be used when computing the metric to compare weight candidate (See "Using Multiple Weight
+                Candidates below for more details). If left as :code:`None`, class-balanced weighting will be used.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
@@ -71,6 +77,9 @@ class Model(backend.Model):
             stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
                 See :doc:`DatasetWithBatching </imbal/classification/dataset_with_batching>` for details.
                 Only used when :code:`multi_output` is :code:`True`.
+            verbose_imbal: Optional, default :code:`1`. The verbosity level of debug messages associated with
+                imbal functionality. When set to :code:`0`, no imbal debug messages will print. When set to :code:`1`,
+                general debug messages will be printed. When greater than :code:`1`, all messages will be printed.
             **kwargs: Any additional keyword arguments accepted by `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
 
         Returns:
@@ -166,6 +175,12 @@ class Model(backend.Model):
                 the model will be fit once for each list of sample weights provided, with the final model weights being set to the
                 final weights from the fit which best optimizes the first metric passed during :code:`Model.compile` (default :code:`keras.metrics.F1Score`).
                 See "Using Multiple Weight Candidates" below for more details.
+            candidate_evaluation_sample_weight: Optional, default :code:`None`. If set, overrides :code:`candidate_evaluation_class_weight`.
+                When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
+                the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
+            candidate_evaluation_class_weight: Optional, default :code:`None`. When performing a fit with multiple weights candidates,
+                determines what class weighting should be used when computing the metric to compare weight candidate (See "Using Multiple Weight
+                Candidates below for more details). If left as :code:`None`, class-balanced weighting will be used.
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_.
@@ -183,6 +198,9 @@ class Model(backend.Model):
                 Whether to shuffle the data before each epoch.
             stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
                 See :doc:`DatasetWithBatching </imbal/classification/dataset_with_batching>` for details.
+            verbose_imbal: Optional, default :code:`1`. The verbosity level of debug messages associated with
+                imbal functionality. When set to :code:`0`, no imbal debug messages will print. When set to :code:`1`,
+                general debug messages will be printed. When greater than :code:`1`, all messages will be printed.
             **kwargs: Any additional keyword arguments accepted by `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
 
         Returns:

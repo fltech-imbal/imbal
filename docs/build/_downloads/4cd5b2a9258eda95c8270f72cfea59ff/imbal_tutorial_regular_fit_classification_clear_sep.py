@@ -54,11 +54,12 @@ model.compile(loss="binary_crossentropy",
                        ],
               )
 
-model.fit(x_train,
-          y_train,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
+model.fit(
+    x_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=max_epochs,
+)
 
 
 # ----------------------------
@@ -86,6 +87,6 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

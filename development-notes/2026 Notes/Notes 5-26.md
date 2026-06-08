@@ -199,12 +199,13 @@ Weighted metrics test:
 	- Bal + val $\checkmark$ $\checkmark$
 	- rRT + val $\checkmark$ $\checkmark$
 #### High Priority:
-- Updating Model documentation to reflect changes for `weighted_metrics` (in particular, with multiple candidates)
-	- Combined training + validation
-		- Trained for best epoch number from first stage, using best weights found across all candidates
-- Update tutorials to reflect changes to fit functions (`weighted_metrics`, final fit train + validation?)
-- See if there were low priority tasks that have been looked over from previous meetings
-	- Send an email to Dr. Chan with the compiled list
+- Updating Model documentation to reflect changes for `weighted_metrics` (in particular, with multiple candidates) $\checkmark$
+	- Combined training + validation $\checkmark$
+		- Trained for best epoch number from first stage, using best weights found across all candidates $\checkmark$
+- Update tutorials to reflect changes to fit functions (`weighted_metrics`, final fit train + validation?) $\checkmark$
+	- A byproduct of how I have implemented the final `training+validation` fit that may be preferable: For decoupled fits (cRT, rRT), the first stage is complete, then retrained on `training+validation`, then the second stage is trained
+- See if there were low priority tasks that have been looked over from previous meetings $\checkmark$
+	- Send an email to Dr. Chan with the compiled list $\checkmark$
 #### Low Priority:
 - Allow user to specify thresholds in fits using validation
 - Try to fix `generate_decoder_branch`.

@@ -432,6 +432,30 @@ training and test set.</p>
     <span class="n">test_predictions</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-roc.png&#39;</span>
 <span class="p">)</span>
+
+<span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span>
+    <span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+    <span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+    <span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Best threshold: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;Heikde Skill Score using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;F1 Score using Best Threshold: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_predictions</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
+        <span class="n">y_test</span><span class="p">,</span>
+        <span class="n">test_predictions</span><span class="p">,</span>
+        <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-confusion-matrix-threshold.png&#39;</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 <p>Below are examples of what the generated output and plots should look

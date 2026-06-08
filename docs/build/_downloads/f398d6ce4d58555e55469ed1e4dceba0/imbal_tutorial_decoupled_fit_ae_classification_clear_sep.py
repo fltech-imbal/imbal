@@ -78,7 +78,6 @@ model.cRT_fit(
 #     epochs=max_epochs,
 # )
 
-
 # ----------------------------
 # Evaluation
 # ----------------------------
@@ -103,7 +102,7 @@ if model.best_metric_threshold is not None:
     f1.update_state(y_test, test_predictions)
 
     print(
-        f'Best found threshold {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+        f'Best found threshold: {model.best_metric_threshold}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

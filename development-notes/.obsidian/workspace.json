@@ -22,17 +22,17 @@
             }
           },
           {
-            "id": "a3bffe7d5e6f4731",
+            "id": "60c2e98a6dd95dc4",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "2026 Notes/Notes 5-26.md",
+                "file": "2026 Notes/Notes 6-26.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Notes 5-26"
+              "title": "Notes 6-26"
             }
           }
         ],
@@ -184,20 +184,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "a3bffe7d5e6f4731",
+  "active": "60c2e98a6dd95dc4",
   "lastOpenFiles": [
-    "Spring 2026 Notes/Notes 3-26.md",
+    "Proposal PDF.pdf",
+    "2026 Notes/Notes 5-26.md",
+    "2026 Notes/Notes 3-26.md",
+    "2026 Notes/Notes 4-26.md",
+    "2026 Notes/Notes 6-26.md",
     "Spring 2026 Notes/Notes 4-26.md",
+    "Spring 2026 Notes/Notes 3-26.md",
+    "2026 Notes/Notes 2-26.md",
     "Spring 2026 Notes/Notes 2-26.md",
     "Spring 2026 Notes/Notes 1-26.md",
-    "Spring 2026 Notes",
-    "Notes 5-26.md",
-    "Proposal PDF.pdf",
     "2026 Notes/Notes 1-26.md",
-    "2026 Notes/Notes 5-26.md",
-    "2026 Notes/Notes 4-26.md",
-    "2026 Notes/Notes 3-26.md",
-    "2026 Notes/Notes 2-26.md",
+    "Notes 5-26.md",
+    "Spring 2026 Notes",
     "Fall 2025 Notes/Notes - 12-25.md",
     "Fall 2025 Notes/Notes - 11-25.md",
     "Fall 2025 Notes/Notes - 9-25.md",
@@ -227,8 +228,6 @@
     "Evaluation Metrics/Critical Success Index.md",
     "Evaluation Metrics/Gilbert Skill Score.md",
     "Evaluation Metrics/Expected True Positive.md",
-    "Evaluation Metrics/True Positive Rate.md",
-    "Evaluation Metrics/True Skill Statistic.md",
     "Evaluation Metrics"
   ]
 }

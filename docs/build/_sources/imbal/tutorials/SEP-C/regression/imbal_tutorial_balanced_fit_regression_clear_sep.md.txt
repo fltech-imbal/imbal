@@ -94,7 +94,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 4.1165 - mae: 1.2846 
+Test Loss: 4.1165
+Test MAE: 1.2846
+Common sample MAE (< ln(10)): 1.2776
+Rare sample MAE (>= ln(10)): 1.6310
+```
 
 ---
 
@@ -143,7 +149,13 @@ model.balanced_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_custom_alpha_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 2.7186 - mae: 0.9024 
+Test Loss: 2.7186
+Test MAE: 0.9024
+Common sample MAE (< ln(10)): 0.8913
+Rare sample MAE (>= ln(10)): 1.4566
+```
 
 ![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_custom_alpha_regression_visualizer.png)
 

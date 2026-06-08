@@ -20,7 +20,7 @@ class Model(keras.Model):
 
         self.best_sample_weights = None
         self.best_class_weights = None
-        self.best_metric_threshold = None
+        self.best_decision_threshold = None
         self.best_weight_index = None
 
         self._generate_decoder_branch = False
@@ -38,7 +38,6 @@ class Model(keras.Model):
         y=None,
         sample_weight=None,
         candidate_evaluation_sample_weight=None,
-        candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_split=None,
         epochs=1,
@@ -62,6 +61,9 @@ class Model(keras.Model):
                 the model will be fit once for each list of sample weights provided, with the final model weights being set to the
                 final weights from the fit which best optimizes the first metric passed during :code:`Model.compile`.
                 See "Using Multiple Weight Candidates" below for more details.
+            candidate_evaluation_sample_weight: Optional, default :code:`None`.
+                When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
+                the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
@@ -76,7 +78,9 @@ class Model(keras.Model):
             stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
                 See :doc:`DatasetWithBatching </imbal/classification/dataset_with_batching>` for details.
                 Only used when :code:`multi_output` is :code:`True`.
-            verbose_imbal: Optional, default 1. Sets the verbosity level of :code:`imbal` related messages.
+            verbose_imbal: Optional, default :code:`1`. The verbosity level of debug messages associated with
+                imbal functionality. When set to :code:`0`, no imbal debug messages will print. When set to :code:`1`,
+                general debug messages will be printed. When greater than :code:`1`, all messages will be printed.
             **kwargs: Any additional keyword arguments accepted by `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
 
         Returns:
@@ -109,7 +113,6 @@ class Model(keras.Model):
             sample_density=None,
             sample_weight=sample_weight,
             candidate_evaluation_sample_weight=candidate_evaluation_sample_weight,
-            candidate_evaluation_class_weight=candidate_evaluation_class_weight,
             validation_data=validation_data,
             validation_densities=None,
             validation_split=validation_split,
@@ -308,7 +311,7 @@ class Model(keras.Model):
     ):
         self.best_sample_weights = None
         self.best_class_weights = None
-        self.best_metric_threshold = None
+        self.best_decision_threshold = None
         self.best_weight_index = None
 
         (x, y, sample_weight), validation_data = self._prepare_training_data(
@@ -369,7 +372,7 @@ class Model(keras.Model):
                     validation_data,
                     verbose_imbal
                 )
-                self.best_metric_threshold = best_threshold
+                self.best_decision_threshold = best_threshold
         else:
             history = self._multi_weight_fit(
                 model=training_model,
@@ -390,10 +393,13 @@ class Model(keras.Model):
             )
 
         if validation_data is not None:
-            final_epochs = np.argmin(history.history['val_loss'])
+            final_epochs = np.argmin(history.history['val_loss']) + 1
             x_val, y_val, w_val = validation_data
             x_final = np.concatenate((x, x_val), axis=0)
-            y_final = np.concatenate((y, y_val), axis=0)
+            if self._use_decoder_branch:
+                y_final = [np.concatenate((y[i], y_val[i]), axis=0) for i in range(len(y))]
+            else:
+                y_final = np.concatenate((y, y_val), axis=0)
 
             if self.best_sample_weights is not None:
                 w_final = np.concatenate((self.best_sample_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
@@ -409,9 +415,6 @@ class Model(keras.Model):
             if 'callbacks' in kwargs:
                 kwargs['callbacks'] = None
 
-            print(x_final.shape)
-            print(y_final.shape)
-            print(w_final.shape)
             if stratify_batches:
                 x_final, y_final, w_final = self._stratify_data(x_final, y_final, w_final, batch_size, shuffle)
 
@@ -611,6 +614,14 @@ class Model(keras.Model):
                 else [updated_compile_kwargs['metrics']] + [[]]
             )
 
+        weighted_model_metrics = kwargs.get('weighted_metrics', None)
+        if weighted_model_metrics is not None:
+            is_list_like = backend.tools.is_list_like(weighted_model_metrics[0])
+            updated_compile_kwargs['weighted_metrics'] = (
+                updated_compile_kwargs['weighted_metrics'] + [[]] if is_list_like
+                else [updated_compile_kwargs['weighted_metrics']] + [[]]
+            )
+
         self._extended_model.compile(**updated_compile_kwargs)
 
     def override_second_stage_fit_parameters(self, **kwargs):
@@ -795,7 +806,7 @@ class Model(keras.Model):
             self.best_sample_weights = sample_weight[best_weights_index]
 
         self.best_weight_index = best_weights_index
-        self.best_metric_threshold = best_threshold
+        self.best_decision_threshold = best_threshold
         model.set_weights(best_model_weights)
 
         return best_history

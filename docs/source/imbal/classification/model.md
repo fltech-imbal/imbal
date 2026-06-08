@@ -10,20 +10,48 @@
 When a 2D list of sample weights (or class weights) is provided to any fit function in this class, a
 special fit will be performed to determine the weights which produce the best results.
 
+In order to compare the performance of the weight candidates, some baseline metric must be used. By default,
+`keras.metrics.F1Score` will be used, however, metrics specified in `Model.compile` override this default, with
+the following precedence:
+1. The first weighted metric specified in the `weighted_metrics` list in `Model.compile`
+2. The first metric specified in the `metrics` list in `Model.compile`
+3. Default (`keras.metrics.F1Score`)
+
+Note that if a weighted metric is being used, `candidate_evaluation_sample_weight` (or `candidate_evaluation_class_weight`)
+will be used to compute the specified metric.
+
+The process of performing a fit on multiple weight candidates is described below:
+
 1. The initial weights of the model
 2. The model is fit on the first list of sample weights (class weights)
-3. Using the validation set (or training set, if no validation set is specified), the model is evaluated using the first metric passed to `Model.compile` (defaults to `keras.metrics.F1Score` if no metric is specified)
+3. Using the validation set (or training set, if no validation set is specified), the model is evaluated using the specified metric (defaults to `keras.metrics.F1Score` if no metric is specified)
 4. The decision threshold for the metric above is varied, and the model tested using the metric at each decision threshold
 5. The decision threshold that performed best is recorded, along with the sample weights (class weights) that produced the result, and the model's weights
 6. The initial weights of the model are restored, and this process repeats from step 2 using the next list of sample weights (class weights). If a set of sample weights (class weights) outperforms the previous best, the record of the best threshold, sample weights (class weights), and model weights is updated
 7. After all fits have been performed, the model weights of the best performing fit are restored, the best performing metric threshold is saved in `Model.best_metric_threshold`, and the best performing sample weights (class weights) are saved in `Model.best_sample_weights` (`Model.best_class_weights`)
 
-## Using Validation Data
+## Metric Threshold Optimization
 
-Whenever validation data is provided during a model fit, the best decision threshold for the first
+Whenever a model fit is performed, the best decision threshold for the first
 metric passed in `Model.compile` (defaults to `keras.metrics.F1Score` if no metric is specified)
 is determined. Multiple decision thresholds are tested, and the decision threshold that best
-optimizes the metric is saved to `Model.best_metric_threshold`.
+optimizes the metric is saved to `Model.best_decision_threshold`.
+
+This automatic decision threshold sweep tests thresholds from $0.1$ to $0.9$ with a step size of $0.1$.
+For a more thorough threshold sweep, the [imbal.classification.optimize_decision_threshold](optimize_decision_threshold.md)
+function should be used.
+
+## A Note on Validation Data
+
+Using validation data is a good strategy for reducing overfitting (by means of using a callback such as `keras.callbacks.EarlyStopping`),
+however, one downside of using validation data is that your model does not have access to the entire set of possible
+data for training, as the withheld validation data is not used to update the model's weights.
+
+As a remedy for this, whenever validation data is specified for training, we include an additional fit at the
+end of the training process, combining the validation data with the training data, and training for a number
+of epochs that produces the best results when the validation data was held out. This is also compatible with
+using multiple weight candidates, where the candidate that produced the best results on the validation data
+will be used for the final model fit.
 
 ## Comparison of Fit Methods on Tabular Data
 - A comparison of the performance of the different fit options in this class on tabular data can be found [here](comparison_of_fit_methods_tabular.md).

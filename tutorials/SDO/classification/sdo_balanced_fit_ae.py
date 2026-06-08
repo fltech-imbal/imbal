@@ -129,8 +129,8 @@ imbal.classification.plot_roc(
     save_figure='sample-sdo-balanced-fit-ae-roc-class-weights.png'
 )
 
-if model.best_metric_threshold is not None:
-    best_threshold = model.best_metric_threshold
+if model.best_decision_threshold is not None:
+    best_threshold = model.best_decision_threshold
     hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
     hss.update_state(y_test, test_predictions)
 
@@ -140,7 +140,7 @@ if model.best_metric_threshold is not None:
     if model.best_class_weights is not None:
         print(f'Best class weights: {model.best_class_weights}')
     print(
-        f'Best threshold: {model.best_metric_threshold}\n'
+        f'Best threshold: {model.best_decision_threshold}\n'
         f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
     )

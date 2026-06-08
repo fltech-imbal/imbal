@@ -432,23 +432,22 @@
 
     <span class="nb">print</span><span class="p">(</span>
         <span class="sa">f</span><span class="s1">&#39;Best found threshold: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_metric_threshold</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
-        <span class="sa">f</span><span class="s1">&#39;HSS using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
         <span class="sa">f</span><span class="s1">&#39;F1Score using Best Threshold: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;HSS using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>   
     <span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="example-output">
 <h3>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">#</a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;F1Score&quot;: 0.3
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.6400 - HSS: 0.6343 - loss: 0.0440   
-Test Loss: 0.0440
-Test F1Score: 0.6400
-Test HSS: 0.6343
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 956us/step
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.2105 - HSS: 0.2040 - loss: 0.0479   
+Test Loss: 0.0479
+Test F1Score: 0.2105
+Test HSS: 0.2040
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
 Best found threshold: 0.3
-HSS using Best Threshold: 0.6594
-F1Score using Best Threshold: 0.6667
+F1Score using Best Threshold: 0.6400
+HSS using Best Threshold: 0.6343
 </pre></div>
 </div>
 </section>

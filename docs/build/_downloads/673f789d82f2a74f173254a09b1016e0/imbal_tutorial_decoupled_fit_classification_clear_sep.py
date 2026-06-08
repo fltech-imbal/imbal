@@ -53,12 +53,12 @@ model.compile(loss="binary_crossentropy",
                        imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               )
 
-model.cRT_fit(
-    x_train,
-    y_train,
-    batch_size=batch_size,
-    epochs=max_epochs,
-)
+# model.cRT_fit(
+#     x_train,
+#     y_train,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+# )
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -66,15 +66,15 @@ model.cRT_fit(
 # In this case, rare samples will contribute 10% of the loss per epoch, while common samples contribute 90%.
 # NOTE: Comment above call before running the below call.
 
-# class_weights = {0: 0.8, 1: 0.2}
-#
-# model.cRT_fit(
-#     x_train,
-#     y_train,
-#     class_weight=class_weights,
-#     batch_size=batch_size,
-#     epochs=max_epochs,
-# )
+class_weights = {0: 0.8, 1: 0.2}
+
+model.cRT_fit(
+    x_train,
+    y_train,
+    class_weight=class_weights,
+    batch_size=batch_size,
+    epochs=max_epochs,
+)
 
 
 # ----------------------------
@@ -105,6 +105,6 @@ if model.best_metric_threshold is not None:
 
     print(
         f'Best found threshold: {model.best_metric_threshold}\n'
-        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

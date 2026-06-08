@@ -113,7 +113,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_val_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 3.8182 - mae: 1.7316 
+Test Loss: 3.8182
+Test MAE: 1.7316
+Common sample MAE (< ln(10)): 1.7396
+Rare sample MAE (>= ln(10)): 1.3347
+```
 
 ---
 
@@ -181,8 +187,13 @@ model.balanced_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_val_regression_explore_alphas.png)
-
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 2.1256 - mae: 0.8327 
+Test Loss: 2.1256
+Test MAE: 0.8327
+Common sample MAE (< ln(10)): 0.8199
+Rare sample MAE (>= ln(10)): 1.4727
+```
 > **NOTE:** at the end of training, the index of the best class weight is printed. For future testing, ensure you take note of the index
 > that was printed out, as this is the index of the "ideal" hyperparameter setting given the search space. When running more tests, 
 > use the "ideal" hyperparameter to generate your sample weights for the best performance.
