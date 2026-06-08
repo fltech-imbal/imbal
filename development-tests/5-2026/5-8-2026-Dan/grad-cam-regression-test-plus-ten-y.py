@@ -18,11 +18,16 @@ Load data
 """
 SDO_DATA_PATH = '../../../tutorials/data/SDOBenchmark' # Ensure data is located at this path
 
+TARGET_OFFSET = 10.0  # Added to all regression targets to create positive-valued samples
+
 def load_sdo_data(data_path):
     # Load labels (log peak flux)
     with open(os.path.join(data_path, 'log_peak_flux.txt'), 'r') as file:
         contents = file.read().strip()
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
+
+    # Shift targets upward so Grad-CAM explanations can include positive contributions
+    loaded_data_fluxes = loaded_data_fluxes + TARGET_OFFSET
 
     # Load images (10 images per sample, 256x256 per image)
     loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
@@ -46,6 +51,8 @@ print(
     f'\tx_test: {x_test.shape}\n'
     f'\ty_test {y_test.shape}'
 )
+
+print(f'Applied target offset of +{TARGET_OFFSET} to all regression labels')
 
 """
 Build model
@@ -111,10 +118,12 @@ model.evaluate(x_test, y_test.reshape(-1))
 """
 Probability Density Distribution and Results Visualization
 """
-test_rare_mask = y_test > -4
+test_rare_mask = y_test > 6
+# Equivalent to original threshold of -4 after applying +10 offset
+
 test_frequent_mask = ~test_rare_mask
-print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask.astype(np.int32)))
-print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask.astype(np.int32)))
+print('Number of test samples with shifted log10 flux < 6:', np.sum(test_frequent_mask.astype(np.int32)))
+print('Number of test samples with shifted log10 flux >= 6:', np.sum(test_rare_mask.astype(np.int32)))
 
 # Predict on test data
 test_predictions = model.predict(x_test)
@@ -130,8 +139,8 @@ frequent_test_mae = np.mean(np.abs(test_predictions_frequent - test_labels_frequ
 rare_test_mae = np.mean(np.abs(test_predictions_rare - test_labels_rare))
 
 print(
-    f'MAE for log10 flux < -4: {frequent_test_mae:.3f}\n'
-    f'MAE for log10 flux >= -4: {rare_test_mae:.3f}'
+    f'MAE for shifted log10 flux < 6: {frequent_test_mae:.3f}\n'
+    f'MAE for shifted log10 flux >= 6: {rare_test_mae:.3f}'
 )
 
 data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
@@ -154,114 +163,45 @@ pred = test_predictions.reshape(-1)
 true = y_test.reshape(-1)
 error = np.abs(pred - true)
 
-
-def corner_intensity_features(img, patch=10):
-    """
-    Extract corner-based similarity features.
-
-    This does NOT assume corners are black.
-    It compares the gray/intensity structure of the four corners.
-    """
-    img = img.squeeze()
-
-    corners = [
-        img[:patch, :patch],        # top-left
-        img[:patch, -patch:],       # top-right
-        img[-patch:, :patch],       # bottom-left
-        img[-patch:, -patch:]       # bottom-right
-    ]
-
-    features = []
-
-    for corner in corners:
-        features.extend([
-            np.mean(corner),        # average gray level
-            np.std(corner),         # variation / texture
-            np.min(corner),         # darkest value
-            np.max(corner)          # brightest value
-        ])
-
-    return np.array(features)
-
-
-# Good example candidates: top-right and close to diagonal
+# Good example: top-right and close to diagonal
 good_candidates = np.where(
-    (true > -5.0) &
-    (pred > -5.0) &
+    (true > 5.0) &
+    (pred > 5.0) &
     (error < 0.1)
 )[0]
 
-# Bad example candidates: around x = -5, but far below diagonal
+good_idx = good_candidates[np.argmin(error[good_candidates])]
+
+# Bad example: around x = 5, but far below diagonal
 bad_candidates = np.where(
-    (true > -5.5) &
-    (true < -4.5) &
-    (pred < true - 2.0)
+    (true > 4.5) &
+    (true < 5.5) &
+    (pred < true - 1.25)
 )[0]
 
-print("Number of good regression candidates:", len(good_candidates))
-print("Number of bad regression candidates:", len(bad_candidates))
+bad_idx = bad_candidates[np.argmax(error[bad_candidates])]
 
-if len(good_candidates) > 0 and len(bad_candidates) > 0:
-    good_features = np.array([
-        corner_intensity_features(x_test[i], patch=10)
-        for i in good_candidates
-    ])
+print("Good index:", good_idx, "true:", true[good_idx], "pred:", pred[good_idx], "error:", error[good_idx])
+print("Bad index:", bad_idx, "true:", true[bad_idx], "pred:", pred[bad_idx], "error:", error[bad_idx])
 
-    bad_features = np.array([
-        corner_intensity_features(x_test[i], patch=10)
-        for i in bad_candidates
-    ])
+imbal.regression.gradcam_explain_image_sample(
+    sample=x_test[good_idx],
+    model=model,
+    actual_value=y_test[good_idx],
+    show=True,
+    save_figure=True,
+    figure_save_path='images/grad-cam-regression-explanation.png',
+    positive_importance_threshold=0.05,
+    negative_importance_threshold=0.5
+)
 
-    best_distance = np.inf
-    best_pair = None
-
-    for a, good_i in enumerate(good_candidates):
-        for b, bad_i in enumerate(bad_candidates):
-
-            distance = np.linalg.norm(
-                good_features[a] - bad_features[b]
-            )
-
-            if distance < best_distance:
-                best_distance = distance
-                best_pair = (good_i, bad_i)
-
-    good_idx, bad_idx = best_pair
-
-    print("Selected similar good regression index:", good_idx)
-    print("Good true:", true[good_idx])
-    print("Good pred:", pred[good_idx])
-    print("Good error:", error[good_idx])
-
-    print("Selected similar bad regression index:", bad_idx)
-    print("Bad true:", true[bad_idx])
-    print("Bad pred:", pred[bad_idx])
-    print("Bad error:", error[bad_idx])
-
-    print("Corner feature distance:", best_distance)
-
-    imbal.regression.gradcam_explain_image_sample(
-        sample=x_test[good_idx],
-        model=model,
-        actual_value=y_test[good_idx],
-        show=True,
-        save_figure=True,
-        figure_save_path='images/grad-cam-regression-good-example-similar-corners.png',
-        positive_importance_threshold=0.05,
-        negative_importance_threshold=0.5
-    )
-
-    imbal.regression.gradcam_explain_image_sample(
-        sample=x_test[bad_idx],
-        model=model,
-        actual_value=y_test[bad_idx],
-        show=True,
-        save_figure=True,
-        figure_save_path='images/grad-cam-regression-bad-example-similar-corners.png',
-        positive_importance_threshold=0.05,
-        negative_importance_threshold=0.5
-    )
-
-else:
-    print("Could not find both good and bad regression candidates.")
-    print("Try loosening the candidate filters if this happens.")
+imbal.regression.gradcam_explain_image_sample(
+    sample=x_test[bad_idx],
+    model=model,
+    actual_value=y_test[bad_idx],
+    show=True,
+    save_figure=True,
+    figure_save_path='images/grad-cam-regression-bad-example.png',
+    positive_importance_threshold=0.05,
+    negative_importance_threshold=0.5
+)

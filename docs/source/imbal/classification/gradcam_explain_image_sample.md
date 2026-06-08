@@ -20,8 +20,7 @@ Example:
 >>>     model,
 >>>     actual_label=y,
 >>>     label_to_explain=y,
->>>     class_names=class_labels,
->>>     show=True
+>>>     class_names=class_labels
 >>> )
 ```
 

@@ -14,6 +14,51 @@ def _find_last_conv_layer_name(model):
     )
 
 
+def _layer_uses_softmax(layer):
+    if isinstance(layer, tf.keras.layers.Softmax):
+        return True
+
+    activation = getattr(layer, "activation", None)
+    return activation == tf.keras.activations.softmax
+
+
+def _find_pre_softmax_target(model, label_to_explain):
+    """
+    Returns a tensor for the class score before softmax when possible.
+
+    Grad-CAM for softmax classification should use the score/logit before
+    softmax as the numerator, not the probability after softmax.
+    """
+    output_layer = model.layers[-1]
+
+    if isinstance(output_layer, tf.keras.layers.Softmax):
+        pre_softmax_output = output_layer.input
+        return pre_softmax_output[:, label_to_explain]
+
+    if _layer_uses_softmax(output_layer):
+        if not isinstance(output_layer, tf.keras.layers.Dense):
+            raise ValueError(
+                "The final layer uses softmax, but it is not a Dense layer "
+                "or a separate Softmax layer. Please build the model with "
+                "a separate pre-softmax/logits layer followed by Softmax."
+            )
+
+        previous_output = output_layer.input
+        weights = output_layer.kernel
+        bias = output_layer.bias
+
+        pre_softmax_output = tf.keras.ops.matmul(previous_output, weights)
+
+        if bias is not None:
+            pre_softmax_output = tf.keras.ops.add(pre_softmax_output, bias)
+
+        return pre_softmax_output[:, label_to_explain]
+    else:
+        raise ValueError(
+            "We are expecting an output layer with softmax when there are 2 or more output units."
+        )
+
+
 def gradcam_explain_image_sample(
     sample,
     model,
@@ -39,7 +84,9 @@ def gradcam_explain_image_sample(
         last_conv_layer_name: Optional name of the convolutional layer to explain.
             If None, the last Conv2D layer is used.
         label_to_explain: Optional class/output index to explain. If None, the
-            predicted class is used. For binary sigmoid outputs, index 0 is used.
+            predicted class is used. For binary one-output models, class 1 is
+            explained by increasing the output and class 0 is explained by
+            decreasing the output.
         class_names: Optional list of class names.
         actual_label: Optional true class index, displayed in the plot title.
         preprocess_fn: Optional preprocessing function applied before prediction.
@@ -81,33 +128,60 @@ def gradcam_explain_image_sample(
     if last_conv_layer_name is None:
         last_conv_layer_name = _find_last_conv_layer_name(model)
 
+    prediction_model = tf.keras.models.Model(model.inputs, model.output)
+    preds = prediction_model([img_array], training=False)
+
+    if label_to_explain is None:
+        if preds.shape[-1] == 1:
+            predicted_output = float(preds[0, 0])
+            label_to_explain = int(predicted_output >= 0.5)
+        else:
+            label_to_explain = int(tf.argmax(preds[0]))
+
+    if preds.shape[-1] == 1 and label_to_explain not in (0, 1):
+        raise ValueError(
+            "For one-output binary classification models, label_to_explain "
+            "must be 0 or 1."
+        )
+
+    if preds.shape[-1] != 1 and (
+        label_to_explain < 0 or label_to_explain >= preds.shape[-1]
+    ):
+        raise ValueError(
+            f"label_to_explain={label_to_explain} is out of bounds for "
+            f"model output shape {preds.shape}."
+        )
+
+    if preds.shape[-1] == 1:
+        target_output = model.output[:, 0]
+
+        if label_to_explain == 0:
+            # For one-output binary classification, class 0 means evidence
+            # that decreases the output score/probability for class 1.
+            target_output = -target_output
+    else:
+        target_output = _find_pre_softmax_target(model, label_to_explain)
+
     grad_model = tf.keras.models.Model(
         model.inputs,
-        [model.get_layer(last_conv_layer_name).output, model.output],
+        [model.get_layer(last_conv_layer_name).output, target_output],
     )
 
     with tf.GradientTape() as tape:
-        last_conv_layer_output, preds = grad_model([img_array], training=False)
+        last_conv_layer_output, pre_softmax_class_score = grad_model(
+            [img_array],
+            training=False,
+        )
 
-        if label_to_explain is None:
-            if preds.shape[-1] == 1:
-                label_to_explain = 0
-                explanation_label_index = 1
-            else:
-                label_to_explain = int(tf.argmax(preds[0]))
-                explanation_label_index = label_to_explain
+    score_gradients = tape.gradient(pre_softmax_class_score, last_conv_layer_output)
 
-        class_channel = preds[:, label_to_explain]
-
-    grads = tape.gradient(class_channel, last_conv_layer_output)
-
-    if grads is None:
+    if score_gradients is None:
         raise ValueError(
             "Could not compute gradients. Make sure the selected layer is "
             "connected to the model output."
         )
 
-    pooled_grads = tf.reduce_mean(grads, axis=(0, 1, 2))
+    pooled_grads = tf.reduce_mean(score_gradients, axis=(0, 1, 2))
 
     conv_output = last_conv_layer_output[0]
     heatmap = conv_output @ pooled_grads[..., tf.newaxis]
@@ -169,12 +243,15 @@ def gradcam_explain_image_sample(
 
     explanation_label = label_to_explain
     if class_names is not None:
-        if preds.shape[-1] == 1 and len(class_names) == 2:
-            explanation_label = class_names[explanation_label_index]
-        else:
-            explanation_label = class_names[label_to_explain]
+        explanation_label = class_names[label_to_explain]
 
     title_string = f'Grad-CAM explanation for "{explanation_label}"'
+
+    if preds.shape[-1] == 1:
+        if label_to_explain == 1:
+            title_string += " — features increasing the class 1 output"
+        else:
+            title_string += " — features decreasing the class 1 output"
 
     if actual_label is not None:
         actual_label_display = actual_label
