@@ -17,6 +17,7 @@ tf.keras.utils.set_random_seed(
 Load data
 """
 SDO_DATA_PATH = '../../../tutorials/data/SDOBenchmark' # Ensure data is located at this path
+KDE_BIN_COUNT = 32
 
 def load_sdo_data(data_path):
     # Load labels (log peak flux)
@@ -66,45 +67,57 @@ def build_simple_cnn():
     model.summary()
     return model
 
-model = build_simple_cnn()
+MODEL_PATH = "sdo_regression_model.keras"
 
 """
-Calculate data density distribution, and extract sample densities
+Build/load model
 """
-KDE_BIN_COUNT=32
+if os.path.exists(MODEL_PATH):
+    print(f"Loading saved model from {MODEL_PATH}")
 
-# Determine KDE fit for data, then extract sample densities
-data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
-sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
+    model = tf.keras.models.load_model(
+        MODEL_PATH,
+        custom_objects={
+            "Model": imbal.regression.Model
+        },
+    )
 
-# The below line can be uncommented to test multiple alpha values for reciprocal importance
-# If this is uncommented, be sure to also uncomment 'sample_weight=sample_weight_candidates' in the following section
-# sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+else:
+    print("No saved model found. Training a new model.")
 
-"""
-Compile and train model
-"""
-LEARNING_RATE = 5e-5
-EPOCHS = 400
-BATCH_SIZE = 256
+    model = build_simple_cnn()
 
-model.compile(
-    optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
-    loss='mse',
-    metrics=['mae']
-)
+    """
+    Calculate data density distribution, and extract sample densities
+    """
 
-model.balanced_fit(
-    x_train,
-    y_train,
-    sample_density=sample_densities,
-    # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    epochs=EPOCHS,
-    batch_size=BATCH_SIZE,
-    stratify_batches=True # Ensure all batches have a similar data distribution
-)
+    data_kde_bandwidth = imbal.regression.fit_kde(y_train, bin_count=KDE_BIN_COUNT)
+    sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandwidth)
 
-model.save("sdo_regression_model.keras")
+    """
+    Compile and train model
+    """
+    LEARNING_RATE = 5e-5
+    EPOCHS = 400
+    BATCH_SIZE = 256
+
+    model.compile(
+        optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
+        loss='mse',
+        metrics=['mae']
+    )
+
+    model.balanced_fit(
+        x_train,
+        y_train,
+        sample_density=sample_densities,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        stratify_batches=True
+    )
+
+    model.save(MODEL_PATH)
+    print(f"Saved model to {MODEL_PATH}")
 
 model.evaluate(x_test, y_test.reshape(-1))
 

@@ -233,7 +233,7 @@ def gradcam_explain_image_sample(
     )
 
     if actual_value is not None:
-        title_string += f" (Actual value: {actual_value})"
+        title_string += f" (Actual value: {actual_value:.4f})"
 
     if save_figure or show:
         fig, axes = plt.subplots(1, 2, figsize=(12, 5))
