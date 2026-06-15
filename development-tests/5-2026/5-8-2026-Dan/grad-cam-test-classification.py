@@ -70,35 +70,80 @@ def build_simple_cnn():
     model.summary()
     return model
 
-model = build_simple_cnn()
+MODEL_PATH = "sdo_binary_classification_model.keras"
 
 """
-Compile and train model
+Build/load model
 """
-LEARNING_RATE = 5e-5
-EPOCHS = 200
-BATCH_SIZE = 256
+if os.path.exists(MODEL_PATH):
+    print(f"Loading saved model from {MODEL_PATH}")
 
-model.compile(
-    optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
-    loss='binary_crossentropy',
-    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
-)
+    model = keras.models.load_model(
+        MODEL_PATH,
+        custom_objects={'Model': imbal.classification.Model}
+    )
+else:
+    print("No saved model found. Training a new model.")
 
-sample_weights = imbal.classification.generate_sample_weights(y_train, class_weight={0: 0.9, 1: 0.1})
-(x_train, y_train, sw_train), (x_val, y_val, sw_val) = imbal.classification.split(x_train, y_train, sample_weights=sample_weights, test_size=0.2)
+    model = build_simple_cnn()
 
-model.balanced_fit(
-    x_train,
-    y_train.reshape(-1, 1),
-    sample_weight=sw_train,
-    #class_weight={0: 0.9, 1: 0.1},
-    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
-    epochs=EPOCHS,
-    batch_size=BATCH_SIZE,
-    stratify_batches=True, # Ensure all batches have a similar data distribution
-    validation_data=(x_val, y_val.reshape(-1, 1), sw_val)
-)
+    """
+    Compile and train model
+    """
+    LEARNING_RATE = 5e-5
+    EPOCHS = 400
+    BATCH_SIZE = 256
+
+    model.compile(
+        optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
+        loss='binary_crossentropy',
+        metrics=[metrics.F1Score(threshold=0.5)],
+    )
+
+    sample_weights = imbal.classification.generate_sample_weights(
+        y_train,
+        class_weight={0: 0.7, 1: 0.3}
+    )
+
+    (x_train, y_train, sw_train), (x_val, y_val, sw_val) = (
+        imbal.classification.split(
+            x_train,
+            y_train,
+            sample_weights=sample_weights,
+            test_size=0.2
+        )
+    )
+
+    model.balanced_fit(
+        x_train,
+        y_train.reshape(-1, 1),
+        sample_weight=sw_train,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        stratify_batches=True,
+        validation_data=(x_val, y_val.reshape(-1, 1), sw_val)
+    )
+
+    # (x_train, y_train), (x_val, y_val) = (
+    #     imbal.classification.split(
+    #         x_train,
+    #         y_train,
+    #         test_size=0.2
+    #     )
+    # )
+    #
+    # model.balanced_fit(
+    #     x_train,
+    #     y_train.reshape(-1, 1),
+    #     epochs=EPOCHS,
+    #     batch_size=BATCH_SIZE,
+    #     stratify_batches=True,
+    #     validation_data=(x_val, y_val.reshape(-1, 1)),
+    #     class_weight=[[0.2, 0.8], [0.3, 0.7], [0.4, 0.6], [0.5, 0.5], [0.6, 0.4], [0.7, 0.3], [0.8, 0.2]]
+    # )
+
+    model.save(MODEL_PATH)
+    print(f"Saved model to {MODEL_PATH}")
 
 model.evaluate(x_test, y_test.reshape(-1, 1))
 

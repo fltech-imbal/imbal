@@ -249,9 +249,9 @@ def gradcam_explain_image_sample(
 
     if preds.shape[-1] == 1:
         if label_to_explain == 1:
-            title_string += " — features increasing the class 1 output"
+            title_string += " — features supporting class 1"
         else:
-            title_string += " — features decreasing the class 1 output"
+            title_string += " — features supporting class 0"
 
     if actual_label is not None:
         actual_label_display = actual_label

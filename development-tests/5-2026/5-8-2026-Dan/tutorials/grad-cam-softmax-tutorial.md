@@ -1,6 +1,10 @@
-"""
-Import packages
-"""
+# Grad-CAM Softmax Classification Explanations
+
+This tutorial demonstrates how to generate Grad-CAM explanations for a softmax classification model trained on the SDO benchmark dataset.
+
+## Import Packages
+
+```python
 import imbal
 import os
 import numpy as np
@@ -11,16 +15,18 @@ from keras import layers, optimizers
 
 seed = 42
 tf.keras.utils.set_random_seed(seed)
+```
 
-"""
-Load data
-"""
-SDO_DATA_PATH = '../../../tutorials/data/SDOBenchmark' # Ensure data is located at this path
+## Load Data
+
+```python
+SDO_DATA_PATH = '../../../../tutorials/data/SDOBenchmark' # Ensure data is located at this path
 
 MODEL_SAVE_PATH = 'sdo_softmax_classification_model.keras'
 LOAD_SAVED_MODEL = True
+```
 
-
+```python
 def load_sdo_data(data_path):
     # Load labels (log peak flux)
     with open(os.path.join(data_path, 'log_peak_flux.txt'), 'r') as file:
@@ -38,8 +44,9 @@ def load_sdo_data(data_path):
     print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
 
     return loaded_images, loaded_data_fluxes
+```
 
-
+```python
 def flux_to_sdo_class(y):
     # 0 = everything else / large majority
     # 1 = M-class / larger minority: -5 <= flux <= -4
@@ -48,25 +55,19 @@ def flux_to_sdo_class(y):
     labels[(y >= -5) & (y <= -4)] = 1
     labels[y > -4] = 2
     return labels
+```
 
-
+```python
 # Load train and test data via function defined above
 x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'))
 x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'))
 y_train = flux_to_sdo_class(y_train)
 y_test = flux_to_sdo_class(y_test)
+```
 
-print(
-    f'Loaded data with the following shapes:\n'
-    f'\tx_train: {x_train.shape}\n'
-    f'\ty_train: {y_train.shape}\n'
-    f'\tx_test: {x_test.shape}\n'
-    f'\ty_test {y_test.shape}'
-)
+## Build Model
 
-"""
-Build model
-"""
+```python
 def build_simple_cnn():
     input_layer = layers.Input((128, 128, 1))
     x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
@@ -82,15 +83,17 @@ def build_simple_cnn():
     model = imbal.classification.Model(inputs=input_layer, outputs=output_layer)
     model.summary()
     return model
+```
 
+## Compile and Train or Load Model
 
-"""
-Compile and train/load model
-"""
+```python
 LEARNING_RATE = 5e-5
 EPOCHS = 400
 BATCH_SIZE = 256
+```
 
+```python
 if LOAD_SAVED_MODEL and os.path.exists(MODEL_SAVE_PATH):
     print(f'Loading saved classification model from {MODEL_SAVE_PATH}')
     model = keras.models.load_model(
@@ -132,25 +135,27 @@ else:
 
     model.save(MODEL_SAVE_PATH)
     print(f'Saved classification model to {MODEL_SAVE_PATH}')
+```
 
-model.evaluate(x_test, y_test.reshape(-1, 1))
+## Data and Results Visualization
 
-"""
-Data and results visualization
-"""
-
+```python
 class_names = ["not M- nor X-class", "M-class", "X-class"]
 
 for class_id, class_name in enumerate(class_names):
     print(f'Number of test samples in class {class_id} ({class_name}):', np.sum(y_test == class_id))
+```
 
+```python
 # Predict on test data
 test_predictions = model.predict(x_test)
 predicted_classes = np.argmax(test_predictions, axis=1)
 
 y_test_flat = y_test.reshape(-1)
 predicted_classes = predicted_classes.reshape(-1)
+```
 
+```python
 # Correct predictions
 correct_mask = predicted_classes == y_test_flat
 
@@ -162,133 +167,79 @@ incorrect_indices = np.where(incorrect_mask)[0]
 
 print("Number correct:", len(correct_indices))
 print("Number incorrect:", len(incorrect_indices))
+```
 
+## Correct not M- nor X-class Prediction
 
-def corner_intensity_features(img, patch=10):
-    """
-    Extract corner-based similarity features.
+```python
+# Correct not M- nor X-class prediction from the tutorial run
+print()
+print('Explaining correct sample for actual not M- nor X-class')
+print('Selected index:', 10)
+print('Actual:', int(y_test_flat[10]), class_names[int(y_test_flat[10])])
+print('Predicted:', int(predicted_classes[10]), class_names[int(predicted_classes[10])])
+print('Prediction confidence:', test_predictions[10][predicted_classes[10]])
 
-    This does NOT assume corners are black.
-    It compares the gray/intensity structure of the four corners.
-    """
-    img = img.squeeze()
+imbal.classification.gradcam_explain_image_sample(
+    sample=x_test[10],
+    model=model,
+    class_names=class_names,
+    actual_label=int(y_test_flat[10]),
+    label_to_explain=int(predicted_classes[10]),
+    show=True,
+    save_figure=True,
+    figure_save_path='grad-cam-classification-softmax-actual-not-m-nor-x-class-correct.png'
+)
+```
 
-    corners = [
-        img[:patch, :patch],        # top-left
-        img[:patch, -patch:],       # top-right
-        img[-patch:, :patch],       # bottom-left
-        img[-patch:, -patch:]       # bottom-right
-    ]
+![Correct not M- nor X-class prediction](grad-cam-classification-softmax-actual-not-m-nor-x-class-correct.png)
 
-    features = []
+## Incorrect M-class Prediction
 
-    for corner in corners:
-        features.extend([
-            np.mean(corner),        # average gray level
-            np.std(corner),         # variation / texture
-            np.min(corner),         # darkest value
-            np.max(corner)          # brightest value
-        ])
+```python
+# Incorrect M-class prediction from the tutorial run
+print()
+print('Explaining incorrect sample for actual M-class')
+print('Selected index:', 6)
+print('Actual:', int(y_test_flat[6]), class_names[int(y_test_flat[6])])
+print('Predicted:', int(predicted_classes[6]), class_names[int(predicted_classes[6])])
+print('Prediction confidence:', test_predictions[6][predicted_classes[6]])
 
-    return np.array(features)
+imbal.classification.gradcam_explain_image_sample(
+    sample=x_test[6],
+    model=model,
+    class_names=class_names,
+    actual_label=int(y_test_flat[6]),
+    label_to_explain=int(predicted_classes[6]),
+    show=True,
+    save_figure=True,
+    figure_save_path='grad-cam-classification-softmax-actual-m-class-incorrect.png'
+)
+```
 
+![Incorrect M-class prediction](grad-cam-classification-softmax-actual-m-class-incorrect.png)
 
-def find_correct_and_incorrect_samples_for_actual_class(class_id):
-    """
-    Find one correct and one incorrect sample for the requested actual class,
-    if each exists.
+## Correct X-class Prediction
 
-    This means:
-        correct:   actual class == class_id and predicted class == class_id
-        incorrect: actual class == class_id and predicted class != class_id
+```python
+# Correct X-class prediction from the tutorial run
+print()
+print('Explaining correct sample for actual X-class')
+print('Selected index:', 7)
+print('Actual:', int(y_test_flat[7]), class_names[int(y_test_flat[7])])
+print('Predicted:', int(predicted_classes[7]), class_names[int(predicted_classes[7])])
+print('Prediction confidence:', test_predictions[7][predicted_classes[7]])
 
-    So for class_id == 1, this finds actual M-class samples, including:
-        - a correctly predicted M-class sample if one exists
-        - an incorrectly predicted M-class sample if one exists
+imbal.classification.gradcam_explain_image_sample(
+    sample=x_test[7],
+    model=model,
+    class_names=class_names,
+    actual_label=int(y_test_flat[7]),
+    label_to_explain=int(predicted_classes[7]),
+    show=True,
+    save_figure=True,
+    figure_save_path='grad-cam-classification-softmax-actual-x-class-correct.png'
+)
+```
 
-    This satisfies the professor's request that each actual class can be shown
-    even when the model's prediction is incorrect.
-    """
-    actual_class_indices = np.where(y_test_flat == class_id)[0]
-
-    class_correct_indices = actual_class_indices[
-        predicted_classes[actual_class_indices] == class_id
-    ]
-
-    class_incorrect_indices = actual_class_indices[
-        predicted_classes[actual_class_indices] != class_id
-    ]
-
-    print(
-        f'Actual class {class_id} ({class_names[class_id]}) samples: '
-        f'{len(class_correct_indices)} correct, '
-        f'{len(class_incorrect_indices)} incorrect'
-    )
-
-    correct_idx = None
-    incorrect_idx = None
-
-    if len(class_correct_indices) > 0:
-        correct_idx = class_correct_indices[0]
-
-    if len(class_incorrect_indices) > 0:
-        incorrect_idx = class_incorrect_indices[0]
-
-    return correct_idx, incorrect_idx
-
-
-def explain_sample(sample_index, class_id, prediction_result):
-    """
-    Generate and save a Grad-CAM explanation for one sample.
-    """
-    actual_class = int(y_test_flat[sample_index])
-    predicted_class = int(predicted_classes[sample_index])
-    prediction_confidence = test_predictions[sample_index][predicted_class]
-
-    print()
-    print(f'Explaining {prediction_result} sample for actual {class_names[class_id]}')
-    print('Selected index:', sample_index)
-    print('Actual:', actual_class, class_names[actual_class])
-    print('Predicted:', predicted_class, class_names[predicted_class])
-    print('Prediction confidence:', prediction_confidence)
-
-    imbal.classification.gradcam_explain_image_sample(
-        sample=x_test[sample_index],
-        model=model,
-        class_names=class_names,
-        actual_label=actual_class,
-        label_to_explain=predicted_class,
-        show=True,
-        save_figure=True,
-        figure_save_path=f'grad-cam-classification-softmax-actual-class-{class_id}-{prediction_result}.png'
-    )
-
-
-for class_id in range(3):
-    correct_idx, incorrect_idx = find_correct_and_incorrect_samples_for_actual_class(class_id)
-
-    if correct_idx is not None:
-        explain_sample(
-            sample_index=correct_idx,
-            class_id=class_id,
-            prediction_result='correct'
-        )
-    else:
-        print()
-        print(
-            f'Could not find a correct sample for actual class {class_id} '
-            f'({class_names[class_id]}).'
-        )
-
-    if incorrect_idx is not None:
-        explain_sample(
-            sample_index=incorrect_idx,
-            class_id=class_id,
-            prediction_result='incorrect'
-        )
-    else:
-        print()
-        print(
-            f'Could not find an incorrect sample for actual class {class_id} '
-            f'({class_names[class_id]}).'
-        )
+![Correct X-class prediction](grad-cam-classification-softmax-actual-x-class-correct.png)
