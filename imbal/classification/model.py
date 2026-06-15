@@ -33,7 +33,7 @@ class Model(backend.Model):
         epochs=1,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
         verbose_imbal=1,
         **kwargs
     ):
@@ -150,7 +150,7 @@ class Model(backend.Model):
         epochs=1,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
         verbose_imbal=1,
         **kwargs
     ):

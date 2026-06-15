@@ -135,9 +135,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
-MAE for log10 flux < -4: 1.455
-MAE for log10 flux >= -4: 1.010
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux < -4: 1.364
+MAE for log10 flux >= -4: 1.230
 ```
  
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -177,9 +177,9 @@ we get the following results:
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.382
-MAE for log10 flux >= -4: 1.049
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.354
+MAE for log10 flux >= -4: 1.518
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

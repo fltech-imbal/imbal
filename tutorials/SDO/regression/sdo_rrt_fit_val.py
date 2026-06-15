@@ -101,7 +101,8 @@ history = model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    # validation_data=(x_val, y_val, w_val),
+    # candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas
+    validation_data=(x_val, y_val, w_val),
     # validation_densities=val_densities,
     validation_split=0.1,
     epochs=500,

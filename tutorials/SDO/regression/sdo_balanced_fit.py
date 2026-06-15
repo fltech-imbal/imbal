@@ -52,7 +52,7 @@ def build_simple_cnn():
     x = layers.Conv2D(16, 3, activation='relu', padding='same', strides=(2, 2))(x)
     x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
     x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
-    x = layers.Dense(32, activation='relu')(x),
+    x = layers.Dense(32, activation='relu')(x)
     x = layers.Flatten()(x)
     output_layer = layers.Dense(1)(x)
 
@@ -93,6 +93,7 @@ model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution

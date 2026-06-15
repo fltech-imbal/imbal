@@ -140,7 +140,7 @@ class Model(keras.Model):
         epochs=1,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
         verbose_imbal=1,
         seed=None,
         **kwargs
@@ -184,7 +184,7 @@ class Model(keras.Model):
         epochs=1,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
         verbose_imbal=1,
         seed=None,
         **kwargs
@@ -303,7 +303,7 @@ class Model(keras.Model):
         epochs=1,
         batch_size=32,
         shuffle=True,
-        stratify_batches=False,
+        stratify_batches=True,
         verbose_imbal=1,
         seed=None,
         require_weighting=False,
@@ -690,7 +690,7 @@ class Model(keras.Model):
         else:
             if self._mode_enum == ModelType.CLASSIFICATION:
                 candidate_evaluation_weights = imbal.classification.generate_sample_weights(
-                    y,
+                    y[0] if self._use_decoder_branch else y,
                     class_weight=candidate_evaluation_class_weight
                 )
             else:
@@ -846,8 +846,6 @@ class Model(keras.Model):
             require_weighting
         )
 
-        if sample_weight.ndim == 1:
-            sample_weight = sample_weight[None, ...]
 
         # Split validation data if necessary
         if validation_split is not None and validation_data is None:
@@ -858,6 +856,9 @@ class Model(keras.Model):
                 seed=seed,
                 mode=self._mode_enum
             )
+
+        if sample_weight.ndim == 1:
+            sample_weight = sample_weight[None, ...]
 
         # Ensure some validation weights exist
         if validation_data is not None:
@@ -873,7 +874,6 @@ class Model(keras.Model):
                 w_val = w_val[None, ...]
 
             w_val = verify_weight_scale(w_val, show_warning=False)
-
             assert w_val.shape[0] == sample_weight.shape[0]
 
             if self._use_decoder_branch:

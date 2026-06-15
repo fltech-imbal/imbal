@@ -115,38 +115,31 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-imbal.classification.plot_confusion_matrix(
-    y_test,
-    test_predictions,
-    save_figure='sample-sdo-regular-fit-ae-confusion-matrix.png'
-)
-
 imbal.classification.plot_roc(
     y_test,
     test_predictions,
     save_figure='sample-sdo-regular-fit-ae-roc.png'
 )
 
-if model.best_decision_threshold is not None:
-    best_threshold = model.best_decision_threshold
-    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
-    hss.update_state(y_test, test_predictions)
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
 
-    f1 = metrics.F1Score(threshold=best_threshold)
-    f1.update_state(y_test, test_predictions)
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
 
-    print(
-        f'Best threshold: {model.best_decision_threshold}\n'
-        f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
-        f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
-    )
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
+)
 
-    test_predictions = model.predict(x_test)
-    test_predictions = test_predictions.reshape(-1, 1)
-    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+test_predictions = (test_predictions > best_threshold).astype(np.float32)
 
-    imbal.classification.plot_confusion_matrix(
-        y_test,
-        test_predictions,
-        save_figure='sample-sdo-regular-fit-ae-confusion-matrix-threshold.png'
-    )
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-regular-fit-ae-confusion-matrix.png'
+)

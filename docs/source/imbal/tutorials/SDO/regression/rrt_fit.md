@@ -71,6 +71,7 @@ model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas 
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -138,8 +139,8 @@ like for the above code.
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
 19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-MAE for log10 flux < -4: 1.216
-MAE for log10 flux >= -4: 0.620
+MAE for log10 flux < -4: 1.067
+MAE for log10 flux >= -4: 1.725
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -163,6 +164,7 @@ model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas 
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -177,9 +179,9 @@ Restoring model weights from fit on sample weight candidate at index 2
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-MAE for log10 flux < -4: 1.186
-MAE for log10 flux >= -4: 0.723
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+MAE for log10 flux < -4: 1.091
+MAE for log10 flux >= -4: 2.302
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

@@ -67,13 +67,158 @@ For generating more instances, using three existing points and add gaussian nois
 - SPE-E $\checkmark$
 	- Three rows: regular, balanced, decoupled $\checkmark$
 	- Columns: basic, validation, `validation+AE` $\checkmark$
+
+
+---
+# 6/5/26
+
+#### High Priority:
+- Rerun and update SDObenchmark tutorials $\checkmark$
+- Allow for more epochs (use EarlyStopping for validation) $\checkmark$
+- Use `fold0` or similar to get training/validation split based on time series $\checkmark$ 
+- Report AORE on top of plots (on top of common/rare MAE) $\checkmark$
+
+---
+# 6/10/26
+
+#### High Priority:
+- Vary AE representation layer, see if there are better results with third to last (instead of default second to last) $\checkmark$
 #### Low Priority:
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
 
-# 6/5/26
+---
+# 6/12/26
+#### High Priority
+- **Using `imbal`, but not changing `imbal`**
+	- Use MDI and DenseLoss weights as alternative weighting methods to reciprocal importance
+	- Use `MSE+wPCC` loss (use same $\lambda$ value from CISIR paper)
+	- Whatever the best model result is, use T-SNE to visualize representation and then examine erroneous samples
+- **NASA Report**
+	- Accomplishments
+		1. Features of the tool (same things/order shown in presentation)
+			- Mention the tools works with tabular and image datasets, and classification and regression
+			- Contains metrics used in heliophysics (TSS, HSS)
+			- Fit methods
+			- Optional features (validation, AE)
+			- Multiple weight candidates
+			- Candidate evaluation
+			- TSNE visualization of latent space
+			- Prediction explanation (LIME, SHAP, `GradCAM`)
+		2. Results
+			- Describe SEP-EC dataset
+				- Features, target
+			- How does the tool perform for 9 configurations + including/excluding electron data
+			- How does the tool perform with *external* additions (MDI, DenseWeight, `MSE+wPCC`) for 9 configurations
+			- Using t-SNE and prediction explanation tools on model with best results
+		3. Documentation and Tutorials
+			- Documentation for each method
+				- Describing all parameters, with code examples
+			- Tutorials
+				- 3x3 for tutorials + TSNE, LIME, SHAP, `GradCAM`
+			- Installation guide
+	-  Product
+		- GitHub link
+		- Documentation link
+		- Papers
+		
+#### Low Priority:
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
 
-#### High Priority:
-- Allow for more epochs (use EarlyStopping for validation)
-- Use `fold0` or similar to get training/validation split based on time series 
-- Report AORE on top of plots (on top of common/rare MAE)
+#### Class
+- (`mean_ratio` - 1)^2 + variance is the loss function? Prevent collapse to 0 ratio
+		- Or return to trying 1/`mean_ratio`?
+
+---
+# 6/15/26
+
+## Tasks
+#### High Priority
+- 
+#### Low Priority:
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
+## Class
+- Observation: when `stddev` is low, it seems to mainly be because the ratios are low, even if they are not necessarily "similar"
+	- Ex. 0.1, 0.01, and 0.001 are three ratios that would have a small `stddev`, despite them being vastly different ratios (1 to 10, 1 to 100, 1 to 1000)
+	- Solution: Minimize `stddev`(`log`(ratios)), as opposed to the previously minimizing `stddev`(ratios)
+
+Before (enforcing `stddev`(ratios) of distances from endpoints and next point)
+![[Pasted image 20260614161610.png|500]]
+![[Pasted image 20260614161627.png|500]]
+![[Pasted image 20260614161706.png|500]]
+
+After (enforcing `stddev`(`log`(ratios)) of distances from endpoints and next point)![[Pasted image 20260614161850.png]]
+![[Pasted image 20260614162000.png]]
+![[Pasted image 20260614162022.png]]
+
+Baseline (Just MSE, no representation enforcement loss)
+![[Pasted image 20260614161934.png]]
+
+t-SNE does not preserve linearity of representation space
+![[Pasted image 20260614162054.png]]
+![[Pasted image 20260614162132.png|400]]
+
+4D Representation Space
+
+True vs. Predicted                                               Dim 0 vs Dim 1
+![[Pasted image 20260614162217.png]]
+Dim 0 vs Dim 2                                                        Dim 0 vs Dim 3
+![[Pasted image 20260614162409.png]]
+Dim 1 vs Dim 2                                                         Dim 2 vs Dim 3
+![[Pasted image 20260614162455.png]]
+Dim2 vs Dim 3                                                                     t-SNE
+![[Pasted image 20260614162539.png]]
+
+**Extra thought:** If the enforcement of the representation learning performs well enough, there is actually no need to apply MSE error to the model during training at all. Instead, a simple least squares linear regression model can be applied to the output of the model (fit to the line `label = m*prediction + b`). Then, predictions from the neural network can be fed to the linear "correction" function after the fact.
+
+True vs. predicted of model with MSE                Learned enforced representation
+![[Pasted image 20260614164451.png]]
+
+True vs. predicted after correction via simple linear fit
+![[Pasted image 20260614164532.png|500]]
+
+**Issue:** This method is highly unstable. I decided to try swapping to using MSE of the representation and label distances. We do lose the "degree of freedom" that is the
+representation line being scaled arbitrarily, but this seems to not impact performance on the test set, and eliminates the instability issue that made itself apparent when trying to apply this method to SEP-EC.
+
+Using MSE-based approach
+![[Pasted image 20260614193904.png]]
+
+
+
+
+
+Preliminary results for applying to SEP-EC
+
+**Without representation enforcement loss (2 dimensional representation space, test set)**
+True vs predicted                                                Explicit representation plot
+![[Pasted image 20260614194130.png]]
+t-SNE
+![[Pasted image 20260614194153.png]]
+
+**With representation enforcement loss (2 dimensional representation space, test set)**
+True vs predicted                                                Explicit representation plot
+![[Pasted image 20260614194302.png]]
+t-SNE
+![[Pasted image 20260614194328.png]]
+
+The same idea of only applying the representation loss can be applied to this as well.
+
+**Note on GD vs SGD**
+When introducing a small amount of noise to the dataset, and allowing for a high-dimensional representation space, the enforced representation struggled to perform well when the data is not mini-batched.
+
+**On whole dataset with noise (32-D representation space)**
+True vs predicted (test)                 Dim 0 vs Dim 1 (test)                           t-SNE
+![[Pasted image 20260615111905.png]]
+
+**20 batches (no stratification), with noise (32-D representation space)**
+True vs predicted (test)                 Dim 0 vs Dim 1 (test)                           t-SNE
+![[Pasted image 20260615112301.png]]
+
+Extra note: In the example above using MSE for representation learning, I am enforcing the following
+- Distance between a sample $n$ and its neighbor $n+1$
+- Distance between a sample $n$ and the first sample
+- Distance between a sample $n$ and the last sample
+
+Including all 3 allows for the quickest representation learning, but enforcing just the distances between neighbors and the distance to one endpoint is sufficient, but learning can be slower

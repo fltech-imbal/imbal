@@ -93,6 +93,7 @@ model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
