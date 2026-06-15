@@ -405,7 +405,7 @@ class Model(keras.Model):
                 w_final = np.concatenate((self.best_sample_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
             else:
                 w_final = imbal.classification.generate_sample_weights(
-                    y_final,
+                    y_final[0] if self._use_decoder_branch else y_final,
                     class_weight=self.best_class_weights
                 )
 
