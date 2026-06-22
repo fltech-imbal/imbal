@@ -470,8 +470,6 @@ class Model(keras.Model):
         if hasattr(compare_metric, "_direction"):
             if compare_metric._direction == 'up':
                 compare_function = maximize
-            else:
-                compare_function = minimize
 
         best_metric_result = None
         best_threshold = None

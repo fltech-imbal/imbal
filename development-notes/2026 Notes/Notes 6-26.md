@@ -91,7 +91,7 @@ For generating more instances, using three existing points and add gaussian nois
 # 6/12/26
 #### High Priority
 - **Using `imbal`, but not changing `imbal`**
-	- Use MDI and DenseLoss weights as alternative weighting methods to reciprocal importance
+	- Use MDI and DenseLoss weights as alternative weighting methods to reciprocal importance $\checkmark$
 	- Use `MSE+wPCC` loss (use same $\lambda$ value from CISIR paper)
 	- Whatever the best model result is, use T-SNE to visualize representation and then examine erroneous samples
 - **NASA Report**
@@ -105,7 +105,7 @@ For generating more instances, using three existing points and add gaussian nois
 			- Candidate evaluation
 			- TSNE visualization of latent space
 			- Prediction explanation (LIME, SHAP, `GradCAM`)
-		2. Results
+		2. Experimental Evaluation
 			- Describe SEP-EC dataset
 				- Features, target
 			- How does the tool perform for 9 configurations + including/excluding electron data
@@ -194,6 +194,7 @@ Preliminary results for applying to SEP-EC
 **Without representation enforcement loss (2 dimensional representation space, test set)**
 True vs predicted                                                Explicit representation plot
 ![[Pasted image 20260614194130.png]]
+![[Pasted image 20260614194302.png]]
 t-SNE
 ![[Pasted image 20260614194153.png]]
 
@@ -222,3 +223,138 @@ Extra note: In the example above using MSE for representation learning, I am enf
 - Distance between a sample $n$ and the last sample
 
 Including all 3 allows for the quickest representation learning, but enforcing just the distances between neighbors and the distance to one endpoint is sufficient, but learning can be slower
+
+---
+
+# 6/15/26
+
+Tried adding PCC to the loss
+`1 - abs(PCC)`
+
+`2 - tf.reduce_mean(tf.math.abs(tfp.stats.correlation(representations))) - tf.reduce_mean(tf.math.abs(tfp.stats.correlation(distance_pairs)))`
+
+Worked for toy dataset, led to collapse on SEP-EC
+
+Additional thought: Instead of individually trying to maximize the average correlation for the representation features and the average correlation between label and representation distances, we can instead append the label of each sample to its corresponding feature vector, and then simply maximize average correlation of these augmented representations.
+
+
+Let $d$ be the dimensionality of the feature space, let $f$ be a feature vector with corresponding label $y$ :
+$$
+\begin{gathered}
+f = \begin{bmatrix}z_1&z_2&\cdots&z_d\end{bmatrix}
+\\\\\
+\tilde{f} = \begin{bmatrix}z_1&z_2&\cdots&z_d&y\end{bmatrix}
+\\\\
+\mathbf{F}=\begin{bmatrix}f_1\\f_2\\\vdots\\f_n\end{bmatrix}\\
+\\
+\tilde{\mathbf{F}} = \begin{bmatrix}\tilde{f}_1\\\tilde{f}_2\\\vdots\\\tilde{f}_n\\\end{bmatrix}\\
+\\
+\mathcal{L}=1-\frac{1}{(d+1)^2}\sum_{i=1}^{d+1}\sum_{j=1}^{d+1}\rho(\tilde{\mathbf{F}}_{:,i},~\tilde{\mathbf{F}}_{:,j})
+\end{gathered}
+$$
+This also gets rid of the need for sorting (which, we were assuming our batches would already be sorted, but this now works without that assumption)
+
+**Results on toy test dataset using new loss approach:**
+True vs. Predicted                                               Dim 0 vs Dim 1
+![[Pasted image 20260617134114.png]]
+
+**Results on SEP-EC test data using new loss approach**
+![[Pasted image 20260617153802.png]]
+
+Possibilities:
+- $\frac{d_l(\text{extremes})}{d_f(\text{extremes})}$ for ratio, and $\left( x + \frac{1}{x}\right)^2$ as ratio penalty
+- Instead of mean ratio, ratio of mean distances (instead of $\frac{1}{n}\sum^n\frac{d_l}{d_f}$, we do $\frac{\sum^n d_l}{\sum^n d_f}$)
+	- No need for epsilon in this case (probably)
+- Sum of values in each channel can be used as a substitute for fluence
+
+#### High Priority
+- **Using `imbal`, but not changing `imbal`**
+	- Use MDI and DenseLoss weights as alternative weighting methods to reciprocal importance $\checkmark$
+	- Use `MSE+wPCC` loss (use same $\lambda$ value from CISIR paper (found: 0.5))
+		- Were the weights used at all in wPCC (aka, was it just normal PCC)
+	- Whatever the best model result is, use T-SNE to visualize representation and then examine erroneous samples
+	- Include important function/parameter/class named from our tool
+- **NASA Report**
+	- Accomplishments
+		1. Features of the tool (same things/order shown in presentation)
+			- Mention the tools works with tabular and image datasets, and classification and regression
+			- Contains metrics used in heliophysics (TSS, HSS)
+			- Fit methods
+			- Optional features (validation, AE)
+			- Multiple weight candidates
+			- Candidate evaluation
+			- TSNE visualization of latent space
+			- Prediction explanation (LIME, SHAP, `GradCAM`)
+		2. Experimental Evaluation
+			- Describe SEP-EC dataset
+				- Features, target
+			- How does the tool perform for 9 configurations + including/excluding electron data
+			- How does the tool perform with *external* additions (MDI, DenseWeight, `MSE+wPCC`) for 9 configurations
+			- Using t-SNE and prediction explanation tools on model with best results
+		3. Documentation and Tutorials
+			- Documentation for each method
+				- Describing all parameters, with code examples
+			- Tutorials
+				- 3x3 for tutorials + TSNE, LIME, SHAP, `GradCAM`
+			- Installation guide
+	-  Product
+		- GitHub link
+		- Documentation link
+		- Papers
+		
+#### Low Priority:
+- Try to fix `generate_decoder_branch`.
+	- Hopefully, we can avoid needing a Flatten layer for reliability
+
+$$
+\begin{gathered}
+w_{a1}x_1+w_{a2}x_2=a\\
+w_{b1}x_1+w_{b2}x_2=b\\
+w_aa + w_bb = y\\
+\downarrow\\
+\begin{array}{rl}
+y &= w_a(w_{a1}x_1+w_{a2}x_2)+w_b(w_{b1}x_1+w_{b2}x_2)\\
+&= w_aw_{a1}x_1+w_aw_{a2}x_2+w_bw_{b1}x_1+w_bw_{b2}x_2\\
+&= w_aw_{a1}x_1+w_bw_{b1}x_1+w_bw_{b2}x_2+w_aw_{a2}x_2\\
+&= (w_aw_{a1}+w_bw_{b1})x_1+(w_bw_{b2}+w_aw_{a2})x_2
+\end{array}
+\end{gathered}
+$$
+
+```
+import tensorflow as tf
+from itertools import combinations
+
+X = tf.constant([
+    [1., 2.],
+    [2., 4.],
+    [4., 5.]
+])
+
+y = tf.constant([3., 6., 9.])
+
+A = []
+b = []
+
+for i, j in combinations(range(len(X)), 2):
+    A.append(X[j] - X[i])
+    b.append(y[j] - y[i])
+
+A = tf.stack(A)
+b = tf.stack(b)
+
+# Solve Ac ≈ b
+c = tf.linalg.lstsq(
+    A,
+    tf.reshape(b, (-1, 1)),
+    fast=False
+)
+
+c = tf.squeeze(c)
+
+# residual error
+error = tf.norm(A @ c - b)
+
+print("gradient:", c.numpy())
+print("error:", error.numpy())
+```
