@@ -8,10 +8,17 @@ import numpy as np
 
 ALPHA = 1
 MSE_FACTOR = 1
-LEARNING_RATE = 1e-5
-EPOCHS = 2000
-REPRESENTATION_LAYER_INDEX = -2
+LEARNING_RATE = 4e-5
+EPOCHS = 1000
+REPRESENTATION_DIMS = 2
 MANUALLY_SORT_EVERY_BATCH = False
+UNIT_REPRESENTATION = False
+EXTRA_REGRESSOR_LAYERS = False
+
+RATIO_CONSTRAIN = False
+RATIO_CONSTRAIN_ALPHA = 0.05
+
+FIT_MODE = 'tune'
 
 # tf.config.run_functions_eagerly(True)
 
@@ -20,13 +27,20 @@ def build_sep_ec_model(layer_dimensions, representation_layer_dimension):
 
     x = inputs
     for index, num_units in enumerate(layer_dimensions):
-        x = layers.Dense(num_units, activation='relu', kernel_initializer='he_normal')(x)
+        x = layers.Dense(num_units, activation='relu')(x)
         if index == len(layer_dimensions) - 1:
             x = layers.Flatten()(x)
 
-    representation_layer = layers.Dense(representation_layer_dimension)(x)
-    output_layer = layers.Dense(1)(representation_layer)
-    output_layer.trainable = False
+
+    representation_layer = layers.Dense(representation_layer_dimension, name='representation' if not UNIT_REPRESENTATION else None)(x)
+    if UNIT_REPRESENTATION:
+        representation_layer = layers.UnitNormalization(name='representation')(representation_layer)
+
+    if EXTRA_REGRESSOR_LAYERS:
+        x = layers.Dense(64, activation='relu')(representation_layer)
+        output_layer = layers.Dense(1)(x)
+    else:
+        output_layer = layers.Dense(1)(representation_layer)
 
     model = keras.Model(inputs=inputs, outputs=[output_layer, representation_layer], name="SEP_EC")
     return model
@@ -68,12 +82,67 @@ def compute_representation_loss(labels, representations):
     # return tf.reduce_mean(tf.square(combined_representation_distances - combined_label_distances))
 
     # Attempt 3
+    # labels_reshaped = tf.reshape(labels, (-1, 1))
+    # extended_representations = tf.concat([representations, labels_reshaped], axis=1)
+    #
+    # return 1 - tf.reduce_mean(tf.math.abs(tfp.stats.correlation(extended_representations)))
 
-    labels_reshaped = tf.reshape(labels, (-1, 1))
-    extended_representations = tf.concat([representations, labels_reshaped], axis=1)
+    # Attempt 4 - PCC(label dist, rep dist)
 
-    return 1 - tf.reduce_mean(tf.math.abs(tfp.stats.correlation(extended_representations)))
+    # distance_to_next_label = tf.linalg.norm(labels[1:] - labels[:-1], axis=1)
+    # distance_to_first_label = tf.linalg.norm(labels[1:] - labels[0], axis=-1)
+    #
+    # distance_to_next_representation = tf.linalg.norm(representations[1:] - representations[:-1], axis=1)
+    # distance_to_first_representation = tf.linalg.norm(representations[1:] - representations[0], axis=-1)
+    #
+    # combined_label_distances = tf.concat([distance_to_next_label, distance_to_first_label], axis=0) + EPSILON
+    # combined_label_distances = tf.expand_dims(combined_label_distances, axis=-1)
+    # combined_representation_distances = tf.concat([distance_to_next_representation, distance_to_first_representation], axis=0) + EPSILON
+    # combined_representation_distances = tf.expand_dims(combined_representation_distances, axis=-1)
+    #
+    # return 1 - tfp.stats.correlation(combined_label_distances, combined_representation_distances)
 
+    # # Attempt 5 - Maximize entropy
+    #
+    # distance_to_next_label = tf.linalg.norm(labels[1:] - labels[:-1], axis=1)
+    # distance_to_first_label = tf.linalg.norm(labels[1:] - labels[0], axis=-1)
+    # distance_to_next_representation = tf.linalg.norm(representations[1:] - representations[:-1], axis=1)
+    # distance_to_first_representation = tf.linalg.norm(representations[1:] - representations[0], axis=-1)
+    #
+    # combined_label_distances = tf.concat([distance_to_next_label, distance_to_first_label], axis=0) + EPSILON
+    # combined_representation_distances = tf.concat([distance_to_next_representation, distance_to_first_representation], axis=0) + EPSILON
+    #
+    # ratios = combined_label_distances / combined_representation_distances
+    # ratios = ratios / tf.reduce_sum(ratios)
+    #
+    # return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
+
+    # Attempt 6 - Maximize entropy (unit representation)
+
+    # distance_to_next_label = tf.linalg.norm(labels[1:] - labels[:-1], axis=1) + EPSILON
+    # distance_to_next_representation = tf.linalg.norm(representations[1:] - representations[:-1], axis=1) + EPSILON
+    #
+    # ratios = distance_to_next_representation / distance_to_next_label
+    # ratios = ratios / tf.reduce_sum(ratios)
+    #
+    # return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
+
+    # # Attempt 7 - PCC(label dist, rep dist) (unit representation)
+
+    distance_to_next_label = tf.expand_dims(tf.linalg.norm(labels[1:] - labels[:-1], axis=1) + EPSILON, axis=-1)
+    distance_to_next_representation = tf.expand_dims(tf.linalg.norm(representations[1:] - representations[:-1], axis=1) + EPSILON, axis=-1)
+
+    return 1 - tfp.stats.correlation(distance_to_next_label, distance_to_next_representation)
+
+def ratio_loss(labels, representations):
+    EPSILON = 1e-9
+    distance_to_next_label = tf.linalg.norm(labels[1:] - labels[:-1], axis=1) + EPSILON
+    distance_to_next_representation = tf.linalg.norm(representations[1:] - representations[:-1], axis=1) + EPSILON
+
+    ratio = tf.reduce_sum(distance_to_next_label) / tf.reduce_sum(distance_to_next_representation)
+
+    loss_value = (ratio + 1/ratio)**2 - 4
+    return loss_value * RATIO_CONSTRAIN_ALPHA
 
 
 def combined_loss(
@@ -84,7 +153,10 @@ def combined_loss(
 ):
     regression_loss = compute_regression_loss(labels, predictions)
     representation_loss = compute_representation_loss(labels, representations)
+    if RATIO_CONSTRAIN:
+        representation_loss += ratio_loss(labels, representations)
     total_loss = regression_loss*MSE_FACTOR + representation_loss * alpha
+
     return total_loss, regression_loss, representation_loss
 
 # 5. Dummy data — two label tensors, one per output head
@@ -97,13 +169,13 @@ train_dataset = tf.data.Dataset.from_tensor_slices(
 
 model = build_sep_ec_model(
     layer_dimensions=[128, 128, 64, 64, 32, 32],
-    representation_layer_dimension=2
+    representation_layer_dimension=REPRESENTATION_DIMS
 )
 
 print(model.summary())
 
 @tf.function
-def train_step(x, y):
+def joint_train_step(x, y):
     with tf.GradientTape() as tape:
         predictions, representations = model(x, training=True)
 
@@ -119,25 +191,140 @@ def train_step(x, y):
 
     return total_loss, regression_loss, representation_loss
 
+@tf.function
+def representation_train_step(x, y):
+    with tf.GradientTape() as tape:
+        predictions, representations = model(x, training=True)
 
-for epoch in range(EPOCHS):
-    print(f"\nStart of epoch {epoch + 1}")
+        total_loss, regression_loss, representation_loss = combined_loss(
+            y,
+            predictions,
+            representations,
+            alpha=ALPHA
+        )
 
-    for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+    gradients = tape.gradient(representation_loss, model.trainable_weights)
+    optimizer.apply_gradients(zip(gradients, model.trainable_weights))
 
-        if MANUALLY_SORT_EVERY_BATCH:
-            sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
-            x_batch = tf.gather(x_batch, sort_indices)
-            y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+    return total_loss, regression_loss, representation_loss
 
-        loss, reg_loss, rep_loss = train_step(x_batch, y_reg_batch)
-        if step % 10 == 0:
-            print(
-                f"  Step {step:3d} | "
-                f"Total: {float(loss):.4f} | "
-                f"Regression: {float(reg_loss):.4f} | "
-                f"Representation: {float(rep_loss):.4f}"
-            )
+@tf.function
+def regression_train_step(x, y):
+    with tf.GradientTape() as tape:
+        predictions, representations = model(x, training=True)
+
+        total_loss, regression_loss, representation_loss = combined_loss(
+            y,
+            predictions,
+            representations,
+            alpha=ALPHA
+        )
+
+    gradients = tape.gradient(regression_loss, model.trainable_weights)
+    optimizer.apply_gradients(zip(gradients, model.trainable_weights))
+
+    return total_loss, regression_loss, representation_loss
+
+if FIT_MODE == 'joint':
+    for epoch in range(EPOCHS):
+        print(f"\nStart of epoch {epoch + 1}")
+
+        for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+
+            if MANUALLY_SORT_EVERY_BATCH:
+                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
+                x_batch = tf.gather(x_batch, sort_indices)
+                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+
+            loss, reg_loss, rep_loss = joint_train_step(x_batch, y_reg_batch)
+            if step % 10 == 0:
+                print(
+                    f"  Step {step:3d} | "
+                    f"Total: {float(loss):.4f} | "
+                    f"Regression: {float(reg_loss):.4f} | "
+                    f"Representation: {float(rep_loss):.4f}"
+                )
+elif FIT_MODE == 'freeze':
+    for epoch in range(EPOCHS):
+        print(f"\nStart of epoch {epoch + 1}")
+
+        for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+
+            if MANUALLY_SORT_EVERY_BATCH:
+                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
+                x_batch = tf.gather(x_batch, sort_indices)
+                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+
+            loss, reg_loss, rep_loss = representation_train_step(x_batch, y_reg_batch)
+            if step % 10 == 0:
+                print(
+                    f"  Step {step:3d} | "
+                    f"Total: {float(loss):.4f} | "
+                    f"Regression: {float(reg_loss):.4f} | "
+                    f"Representation: {float(rep_loss):.4f}"
+                )
+
+    for layer in model.layers:
+        layer.trainable = False
+        if layer.name == 'representation':
+           break
+
+    for epoch in range(EPOCHS):
+        print(f"\nStart of epoch {epoch + 1}")
+
+        for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+
+            if MANUALLY_SORT_EVERY_BATCH:
+                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
+                x_batch = tf.gather(x_batch, sort_indices)
+                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+
+            loss, reg_loss, rep_loss = regression_train_step(x_batch, y_reg_batch)
+            if step % 10 == 0:
+                print(
+                    f"  Step {step:3d} | "
+                    f"Total: {float(loss):.4f} | "
+                    f"Regression: {float(reg_loss):.4f} | "
+                    f"Representation: {float(rep_loss):.4f}"
+                )
+elif FIT_MODE == 'tune':
+    for epoch in range(EPOCHS):
+        print(f"\nStart of epoch {epoch + 1}")
+
+        for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+
+            if MANUALLY_SORT_EVERY_BATCH:
+                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
+                x_batch = tf.gather(x_batch, sort_indices)
+                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+
+            loss, reg_loss, rep_loss = representation_train_step(x_batch, y_reg_batch)
+            if step % 10 == 0:
+                print(
+                    f"  Step {step:3d} | "
+                    f"Total: {float(loss):.4f} | "
+                    f"Regression: {float(reg_loss):.4f} | "
+                    f"Representation: {float(rep_loss):.4f}"
+                )
+
+    for epoch in range(EPOCHS):
+        print(f"\nStart of epoch {epoch + 1}")
+
+        for step, (x_batch, y_reg_batch) in enumerate(train_dataset):
+
+            if MANUALLY_SORT_EVERY_BATCH:
+                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
+                x_batch = tf.gather(x_batch, sort_indices)
+                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
+
+            loss, reg_loss, rep_loss = regression_train_step(x_batch, y_reg_batch)
+            if step % 10 == 0:
+                print(
+                    f"  Step {step:3d} | "
+                    f"Total: {float(loss):.4f} | "
+                    f"Regression: {float(reg_loss):.4f} | "
+                    f"Representation: {float(rep_loss):.4f}"
+                )
 
 sort_indices = tf.argsort(tf.squeeze(y_reg_train))
 y_reg_train = tf.gather(y_reg_train, sort_indices)
@@ -210,14 +397,14 @@ def plot_representation_space(representation_vectors, labels, dim_one_index, dim
 # plot_representation_space(representations, 1, 3)
 # plot_representation_space(representations, 2, 3)
 
-tsne_visualization(
-    model=model,
-    data=x_train,
-    labels=y_reg_train,
-    representation_layer_index=REPRESENTATION_LAYER_INDEX,
-    gradient='jet',
-    perplexity=300
-)
+# tsne_visualization(
+#     model=model,
+#     data=x_train,
+#     labels=y_reg_train,
+#     representation_layer_index=REPRESENTATION_LAYER_INDEX,
+#     gradient='jet',
+#     perplexity=300
+# )
 
 x_test = tf.clip_by_value(tf.random.normal((300, 2)) + tf.random.normal((300, 2), stddev=0.1), clip_value_min=-3, clip_value_max=3)
 y_reg_test = tf.reshape(tf.linalg.norm(x_test, axis=1), (-1, 1))

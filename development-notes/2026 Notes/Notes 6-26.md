@@ -271,7 +271,7 @@ Possibilities:
 - **Using `imbal`, but not changing `imbal`**
 	- Use MDI and DenseLoss weights as alternative weighting methods to reciprocal importance $\checkmark$
 	- Use `MSE+wPCC` loss (use same $\lambda$ value from CISIR paper (found: 0.5))
-		- Were the weights used at all in wPCC (aka, was it just normal PCC)
+		- Were the weights used at all in wPCC (aka, was it just normal PCC) **yes** $\checkmark$
 	- Whatever the best model result is, use T-SNE to visualize representation and then examine erroneous samples
 	- Include important function/parameter/class named from our tool
 - **NASA Report**
@@ -306,55 +306,18 @@ Possibilities:
 - Try to fix `generate_decoder_branch`.
 	- Hopefully, we can avoid needing a Flatten layer for reliability
 
-$$
-\begin{gathered}
-w_{a1}x_1+w_{a2}x_2=a\\
-w_{b1}x_1+w_{b2}x_2=b\\
-w_aa + w_bb = y\\
-\downarrow\\
-\begin{array}{rl}
-y &= w_a(w_{a1}x_1+w_{a2}x_2)+w_b(w_{b1}x_1+w_{b2}x_2)\\
-&= w_aw_{a1}x_1+w_aw_{a2}x_2+w_bw_{b1}x_1+w_bw_{b2}x_2\\
-&= w_aw_{a1}x_1+w_bw_{b1}x_1+w_bw_{b2}x_2+w_aw_{a2}x_2\\
-&= (w_aw_{a1}+w_bw_{b1})x_1+(w_bw_{b2}+w_aw_{a2})x_2
-\end{array}
-\end{gathered}
-$$
 
-```
-import tensorflow as tf
-from itertools import combinations
-
-X = tf.constant([
-    [1., 2.],
-    [2., 4.],
-    [4., 5.]
-])
-
-y = tf.constant([3., 6., 9.])
-
-A = []
-b = []
-
-for i, j in combinations(range(len(X)), 2):
-    A.append(X[j] - X[i])
-    b.append(y[j] - y[i])
-
-A = tf.stack(A)
-b = tf.stack(b)
-
-# Solve Ac ≈ b
-c = tf.linalg.lstsq(
-    A,
-    tf.reshape(b, (-1, 1)),
-    fast=False
-)
-
-c = tf.squeeze(c)
-
-# residual error
-error = tf.norm(A @ c - b)
-
-print("gradient:", c.numpy())
-print("error:", error.numpy())
-```
+# 6/24/26
+## NASA
+#### High Priority:
+- Only need to run test on best from `imbal`
+	- Try MDI/DW with wPCC for with/without electron data (and varied alpha)
+- Only discuss proton only/no electron dataset in report
+	- Mention that we have electron data, but we took it out since we got better results without it
+- In report, up to and including table for dataset complete by Friday
+	- Also complete section 1.1
+		- Add picture form presentation for decoder branch generation
+		- Add picture from presentation for decoupled fit
+		- Add picture from validation split when explaining stratified split
+#### Low Priority:
+- Check "collapsed" results, is wPCC close to 1 or close to 0?
