@@ -3,7 +3,6 @@
 Located until the `imbal.regression` subpackage.
 
 ## Classes:
-- [DatasetWithBatching](dataset_with_batching.md)
 - [Model](model.md)
 
 ## Functions:
@@ -25,7 +24,6 @@ Located until the `imbal.regression` subpackage.
     :maxdepth: 2
     :caption: Contents:
 
-    DatasetWithBatching <dataset_with_batching>
     Model <model>
     split <split>
     get_sample_densities <get_sample_densities>

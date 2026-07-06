@@ -68,7 +68,7 @@ model = build_simple_cnn()
 Create validation split
 """
 
-(x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
+# (x_train, y_train), (x_val, y_val) =  imbal.classification.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
@@ -80,14 +80,14 @@ PATIENCE = 10
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
+    metrics=[metrics.F1Score(threshold=0.5), 'accuracy']
 )
 
 history = model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
-    validation_data=(x_val, y_val.reshape(-1, 1)),
-    # validation_split=0.1,
+    # validation_data=(x_val, y_val.reshape(-1, 1)),
+    validation_split=0.1,
     # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]],
     epochs=500,
     batch_size=BATCH_SIZE,
@@ -96,7 +96,7 @@ history = model.cRT_fit(
 )
 
 print(f'Fit stopped after {len(history[0].history["loss"])}, {len(history[1].history["loss"])} epochs')
-print(f'Restored weights from epoch {len(history[0].history["loss"]) - PATIENCE} during stage 1')
+print(f'Restored weights from epoch {len(history[0].history["loss"] + 1) - PATIENCE} during stage 1')
 
 model.evaluate(x_test, y_test.reshape(-1, 1))
 
@@ -116,7 +116,7 @@ test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
 f1 = metrics.F1Score(threshold=0.5)
@@ -127,14 +127,31 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-imbal.classification.plot_confusion_matrix(
-    y_test,
-    test_predictions,
-    save_figure='sample-sdo-crt-fit-val-confusion-matrix.png'
-)
-
 imbal.classification.plot_roc(
     y_test,
     test_predictions,
-    save_figure='sample-sdo-crt-fit-val-roc.png'
+    save_figure='sample-sdo-crt-fit-val-roc-split.png'
+)
+
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
+)
+
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-crt-fit-val-confusion-matrix-split.png'
 )

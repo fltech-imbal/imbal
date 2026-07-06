@@ -118,7 +118,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 3.6128 - mae: 1.6497 
+Test Loss: 3.6128
+Test MAE: 1.6497
+Common sample MAE (< ln(10)): 1.6558
+Rare sample MAE (>= ln(10)): 1.3453
+```
 
 ---
 
@@ -177,7 +183,14 @@ model.rRT_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_val_regression_explore_alphas.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 1.8734 - mae: 0.9008 
+Test Loss: 1.8734
+Test MAE: 0.9008
+Common sample MAE (< ln(10)): 0.8898
+Rare sample MAE (>= ln(10)): 1.4512
+
+```
 
 > **NOTE:** at the end of training, the index of the best class weight is printed. For future testing, ensure you take note of the index
 > that was printed out, as this is the index of the "ideal" hyperparameter setting given the search space. When running more tests, 

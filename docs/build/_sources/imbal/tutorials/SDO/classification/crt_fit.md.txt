@@ -79,7 +79,7 @@ test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
 f1 = metrics.F1Score(threshold=0.5)
@@ -90,16 +90,33 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-imbal.classification.plot_confusion_matrix(
-    y_test,
-    test_predictions,
-    save_figure='sample-sdo-crt-fit-confusion-matrix.png'
-)
-
 imbal.classification.plot_roc(
     y_test,
     test_predictions,
     save_figure='sample-sdo-crt-fit-roc.png'
+)
+
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
+)
+
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-crt-fit-confusion-matrix.png'
 )
 ```
 
@@ -107,11 +124,17 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
+Best decision threshold based on metric "f1_score": 0.6
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 25ms/step - accuracy: 0.1467 - f1_score: 0.0483 - loss: 0.7697
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
-Heikde Skill Score: 0.0569
-F1 Score: 0.0960
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+Heikde Skill Score: 0.0030
+F1 Score: 0.0483
+
+Best threshold: 0.6
+Heikde Skill Score using Best Threshold: 0.0378
+F1 Score using Best Threshold: 0.0714
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -138,13 +161,18 @@ we get the following results:
 
 ```text
 (after training output)
-Restoring model weights from fit on sample weight candidate at index 0
-
+Restoring model weights from fit on class weight candidate at index 1
+Class weights of best fit: [0.6 0.4]
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 26ms/step - accuracy: 0.9750 - f1_score: 0.0000e+00 - loss: 0.4494
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0000
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+Heikde Skill Score: -0.0031
 F1 Score: 0.0000
+
+Best threshold: 0.5
+Heikde Skill Score using Best Threshold: -0.0031
+F1 Score using Best Threshold: 0.0000
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

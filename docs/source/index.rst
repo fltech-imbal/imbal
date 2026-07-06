@@ -21,11 +21,13 @@ Subpackages:
 
 Information on incorporated tools:
 
-- :doc:`t-SNE Model Explantation </imbal/tsne-explanation>`
+- :doc:`t-SNE Visualization of Latent/Representation Space </imbal/tsne-explanation>`
 - :doc:`LIME Prediction Explanation </imbal/lime-explanation>`
 - :doc:`SHAP Prediction Explanation </imbal/shap-explanation>`
 
 Code tutorials can be found :doc:`here </imbal/tutorials/tutorials>`
+
+The presentation of the imbal tool from May 6th, 2026 can be found `here <_static/presentation.pdf>`_.
 
 Contact us
 ------------------

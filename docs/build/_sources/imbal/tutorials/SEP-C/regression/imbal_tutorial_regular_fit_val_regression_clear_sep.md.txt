@@ -105,7 +105,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/regular_fit_val_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step 
+Test Loss: 0.4519
+Test MAE: 0.1902
+Common sample MAE (< ln(10)): 0.1274
+Rare sample MAE (>= ln(10)): 3.3355
+```
 
 ---
 

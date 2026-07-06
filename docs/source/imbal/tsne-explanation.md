@@ -1,4 +1,4 @@
-# t-SNE Model Explanation
+# t-SNE Visualization of Latent/Representation Space
 
 Our t-SNE model explanation implementations are a wrapper around the scikit-learn *t-Distributed Stochastic Neighbor
 Embeddings* (t-SNE) implementation, which can be found

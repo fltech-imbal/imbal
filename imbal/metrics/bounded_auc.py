@@ -154,6 +154,7 @@ class BoundedAUC(AUC):
         self._x_max = x_max
         self._y_min = y_min
         self._y_max = y_max
+        self._direction = 'up'
 
         super().__init__(*args, thresholds=thresholds, **kwargs)
 

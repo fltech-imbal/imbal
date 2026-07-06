@@ -426,16 +426,23 @@
 </section>
 <section id="example-output">
 <h3>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">#</a></h3>
-<p><img alt="Model Results" src="../../../../_images/regular_fit_ae_regression.png" /></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 0.4342 - mae: 0.2243  
+Test Loss: 0.4342
+Test MAE: 0.2243
+Common sample MAE (&lt; ln(10)): 0.1651
+Rare sample MAE (&gt;= ln(10)): 3.1871
+</pre></div>
+</div>
 </section>
 </section>
 <hr class="docutils" />
 <section id="visualization">
 <h2>3. Visualization<a class="headerlink" href="#visualization" title="Link to this heading">#</a></h2>
 <p>The model’s predictions are visualized by plotting true values against predicted values to assess performance and highlight rare vs. frequent samples.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">plot_true_vs_predictions</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span>
-                                          <span class="n">predictions</span><span class="p">,</span>
-                                          <span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">imbal</span><span class="o">.</span><span class="n">regression</span><span class="o">.</span><span class="n">plot_true_vs_predictions</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">predictions</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <section id="id1">

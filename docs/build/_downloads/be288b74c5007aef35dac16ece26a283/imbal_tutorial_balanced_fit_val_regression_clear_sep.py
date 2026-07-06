@@ -59,36 +59,40 @@ sample_weights = imbal.regression.generate_sample_weights(densities)
 # Training
 # ----------------------------
 
-model.compile(loss="mean_squared_error",
-              optimizer="adam",
-              metrics=["mae"],
-              )
+model.compile(
+    loss="mean_squared_error",
+    weighted_metrics=["mae"],
+    optimizer="adam"
+)
 
-PATIENCE = 30
+PATIENCE = 50
 
-model.balanced_fit(x_train,
-                   y_train,
-                   validation_data = (x_val, y_val.reshape(-1, 1), sw_val),
-                   sample_weight=sw,
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-                   )
+model.balanced_fit(
+    x_train,
+    y_train,
+    validation_data = (x_val, y_val.reshape(-1, 1), sw_val),
+    sample_weight=sw,
+    batch_size=batch_size,
+    epochs=max_epochs,
+    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+)
 
 # Uncomment the below if you want to try exploring different alpha values
 # from imbal.regression import reciprocal_importance
 # weight_candidates = reciprocal_importance(densities, alpha=[0.2, 0.5, 0.8, 1.0])
 # (x_train, y_train, sw_candidates), (x_val, y_val, sw_val) =  imbal.regression.split(x_train, y_train, sample_weights=weight_candidates, test_size=0.2)
+# candidate_evaluation_weights = sw_val[3]
 #
-# model.balanced_fit(x_train,
-#                    y_train,
-#                    validation_data=(x_val, y_val.reshape(-1, 1), sw_val),
-#                    sample_weight=sw_candidates,
-#                    batch_size=batch_size,
-#                    epochs=max_epochs,
-#                    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-#                    )
-
+# model.balanced_fit(
+#     x_train,
+#     y_train,
+#     validation_data=(x_val, y_val.reshape(-1, 1), sw_val),
+#     candidate_evaluation_sample_weight=candidate_evaluation_weights,
+#     sample_weight=sw_candidates,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+#     callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+# )
 
 # ----------------------------
 # Evaluation
@@ -118,6 +122,7 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 # ----------------------------
 # Visualization
 # ----------------------------
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions
+)

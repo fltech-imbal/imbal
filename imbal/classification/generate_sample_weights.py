@@ -86,6 +86,9 @@ def generate_sample_weights(
                 if len(class_weights) != len(unique_classes):
                     raise ValueError(
                         'When passing weights as a list, the length of the list of weights must be equal to the number of classes.')
+                for i in range(len(class_weights)):
+                    full_weight_mapping[i] = class_weights[i]
+                    weight_sum += class_weights[i]
             else:
                 class_weights = np.array(class_weights)
 

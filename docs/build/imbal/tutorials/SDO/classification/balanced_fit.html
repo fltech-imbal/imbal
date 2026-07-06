@@ -412,19 +412,15 @@ training and test set.</p>
 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Number of test samples with log10 flux &gt;= -4:&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">test_rare_mask</span><span class="p">))</span>
 
 <span class="c1"># Predict on test data</span>
-<span class="n">test_predictions</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_test</span><span class="p">),</span> <span class="n">BATCH_SIZE</span><span class="p">):</span>
-    <span class="n">batch</span> <span class="o">=</span> <span class="n">x_test</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">BATCH_SIZE</span><span class="p">]</span>
-    <span class="n">test_predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
-<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">test_predictions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
 <span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Calculate metrics</span>
-<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeikdeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
 
-<span class="n">f1</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span>
@@ -432,34 +428,57 @@ training and test set.</p>
     <span class="sa">f</span><span class="s1">&#39;F1 Score: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
-<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
-    <span class="n">y_test</span><span class="p">,</span>
-    <span class="n">test_predictions</span><span class="p">,</span>
-    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-balanced-fit-confusion-matrix.png&#39;</span>
-<span class="p">)</span>
-
 <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_roc</span><span class="p">(</span>
     <span class="n">y_test</span><span class="p">,</span>
     <span class="n">test_predictions</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-balanced-fit-roc.png&#39;</span>
 <span class="p">)</span>
+
+<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span>
+<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+<span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Best threshold: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Heikde Skill Score using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;F1 Score using Best Threshold: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_predictions</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-balanced-fit-confusion-matrix.png&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
-<section id="optional-exploring-candidates-for-class-weights">
-<h3>Optional: Exploring candidates for class weights<a class="headerlink" href="#optional-exploring-candidates-for-class-weights" title="Link to this heading">#</a></h3>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;f1_score&quot;: 0.5
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 28ms/step - accuracy: 0.3733 - f1_score: 0.0457 - loss: 0.6948
+Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-Heikde Skill Score: 0.0409
-F1 Score: 0.0806
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+Heikde Skill Score: 0.0007
+F1 Score: 0.0457
+
+Best threshold: 0.5
+Heikde Skill Score using Best Threshold: 0.0007
+F1 Score using Best Threshold: 0.0457
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-confusion-matrix.png"/>
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/sample-sdo-balanced-fit-roc.png"/>
 </div>
+<section id="optional-exploring-candidates-for-class-weights">
+<h3>Optional: Exploring candidates for class weights<a class="headerlink" href="#optional-exploring-candidates-for-class-weights" title="Link to this heading">#</a></h3>
 <p>By enabling the optional class weight variation in section 2:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">balanced_fit</span><span class="p">(</span>
     <span class="n">x_train</span><span class="p">,</span>
@@ -472,14 +491,19 @@ F1 Score: 0.0806
 </pre></div>
 </div>
 <p>we get the following results:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
-Restoring model weights from fit on sample weight candidate at index 0
-
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;f1_score&quot;: 0.5
+Restoring model weights from fit on class weight candidate at index 0
+Class weights of best fit: [0.9 0.1]
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 27ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1691
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
+
+Best threshold: 0.2
+Heikde Skill Score using Best Threshold: -0.0031
+F1 Score using Best Threshold: 0.0000
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">

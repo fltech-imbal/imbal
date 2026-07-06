@@ -18,7 +18,7 @@ def load_sdo_data(data_path):
         contents = file.read().strip()
         loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
 
-    # Load images (10 images per sample, 256x256 per image)
+    # Load images (10 images per sample, 128x128 per image)
     loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
     for i in range(len(loaded_data_fluxes)):
         print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
@@ -74,7 +74,7 @@ BATCH_SIZE = 256
 model.compile(
     optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
     loss='binary_crossentropy',
-    metrics=['accuracy', metrics.F1Score(threshold=0.5)],
+    metrics=[metrics.F1Score(threshold=0.5), 'accuracy']
 )
 
 model.fit(
@@ -103,7 +103,7 @@ test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
 f1 = metrics.F1Score(threshold=0.5)
@@ -114,14 +114,31 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-imbal.classification.plot_confusion_matrix(
-    y_test,
-    test_predictions,
-    save_figure='sample-sdo-regular-fit-confusion-matrix.png'
-)
-
 imbal.classification.plot_roc(
     y_test,
     test_predictions,
     save_figure='sample-sdo-regular-fit-roc.png'
+)
+
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
+)
+
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-regular-fit-confusion-matrix.png'
 )

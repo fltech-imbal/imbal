@@ -71,7 +71,7 @@ history = model.cRT_fit(
 )
 
 print(f'Fit stopped after {len(history[0].history["loss"])}, {len(history[1].history["loss"])} epochs')
-print(f'Restored weights from epoch {len(history[0].history["loss"]) - PATIENCE} during stage 1')
+print(f'Restored weights from epoch {len(history[0].history["loss"]) - PATIENCE + 1} during stage 1')
 
 model.evaluate(x_test, y_test.reshape(-1, 1))
 ```
@@ -108,7 +108,7 @@ test_predictions = test_predictions.reshape(-1, 1)
 y_test = y_test.reshape(-1, 1)
 
 # Calculate metrics
-hss = imbal.metrics.HeikdeSkillScore(threshold=0.5)
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
 hss.update_state(y_test, test_predictions)
 
 f1 = metrics.F1Score(threshold=0.5)
@@ -119,16 +119,33 @@ print(
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
-imbal.classification.plot_confusion_matrix(
-    y_test,
-    test_predictions,
-    save_figure='sample-sdo-crt-fit-val-confusion-matrix.png'
-)
-
 imbal.classification.plot_roc(
     y_test,
     test_predictions,
     save_figure='sample-sdo-crt-fit-val-roc.png'
+)
+
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
+)
+
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+imbal.classification.plot_confusion_matrix(
+    y_test,
+    test_predictions,
+    save_figure='sample-sdo-crt-fit-val-confusion-matrix.png'
 )
 ```
 
@@ -136,11 +153,18 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
+Fit stopped after 66, 16 epochs
+Restored weights from epoch 56 during stage 1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 26ms/step - accuracy: 0.6783 - f1_score: 0.1106 - loss: 0.6050
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.0035
-F1 Score: 0.0430
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+Heikde Skill Score: 0.0700
+F1 Score: 0.1106
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0456
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -170,13 +194,17 @@ we get the following results:
 
 ```text
 (after training output)
-Restoring model weights from fit on sample weight candidate at index 0
-
+Restored weights from epoch 2 during stage 1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 25ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.5096
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 16ms/step
-Heikde Skill Score: -0.0142
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+Heikde Skill Score: 0.0000
 F1 Score: 0.0000
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0456
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -212,12 +240,15 @@ we get the following results:
 
 ```text
 (after training output)
-
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-Heikde Skill Score: 0.2241
-F1 Score: 0.2400
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+Heikde Skill Score: 0.0065
+F1 Score: 0.0516
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0456
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

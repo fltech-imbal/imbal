@@ -360,7 +360,7 @@
     <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;F1Score&quot;</span><span class="p">),</span>
-        <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeikdeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HSS&quot;</span><span class="p">),</span>
+        <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HSS&quot;</span><span class="p">),</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -400,18 +400,49 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test Loss: </span><span class="si">{</span><span class="n">loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test F1Score: </span><span class="si">{</span><span class="n">f1_score</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test HSS: </span><span class="si">{</span><span class="n">hss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span>
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">test_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_predictions</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span>
+    <span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+    <span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+    <span class="n">f1</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+    <span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">best_class_weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best class weights: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_class_weights</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Best found threshold: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;HSS using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="sa">f</span><span class="s1">&#39;F1Score using Best Threshold: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="example-output">
 <h3>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">#</a></h3>
-<p><img alt="Model Results" src="../../../../_images/decoupled_fit_classification.png" /></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.4490 - HSS: 0.4336 - loss: 0.1662   
+Test Loss: 0.1662
+Test F1Score: 0.4490
+Test HSS: 0.4336
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 784us/step
+Best found threshold: 0.9
+F1Score using Best Threshold: 0.6471
+HSS using Best Threshold: 0.6392
+</pre></div>
+</div>
 </section>
 </section>
 <hr class="docutils" />
 <section id="optional-using-class-weights">
 <h2>3. Optional: Using Class Weights<a class="headerlink" href="#optional-using-class-weights" title="Link to this heading">#</a></h2>
-<p>Alternatively, you can manually specify class weights during training. Replace the <code class="docutils literal notranslate"><span class="pre">model.balanced_fit</span></code> call with:</p>
+<p>Alternatively, you can manually specify class weights during training. Replace the <code class="docutils literal notranslate"><span class="pre">model.cRT_fit</span></code> call with:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">class_weights</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>
 
 <span class="n">model</span><span class="o">.</span><span class="n">cRT_fit</span><span class="p">(</span>
@@ -425,9 +456,18 @@
 </div>
 <section id="id1">
 <h3>Results<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
-<p><img alt="Model Results" src="../../../../_images/decoupled_fit_classification_class_weights.png" /></p>
-<p>This optional approach gives you manual control over class importance, while <code class="docutils literal notranslate"><span class="pre">balanced_fit</span></code> automates the process.</p>
-<hr class="docutils" />
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6486 - HSS: 0.6403 - loss: 0.1053   
+Test Loss: 0.1053
+Test F1Score: 0.6486
+Test HSS: 0.6403
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 722us/step
+Best class weights: {0: 0.8, 1: 0.2}
+Best found threshold: 0.8
+F1Score using Best Threshold: 0.6667
+HSS using Best Threshold: 0.6594
+</pre></div>
+</div>
+<p>This optional approach gives you manual control over class importance, while <code class="docutils literal notranslate"><span class="pre">cRT_fit</span></code> automates the process.</p>
 </section>
 </section>
 </section>

@@ -84,7 +84,13 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/regular_fit_ae_regression.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 0.4342 - mae: 0.2243  
+Test Loss: 0.4342
+Test MAE: 0.2243
+Common sample MAE (< ln(10)): 0.1651
+Rare sample MAE (>= ln(10)): 3.1871
+```
 
 ---
 
@@ -93,9 +99,10 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 The model’s predictions are visualized by plotting true values against predicted values to assess performance and highlight rare vs. frequent samples.
 
 ```python
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions
+)
 ```
 
 ### Example Output

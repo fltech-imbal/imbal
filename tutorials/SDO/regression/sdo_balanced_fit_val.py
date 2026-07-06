@@ -101,6 +101,7 @@ history = model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
     # validation_split=0.1,

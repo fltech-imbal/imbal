@@ -3,7 +3,9 @@ from typing import Tuple
 from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric
 from keras.src.metrics import metrics_utils
+import keras
 
+@keras.saving.register_keras_serializable()
 class HeidkeSkillScore(ConfusionMatrixMetric):
     r"""
     Computes the Heidke Skill Score.
@@ -91,6 +93,7 @@ class HeidkeSkillScore(ConfusionMatrixMetric):
 
         self._false_positive = None
         self._false_negative = None
+        self._direction = 'up'
 
     def _build(
         self,

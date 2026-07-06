@@ -412,6 +412,7 @@ which ensures that rarer samples are present in each batch during training.</p>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="c1"># sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="c1"># candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas</span>
     <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
     <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Ensure all batches have a similar data distribution</span>
@@ -476,8 +477,8 @@ like for the above code.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
 19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-MAE for log10 flux &lt; -4: 1.070
-MAE for log10 flux &gt;= -4: 1.824
+MAE for log10 flux &lt; -4: 1.037
+MAE for log10 flux &gt;= -4: 2.012
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -497,7 +498,8 @@ MAE for log10 flux &gt;= -4: 1.824
     <span class="n">x_train</span><span class="p">,</span>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
-    <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight_candidates</span><span class="p">,</span> <span class="c1"># Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight_candidates</span><span class="p">,</span> <span class="c1"># Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="n">candidate_evaluation_sample_weight</span><span class="o">=</span><span class="n">sample_weight_candidates</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="c1"># Uncomment to use varying alphas</span>
     <span class="n">epochs</span><span class="o">=</span><span class="n">EPOCHS</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
     <span class="n">stratify_batches</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Ensure all batches have a similar data distribution</span>
@@ -506,13 +508,13 @@ MAE for log10 flux &gt;= -4: 1.824
 </div>
 <p>we get the following results:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(after training output)
-Restoring model weights from fit on sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 1
 
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux &lt; -4: 1.096
-MAE for log10 flux &gt;= -4: 1.592
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux &lt; -4: 1.129
+MAE for log10 flux &gt;= -4: 2.267
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">

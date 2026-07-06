@@ -435,7 +435,13 @@
 </section>
 <section id="example-output">
 <h3>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">#</a></h3>
-<p><img alt="Model Results" src="../../../../_images/balanced_fit_regression.png" /></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 4.1165 - mae: 1.2846 
+Test Loss: 4.1165
+Test MAE: 1.2846
+Common sample MAE (&lt; ln(10)): 1.2776
+Rare sample MAE (&gt;= ln(10)): 1.6310
+</pre></div>
+</div>
 </section>
 </section>
 <hr class="docutils" />
@@ -481,7 +487,13 @@
 </section>
 <section id="id4">
 <h3>Results<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
-<p><img alt="Model Results" src="../../../../_images/balanced_fit_custom_alpha_regression.png" /></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 2.7186 - mae: 0.9024 
+Test Loss: 2.7186
+Test MAE: 0.9024
+Common sample MAE (&lt; ln(10)): 0.8913
+Rare sample MAE (&gt;= ln(10)): 1.4566
+</pre></div>
+</div>
 <p><img alt="Model Results" src="../../../../_images/balanced_fit_custom_alpha_regression_visualizer.png" /></p>
 <p>This optional approach gives you manual control over the weighting strategy, while the default <code class="docutils literal notranslate"><span class="pre">sample_density</span></code> workflow keeps the training setup simpler.</p>
 <hr class="docutils" />

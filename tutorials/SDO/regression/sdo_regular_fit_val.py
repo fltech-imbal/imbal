@@ -66,7 +66,7 @@ model = build_simple_cnn()
 Create validation split
 """
 
-# (x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
+(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.1)
 
 """
 Compile and train model
@@ -84,8 +84,8 @@ model.compile(
 history = model.fit(
     x_train,
     y_train,
-    # validation_data=(x_val, y_val),
-    validation_split=0.1,
+    validation_data=(x_val, y_val),
+    # validation_split=0.1,
     epochs=500,
     batch_size=BATCH_SIZE,
     stratify_batches=True, # Ensure all batches have a similar data distribution,

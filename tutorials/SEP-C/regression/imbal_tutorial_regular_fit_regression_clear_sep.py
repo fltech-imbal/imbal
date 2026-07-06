@@ -49,15 +49,15 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 model.compile(loss="mean_squared_error",
               optimizer="adam",
-              metrics=["mae"],
+              weighted_metrics=["mae"],
               )
 
-model.fit(x_train,
-          y_train,
-          batch_size=batch_size,
-          epochs=max_epochs,
-          )
-
+model.fit(
+    x_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=max_epochs,
+)
 
 # ----------------------------
 # Evaluation
@@ -87,6 +87,7 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 # ----------------------------
 # Visualization
 # ----------------------------
-imbal.regression.plot_true_vs_predictions(y_test,
-                                          predictions,
-                                          )
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions
+)

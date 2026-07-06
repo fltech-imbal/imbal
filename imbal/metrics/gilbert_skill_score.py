@@ -91,6 +91,7 @@ class GilbertSkillScore(ConfusionMatrixMetric):
         self._false_negative = None
         self._sample_size = None
         self._true_negative = None
+        self._direction = 'up'
 
     def _build(
         self,

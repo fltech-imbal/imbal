@@ -72,6 +72,7 @@ model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -141,9 +142,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
-MAE for log10 flux < -4: 1.038
-MAE for log10 flux >= -4: 1.853
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.031
+MAE for log10 flux >= -4: 1.975
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -167,6 +168,7 @@ model.rRT_fit(
     y_train,
     sample_density=sample_densities,
     sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -177,13 +179,13 @@ we get the following results:
 
 ```text
 (after training output)
-Restoring model weights from fit on sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
-MAE for log10 flux < -4: 1.089
-MAE for log10 flux >= -4: 1.790
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 75ms/step
+MAE for log10 flux < -4: 1.086
+MAE for log10 flux >= -4: 2.274
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

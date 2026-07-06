@@ -104,9 +104,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.383
-MAE for log10 flux >= -4: 2.944
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.370
+MAE for log10 flux >= -4: 2.929
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

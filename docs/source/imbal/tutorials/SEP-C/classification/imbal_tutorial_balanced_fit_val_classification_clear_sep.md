@@ -22,7 +22,7 @@ model.compile(
     optimizer="adam",
     metrics=[
         tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-        imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS"),
+        imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
     ],
 )
 ```
@@ -75,11 +75,42 @@ loss, f1_score, hss = results
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+
+if model.best_decision_threshold is not None:
+    best_threshold = model.best_decision_threshold
+    test_predictions = model.predict(x_test)
+    test_predictions = test_predictions.reshape(-1, 1)
+    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+    best_threshold = model.best_decision_threshold
+    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+    hss.update_state(y_test, test_predictions)
+
+    f1 = keras.metrics.F1Score(threshold=best_threshold)
+    f1.update_state(y_test, test_predictions)
+
+    if model.best_class_weights is not None:
+        print(f'Best class weights: {model.best_class_weights}')
+
+    print(
+        f'Best found threshold: {model.best_decision_threshold}\n'
+        f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+    )
 ```
 
 ### Example Output
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_val_classification.png)
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.2766 - HSS: 0.2520 - loss: 0.2317          
+Test Loss: 0.2317
+Test F1Score: 0.2766
+Test HSS: 0.2520
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 927us/step
+Best found threshold: 0.9
+F1Score using Best Threshold: 0.6286
+HSS using Best Threshold: 0.6201
+```
 
 ---
 
@@ -109,10 +140,17 @@ model.balanced_fit(
 
 ### Results
 
-![Model Results](../../../../_static/tutorials/SEP-C/balanced_fit_val_classification_explore_class_weights.png)
-
-> **NOTE:** at the end of training, the index of the best class weight is printed. For convenience, the associated class weight is also printed out.
-
+```text
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6471 - HSS: 0.6392 - loss: 0.0986   
+Test Loss: 0.0986
+Test F1Score: 0.6471
+Test HSS: 0.6392
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
+Best class weights: [0.9, 0.1]
+Best found threshold: 0.3
+F1Score using Best Threshold: 0.5789
+HSS using Best Threshold: 0.5687
+```
 This optional approach allows the function to explore different class weights, helping find the best hyperparameter values for the model while still using validation data and early stopping.
 
 ---

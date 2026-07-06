@@ -50,14 +50,15 @@ model = build_model(x_train.shape[1])
 model.compile(loss="binary_crossentropy",
               optimizer="adam",
               metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeikdeSkillScore(threshold=0.5, name="HSS")],
+                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
               )
 
-model.balanced_fit(x_train,
-                   y_train,
-                   batch_size=batch_size,
-                   epochs=max_epochs,
-                   )
+model.balanced_fit(
+    x_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=max_epochs,
+)
 
 # OPTIONAL: Use custom class weights during training
 # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
@@ -67,21 +68,40 @@ model.balanced_fit(x_train,
 
 # class_weights = {0: 0.9, 1: 0.1}
 #
-# model.balanced_fit(x_train,
-#           y_train,
-#           class_weight=class_weights,
-#           batch_size=batch_size,
-#           epochs=max_epochs,
-#           )
+# model.balanced_fit(
+#     x_train,
+#     y_train,
+#     class_weight=class_weights,
+#     batch_size=batch_size,
+#     epochs=max_epochs,
+# )
 
 
 # ----------------------------
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
-y_pred = model.predict(x_test)
 loss, f1_score, hss = results
 
 print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
+
+if model.best_decision_threshold is not None:
+    best_threshold = model.best_decision_threshold
+    test_predictions = model.predict(x_test)
+    test_predictions = test_predictions.reshape(-1, 1)
+    test_predictions = (test_predictions > best_threshold).astype(np.float32)
+
+    best_threshold = model.best_decision_threshold
+    hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+    hss.update_state(y_test, test_predictions)
+
+    f1 = keras.metrics.F1Score(threshold=best_threshold)
+    f1.update_state(y_test, test_predictions)
+
+    print(
+        f'Best found threshold: {model.best_decision_threshold}\n'
+        f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
+        f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
+    )
