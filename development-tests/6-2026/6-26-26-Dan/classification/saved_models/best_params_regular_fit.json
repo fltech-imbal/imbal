@@ -1,0 +1,8 @@
+{
+    "best_weight_index": -1,
+    "best_class_weights": -1,
+    "best_decision_threshold": 0.7,
+    "seed": 42,
+    "f1_score_using_best_threshold": 0.6399999856948853,
+    "hss_using_best_threshold": 0.6342712044715881
+}
