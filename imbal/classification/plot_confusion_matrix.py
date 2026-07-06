@@ -5,7 +5,8 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 def plot_confusion_matrix(
     labels,
     predictions,
-    save_figure=None
+    save_figure=None,
+    square_font_size=10,
 ):
     """
     Plots and displays a confusion matrix for the provided labels and predictions.
@@ -32,11 +33,21 @@ def plot_confusion_matrix(
 
     """
 
-    cm = confusion_matrix(labels.reshape(-1), np.round(predictions).reshape(-1))
+    cm = confusion_matrix(
+        labels.reshape(-1),
+        np.round(predictions).reshape(-1)
+    )
+
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot()
+
+    for text in disp.text_.ravel():
+        if text is not None:
+            text.set_fontsize(square_font_size)
+
     plt.title('Confusion matrix for test data')
 
     if save_figure is not None:
         plt.savefig(save_figure)
+
     plt.show()

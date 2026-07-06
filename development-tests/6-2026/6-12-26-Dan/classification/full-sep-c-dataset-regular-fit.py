@@ -3,6 +3,7 @@ import pandas as pd
 import tensorflow as tf
 import keras
 from tensorflow.keras import layers
+import os
 
 import imbal
 
@@ -19,8 +20,8 @@ batch_size = 32
 # ----------------------------
 # Data
 # ----------------------------
-train_data = pd.read_csv("../../../../tutorials/data/SEP-C/sep_10mev_training.csv")
-test_data  = pd.read_csv("../../../../tutorials/data/SEP-C/sep_10mev_testing.csv")
+train_data = pd.read_csv("../../../../tutorials/data/SEP-C/sep_10mev_training_classification.csv")
+test_data  = pd.read_csv("../../../../tutorials/data/SEP-C/sep_10mev_testing_classification.csv")
 
 y_train = train_data[target_column].values.reshape(-1, 1).astype("float32")
 y_test  = test_data[target_column].values.reshape(-1, 1).astype("float32")
@@ -41,25 +42,50 @@ def build_model(input_shape: int) -> imbal.classification.Model:
     built_model = imbal.classification.Model(inputs=inputs, outputs=outputs, name="sep_model")
     return built_model
 
-model = build_model(x_train.shape[1])
+MODEL_SAVE_PATH = "saved_models/regular-fit-model.keras"
+LOAD_SAVED_MODEL = True
 
+if LOAD_SAVED_MODEL and os.path.exists(MODEL_SAVE_PATH):
+    print(f'Loading saved binary classification model from {MODEL_SAVE_PATH}')
+    model = keras.models.load_model(
+        MODEL_SAVE_PATH,
+        custom_objects={'Model': imbal.classification.Model}
+    )
+else:
+    model = build_model(x_train.shape[1])
 
-# ----------------------------
-# Training
-# ----------------------------
-model.compile(loss="binary_crossentropy",
-              optimizer="adam",
-              metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                       imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")
-                       ],
-              )
+    # ----------------------------
+    # Training
+    # ----------------------------
+    model.compile(loss="binary_crossentropy",
+                  optimizer="adam",
+                  metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
+                           imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")
+                           ],
+                  )
 
-model.fit(
-    x_train,
-    y_train,
-    batch_size=batch_size,
-    epochs=max_epochs,
-)
+    model.fit(
+        x_train,
+        y_train,
+        batch_size=batch_size,
+        epochs=max_epochs,
+        verbose_imbal=2,
+    )
+
+    model.save(MODEL_SAVE_PATH)
+
+    import json
+
+    with open("saved_models/best_params_regular_fit.json", "w") as f:
+        json.dump({
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": (
+                float(model.best_decision_threshold)
+                if model.best_decision_threshold is not None
+                else None
+            )
+        }, f, indent=4)
 
 
 # ----------------------------

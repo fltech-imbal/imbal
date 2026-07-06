@@ -3,6 +3,8 @@ import pandas as pd
 import tensorflow as tf
 import keras
 from tensorflow.keras import layers
+import os
+from aore_metric import AORE
 
 import imbal
 
@@ -41,40 +43,59 @@ def build_model(input_shape: int) -> imbal.regression.Model:
     built_model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="sep_model")
     return built_model
 
-model = build_model(x_train.shape[1])
+MODEL_SAVE_PATH = "saved_models/regular-fit-model-val.keras"
+LOAD_SAVED_MODEL = True
+
+if LOAD_SAVED_MODEL and os.path.exists(MODEL_SAVE_PATH):
+    print(f'Loading saved regression model from {MODEL_SAVE_PATH}')
+    model = keras.models.load_model(
+        MODEL_SAVE_PATH,
+        custom_objects={'Model': imbal.regression.Model,
+                        'AORE': AORE,}
+    )
+else:
+    model = build_model(x_train.shape[1])
+
+    # ----------------------------
+    # Validation Set
+    # ----------------------------
+    (x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.2)
 
 
-# ----------------------------
-# Validation Set
-# ----------------------------
-(x_train, y_train), (x_val, y_val) =  imbal.regression.split(x_train, y_train, test_size=0.2)
+    # ----------------------------
+    # Training
+    # ----------------------------
+    model.compile(loss="mean_squared_error",
+                  optimizer="adam",
+                  weighted_metrics=[AORE(threshold=np.log(10)), "mae"],
+                  )
 
+    PATIENCE = 30
 
-# ----------------------------
-# Training
-# ----------------------------
-model.compile(loss="mean_squared_error",
-              optimizer="adam",
-              weighted_metrics=["mae"],
-              )
+    model.fit(
+        x_train,
+        y_train,
+        validation_data=(x_val, y_val.reshape(-1, 1)),
+        batch_size=batch_size,
+        epochs=max_epochs,
+        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+    )
 
-PATIENCE = 30
+    model.save(MODEL_SAVE_PATH)
 
-model.fit(
-    x_train,
-    y_train,
-    validation_data=(x_val, y_val.reshape(-1, 1)),
-    batch_size=batch_size,
-    epochs=max_epochs,
-    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-)
+    import json
 
+    with open("saved_models/best_params_regular_fit_regression-val.json", "w") as f:
+        json.dump({
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        }, f, indent=4)
 
 # ----------------------------
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
-loss, mae = results
+loss, _, mae = results
 predictions = model.predict(x_test)
 
 print(f"Test Loss: {loss:.4f}")
