@@ -356,7 +356,9 @@
 <li><p><strong>last_conv_layer_name</strong> – Optional name of the convolutional layer to explain.
 If None, the last Conv2D layer is used.</p></li>
 <li><p><strong>label_to_explain</strong> – Optional class/output index to explain. If None, the
-predicted class is used. For binary sigmoid outputs, index 0 is used.</p></li>
+predicted class is used. For binary one-output models, class 1 is
+explained by increasing the output and class 0 is explained by
+decreasing the output.</p></li>
 <li><p><strong>class_names</strong> – Optional list of class names.</p></li>
 <li><p><strong>actual_label</strong> – Optional true class index, displayed in the plot title.</p></li>
 <li><p><strong>preprocess_fn</strong> – Optional preprocessing function applied before prediction.</p></li>
@@ -394,13 +396,14 @@ Grad-CAM heatmap with shape (H, W) and values in the range <span class="math not
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">model</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">actual_label</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">label_to_explain</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">class_names</span><span class="o">=</span><span class="n">class_labels</span><span class="p">,</span>
-<span class="gp">&gt;&gt;&gt; </span>    <span class="n">show</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">class_names</span><span class="o">=</span><span class="n">class_labels</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="plot-examples">
 <h2>Plot Examples<a class="headerlink" href="#plot-examples" title="Link to this heading">#</a></h2>
+<section id="correct-classification">
+<h3>Correct Classification<a class="headerlink" href="#correct-classification" title="Link to this heading">#</a></h3>
 <p>Below is an example of the resulting Matplotlib pyplot plot for a correctly predicted class.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">gradcam_explain_image_sample</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">x</span><span class="p">,</span>
@@ -412,6 +415,12 @@ Grad-CAM heatmap with shape (H, W) and values in the range <span class="math not
 <p><img
 src="../../_static/classification/gradcam_image_classification/gradcam_image_explanation_correct_pred.png"
 width="450px"/></p>
+<p>The left panel shows the original image.</p>
+<p>The right panel shows the Grad-CAM explanation. Regions highlighted in red contribute toward increasing the predicted class probability, while regions highlighted in blue contribute little or none toward increasing the predicted class probability. Color intensity corresponds to the magnitude of each region’s contribution.</p>
+<p>The figure title displays both the predicted class and the actual target class. The colorbar indicates the intensity of the positive contribution to the prediction.</p>
+</section>
+<section id="incorrect-classification">
+<h3>Incorrect Classification<a class="headerlink" href="#incorrect-classification" title="Link to this heading">#</a></h3>
 <p>An example of the resulting Matplotlib pyplot plot for an incorrectly predicted class.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">gradcam_explain_image_sample</span><span class="p">(</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="n">x</span><span class="p">,</span>
@@ -422,6 +431,9 @@ width="450px"/></p>
 </div>
 <p><img src="../../_static/classification/gradcam_image_classification/gradcam_image_explanation_incorrect_pred.png"
 width="450px"/></p>
+<p>This example demonstrates how Grad-CAM can be used to investigate the regions of an image that most strongly influenced a prediction, even when the predicted class is incorrect.</p>
+<p>As with the previous example, red regions indicate image areas that increase the predicted class probability, while blue regions indicate areas contributing little or none toward increasing the predicted class probability. The intensity of the color reflects the relative contribution magnitude.</p>
+</section>
 </section>
 </section>
 
@@ -455,7 +467,11 @@ width="450px"/></p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.gradcam_explain_image_sample"><code class="docutils literal notranslate"><span class="pre">gradcam_explain_image_sample</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-examples">Plot Examples</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-examples">Plot Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#correct-classification">Correct Classification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#incorrect-classification">Incorrect Classification</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

@@ -5,10 +5,10 @@ import numpy as np
 NORMALIZED = True
 INCLUDE_CME = False
 INCLUDE_PROTON = True
-INCLUDE_ELECTRON = True
+INCLUDE_ELECTRON = False
 LOG = True
 EPSILON = 1e-9
-ORIGINAL_DATA_PATH = "../../../tutorials/data/SEP-EC"
+ORIGINAL_DATA_PATH = "../../../../tutorials/data/SEP-EC"
 
 """
 Load data

@@ -97,6 +97,7 @@ history = model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas
     validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
     # validation_split=0.1,
@@ -175,9 +176,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.251
-MAE for log10 flux >= -4: 1.639
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.258
+MAE for log10 flux >= -4: 0.791
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -202,6 +203,7 @@ history = model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas
     validation_data=(x_val, y_val, w_val),
     validation_densities=val_densities,
     # validation_split=0.1,
@@ -220,9 +222,9 @@ Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.307
-MAE for log10 flux >= -4: 0.983
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux < -4: 1.480
+MAE for log10 flux >= -4: 0.965
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -249,6 +251,7 @@ history = model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas
     # validation_data=(x_val, y_val, w_val),
     # validation_densities=val_densities,
     validation_split=0.1,
@@ -266,9 +269,9 @@ we get the following results:
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
-MAE for log10 flux < -4: 1.265
-MAE for log10 flux >= -4: 0.693
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.095
+MAE for log10 flux >= -4: 1.481
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

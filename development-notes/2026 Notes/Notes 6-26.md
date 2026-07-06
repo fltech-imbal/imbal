@@ -310,14 +310,35 @@ Possibilities:
 # 6/24/26
 ## NASA
 #### High Priority:
-- Only need to run test on best from `imbal`
-	- Try MDI/DW with wPCC for with/without electron data (and varied alpha)
+- Only need to run test on best from `imbal` $\checkmark$
+	- Try MDI/DW with wPCC for with/without electron data (and varied alpha) $\checkmark$
 - Only discuss proton only/no electron dataset in report
 	- Mention that we have electron data, but we took it out since we got better results without it
-- In report, up to and including table for dataset complete by Friday
-	- Also complete section 1.1
-		- Add picture form presentation for decoder branch generation
-		- Add picture from presentation for decoupled fit
-		- Add picture from validation split when explaining stratified split
+- In report, up to and including table for dataset complete by Friday $\checkmark$
+	- Also complete section 1.1 $\checkmark$
+		- Add picture form presentation for decoder branch generation $\checkmark$
+		- Add picture from presentation for decoupled fit $\checkmark$
+		- Add picture from validation split when explaining stratified split $\checkmark$
 #### Low Priority:
-- Check "collapsed" results, is wPCC close to 1 or close to 0?
+- Check "collapsed" results, is wPCC close to 1 or close to 0? $\checkmark$
+	- It was closer to 1, meaning PCC was taking priority over MSE. Lowering $\lambda$ to 0.02 on a regular fit allowed for MSE to taken precedence again.
+
+---
+# 6/26/26
+
+## NASA:
+#### High Priority:
+- Handle 1.3.1 Documentation in report $\checkmark$
+- Handle all red sections in report $\checkmark$
+
+---
+# 6/29/26
+- Add circles to tabular LIME, and t-SNE plots
+- Get rid of wine dataset plot in report $\checkmark$
+	- Add column explanations further down in results section $\checkmark$
+	- Table similar to Daniel's $\checkmark$
+
+---
+# 7/1/26
+- FIRST, update QR code in presentation to link to documentation page, which will now act as the "homepage" $\checkmark$
+	- On documentation home, add pdf download for "presentation of the `imbal` tool on may 6th 2026" $\checkmark$

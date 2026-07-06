@@ -15,9 +15,10 @@ Set script parameters
 LEARNING_RATE = 5e-5
 FIT = FitType.DECOUPLED
 VALIDATION_DATA = True
-AE = True
-AE_THIRD_TO_LAST = True
+AE = False
+AE_THIRD_TO_LAST = False
 WEIGHT_CANDIDATES = True
+SINGLE_WEIGHT_ALPHA=0.6
 
 EARLY_STOPPING_PATIENCE = 20
 EPOCHS = 1000 if VALIDATION_DATA else 200
@@ -96,6 +97,7 @@ def pcc(y_true, y_pred):
         (tf.norm(y_true_centered) * tf.norm(y_pred_centered))
     )
 
+@keras.saving.register_keras_serializable()
 def loss_fn(y_true, y_pred):
     return keras.losses.mean_squared_error(y_true, y_pred) + 0.5*pcc(y_true, y_pred)
 
@@ -127,13 +129,13 @@ if VALIDATION_DATA:
         y_train,
         kde_bandwidth,
     )
-    sample_weights = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else 1)
+    sample_weights = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else SINGLE_WEIGHT_ALPHA)
     val_densities = imbal.regression.get_sample_densities(
         y_val,
         kde_bandwidth,
         distribution=y_train
     )
-    w_val = imbal.regression.reciprocal_importance(val_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else 1)
+    w_val = imbal.regression.reciprocal_importance(val_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else SINGLE_WEIGHT_ALPHA)
     val_data = (x_val, y_val, w_val)
 else:
     x_train = np.concatenate((x_train, x_val))
@@ -187,9 +189,12 @@ mae = np.mean(np.abs(predictions - y_test))
 common_mae = np.mean(np.abs(common_predictions - common_labels))
 rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
+model.save(f"models/{DATA_PATH}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}_pcc.keras")
+
 imbal.regression.plot_true_vs_predictions(
     y_test,
     predictions,
     title=f'Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {[0.1*(i+1) for i in range(10)][model.best_weight_index]:.1f}" if WEIGHT_CANDIDATES else ""}',
     save_figure=f"results/{DATA_PATH}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}_pcc.png"
 )
+

@@ -72,13 +72,13 @@ print(f"Test Loss: {loss:.4f}")
 print(f"Test F1Score: {f1_score:.4f}")
 print(f"Test HSS: {hss:.4f}")
 
-if model.best_metric_threshold is not None:
-    best_threshold = model.best_metric_threshold
+if model.best_decision_threshold is not None:
+    best_threshold = model.best_decision_threshold
     test_predictions = model.predict(x_test)
     test_predictions = test_predictions.reshape(-1, 1)
     test_predictions = (test_predictions > best_threshold).astype(np.float32)
 
-    best_threshold = model.best_metric_threshold
+    best_threshold = model.best_decision_threshold
     hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
     hss.update_state(y_test, test_predictions)
 
@@ -86,7 +86,7 @@ if model.best_metric_threshold is not None:
     f1.update_state(y_test, test_predictions)
 
     print(
-        f'Best found threshold: {model.best_metric_threshold}\n'
+        f'Best found threshold: {model.best_decision_threshold}\n'
         f'F1Score using Best Threshold: {f1.result()[0]:.4f}\n'
         f'HSS using Best Threshold: {hss.result()[0]:.4f}\n'
     )

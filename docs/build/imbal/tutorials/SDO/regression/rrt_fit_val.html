@@ -431,7 +431,8 @@ samples are present in each batch during training.</p>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="c1"># sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
-    <span class="c1"># validation_data=(x_val, y_val, w_val),</span>
+    <span class="c1"># candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">w_val</span><span class="p">),</span>
     <span class="c1"># validation_densities=val_densities,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
@@ -529,8 +530,9 @@ MAE for log10 flux &gt;= -4: 0.722
     <span class="n">x_train</span><span class="p">,</span>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
-    <span class="c1"># sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
-    <span class="c1"># validation_data=(x_val, y_val, w_val),</span>
+    <span class="n">sample_weight</span><span class="o">=</span><span class="n">weight_candidates</span><span class="p">,</span> <span class="c1"># Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="n">candidate_evaluation_sample_weight</span><span class="o">=</span><span class="n">w_val</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="c1"># Uncomment to use varying alphas</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">w_val</span><span class="p">),</span>
     <span class="c1"># validation_densities=val_densities,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
@@ -573,7 +575,8 @@ MAE for log10 flux &gt;= -4: 0.753
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="c1"># sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
-    <span class="c1"># validation_data=(x_val, y_val, w_val),</span>
+    <span class="c1"># candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">w_val</span><span class="p">),</span>
     <span class="c1"># validation_densities=val_densities,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="n">epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>

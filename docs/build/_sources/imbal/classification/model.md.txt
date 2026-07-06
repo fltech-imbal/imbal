@@ -35,7 +35,11 @@ The process of performing a fit on multiple weight candidates is described below
 Whenever a model fit is performed, the best decision threshold for the first
 metric passed in `Model.compile` (defaults to `keras.metrics.F1Score` if no metric is specified)
 is determined. Multiple decision thresholds are tested, and the decision threshold that best
-optimizes the metric is saved to `Model.best_metric_threshold`.
+optimizes the metric is saved to `Model.best_decision_threshold`.
+
+This automatic decision threshold sweep tests thresholds from $0.1$ to $0.9$ with a step size of $0.1$.
+For a more thorough threshold sweep, the [imbal.classification.optimize_decision_threshold](optimize_decision_threshold.md)
+function should be used.
 
 ## A Note on Validation Data
 

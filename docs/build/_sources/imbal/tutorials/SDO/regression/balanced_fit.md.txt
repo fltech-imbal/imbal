@@ -71,6 +71,7 @@ model.balanced_fit(
     y_train,
     sample_density=sample_densities,
     # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -138,9 +139,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 15ms/step
-MAE for log10 flux < -4: 1.177
-MAE for log10 flux >= -4: 1.619
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux < -4: 1.103
+MAE for log10 flux >= -4: 1.648
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -163,7 +164,8 @@ model.balanced_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -178,9 +180,9 @@ Restoring model weights from fit on sample weight candidate at index 1
 
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.093
-MAE for log10 flux >= -4: 2.247
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux < -4: 1.116
+MAE for log10 flux >= -4: 2.366
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

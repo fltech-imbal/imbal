@@ -435,6 +435,7 @@ samples are present in each batch during training.</p>
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="c1"># sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="c1"># candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas</span>
     <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">w_val</span><span class="p">),</span>
     <span class="n">validation_densities</span><span class="o">=</span><span class="n">val_densities</span><span class="p">,</span>
     <span class="c1"># validation_split=0.1,</span>
@@ -508,9 +509,9 @@ comparing the true and predicted values for individual test samples.</p>
 like for the above code.</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux &lt; -4: 1.251
-MAE for log10 flux &gt;= -4: 1.639
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux &lt; -4: 1.258
+MAE for log10 flux &gt;= -4: 0.791
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -532,6 +533,7 @@ MAE for log10 flux &gt;= -4: 1.639
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="c1"># Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="n">candidate_evaluation_sample_weight</span><span class="o">=</span><span class="n">w_val</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="c1"># Uncomment to use varying alphas</span>
     <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_val</span><span class="p">,</span> <span class="n">y_val</span><span class="p">,</span> <span class="n">w_val</span><span class="p">),</span>
     <span class="n">validation_densities</span><span class="o">=</span><span class="n">val_densities</span><span class="p">,</span>
     <span class="c1"># validation_split=0.1,</span>
@@ -548,9 +550,9 @@ Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux &lt; -4: 1.307
-MAE for log10 flux &gt;= -4: 0.983
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
+MAE for log10 flux &lt; -4: 1.480
+MAE for log10 flux &gt;= -4: 0.965
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -575,6 +577,7 @@ MAE for log10 flux &gt;= -4: 0.983
     <span class="n">y_train</span><span class="p">,</span>
     <span class="n">sample_density</span><span class="o">=</span><span class="n">sample_densities</span><span class="p">,</span>
     <span class="c1"># sample_weight=sample_weight, # Uncomment to use varying alphas for reciprocal importance (see above section)</span>
+    <span class="c1"># candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas</span>
     <span class="c1"># validation_data=(x_val, y_val, w_val),</span>
     <span class="c1"># validation_densities=val_densities,</span>
     <span class="n">validation_split</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
@@ -590,9 +593,9 @@ MAE for log10 flux &gt;= -4: 0.983
 
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 14ms/step
-MAE for log10 flux &lt; -4: 1.265
-MAE for log10 flux &gt;= -4: 0.693
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux &lt; -4: 1.095
+MAE for log10 flux &gt;= -4: 1.481
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">

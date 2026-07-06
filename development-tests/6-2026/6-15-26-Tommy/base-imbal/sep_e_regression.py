@@ -15,15 +15,16 @@ Set script parameters
 LEARNING_RATE = 5e-5
 FIT = FitType.DECOUPLED
 VALIDATION_DATA = True
-AE = True
-AE_THIRD_TO_LAST = True
-WEIGHT_CANDIDATES = True
+AE = False
+AE_THIRD_TO_LAST = False
+WEIGHT_CANDIDATES = False
+SINGLE_WEIGHT_ALPHA=0.6
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 20
 EPOCHS = 1000 if VALIDATION_DATA else 200
 
-DATA_PATH = 'sep_e_log_normalized'
+DATA_PATH = 'sep_e_no_electron_log_normalized'
 
 # Will be mostly left unchanged
 STRATIFY = True
@@ -70,7 +71,7 @@ if FIT == FitType.REGULAR:
 #     SEED
 # )
 
-LAYER_DIMS = [128, 128, 128, 64, 64, 64, 32, 32, 32]
+LAYER_DIMS = [128, 128, 128, 64, 64, 64, 32, 32, 2]
 
 inputs = keras.Input(shape=(x_train.shape[1],))
 
@@ -115,13 +116,13 @@ if VALIDATION_DATA:
         y_train,
         kde_bandwidth,
     )
-    sample_weights = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else 1)
+    sample_weights = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else SINGLE_WEIGHT_ALPHA)
     val_densities = imbal.regression.get_sample_densities(
         y_val,
         kde_bandwidth,
         distribution=y_train
     )
-    w_val = imbal.regression.reciprocal_importance(val_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else 1)
+    w_val = imbal.regression.reciprocal_importance(val_densities, alpha=[0.1*(i+1) for i in range(10)] if WEIGHT_CANDIDATES else SINGLE_WEIGHT_ALPHA)
     val_data = (x_val, y_val, w_val)
 else:
     x_train = np.concatenate((x_train, x_val))

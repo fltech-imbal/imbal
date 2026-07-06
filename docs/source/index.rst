@@ -27,6 +27,8 @@ Information on incorporated tools:
 
 Code tutorials can be found :doc:`here </imbal/tutorials/tutorials>`
 
+The presentation of the imbal tool from May 6th, 2026 can be found `here <_static/presentation.pdf>`_.
+
 Contact us
 ------------------
 

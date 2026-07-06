@@ -440,7 +440,7 @@ training and test set.</p>
 <span class="n">y_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Calculate metrics</span>
-<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeikdeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
 
 <span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -451,26 +451,53 @@ training and test set.</p>
     <span class="sa">f</span><span class="s1">&#39;F1 Score: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
 <span class="p">)</span>
 
-<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
-    <span class="n">y_test</span><span class="p">,</span>
-    <span class="n">test_predictions</span><span class="p">,</span>
-    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-val-confusion-matrix.png&#39;</span>
-<span class="p">)</span>
-
 <span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_roc</span><span class="p">(</span>
     <span class="n">y_test</span><span class="p">,</span>
     <span class="n">test_predictions</span><span class="p">,</span>
     <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-val-roc.png&#39;</span>
 <span class="p">)</span>
+
+<span class="n">best_threshold</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span>
+<span class="n">hss</span> <span class="o">=</span> <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="n">hss</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+<span class="n">f1</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">best_threshold</span><span class="p">)</span>
+<span class="n">f1</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">test_predictions</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;Best threshold: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">best_decision_threshold</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;Heikde Skill Score using Best Threshold: </span><span class="si">{</span><span class="n">hss</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="sa">f</span><span class="s1">&#39;F1 Score using Best Threshold: </span><span class="si">{</span><span class="n">f1</span><span class="o">.</span><span class="n">result</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="n">test_predictions</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">test_predictions</span> <span class="o">=</span> <span class="p">(</span><span class="n">test_predictions</span> <span class="o">&gt;</span> <span class="n">best_threshold</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="n">imbal</span><span class="o">.</span><span class="n">classification</span><span class="o">.</span><span class="n">plot_confusion_matrix</span><span class="p">(</span>
+    <span class="n">y_test</span><span class="p">,</span>
+    <span class="n">test_predictions</span><span class="p">,</span>
+    <span class="n">save_figure</span><span class="o">=</span><span class="s1">&#39;sample-sdo-regular-fit-val-confusion-matrix.png&#39;</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>Below are examples of what the generated output and plots should look
 like for the above code.</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Number of test samples with log10 flux &lt; -4: 586
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;f1_score&quot;: 0.1
+Performing final fit using combined training and validation data
+...
+Fit stopped after 94 epochs
+Restored weights from epoch 84
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 28ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1236
+Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
+
+Best threshold: 0.1
+Heikde Skill Score using Best Threshold: 0.0000
+F1 Score using Best Threshold: 0.0000
 </pre></div>
 </div>
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -500,12 +527,14 @@ F1 Score: 0.0000
 </div>
 <p>we get the following results:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;f1_score&quot;: 0.1
-Fit stopped after 14 epochs
-Restored weights from epoch 4
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1446
+Performing final fit using combined training and validation data
+...
+Fit stopped after 9 epochs
+Restored weights from epoch -1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 26ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.1293
 Number of test samples with log10 flux &lt; -4: 586
 Number of test samples with log10 flux &gt;= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 8ms/step
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
 Heikde Skill Score: 0.0000
 F1 Score: 0.0000
 
