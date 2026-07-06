@@ -1,0 +1,145 @@
+{
+    "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+    ],
+    "all_seed_results": [
+        {
+            "seed": 42,
+            "test_loss": 0.057717714458703995,
+            "test_f1_score_default_threshold": 0.7299269437789917,
+            "test_hss_default_threshold": 0.7218116521835327,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.5,
+            "f1_score_using_best_threshold": 0.6206895709037781,
+            "hss_using_best_threshold": 0.6133792996406555,
+            "included_in_average": true
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.04861721023917198,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.25,
+            "f1_score_using_best_threshold": 0.5128204822540283,
+            "hss_using_best_threshold": 0.5007889866828918,
+            "included_in_average": true
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.0468241423368454,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.1,
+            "f1_score_using_best_threshold": 0.5454545021057129,
+            "hss_using_best_threshold": 0.5334107875823975,
+            "included_in_average": true
+        },
+        {
+            "seed": 45,
+            "test_loss": 0.047774430364370346,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.25,
+            "f1_score_using_best_threshold": 0.5555554628372192,
+            "hss_using_best_threshold": 0.5451636910438538,
+            "included_in_average": true
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.04995938763022423,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.4,
+            "f1_score_using_best_threshold": 0.6451612114906311,
+            "hss_using_best_threshold": 0.6378411650657654,
+            "included_in_average": true
+        }
+    ],
+    "valid_seed_results": [
+        {
+            "seed": 42,
+            "test_loss": 0.057717714458703995,
+            "test_f1_score_default_threshold": 0.7299269437789917,
+            "test_hss_default_threshold": 0.7218116521835327,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.5,
+            "f1_score_using_best_threshold": 0.6206895709037781,
+            "hss_using_best_threshold": 0.6133792996406555,
+            "included_in_average": true
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.04861721023917198,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.25,
+            "f1_score_using_best_threshold": 0.5128204822540283,
+            "hss_using_best_threshold": 0.5007889866828918,
+            "included_in_average": true
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.0468241423368454,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.1,
+            "f1_score_using_best_threshold": 0.5454545021057129,
+            "hss_using_best_threshold": 0.5334107875823975,
+            "included_in_average": true
+        },
+        {
+            "seed": 45,
+            "test_loss": 0.047774430364370346,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.25,
+            "f1_score_using_best_threshold": 0.5555554628372192,
+            "hss_using_best_threshold": 0.5451636910438538,
+            "included_in_average": true
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.04995938763022423,
+            "test_f1_score_default_threshold": 0.0,
+            "test_hss_default_threshold": 0.0,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.4,
+            "f1_score_using_best_threshold": 0.6451612114906311,
+            "hss_using_best_threshold": 0.6378411650657654,
+            "included_in_average": true
+        }
+    ],
+    "average_f1_score_using_best_threshold_excluding_zero_f1_runs": 0.575936245918274,
+    "std_f1_score_using_best_threshold_excluding_zero_f1_runs": 0.04924036678077185,
+    "average_hss_using_best_threshold_excluding_zero_f1_runs": 0.5661167860031128,
+    "std_hss_using_best_threshold_excluding_zero_f1_runs": 0.05129243147356657,
+    "best_model": {
+        "seed": 46,
+        "best_weight_index": -1,
+        "best_class_weights": -1,
+        "best_decision_threshold": 0.4,
+        "f1_score_using_best_threshold": 0.6451612114906311,
+        "hss_using_best_threshold": 0.6378411650657654
+    }
+}

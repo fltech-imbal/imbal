@@ -3,6 +3,8 @@ import pandas as pd
 import tensorflow as tf
 import keras
 from tensorflow.keras import layers
+import os
+from aore_metric import AORE
 
 import imbal
 
@@ -41,45 +43,73 @@ def build_model(input_shape: int) -> imbal.regression.Model:
     built_model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="sep_model")
     return built_model
 
-model = build_model(x_train.shape[1])
+MODEL_SAVE_PATH = "saved_models/decoupled-fit-model.keras"
+LOAD_SAVED_MODEL = True
+
+if LOAD_SAVED_MODEL and os.path.exists(MODEL_SAVE_PATH):
+    print(f'Loading saved regression model from {MODEL_SAVE_PATH}')
+    model = keras.models.load_model(
+        MODEL_SAVE_PATH,
+        custom_objects={'Model': imbal.regression.Model,
+                        'AORE': AORE,}
+    )
+else:
+    model = build_model(x_train.shape[1])
 
 
-# ----------------------------
-# Training
-# ----------------------------
-labels_kde = y_train.reshape(-1).copy()
-kde = imbal.regression.fit_kde(labels_kde)
-densities = imbal.regression.get_sample_densities(labels_kde, kde)
+    # ----------------------------
+    # Training
+    # ----------------------------
+    labels_kde = y_train.reshape(-1).copy()
+    kde = imbal.regression.fit_kde(labels_kde)
+    densities = imbal.regression.get_sample_densities(labels_kde, kde)
 
-model.compile(loss="mean_squared_error",
-              optimizer="adam",
-              weighted_metrics=["mae"],
-              )
+    model.compile(loss="mean_squared_error",
+                  optimizer="adam",
+                  weighted_metrics=[AORE(threshold=np.log(10)), "mae"],
+                  )
 
-model.rRT_fit(
-    x_train,
-    y_train,
-    sample_density=densities,
-    batch_size=batch_size,
-    epochs=max_epochs,
-)
+    # model.rRT_fit(
+    #     x_train,
+    #     y_train,
+    #     sample_density=densities,
+    #     batch_size=batch_size,
+    #     epochs=max_epochs,
+    # )
 
-# from imbal.regression import reciprocal_importance
-# weights = reciprocal_importance(densities, alpha=0.95)
-# model.rRT_fit(
-#     x_train,
-#     y_train,
-#     sample_weight=weights,
-#     batch_size=batch_size,
-#     epochs=max_epochs,
-# )
+    from imbal.regression import reciprocal_importance
 
+    alpha_candidates = [0.2, 0.5, 0.8, 0.9, 1.0, 1.1]
+    weight_candidates = reciprocal_importance(densities, alpha=alpha_candidates)
+    candidate_evaluation_weights = np.ones(len(y_train))
+
+    model.rRT_fit(
+        x_train,
+        y_train,
+        sample_weight=weight_candidates,
+        candidate_evaluation_sample_weight=candidate_evaluation_weights,
+        batch_size=batch_size,
+        epochs=max_epochs,
+    )
+
+    best_alpha_index = int(model.best_weight_index)
+    best_alpha = float(alpha_candidates[best_alpha_index])
+
+    model.save(MODEL_SAVE_PATH)
+
+    import json
+
+    with open("saved_models/best_params_decoupled_fit_regression.json", "w") as f:
+        json.dump({
+            "best_alpha_index": best_alpha_index,
+            "best_alpha": best_alpha
+        }, f, indent=4)
 
 # ----------------------------
 # Evaluation
 # ----------------------------
 results = model.evaluate(x_test, y_test)
-loss, mae = results
+loss, _, mae = results
 predictions = model.predict(x_test)
 
 print(f"Test Loss: {loss:.4f}")

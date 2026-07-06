@@ -22,6 +22,8 @@ class Model(keras.Model):
         self.best_class_weights = None
         self.best_decision_threshold = None
         self.best_weight_index = None
+        self._compare_metric_spec = None
+        self._compare_metric_uses_weights = False
 
         self._generate_decoder_branch = False
         self._use_decoder_branch = False
@@ -443,12 +445,13 @@ class Model(keras.Model):
         validation_data,
         verbose_imbal
     ):
+
         weights = None
-        if len(model.metrics) > 1 and hasattr(model.metrics[1], '_flat_weighted_metrics') and model.metrics[1]._flat_weighted_metrics[0] is not None:
-            compare_metric = model.metrics[1]._flat_weighted_metrics[0].metrics[0]
-            weights = sample_weight
-        elif len(model.metrics) > 1 and hasattr(model.metrics[1], '_flat_metrics') and model.metrics[1]._flat_metrics[0] is not None:
-            compare_metric = model.metrics[1]._flat_metrics[0].metrics[0]
+        if self._compare_metric_spec is not None:
+            compare_metric = self._retrieve_metric(self._compare_metric_spec)
+
+            if self._compare_metric_uses_weights:
+                weights = sample_weight
         else:
             if self._mode_enum == ModelType.CLASSIFICATION:
                 compare_metric = keras.metrics.F1Score(threshold=0.5)
@@ -471,8 +474,6 @@ class Model(keras.Model):
             if compare_metric._direction == 'up':
                 compare_function = maximize
 
-        best_metric_result = None
-        best_threshold = None
         predictions = model.predict(x_metric)
 
         if self._use_decoder_branch:
@@ -485,6 +486,11 @@ class Model(keras.Model):
             if verbose_imbal > 0:
                 print(f'Result of testing metric "{compare_metric.name}" for previous fit: {metric_result:.4f}')
             return metric_result, None, compare_function
+
+        best_metric_result = None
+        best_threshold = None
+        best_threshold_min = None
+        best_threshold_max = None
 
         for i in range(1, 10):
             compare_metric.reset_state()
@@ -502,12 +508,37 @@ class Model(keras.Model):
 
             if best_metric_result is None or compare_function(current_metric_result, best_metric_result):
                 best_metric_result = current_metric_result
+                best_threshold_min = current_threshold
+                best_threshold_max = current_threshold
                 best_threshold = current_threshold
+
+            elif np.isclose(current_metric_result, best_metric_result):
+                best_threshold_min = min(best_threshold_min, current_threshold)
+                best_threshold_max = max(best_threshold_max, current_threshold)
+                best_threshold = (best_threshold_min + best_threshold_max) / 2.0
 
         if verbose_imbal > 0:
             print(f'Best decision threshold based on metric "{compare_metric.name}": {best_threshold}')
 
         return best_metric_result, best_threshold, compare_function
+
+    def _store_metric_spec(self, metric):
+        if metric is None:
+            return None
+
+        if isinstance(metric, str):
+            return metric
+
+        return keras.metrics.serialize(metric)
+
+    def _retrieve_metric(self, metric_spec):
+        if metric_spec is None:
+            return None
+
+        if isinstance(metric_spec, str):
+            return keras.metrics.get(metric_spec)
+
+        return keras.metrics.deserialize(metric_spec)
 
     def compile(
         self,
@@ -567,6 +598,19 @@ class Model(keras.Model):
         self._extended_model = None
 
         self._use_decoder_branch = self._generate_decoder_branch
+
+        weighted_metrics = kwargs.get("weighted_metrics", None)
+        metrics = kwargs.get("metrics", None)
+
+        if weighted_metrics is not None and len(weighted_metrics) > 0:
+            self._compare_metric_spec = self._store_metric_spec(weighted_metrics[0])
+            self._compare_metric_uses_weights = True
+        elif metrics is not None and len(metrics) > 0:
+            self._compare_metric_spec = self._store_metric_spec(metrics[0])
+            self._compare_metric_uses_weights = False
+        else:
+            self._compare_metric_spec = None
+            self._compare_metric_uses_weights = False
 
         if self._generate_decoder_branch:
             imbal.util.generate_decoder(self)
