@@ -1,5 +1,7 @@
 from imbal.metrics.true_skill_statistic import TrueSkillStatistic
+import keras
 
+@keras.saving.register_keras_serializable()
 class YoudensIndex(TrueSkillStatistic):
     r"""
     Computes the Youden's Index.

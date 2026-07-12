@@ -2,9 +2,10 @@ from numpy.typing import NDArray
 from typing import Tuple
 from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric
-import tensorflow as tf
+import keras
 from keras.src.metrics import metrics_utils
 
+@keras.saving.register_keras_serializable()
 class GilbertSkillScore(ConfusionMatrixMetric):
     r"""
     Computes the Gilbert Skill Score.

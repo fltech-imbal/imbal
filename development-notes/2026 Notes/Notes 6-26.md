@@ -342,3 +342,26 @@ Possibilities:
 # 7/1/26
 - FIRST, update QR code in presentation to link to documentation page, which will now act as the "homepage" $\checkmark$
 	- On documentation home, add pdf download for "presentation of the `imbal` tool on may 6th 2026" $\checkmark$
+
+---
+# 7/8/26
+
+- Swap SEP-C with SEP-EC sections in paper (to avoid forward reference)
+	- Relabel tables and figures to match new order
+- Using [Dynamic Time Warping](https://tslearn.readthedocs.io/en/stable/gen_modules/metrics/tslearn.metrics.dtw_path.html#tslearn.metrics.dtw_path) on proton intensity column of each time series:
+	- Find all pairwise distances
+	- Rank pairs and find N sized groups with closest pairs
+	- Rank sum distance of groups
+	- Remove pairs that contained a member of the formed group
+	- Repeat
+![[Pasted image 20260708171213.png]]
+- Rerun all tests for report
+
+
+---
+# 7/10/26
+- Send plots of cluster to Dr. Chan
+- Does peak intensity vs DTW generate better clusters?
+## Class
+- Why did "maximize entropy" have faster training time and better AORE
+	- Is the loss minimized quickly? or is the loss not going down at all?

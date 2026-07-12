@@ -5,7 +5,9 @@ from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric
 from imbal.metrics.confusion_matrix import ConfusionMatrix, ConfusionMatrixData
 from keras.src import ops
+import keras
 
+@keras.saving.register_keras_serializable()
 class TruePositiveRate(ConfusionMatrixMetric):
     """
      imbal.metrics.TruePositiveRate

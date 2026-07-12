@@ -1,0 +1,158 @@
+Baseline:
+- Epochs:
+  - 2903 None
+  - 1493 None
+  - 622 None
+  - 709 None
+  - 1590 None
+- Test metrics:
+  - Average common MAE: 0.09212
+  - Average rare MAE: 0.66596
+  - Average AORE: 0.37904
+
+1. Minimize variance (tuned)
+- Epochs:
+  - 2492 1456
+  - 1429 2058
+  - 1717 1879
+  - 1350 1038
+  - 1643 1178
+- Test metrics:
+  - Average common MAE: 0.10322
+  - Average rare MAE: 0.63304
+  - Average AORE: 0.36813
+
+2. PCC of label distance vs. representation distance (tuned)
+- Epochs:
+  - 319 1702
+  - 254 1453
+  - 390 2389
+  - 570 1051
+  - 491 1471
+- Test metrics:
+  - Average common MAE: 0.09328
+  - Average rare MAE: 0.68006
+  - Average AORE: 0.38667
+
+3. Maximize Entropy of Normalized Ratios (tuned)
+- Epochs:
+  - 59 3183
+  - 107 1561
+  - 160 813
+  - 96 1127
+  - 217 1873
+- Test metrics:
+  - Average common MAE: 0.10368
+  - Average rare MAE: 0.63156
+  - Average AORE: 0.36762
+
+4. PCC of labels vs. representations (tuned)
+- Epochs:
+  - 3734 1111
+  - 5681 1957
+  - 3261 812
+  - 2860 642
+  - 3702 626
+- Test metrics:
+  - Average common MAE: 0.1116
+  - Average rare MAE: 0.6387
+  - Average AORE: 0.37515
+
+--------------------------------------------------------------------------------
+
+Baseline (balanced, alpha=0.5):
+- Epochs:
+  - 2528 None
+  - 2475 None
+  - 2636 None
+  - 3035 None
+  - 2525 None
+- Test metrics:
+  - Average common MAE: 0.12044
+  - Average rare MAE: 0.64492
+  - Average AORE: 0.38268
+
+1. Minimize variance (tuned, alpha=0.5)
+- Epochs:
+  - 2059 1849
+  - 1464 1067
+  - 1864 3051
+  - 2423 1703
+  - 1574 1120
+- Test metrics:
+  - Average common MAE: 0.09032
+  - Average rare MAE: 0.67690
+  - Average AORE: 0.38361
+
+2. PCC of label distance vs. representation distance (tuned, alpha=0.5)
+- Epochs:
+  - 433 727
+  - 738 821
+  - 541 1224
+  - 689 1083
+  - 529 1877
+- Test metrics:
+  - Average common MAE: 0.08376
+  - Average rare MAE: 0.66512
+  - Average AORE: 0.37444
+
+3. Maximize Entropy of Normalized Ratios (tuned, alpha=0.5)
+- Epochs:
+  - 163 1095
+  - 68 3541
+  - 50 654
+  - 75 1380
+  - 241 1036
+- Test metrics:
+  - Average common MAE: 0.08806
+  - Average rare MAE: 0.64816
+  - Average AORE: 0.36811
+
+4. PCC of labels vs. representations (tuned, alpha=0.5)
+- Epochs:
+  - 2708 1042
+  - 4529 1049
+  - 2193 1386
+  - 3248 1402
+  - 2385 2115
+- Test metrics:
+  - Average common MAE: 0.10084
+  - Average rare MAE: 0.62932
+  - Average AORE: 0.36508
+
+
+4. PCC of labels vs. representations (tuned, alpha=0.5)
+- Epochs:
+  - 2708 1042
+  - 4529 1049
+  - 2193 1386
+  - 3248 1402
+  - 2385 2115
+- Test metrics:
+  - Average common MAE: 0.10084
+  - Average rare MAE: 0.62932
+  - Average AORE: 0.36508
+
+4. PCC of labels vs. representations (frozen, alpha=0.5)
+- Epochs:
+  - 3558 1263
+  - 1792 1042
+  - 4836 897
+  - 3447 1466
+  - 3998 1008
+- Test metrics:
+  - Average common MAE: 0.10932
+  - Average rare MAE: 0.62292
+  - Average AORE: 0.36612
+
+4. PCC of labels vs. representations (joint, alpha=0.5)
+- Epochs:
+  - 2187 None
+  - 2506 None
+  - 2114 None
+  - 2352 None
+  - 2533 None
+- Test metrics:
+  - Average common MAE: 0.13094
+  - Average rare MAE: 0.62548
+  - Average AORE: 0.

@@ -1,0 +1,158 @@
+Baseline:
+- Epochs:
+  - 387 None
+  - 438 None
+  - 3522 None
+  - 3594 None
+  - 3492 None
+- Test metrics:
+  - Average common MAE: 0.66512
+  - Average rare MAE: 1.90938
+  - Average AORE: 1.28725
+
+1. Minimize variance (tuned)
+- Epochs:
+  - 532 617
+  - 559 2987
+  - 456 2963
+  - 215 3598
+  - 423 3290
+- Test metrics:
+  - Average common MAE: 0.68848
+  - Average rare MAE: 1.93256
+  - Average AORE: 1.31052
+
+2. PCC of label distance vs. representation distance (tuned)
+- Epochs:
+  - 573 3945
+  - 366 429
+  - 278 2865
+  - 219 3553
+  - 285 3789
+- Test metrics:
+  - Average common MAE: 0.68906
+  - Average rare MAE: 1.9408
+  - Average AORE: 1.31493
+
+3. Maximize Entropy of Normalized Ratios (tuned)
+- Epochs:
+  - 15 588
+  - 81 4097
+  - 32 3667
+  - 14 4342
+  - 50 508
+- Test metrics:
+  - Average common MAE: 0.64090
+  - Average rare MAE: 1.89942
+  - Average AORE: 1.27016
+
+4. PCC of labels vs. representations (tuned)
+- Epochs:
+  - 33 4121
+  - 1655 3285
+  - 87 4715
+  - 3370 3465
+  - 33 823
+- Test metrics:
+  - Average common MAE: 0.70430
+  - Average rare MAE: 1.8975
+  - Average AORE: 1.3009
+
+5. PCC of labels vs. representations (frozen)
+- Epochs:
+  - 257 684
+  - 10 303
+  - 386 254
+  - 103 500
+  - 42 426
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+
+5. PCC of labels vs. representations (joint)
+- Epochs:
+  - 3131 None
+  - 760 None
+  - 3535 None
+  - 4738 None
+  - 421 None
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+5. Special PCC  (joint)
+- Epochs:
+  - 4307 None
+  - 3551 None
+  - 3749 None
+  - 3839 None
+  - 4128 None
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+--------------------------------------------------------------------------------
+
+Baseline (balanced, alpha=0.5):
+- Epochs:
+  -
+  -
+  -
+  -
+  -
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+1. Minimize variance (tuned, alpha=0.5)
+- Epochs:
+  -
+  -
+  -
+  -
+  -
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+2. PCC of label distance vs. representation distance (tuned, alpha=0.5)
+- Epochs:
+  -
+  -
+  -
+  -
+  -
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+3. Maximize Entropy of Normalized Ratios (tuned, alpha=0.5)
+- Epochs:
+  -
+  -
+  -
+  -
+  -
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:
+
+4. PCC of labels vs. representations (tuned, alpha=0.5)
+- Epochs:
+  -
+  -
+  -
+  -
+  -
+- Test metrics:
+  - Average common MAE:
+  - Average rare MAE:
+  - Average AORE:

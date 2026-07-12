@@ -2,9 +2,8 @@ from numpy.typing import NDArray
 from tensorflow import Tensor, Variable
 import tensorflow as tf
 from enum import Enum
-
+import keras
 from imbal.metrics.util import weighted_sum
-
 
 class ConfusionMatrixData(Enum):
     TRUE_POSITIVE = 'tp'

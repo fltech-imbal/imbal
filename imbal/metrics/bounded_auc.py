@@ -1,10 +1,11 @@
 from keras.src.metrics import AUC
 from numpy.typing import NDArray
-
+import keras
 from keras.src import ops
 from keras.src.metrics import metrics_utils
 import tensorflow as tf
 
+@keras.saving.register_keras_serializable()
 class BoundedAUC(AUC):
     """
     An extension of `TensorFlow's AUC class <https://www.tensorflow.org/api_docs/python/tf/keras/metrics/AUC>`_

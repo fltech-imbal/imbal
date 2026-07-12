@@ -3,7 +3,9 @@ from typing import Tuple
 from tensorflow import Tensor
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
 import tensorflow as tf
+import keras
 
+@keras.saving.register_keras_serializable()
 class ExpectedTruePositive(ConfusionMatrixMetric):
     def __init__(
         self,

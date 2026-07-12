@@ -1,9 +1,10 @@
 from numpy.typing import NDArray
 from typing import Tuple
 from tensorflow import Tensor
-import tensorflow as tf
+import keras
 from imbal.metrics.util import ConfusionMatrixMetric, weighted_sum
 
+@keras.saving.register_keras_serializable()
 class TrueNegativeRate(ConfusionMatrixMetric):
     def __init__(
         self,

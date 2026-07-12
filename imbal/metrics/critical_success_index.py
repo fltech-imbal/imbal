@@ -4,7 +4,9 @@ from tensorflow import Tensor
 import tensorflow as tf
 from imbal.metrics.util import ConfusionMatrixMetric
 from keras.src.metrics import metrics_utils
+import keras
 
+@keras.saving.register_keras_serializable()
 class CriticalSuccessIndex(ConfusionMatrixMetric):
     r"""
     Computes the Critical Success Index.
