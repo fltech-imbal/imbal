@@ -16,7 +16,7 @@ tf.keras.utils.set_random_seed(seed)
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 500
+max_epochs = 1000
 batch_size = 32
 
 
@@ -216,7 +216,7 @@ else:
 
     model.compile(
         loss=WPCCCISIRLoss(
-            correlation_weight=0.6,  # λ
+            correlation_weight=0.3,  # λ
         ),
         weighted_metrics=[
             AORE(threshold=np.log(10)),
