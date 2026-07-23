@@ -6,7 +6,7 @@ options = ['_', '_w_validation', '_w_validation_ae', '_w_validation_ae_third_las
 
 fig, ax = plt.subplots(nrows=3, ncols=4, figsize=(53.33, 40))
 
-prefix = 'sep_ec_log_normalized'
+prefix = 'sep_e_log_normalized'
 OUTPUT_PATH = 'dtw-results'
 
 for i, mode in enumerate(modes):

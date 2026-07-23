@@ -44,9 +44,9 @@ def distance_pcc(labels, representations, weight=None, unit=False):
 
         return 1 - tfp.stats.correlation(combined_label_distances, combined_representation_distances)
     else:
-        distance_to_next_label = tf.expand_dims(tf.linalg.norm(labels[1:] - labels[:-1], axis=1) + EPSILON, axis=-1)
+        distance_to_next_label = tf.expand_dims(safe_norm(labels[1:] - labels[:-1], axis=1) + EPSILON, axis=-1)
         distance_to_next_representation = tf.expand_dims(
-            tf.linalg.norm(representations[1:] - representations[:-1], axis=1) + EPSILON, axis=-1)
+            safe_norm(representations[1:] - representations[:-1], axis=1) + EPSILON, axis=-1)
 
         return 1 - tfp.stats.correlation(distance_to_next_label, distance_to_next_representation)
 
@@ -67,9 +67,9 @@ def maximize_entropy(labels, representations, weight=None, unit=False):
         ratios = ratios / tf.reduce_sum(ratios)
         return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
     else:
-        distance_to_next_label = tf.linalg.norm(labels[1:] - labels[:-1], axis=1) + EPSILON
-        distance_to_next_representation = tf.linalg.norm(representations[1:] - representations[:-1], axis=1) + EPSILON
+        distance_to_next_label = safe_norm(labels[1:] - labels[:-1], axis=1) + EPSILON
+        distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1) + EPSILON
 
         ratios = distance_to_next_representation / distance_to_next_label
         ratios = ratios / tf.reduce_sum(ratios)
-        return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
+        return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.cast(tf.size(ratios), tf.float32)), dtype=tf.float32)

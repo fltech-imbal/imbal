@@ -50,7 +50,7 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -198,10 +198,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9b2326acae2d59ee",
+  "active": "5fbfe8afc36d9634",
   "lastOpenFiles": [
-    "2026 Notes/Notes 7-26.md",
     "2026 Notes/Notes 6-26.md",
+    "2026 Notes/Notes 7-26.md",
     "Pasted image 20260708171213.png",
     "Proposal PDF.pdf",
     "2026 Notes/Notes 5-26.md",

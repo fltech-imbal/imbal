@@ -67,6 +67,12 @@ print("y_train shape:", y_train.shape)
 print("x_test shape:", x_test.shape)
 print("y_test shape:", y_test.shape)
 
+print(f"Train: {x_train.shape}")
+print(f'Validation: {x_val.shape}')
+print(f'Test: {x_test.shape}')
+
+print(len(y_train[y_train < np.log(10)]), len(y_train[y_train >= np.log(10)]))
+
 """
 Build model
 """

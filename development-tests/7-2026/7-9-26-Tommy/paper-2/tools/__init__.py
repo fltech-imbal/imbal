@@ -10,3 +10,4 @@ from .load_onp_data import load_onp_data
 from .loss_functions import *
 from .safe_norm import safe_norm
 from .pcc import pcc
+from .generate_plots import generate_plots

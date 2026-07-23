@@ -8,7 +8,7 @@ import shutil
 
 TIME_SERIES_DATA_PATH = 'all-time-series'
 CLUSTER_SIZE = 5
-SHOW_PLOTS = True
+SHOW_PLOTS = False
 
 def load_time_series(path):
     series = []
@@ -118,10 +118,11 @@ from matplotlib import pyplot as plt
 for i, cluster in enumerate(found_clusters):
     if SHOW_PLOTS:
         for index in cluster:
-            intensities = time_series_list[index]['Proton Intensity'].to_numpy()
+            intensities = np.log(time_series_list[index]['Proton Intensity'].to_numpy() + 1e-9)
             x = np.arange(len(intensities))
             plt.plot(x, intensities)
             plt.title(f'Cluster {i+1} - File {index+1}')
+            plt.ylim([-10, 6])
             plt.show()
     random.shuffle(cluster)
     for index, value in enumerate(cluster):

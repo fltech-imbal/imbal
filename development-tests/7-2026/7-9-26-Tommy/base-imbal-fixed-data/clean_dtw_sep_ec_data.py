@@ -2,8 +2,8 @@ import os, glob
 import pandas as pd
 import numpy as np
 
-NORMALIZED = True
-INCLUDE_CME = True
+NORMALIZED = False
+INCLUDE_CME = False
 INCLUDE_PROTON = True
 INCLUDE_ELECTRON = True
 LOG = True
@@ -13,6 +13,7 @@ EPSILON = 1e-9
 LABEL_EPSILON = 1e-5
 ORIGINAL_DATA_PATH = "../dtw-data"
 USE_DELTA = False
+PREDICT_P_T = False
 
 """
 Load data
@@ -20,9 +21,9 @@ Load data
 
 folds = [glob.glob(os.path.join(ORIGINAL_DATA_PATH, f"fold-{i+1}/*.csv")) for i in range(5)]
 
-training_files = folds[0] + folds[1] + folds[3]
-val_files = folds[4]
-test_files = folds[2]
+training_files = folds[0] + folds[1] + folds[2]
+val_files = folds[3]
+test_files = folds[4]
 
 def load_multiple_csv(csv_files):
     loaded_data = None
@@ -42,9 +43,25 @@ if (training_data is None) or (test_data is None) or (val_data is None):
     raise Exception("Unable to load data (specified directory is likely incorrect).")
 
 if USE_DELTA:
-    training_labels = training_data.pop("delta_log_Intensity")
-    test_labels = test_data.pop("delta_log_Intensity")
-    val_labels = val_data.pop("delta_log_Intensity")
+    # training_labels = training_data.pop("delta_log_Intensity")
+    # test_labels = test_data.pop("delta_log_Intensity")
+    # val_labels = val_data.pop("delta_log_Intensity")
+    training_labels = np.log(training_data['Proton Intensity'] + LABEL_EPSILON) - np.log(training_data['p_t'] + EPSILON)
+    training_labels.name = 'delta_log_Intensity'
+    val_labels = np.log(val_data['Proton Intensity'] + LABEL_EPSILON) - np.log(val_data['p_t'] + EPSILON)
+    val_labels.name = 'delta_log_Intensity'
+    test_labels = np.log(test_data['Proton Intensity'] + LABEL_EPSILON) - np.log(test_data['p_t'] + EPSILON)
+    test_labels.name = 'delta_log_Intensity'
+# elif PREDICT_P_T:
+#     training_labels = np.log(training_data['p_t'] + EPSILON)
+#     training_labels.name = 'Proton Intensity'
+#     test_labels = np.log(test_data['p_t'] + EPSILON)
+#     test_labels.name = 'Proton Intensity'
+#     val_labels = np.log(val_data['p_t'] + EPSILON)
+#     val_labels.name = 'Proton Intensity'
+#     training_data.pop("Proton Intensity")
+#     test_data.pop("Proton Intensity")
+#     val_data.pop("Proton Intensity")
 else:
     training_labels = training_data.pop("Proton Intensity")
     test_labels = test_data.pop("Proton Intensity")
@@ -113,6 +130,6 @@ medians = np.median(training_array, axis=0)
 for i in range(len(mins)):
     print(mins[i], medians[i], maxs[i])
 
-training.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_training.csv', index=False)
-val.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_validation.csv', index=False)
-test.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_test.csv', index=False)
+training.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"PT" if PREDICT_P_T else ""}{"_delta" if USE_DELTA else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_training.csv', index=False)
+val.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"PT" if PREDICT_P_T else ""}{"_delta" if USE_DELTA else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_validation.csv', index=False)
+test.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"PT" if PREDICT_P_T else ""}{"_delta" if USE_DELTA else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_test.csv', index=False)

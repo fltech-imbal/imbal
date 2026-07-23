@@ -48,7 +48,7 @@ def load_sep_ec(path_prefix):
     return (training_data, training_labels), (val_data, val_labels), (test_data, test_labels), columns
 
 (x_train, y_train), (x_val, y_val), (x_test, y_test), columns = load_sep_ec(
-    f"SEP-E/{DATA_PATH}",
+    f"cleaned-dtw-SEP-EC-data/{DATA_PATH}",
 )
 
 print("x_train shape:", x_train.shape)
@@ -60,7 +60,7 @@ predictions = model.predict(x_test)
 predictions = predictions.reshape(-1)
 y_test = y_test.reshape(-1)
 
-common_sample_mask = (y_test > -0.5) & (y_test < 0.5)
+common_sample_mask = (y_test > -0.5) & (y_test < 0.5) if False else (y_test < np.log(10))
 common_predictions = predictions[common_sample_mask]
 rare_predictions = predictions[~common_sample_mask]
 common_labels = y_test[common_sample_mask]
@@ -87,23 +87,23 @@ imbal.regression.tsne_visualization(
 
 columns = columns.tolist()
 
-# imbal.regression.lime_explain_tabular_sample(
-#     x_test[common_sample_mask][0],
-#     model,
-#     x_train,
-#     feature_names=columns,
-#     actual_label=round(float(y_test[common_sample_mask][0]), 3),
-#     figure_save_path='common.html'
-# )
-#
-# imbal.regression.lime_explain_tabular_sample(
-#     x_test[~common_sample_mask][0],
-#     model,
-#     x_train,
-#     feature_names=columns,
-#     actual_label=round(float(y_test[~common_sample_mask][0]), 3),
-#     figure_save_path='rare.html'
-# )
+imbal.regression.lime_explain_tabular_sample(
+    x_test[common_sample_mask][0],
+    model,
+    x_train,
+    feature_names=columns,
+    actual_label=round(float(y_test[common_sample_mask][0]), 3),
+    figure_save_path='common.html'
+)
+
+imbal.regression.lime_explain_tabular_sample(
+    x_test[~common_sample_mask][0],
+    model,
+    x_train,
+    feature_names=columns,
+    actual_label=round(float(y_test[~common_sample_mask][0]), 3),
+    figure_save_path='rare.html'
+)
 
 common_error_indices = np.argsort(np.abs(common_predictions - common_labels))
 print(common_error_indices[-5:])
