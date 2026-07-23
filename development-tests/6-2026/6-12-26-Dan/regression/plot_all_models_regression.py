@@ -29,7 +29,7 @@ model_paths = [
     "saved_models/regular-fit-model-val-ae.keras",
     "saved_models/regular-fit-model-val-ae-rep-3.keras",
     "saved_models/balanced-fit-model.keras",
-    "saved_models/balanced-fit-model-val.keras",
+    "saved_models/pseudo-label-generator-model.keras",
     "saved_models/balanced-fit-model-val-ae.keras",
     "saved_models/balanced-fit-model-val-ae-rep-3.keras",
     "saved_models/decoupled-fit-model.keras",

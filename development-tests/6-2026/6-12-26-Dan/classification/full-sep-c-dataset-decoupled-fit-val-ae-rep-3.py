@@ -73,14 +73,14 @@ else:
 
     PATIENCE = 30
 
-    model.cRT_fit(
-        x_train,
-        y_train,
-        validation_data=(x_val, y_val.reshape(-1, 1)),
-        batch_size=batch_size,
-        epochs=max_epochs,
-        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
-    )
+    # model.cRT_fit(
+    #     x_train,
+    #     y_train,
+    #     validation_data=(x_val, y_val.reshape(-1, 1)),
+    #     batch_size=batch_size,
+    #     epochs=max_epochs,
+    #     callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss', patience=PATIENCE, restore_best_weights=True)]
+    # )
 
     # OPTIONAL: Use custom class weights during training
     # Dictionary mapping classes to weights. In this case, 9:1 ratio of common:rare samples,
