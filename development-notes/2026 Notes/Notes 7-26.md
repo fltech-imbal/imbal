@@ -138,9 +138,18 @@ model.train(x, [true_prediction, true_prediction])
 # 7/20/26
 ## Research
 #### High Priority
-- Double check rare MAE for `sep_e_log_normalized` (3rd row, 2nd and 3rd columns)
-- Also, plot true vs predicted with different colors for each time series, see if "arcs" in plots are of the same time series or different ones
-- Create callback deep copies before use in first decoupled stage / multi fit stages
+- Double check rare MAE for `sep_e_log_normalized` (3rd row, 2nd and 3rd columns) $\checkmark$
+	- The plot that looked more accurate despite having a higher Rare MAE was leftover from prior runs with the "inconsistent" data. Regenerated plot with updated figures. $\checkmark$
+- Also, plot true vs predicted with different colors for each time series, see if "arcs" in plots are of the same time series or different ones $\checkmark$
+- Create callback deep copies before use in first decoupled stage / multi fit stages $\checkmark$
+- **BUG FOUND**: custom Model object attributes such as best weights and decision threshold were not being saved properly. Working on a fix. 
+
+
+```
+model.fit(
+	callbacks=[EarlyStopping(...)]
+)
+```
 #### Medium Priority
 - Try to do explicit representation learning by adding representation layer as separate output with a representation loss
 	- Does AE still work? Maybe not
@@ -166,9 +175,67 @@ model.train(x, [true_prediction, true_prediction])
 ## Class
 - Make "non-constant speed" more extreme for non-constant speed examples
 	- Try spacing all samples equally on the representation semicircle and line (common samples will take up the large majority of the representation space)
-- Use `UnitNormalization` as representation layer
-	- Try pairwise distance
-	- Using anchor distance (largest, or smallest) to encourage constant Euclidean distance ratio globally
-		- Try freezing, and then fine tuning. Does one do better than the other?
-	- Don't worry about $y > 0$
+- Use `UnitNormalization` as representation layer $\checkmark$
+	- Try pairwise distance $\checkmark$
+	- Using anchor distance (largest, or smallest) to encourage constant Euclidean distance ratio globally $\checkmark$
+		- Try freezing, and then fine tuning. Does one do better than the other? $\checkmark$
+	- Don't worry about $y > 0$ $\checkmark$
 - Look at 4 from paper again
+- Why did "maximize entropy" have faster training time and better AORE
+	- Is the loss minimized quickly? or is the loss not going down at all?
+#### Class notes
+- Using `UnitNormalization`
+	- With freezing (1e-4 influence of regression loss during representation learning), ...
+		- Pairwise is prone to "zig-zagging", since only pairs being enforced means you can "double back" without penalty for non-neighbors being on top of each other
+		- Anchor distance performed quite well! Not able to generate 100% perfect predictions, but near perfect
+	- With fine tuning (1e-4 influence of regression loss during representation learning, vice versa during regression learning), ...
+		- Pairwise does quite well, thought representation loss increases during the second stage (aka non-constant pairwise distances are created in second stage)
+		- Anchor distance did well!
+	- With 1:1 joint, ...
+		- Pairwise is still prone to error due to the lack of an ordered constraint on the representation space, but does okay
+		- Anchor distance does very well
+- On cases where 1e-4 influence is used, results had artifacts from learned representation when 1e-4 influence was excluded
+
+---
+# 7/23/26
+## Research
+- (!!!) Push changes to GitHub so Daniel can have fixed Model class (with fixed decoupled fit)
+- Update tutorials for decoupled fit. Code should be accurate now, but needs to be rerun since the output will now be different (not using `override_second_stage_fit_parameters`)
+	- Focus on image classification/regression
+	- Ask Daniel to update tabular classification classification/regression (decoupled fit only)
+	- We each have six to do (classification/regression, standard/validation/AE)
+- Check if t-SNE/LIME/SHAP/GradCam. Those may need to be updated too.
+- **BUG FOUND**: custom Model object attributes such as best weights and decision threshold were not being saved properly. Fixed?
+## Class
+- Runs with both pairwise and anchor
+
+- Stage 1
+	1. Last 2 layers have no activation (linear functions)
+	2. Goal is to encourage a straight-line representation in the second to last layer (right before the output)
+	3. Third to last layer is unrestricted
+	4. Constant speed representation loss on second to last layer, with adjacent pairs and reference point pairs to encourage a straight line representation
+		1. Potentially, encourage diversity of weights leading into second to last layer
+		2. Still, third to last is an arbitrary shape
+- Stage 2
+	1. Throw away last 2 layers, replace it with a single output unit
+	2. Freeze feature extractor up to the previous third to last layer (now second to last)
+	3. "Compress" the last two layers, or "compress" multi-dimensional straight-line representation into a singular output
+
+Other idea:
+- `UnitNormalization`
+	- Stage one
+		- Some constant-speed representation loss (adjacent and anchor pairs)
+	- Stage two
+		- Fine tuning to allow for non-constant speeds using MSE loss as objective
+
+Third idea:
+- Same as above but with a non-linear regressor, freezing instead of fine-tuning in the second stage.
+
+Baseline:
+- No semicircle/`UnitNormalization`, constant speed representation loss (linear shape) with a linear regressor afterwards.
+
+- Use SEP-C instead of ONP
+
+Cauchy-Schwartz:
+- $\|a\|\cdot\|b\| - \langle a, b\rangle$, maybe squared. Less computationally expensive than PCC and related things (few operations). No logarithm (faster than entropy). Parallelizable.
+- Can also have a ratio loss (nudge near $1$)

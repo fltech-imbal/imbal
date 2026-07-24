@@ -7,7 +7,7 @@ from imbal.regression import tsne_visualization, plot_true_vs_predictions
 # mpl.use('QtAgg')  # or can use 'TkAgg', whatever you have/prefer
 
 import matplotlib
-matplotlib.use('QtAgg')  # or 'TkAgg'
+# matplotlib.use('QtAgg')  # or 'TkAgg'
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -20,10 +20,11 @@ LEARNING_RATE = 4e-4
 # SINGLE_WEIGHT_ALPHA = 0
 # VALIDATION_DATA = True
 
-FIT_MODE = 'joint'
+FIT_MODE = 'freeze'
 ALPHA = 1
 MSE_FACTOR = 1
-EPOCHS = 20000
+EASE_FACTOR = 0 #0.0001
+EPOCHS = 10000
 SECOND_STAGE_EPOCHS = 5000
 REPRESENTATION_DIMS = 2
 MANUALLY_SORT_EVERY_BATCH = True
@@ -32,11 +33,12 @@ EXTRA_REGRESSOR_LAYERS = False
 THREE_D = False
 USE_STRICT_REPRESENTATION = True
 REPRESENTATION_LOSS_FUNCTION = augmented_pcc
-FIGURE_PICKLE_NAME = 'unrestricted_unit_representation'
+FIGURE_PICKLE_NAME = 'unit_representation_equidistant'
 
 RATIO_CONSTRAIN = False
 RATIO_CONSTRAIN_ALPHA = 0.05
 
+initializer = tf.keras.initializers.GlorotUniform(seed=42)
 # tf.config.run_functions_eagerly(True)
 
 def build_sep_ec_model(layer_dimensions, representation_layer_dimension):
@@ -44,20 +46,20 @@ def build_sep_ec_model(layer_dimensions, representation_layer_dimension):
 
     x = inputs
     for index, num_units in enumerate(layer_dimensions):
-        x = layers.Dense(num_units, activation='relu', kernel_initializer='he_normal')(x)
+        x = layers.Dense(num_units, activation='relu', kernel_initializer=initializer)(x)
         if index == len(layer_dimensions) - 1:
             x = layers.Flatten()(x)
 
 
-    representation_layer = layers.Dense(representation_layer_dimension, kernel_initializer='he_normal', name='representation' if not UNIT_REPRESENTATION else None)(x)
+    representation_layer = layers.Dense(representation_layer_dimension, kernel_initializer=initializer, name='representation' if not UNIT_REPRESENTATION else None)(x)
     if UNIT_REPRESENTATION:
         representation_layer = layers.UnitNormalization(name='representation')(representation_layer)
 
     if EXTRA_REGRESSOR_LAYERS:
-        x = layers.Dense(64, activation='relu')(representation_layer)
-        output_layer = layers.Dense(1, name='output')(x)
+        x = layers.Dense(64, activation='relu', kernel_initializer=initializer)(representation_layer)
+        output_layer = layers.Dense(1, name='output', kernel_initializer=initializer)(x)
     else:
-        output_layer = layers.Dense(1, name='output')(representation_layer)
+        output_layer = layers.Dense(1, name='output', kernel_initializer=initializer)(representation_layer)
 
     model = keras.Model(inputs=inputs, outputs=[output_layer, representation_layer], name="SEP_EC")
     return model
@@ -164,34 +166,33 @@ def safe_correlation(x, y, eps=1e-6):
         compute_corr,
     )
 
-def loose_unit_representation(labels, representations):
-    # max_index = tf.argmax(labels)
-    # print(max_index, labels[max_index[0]])
-    # min_index = tf.argmin(labels)
-    # print(min_index, labels[min_index[0]])
-    # average = tf.cast((labels[max_index[0]] + labels[min_index[0]]) / 2, tf.float32)
-    # print(average)
-    # average_index = tf.argmin(tf.abs(labels - average))
-    # min_distance = tf.norm(representations[min_index[0]] - tf.convert_to_tensor([1, 0], dtype=tf.float32))
-    # max_distance = tf.norm(representations[max_index[0]] - tf.convert_to_tensor([-1, 0], dtype=tf.float32))
-    # average_distance = tf.norm(representations[average_index[0]] - tf.convert_to_tensor([0.0, 1.0], dtype=tf.float32))
-    # y_values = representations[:, 1]
-    # return min_distance + max_distance    + average_distance - tf.reduce_sum(y_values[y_values < 0])
+def pairwise_distance(labels, representations):
+    labels = tf.reshape(labels, (-1, 1))
+    neighbor_label_distances = safe_norm(labels[1:] - labels[:-1], axis=1)
+    neighbor_representation_distances = safe_norm(representations[1:] - representations[:-1], axis=1)
 
-    distances = safe_norm(representations - representations[0], axis=1)
-    adjusted_labels = tf.reshape(labels - labels[0], (-1,))
-    min_distance = safe_norm(representations[0] - tf.convert_to_tensor([1, 0], dtype=tf.float32), axis=0)
-    y_values = representations[:, 1]
 
-    return (
-        min_distance
-        - tf.reduce_sum(y_values[y_values < 0])
-        + 0.01*(1
-        - safe_correlation(distances, adjusted_labels))
-    )
+    return 1 - safe_correlation(neighbor_label_distances, neighbor_representation_distances)
+
+def anchor_distance(labels, representations):
+    labels = tf.reshape(labels, (-1, 1))
+    neighbor_label_distances = safe_norm(labels - labels[0], axis=1)
+    neighbor_representation_distances = safe_norm(representations - representations[0], axis=1)
+
+    return 1 - safe_correlation(neighbor_label_distances, neighbor_representation_distances)
+
+def equidistant(labels, representations):
+    order = tf.cast(tf.range(tf.shape(representations)[0]), tf.float32)
+    order = tf.reshape(order, (-1, 1))
+    order *= np.pi / tf.cast(labels.shape[0], tf.float32)
+    x = tf.cos(order)
+    y = tf.sin(order)
+    ideal_representations = tf.concat([x, y], axis=1)
+    return tf.reduce_mean(tf.square(tf.norm(ideal_representations - representations, axis=1)))
+
 
 if USE_STRICT_REPRESENTATION:
-    REPRESENTATION_LOSS_FUNCTION = loose_unit_representation
+    REPRESENTATION_LOSS_FUNCTION = equidistant
 
 train_dataset = tf.data.Dataset.from_tensor_slices(
     (x_train, y_reg_train)
@@ -232,8 +233,9 @@ def representation_train_step(x, y):
             representations,
             alpha=ALPHA
         )
+        l = representation_loss + EASE_FACTOR * regression_loss
 
-    gradients = tape.gradient(representation_loss, model.trainable_weights)
+    gradients = tape.gradient(l, model.trainable_weights)
     optimizer.apply_gradients(zip(gradients, model.trainable_weights))
 
     return total_loss, regression_loss, representation_loss
@@ -249,8 +251,9 @@ def regression_train_step(x, y):
             representations,
             alpha=ALPHA
         )
+        l = regression_loss + EASE_FACTOR * representation_loss
 
-    gradients = tape.gradient(regression_loss, model.trainable_weights)
+    gradients = tape.gradient(l, model.trainable_weights)
     optimizer.apply_gradients(zip(gradients, model.trainable_weights))
 
     return total_loss, regression_loss, representation_loss

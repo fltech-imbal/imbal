@@ -1,7 +1,9 @@
 import imbal
 import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
+import tensorflow as tf
 
+@tf.keras.utils.register_keras_serializable(package="imbal", name="Model")
 class Model(backend.Model):
     """
     Package location: :code:`imbal.regression.Model`

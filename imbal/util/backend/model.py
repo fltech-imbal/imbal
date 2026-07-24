@@ -14,25 +14,72 @@ def mse_reconstruction_loss(y_true, y_pred):
     loss_per_example = tf.reduce_mean(sq, axis=axes)
     return loss_per_example
 
+def _clone_callbacks(callbacks):
+    if callbacks is None:
+        return None
+    cloned = []
+    for cb in callbacks:
+        if hasattr(cb, "get_config"):
+            try:
+                config = cb.get_config()
+                cls = cb.__class__
+                new_cb = cls.from_config(config)
+                cloned.append(new_cb)
+                continue
+            except Exception:
+                pass
+        try:
+            cloned.append(copy.deepcopy(cb))
+            continue
+        except Exception:
+            pass
+        raise RuntimeError("Unable to create copy of passed callbacks")
+
+    return cloned
+
+@tf.keras.utils.register_keras_serializable()
 class Model(keras.Model):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, saved_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.best_sample_weights = None
-        self.best_class_weights = None
-        self.best_decision_threshold = None
-        self.best_weight_index = None
-        self._compare_metric_spec = None
-        self._compare_metric_uses_weights = False
+        if saved_data is None:
+            saved_data = dict()
 
-        self._generate_decoder_branch = False
-        self._use_decoder_branch = False
-        self._representation_layer_index = -2
-        self._extended_model = None
-        self._decoder_branch = None
-        self._second_stage_fit_kwargs = {}
-        self._mode_subpackage = None
-        self._mode_enum = None
+        self.best_sample_weights = saved_data.get('best_sample_weights', None)
+        self.best_class_weights = saved_data.get('best_class_weights', None)
+        self.best_decision_threshold = saved_data.get('best_decision_threshold', None)
+        self.best_weight_index = saved_data.get('best_weight_index', None)
+        self._compare_metric_spec = saved_data.get('_compare_metric_spec', None)
+        self._compare_metric_uses_weights = saved_data.get('_compare_metric_uses_weights', False)
+
+        self._generate_decoder_branch = saved_data.get('_generate_decoder_branch', False)
+        self._use_decoder_branch = saved_data.get('_use_decoder_branch', False)
+        self._representation_layer_index = saved_data.get('_representation_layer_index', -2)
+        self._extended_model = saved_data.get('_extended_model', None)
+        self._decoder_branch = saved_data.get('_decoder_branch', None)
+        self._second_stage_fit_kwargs = saved_data.get('_second_stage_fit_kwargs', {})
+        self._mode_subpackage = saved_data.get('_mode_subpackage', None)
+        self._mode_enum = saved_data.get('_mode_enum', None)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({
+            'best_sample_weights' : self.best_sample_weights,
+            'best_class_weights' : self.best_class_weights,
+            'best_decision_threshold' : self.best_decision_threshold,
+            'best_weight_index' : self.best_weight_index,
+            '_compare_metric_spec' : self._compare_metric_spec,
+            '_compare_metric_uses_weights' : self._compare_metric_uses_weights,
+            '_generate_decoder_branch' : self._generate_decoder_branch,
+            '_use_decoder_branch' : self._use_decoder_branch,
+            '_representation_layer_index' : self._representation_layer_index,
+            '_extended_model' : self._extended_model,
+            '_decoder_branch' : self._decoder_branch,
+            '_second_stage_fit_kwargs' : self._second_stage_fit_kwargs,
+            '_mode_subpackage' : self._mode_subpackage,
+            '_mode_enum' : self._mode_enum.value if self._mode_enum is not None else None
+        })
+        return config
 
     def fit(
         self,
@@ -210,6 +257,10 @@ class Model(keras.Model):
         else:
             stage_one_validation = None
 
+        first_stage_fit_kwargs = kwargs.copy()
+        if 'callbacks' in kwargs:
+            first_stage_fit_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
+
         stage_one_history = self._enforced_fit(
             x=x,
             y=y,
@@ -228,7 +279,7 @@ class Model(keras.Model):
             seed=seed,
             require_weighting=False,
             epochs=stage_one_epochs,
-            **kwargs
+            **first_stage_fit_kwargs
         )
 
         representation_layer_index = backend.tools.positive_model_layer_index(self, self._representation_layer_index)
@@ -257,7 +308,8 @@ class Model(keras.Model):
                 layer.trainable = False
 
         second_stage_fit_kwargs = kwargs.copy()
-        second_stage_fit_kwargs['callbacks'] = None
+        if 'callbacks' in kwargs:
+            second_stage_fit_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
 
         # Allow second stage overrides
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
@@ -741,29 +793,6 @@ class Model(keras.Model):
                     'some candidate evaluation weights must be specified'
                 )
 
-        def clone_callbacks(callbacks):
-            if callbacks is None:
-                return None
-            cloned = []
-            for cb in callbacks:
-                if hasattr(cb, "get_config"):
-                    try:
-                        config = cb.get_config()
-                        cls = cb.__class__
-                        new_cb = cls.from_config(config)
-                        cloned.append(new_cb)
-                        continue
-                    except Exception:
-                        pass
-                try:
-                    cloned.append(copy.deepcopy(cb))
-                    continue
-                except Exception:
-                    pass
-                raise RuntimeError("Unable to create copy of passed callbacks")
-
-            return cloned
-
         def format_array_string(array):
             array = np.array(array)
             if array.shape[0] < 7:
@@ -780,7 +809,7 @@ class Model(keras.Model):
 
             current_kwargs = kwargs.copy()
             if 'callbacks' in kwargs:
-                current_kwargs['callbacks'] = clone_callbacks(kwargs['callbacks'])
+                current_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
 
             if verbose_imbal > 1:
                 print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights if weight_type == "sample weight" else class_weight[index])}')

@@ -23,7 +23,8 @@ LEARNING_RATE = 2e-4
 FIT_MODE = 'freeze'
 ALPHA = 1
 MSE_FACTOR = 1
-EPOCHS = 1000
+EASE_FACTOR = 0.0001
+EPOCHS = 10000
 SECOND_STAGE_EPOCHS = 5000
 REPRESENTATION_DIMS = 2
 MANUALLY_SORT_EVERY_BATCH = False
@@ -194,7 +195,8 @@ def representation_train_step(x, y):
             alpha=ALPHA
         )
 
-    gradients = tape.gradient(representation_loss, model.trainable_weights)
+        l = representation_loss + EASE_FACTOR * regression_loss
+    gradients = tape.gradient(l, model.trainable_weights)
     optimizer.apply_gradients(zip(gradients, model.trainable_weights))
 
     return total_loss, regression_loss, representation_loss
@@ -211,7 +213,8 @@ def regression_train_step(x, y):
             alpha=ALPHA
         )
 
-    gradients = tape.gradient(regression_loss, model.trainable_weights)
+        l = regression_loss + EASE_FACTOR * representation_loss
+    gradients = tape.gradient(l, model.trainable_weights)
     optimizer.apply_gradients(zip(gradients, model.trainable_weights))
 
     return total_loss, regression_loss, representation_loss
