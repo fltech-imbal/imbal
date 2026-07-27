@@ -21,7 +21,7 @@ DATA_PATH = 'sep_ec_log_normalized'
 #     return keras.losses.mean_squared_error(y_true, y_pred) + 0.5*pcc(y_true, y_pred)
 # Load the entire model (architecture, weights, and optimizer state)
 model = tf.keras.models.load_model(
-    'models/cleaned-dtw-SEP-EC-data_decoupled_w_validation_ae_denseweight.keras',
+    'models/sep_ec_log_normalized_decoupled_w_validation_ae_denseweight.keras',
     custom_objects={
         # 'loss_fn': loss_fn,
         'Model' : imbal.regression.Model
@@ -66,7 +66,7 @@ predictions = model.predict(x_test)
 predictions = predictions.reshape(-1)
 y_test = y_test.reshape(-1)
 
-common_sample_mask = (y_test > -0.5) & (y_test < 0.5) if False else y_test < np.log(10)
+common_sample_mask = (y_test > -0.5) & (y_test < 0.5) if False else (y_test < np.log(10))
 common_predictions = predictions[common_sample_mask]
 rare_predictions = predictions[~common_sample_mask]
 common_labels = y_test[common_sample_mask]
@@ -96,23 +96,23 @@ print(rare_error_indices[-5:])
 
 columns = columns.tolist()
 
-imbal.regression.lime_explain_tabular_sample(
-    x_test[common_sample_mask][0],
-    model,
-    x_train,
-    feature_names=columns,
-    actual_label=round(float(y_test[common_sample_mask][0]), 3),
-    figure_save_path='common.html'
-)
-
-imbal.regression.lime_explain_tabular_sample(
-    x_test[~common_sample_mask][rare_error_indices[5]],
-    model,
-    x_train,
-    feature_names=columns,
-    actual_label=round(float(y_test[~common_sample_mask][rare_error_indices[5]]), 3),
-    figure_save_path='rare.html'
-)
+# imbal.regression.lime_explain_tabular_sample(
+#     x_test[common_sample_mask][0],
+#     model,
+#     x_train,
+#     feature_names=columns,
+#     actual_label=round(float(y_test[common_sample_mask][0]), 3),
+#     figure_save_path='common.html'
+# )
+#
+# imbal.regression.lime_explain_tabular_sample(
+#     x_test[~common_sample_mask][0],
+#     model,
+#     x_train,
+#     feature_names=columns,
+#     actual_label=round(float(y_test[~common_sample_mask][0]), 3),
+#     figure_save_path='rare.html'
+# )
 
 common_error_indices = np.argsort(np.abs(common_predictions - common_labels))
 print(common_error_indices[-5:])

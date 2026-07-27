@@ -13,19 +13,19 @@ Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.DECOUPLED
+FIT = FitType.BALANCED
 VALIDATION_DATA = True
-AE = True
-AE_THIRD_TO_LAST = True
+AE = False
+AE_THIRD_TO_LAST = False
 WEIGHT_CANDIDATES = True
 SINGLE_WEIGHT_ALPHA = 1
 
 REPRESENTATION_LAYER_INDEX = -2
-EARLY_STOPPING_PATIENCE = 200
+EARLY_STOPPING_PATIENCE = 1
 EPOCHS = 10000 if VALIDATION_DATA else 200
 
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
-DATA_PREFIX = 'sep_ec_log_normalized'
+DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "dtw-results"
 USE_DELTA = False
 
@@ -103,10 +103,10 @@ model.compile(
     representation_layer_index=-3 if AE_THIRD_TO_LAST else -2
 )
 
-if FIT == FitType.DECOUPLED:
-    model.override_second_stage_fit_parameters(
-        callbacks=[keras.callbacks.EarlyStopping(patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5)] if VALIDATION_DATA else None
-    )
+# if FIT == FitType.DECOUPLED:
+#     model.override_second_stage_fit_parameters(
+#         callbacks=[keras.callbacks.EarlyStopping(patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5)] if VALIDATION_DATA else None
+#     )
 
 """
 Generate sample densities
@@ -188,9 +188,10 @@ rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}.keras")
 
 print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
+
 imbal.regression.plot_true_vs_predictions(
     y_test,
     predictions,
-    title=f'Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {[0.1*(i+1) for i in range(10)][model.best_weight_index]:.1f}" if WEIGHT_CANDIDATES else ""}',
+    title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {[0.1*(i+1) for i in range(10)][model.best_weight_index]:.1f}" if WEIGHT_CANDIDATES else ""}',
     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}.png"
 )

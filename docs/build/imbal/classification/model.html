@@ -682,6 +682,32 @@ at successive epochs, as well as validation loss values and validation metrics v
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="imbal.classification.Model.get_quantization_layer_structure">
+<span class="sig-name descname"><span class="pre">get_quantization_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.get_quantization_layer_structure" title="Link to this definition">#</a></dt>
+<dd><p>Returns the quantization structure for the model.</p>
+<p>This method is intended to be overridden by model authors to provide
+topology information required for structure-aware quantization modes
+like ‘gptq’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> – The quantization mode.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><cite>{‘pre_block_layers’: [list], ‘sequential_blocks’: [list]}</cite>
+or <cite>None</cite> if the mode does not require structure or is not
+supported. <cite>‘pre_block_layers’</cite> is a list of layers that
+the inputs should be passed through, before being passed to
+the sequential blocks. For example, inputs to an LLM must
+first be passed through an embedding layer, followed by
+the transformer.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary describing the topology, e.g.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="imbal.classification.Model.override_second_stage_fit_parameters">
 <span class="sig-name descname"><span class="pre">override_second_stage_fit_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.classification.Model.override_second_stage_fit_parameters" title="Link to this definition">#</a></dt>
 <dd><p>Used to optionally override the parameters passed to the second stage of
@@ -817,6 +843,7 @@ will be used for the final model fit.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.cRT_fit"><code class="docutils literal notranslate"><span class="pre">Model.cRT_fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.compile"><code class="docutils literal notranslate"><span class="pre">Model.compile()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.fit"><code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.get_quantization_layer_structure"><code class="docutils literal notranslate"><span class="pre">Model.get_quantization_layer_structure()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.classification.Model.override_second_stage_fit_parameters"><code class="docutils literal notranslate"><span class="pre">Model.override_second_stage_fit_parameters()</span></code></a></li>
 </ul>
 </li>

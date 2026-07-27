@@ -153,18 +153,18 @@ Below are examples of what the generated output and plots should look
 like for the above code.
 
 ```text
-Fit stopped after 66, 16 epochs
-Restored weights from epoch 56 during stage 1
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 26ms/step - accuracy: 0.6783 - f1_score: 0.1106 - loss: 0.6050
+Fit stopped after 84, 11 epochs
+Restored weights from epoch 75 during stage 1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step - accuracy: 0.7283 - f1_score: 0.1283 - loss: 0.5892
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
-Heikde Skill Score: 0.0700
-F1 Score: 0.1106
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 8ms/step
+Heidke Skill Score: 0.0890
+F1 Score: 0.1283
 
-Best threshold: 0.1
-Heikde Skill Score using Best Threshold: 0.0000
-F1 Score using Best Threshold: 0.0456
+Best threshold: 0.9
+Heidke Skill Score using Best Threshold: 0.2863
+F1 Score using Best Threshold: 0.3077
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -194,17 +194,17 @@ we get the following results:
 
 ```text
 (after training output)
-Restored weights from epoch 2 during stage 1
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 25ms/step - accuracy: 0.9767 - f1_score: 0.0000e+00 - loss: 0.5096
+Restored weights from epoch 48 during stage 1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 8ms/step - accuracy: 0.8033 - f1_score: 0.1449 - loss: 0.4711
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 12ms/step
-Heikde Skill Score: 0.0000
-F1 Score: 0.0000
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 9ms/step
+Heidke Skill Score: 0.1075
+F1 Score: 0.1449
 
-Best threshold: 0.1
-Heikde Skill Score using Best Threshold: 0.0000
-F1 Score using Best Threshold: 0.0456
+Best threshold: 0.8
+Heidke Skill Score using Best Threshold: 0.2351
+F1 Score using Best Threshold: 0.2500
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -240,15 +240,17 @@ we get the following results:
 
 ```text
 (after training output)
+Restored weights from epoch 13 during stage 1
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step - accuracy: 0.6350 - f1_score: 0.0988 - loss: 0.6800
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
-Heikde Skill Score: 0.0065
-F1 Score: 0.0516
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 7ms/step
+Heidke Skill Score: 0.0573
+F1 Score: 0.0988
 
-Best threshold: 0.1
-Heikde Skill Score using Best Threshold: 0.0000
-F1 Score using Best Threshold: 0.0456
+Best threshold: 0.5
+Heidke Skill Score using Best Threshold: 0.0573
+F1 Score using Best Threshold: 0.0988
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

@@ -216,7 +216,7 @@ else:
 
     model.compile(
         loss=WPCCCISIRLoss(
-            correlation_weight=0.5,  # λ
+            correlation_weight=0.3,  # λ
         ),
         weighted_metrics=[
             AORE(threshold=np.log(10)),

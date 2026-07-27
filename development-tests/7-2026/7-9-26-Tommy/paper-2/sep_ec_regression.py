@@ -5,8 +5,9 @@ import imbal
 import tensorflow as tf
 import tensorflow_probability as tfp
 import numpy as np
-from tools import FitType, load_sep_ec_data, plot_representation_space, plot_representation_space_3d, build_sep_ec_model, generate_weights, pcc
+from tools import FitType, load_sep_ec_data, generate_plots, build_sep_ec_model, generate_weights, pcc
 from tools.loss_functions import *
+
 
 # Axes of Exploration
 # - Representation loss used
@@ -19,23 +20,23 @@ from tools.loss_functions import *
 Set script parameters
 """
 
-# tf.config.run_functions_eagerly(True)
+tf.config.run_functions_eagerly(True)
 
 FIGURE_NAME = 'temp'
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 5e-5
 FIT = FitType.REGULAR
 SINGLE_WEIGHT_ALPHA = 0
 VALIDATION_DATA = True
 
-FIT_MODE = 'joint'
+FIT_MODE = 'tune'
 MSE_LAMBDA = 1
-REPRESENTATION_LOSS_FUNCTION = augmented_pcc
-REPRESENTATION_LAMBDA = 0
+REPRESENTATION_LOSS_FUNCTION = maximize_entropy
+REPRESENTATION_LAMBDA = 1
 UNIT_REPRESENTATION = False
 RATIO_CONSTRAIN = False
 JUST_RATIO = False
 EXTRA_REGRESSOR_LAYERS = False
-PCC_LAMBDA = 0 #0.02
+PCC_LAMBDA = 0.02
 LOSS_SMOOTHING = 0
 THREE_D = False
 
@@ -45,9 +46,9 @@ EARLY_STOPPING_PATIENCE = 200
 EPOCHS = 50000
 SECOND_STAGE_EPOCHS = 50000
 
-DATA_PATH = 'cleaned-dtw-SEP-EC-data'
+DATA_PATH = 'cleaned-SEP-EC-data'
 DATA_PREFIX = 'sep_ec_log_normalized'
-USE_DELTA=False
+USE_DELTA=True
 VALUE_MIN = -10
 VALUE_MAX = 5.5
 
@@ -161,7 +162,7 @@ def joint_step(x, y, w, train=True):
 
     mae = None
     with tf.GradientTape() as tape:
-        predictions, representations, _ = model(x, training=train)
+        predictions, representations, temp = model(x, training=train)
 
         tf.debugging.check_numerics(predictions, "outputs")
         tf.debugging.check_numerics(representations, "reps")
@@ -195,7 +196,7 @@ def representation_step(x, y, w, train=True):
 
     mae = None
     with tf.GradientTape() as tape:
-        predictions, representations, _ = model(x, training=train)
+        predictions, representations, temp = model(x, training=train)
 
         total_loss, regression_loss, representation_loss = combined_loss(
             y,
@@ -470,73 +471,41 @@ elif FIT_MODE == 'tune':
                 second_stage_epochs = epoch + 1 - EARLY_STOPPING_PATIENCE
                 break
 
-def generate_plots(
-    x,
-    y,
-    path_prefix
-):
-    predictions, representations, pre_representations = model.predict(x)
-    predictions = predictions.reshape(-1)
+common_mask = y_train < np.log(10)
 
-    if isinstance(y, tf.Tensor):
-        y = y.numpy()
-
-    y = y.reshape(-1)
-
-    common_sample_mask = (y > -0.5) & (y < 0.5) if USE_DELTA else (y < np.log(10))
-    common_predictions = predictions[common_sample_mask]
-    rare_predictions = predictions[~common_sample_mask]
-    common_labels = y[common_sample_mask]
-    rare_labels = y[~common_sample_mask]
-
-    mae = np.mean(np.abs(predictions - y))
-    common_mae = np.mean(np.abs(common_predictions - common_labels))
-    rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
-
-    if THREE_D:
-        plot_representation_space_3d(
-            pre_representations,
-            y,
-            save_figure=f'{path_prefix}/pre_representation/{FIGURE_NAME}.png',
-            vmin=VALUE_MIN,
-            vmax=VALUE_MAX
-        )
-        plot_representation_space_3d(
-            representations,
-            y,
-            save_figure=f'{path_prefix}/representation/{FIGURE_NAME}.png',
-            vmin=VALUE_MIN,
-            vmax=VALUE_MAX
-        )
-
-
-    else:
-        plot_representation_space(
-            pre_representations,
-            y,
-            save_figure=f'{path_prefix}/pre_representation/{FIGURE_NAME}.png',
-            vmin=VALUE_MIN,
-            vmax=VALUE_MAX
-        )
-        plot_representation_space(
-            representations,
-            y,
-            save_figure=f'{path_prefix}/representation/{FIGURE_NAME}.png',
-            vmin=VALUE_MIN,
-            vmax=VALUE_MAX
-        )
-
-
-    imbal.regression.plot_true_vs_predictions(
-        y,
-        predictions,
-        title=f'Common MAE: {common_mae:.4f} ({np.count_nonzero(common_sample_mask)}), Rare MAE: {rare_mae:.4f} ({np.count_nonzero(~common_sample_mask)}), AORE: {(mae + rare_mae) / 2:.4f}',
-        save_figure=f'{path_prefix}/true_vs_predicted/{FIGURE_NAME}.png'
-    )
-
-generate_plots(x_train, y_train, 'results/training')
-generate_plots(x_val, y_val, 'results/validation')
-generate_plots(x_test, y_test, 'results/test')
+generate_plots(
+    x_train,
+    y_train,
+    model=model,
+    common_mask=common_mask,
+    path_prefix='results/training',
+    three_d=THREE_D,
+    vmin=VALUE_MIN,
+    vmax=VALUE_MAX,
+    plot_names=FIGURE_NAME
+)
+generate_plots(
+    x_val,
+    y_val,
+    model=model,
+    common_mask=common_mask,
+    path_prefix='results/validation',
+    three_d=THREE_D,
+    vmin=VALUE_MIN,
+    vmax=VALUE_MAX,
+    plot_names=FIGURE_NAME
+)
+generate_plots(
+    x_test,
+    y_test,
+    model=model,
+    common_mask=common_mask,
+    path_prefix='results/test',
+    three_d=THREE_D,
+    vmin=VALUE_MIN,
+    vmax=VALUE_MAX,
+    plot_names=FIGURE_NAME
+)
 
 
 # predictions, representations = model.predict(x_val)

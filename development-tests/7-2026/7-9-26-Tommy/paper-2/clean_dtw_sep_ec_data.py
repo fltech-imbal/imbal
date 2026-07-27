@@ -13,6 +13,7 @@ EPSILON = 1e-9
 LABEL_EPSILON = 1e-5
 ORIGINAL_DATA_PATH = "dtw-SEP-EC-data"
 USE_DELTA = False
+INCLUDE_EVENT_ID = True
 
 """
 Load data
@@ -60,6 +61,10 @@ def clean_sep_ec_data(
 ):
     df = df.select_dtypes(include=[np.number])
     df = df.dropna()
+    if INCLUDE_EVENT_ID:
+        ids = df['Event ID']
+    else:
+        ids = None
     df = df.drop(columns=["Event ID"])
     if 'Proton Intensity' in df.columns:
         df = df.drop('Proton Intensity', axis=1)
@@ -77,11 +82,11 @@ def clean_sep_ec_data(
         electron_end_index = df.columns.get_loc("p6.1_tminus24")
         df = df.drop(df.columns[electron_start_index:electron_end_index], axis=1)
 
-    return df
+    return df, ids
 
-training_data = clean_sep_ec_data(training_data)
-val_data = clean_sep_ec_data(val_data)
-test_data = clean_sep_ec_data(test_data)
+training_data, training_ids = clean_sep_ec_data(training_data)
+val_data, val_ids = clean_sep_ec_data(val_data)
+test_data, test_ids = clean_sep_ec_data(test_data)
 
 if LOG:
     training_data.iloc[:, :156] = np.log(training_data.iloc[:, :156] + EPSILON)
@@ -94,9 +99,14 @@ if NORMALIZED:
     training_data = training_data.div(absolute_max_values, axis=1)
     val_data = val_data.div(absolute_max_values, axis=1)
 
-training = pd.concat([training_data, training_labels], axis=1)
-val = pd.concat([val_data, val_labels], axis=1)
-test = pd.concat([test_data, test_labels], axis=1)
+if INCLUDE_EVENT_ID:
+    training = pd.concat([training_ids, training_data, training_labels], axis=1)
+    val = pd.concat([val_ids, val_data, val_labels], axis=1)
+    test = pd.concat([test_ids, test_data, test_labels], axis=1)
+else:
+    training = pd.concat([training_data, training_labels], axis=1)
+    val = pd.concat([val_data, val_labels], axis=1)
+    test = pd.concat([test_data, test_labels], axis=1)
 
 print(training_data.columns)
 print(training_data.shape)
@@ -113,6 +123,6 @@ medians = np.median(training_array, axis=0)
 for i in range(len(mins)):
     print(mins[i], medians[i], maxs[i])
 
-training.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_training.csv', index=False)
-val.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_validation.csv', index=False)
-test.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}_test.csv', index=False)
+training.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}{"_w_ids" if INCLUDE_EVENT_ID else ""}_training.csv', index=False)
+val.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}{"_w_ids" if INCLUDE_EVENT_ID else ""}_validation.csv', index=False)
+test.to_csv(f'cleaned-dtw-SEP-EC-data/sep_e{"c" if INCLUDE_CME else ""}{"" if INCLUDE_PROTON else "_no_proton"}{"" if INCLUDE_ELECTRON else "_no_electron"}{"_log" if LOG else ""}{"_normalized" if NORMALIZED else ""}{"_w_ids" if INCLUDE_EVENT_ID else ""}_test.csv', index=False)

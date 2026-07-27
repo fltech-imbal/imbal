@@ -51,6 +51,12 @@ Load data
 (x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_ec_data(
     f"cleaned-SEP-EC-data/{DATA_PATH}",
 )
+
+print(f"Train: {x_train.shape}")
+print(f'Validation: {x_val.shape}')
+print(f'Test: {x_test.shape}')
+
+print(y_train[y_train < np.log(10)], y_train[y_train >= np.log(10)])
 """
 Build model
 """
