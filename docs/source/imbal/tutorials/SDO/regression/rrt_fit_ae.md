@@ -142,9 +142,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
-MAE for log10 flux < -4: 1.031
-MAE for log10 flux >= -4: 1.975
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+MAE for log10 flux < -4: 1.035
+MAE for log10 flux >= -4: 1.935
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -183,9 +183,9 @@ Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 1s 75ms/step
-MAE for log10 flux < -4: 1.086
-MAE for log10 flux >= -4: 2.274
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 13ms/step
+MAE for log10 flux < -4: 1.077
+MAE for log10 flux >= -4: 2.161
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">

@@ -73,7 +73,7 @@ sample_densities = imbal.regression.get_sample_densities(y_train, data_kde_bandw
 
 # The below line can be uncommented to test multiple alpha values for reciprocal importance
 # If this is uncommented, be sure to also uncomment 'sample_weight=sample_weight_candidates' in the following section
-# sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
+sample_weight_candidates = imbal.regression.reciprocal_importance(sample_densities, alpha=[0.2, 0.5, 1.0])
 
 """
 Compile and train model
@@ -92,8 +92,8 @@ model.rRT_fit(
     x_train,
     y_train,
     sample_density=sample_densities,
-    # sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
-    # candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
+    sample_weight=sample_weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
+    candidate_evaluation_sample_weight=sample_weight_candidates[2], # Uncomment to use varying alphas
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution

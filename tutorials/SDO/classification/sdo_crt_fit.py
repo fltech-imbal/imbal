@@ -80,7 +80,7 @@ model.compile(
 model.cRT_fit(
     x_train,
     y_train.reshape(-1, 1),
-    # class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
+    class_weight=[[0.9, 0.1,], [0.6, 0.4], [0.5, 0.5]], # Uncomment to use varying class weights
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
     stratify_batches=True # Ensure all batches have a similar data distribution
@@ -111,7 +111,7 @@ f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
-    f'Heikde Skill Score: {hss.result()[0]:.4f}\n'
+    f'Heidke Skill Score: {hss.result()[0]:.4f}\n'
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
@@ -130,7 +130,7 @@ f1.update_state(y_test, test_predictions)
 
 print(
     f'Best threshold: {model.best_decision_threshold}\n'
-    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'Heidke Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
     f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
 )
 

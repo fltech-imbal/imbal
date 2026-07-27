@@ -35,6 +35,7 @@ model = tf.keras.models.load_model(
     # }
 )
 print(type(model))
+print(model.get_config())
 
 # Verify the model structure
 model.summary()
