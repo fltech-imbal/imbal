@@ -112,7 +112,7 @@ f1 = metrics.F1Score(threshold=0.5)
 f1.update_state(y_test, test_predictions)
 
 print(
-    f'Heikde Skill Score: {hss.result()[0]:.4f}\n'
+    f'Heidke Skill Score: {hss.result()[0]:.4f}\n'
     f'F1 Score: {f1.result()[0]:.4f}\n'
 )
 
@@ -131,7 +131,7 @@ f1.update_state(y_test, test_predictions)
 
 print(
     f'Best threshold: {model.best_decision_threshold}\n'
-    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'Heidke Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
     f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
 )
 

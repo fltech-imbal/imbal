@@ -39,27 +39,24 @@ def _clone_callbacks(callbacks):
 
 @tf.keras.utils.register_keras_serializable()
 class Model(keras.Model):
-    def __init__(self, saved_data=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        if saved_data is None:
-            saved_data = dict()
+        self.best_sample_weights = kwargs.get('best_sample_weights', None)
+        self.best_class_weights = kwargs.get('best_class_weights', None)
+        self.best_decision_threshold = kwargs.get('best_decision_threshold', None)
+        self.best_weight_index = kwargs.get('best_weight_index', None)
+        self._compare_metric_spec = kwargs.get('_compare_metric_spec', None)
+        self._compare_metric_uses_weights = kwargs.get('_compare_metric_uses_weights', False)
 
-        self.best_sample_weights = saved_data.get('best_sample_weights', None)
-        self.best_class_weights = saved_data.get('best_class_weights', None)
-        self.best_decision_threshold = saved_data.get('best_decision_threshold', None)
-        self.best_weight_index = saved_data.get('best_weight_index', None)
-        self._compare_metric_spec = saved_data.get('_compare_metric_spec', None)
-        self._compare_metric_uses_weights = saved_data.get('_compare_metric_uses_weights', False)
-
-        self._generate_decoder_branch = saved_data.get('_generate_decoder_branch', False)
-        self._use_decoder_branch = saved_data.get('_use_decoder_branch', False)
-        self._representation_layer_index = saved_data.get('_representation_layer_index', -2)
-        self._extended_model = saved_data.get('_extended_model', None)
-        self._decoder_branch = saved_data.get('_decoder_branch', None)
-        self._second_stage_fit_kwargs = saved_data.get('_second_stage_fit_kwargs', {})
-        self._mode_subpackage = saved_data.get('_mode_subpackage', None)
-        self._mode_enum = saved_data.get('_mode_enum', None)
+        self._generate_decoder_branch = kwargs.get('_generate_decoder_branch', False)
+        self._use_decoder_branch = kwargs.get('_use_decoder_branch', False)
+        self._representation_layer_index = kwargs.get('_representation_layer_index', -2)
+        self._extended_model = kwargs.get('_extended_model', None)
+        self._decoder_branch = kwargs.get('_decoder_branch', None)
+        self._second_stage_fit_kwargs = kwargs.get('_second_stage_fit_kwargs', {})
+        self._mode_subpackage = kwargs.get('_mode_subpackage', None)
+        self._mode_enum = kwargs.get('_mode_enum', None)
 
     def get_config(self):
         config = super().get_config()

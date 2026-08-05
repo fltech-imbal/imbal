@@ -199,16 +199,74 @@ model.train(x, [true_prediction, true_prediction])
 ---
 # 7/23/26
 ## Research
-- (!!!) Push changes to GitHub so Daniel can have fixed Model class (with fixed decoupled fit)
-- Update tutorials for decoupled fit. Code should be accurate now, but needs to be rerun since the output will now be different (not using `override_second_stage_fit_parameters`)
-	- Focus on image classification/regression
-	- Ask Daniel to update tabular classification classification/regression (decoupled fit only)
-	- We each have six to do (classification/regression, standard/validation/AE)
-- Check if t-SNE/LIME/SHAP/GradCam. Those may need to be updated too.
-- **BUG FOUND**: custom Model object attributes such as best weights and decision threshold were not being saved properly. Fixed?
+- (!!!) Push changes to GitHub so Daniel can have fixed Model class (with fixed decoupled fit) $\checkmark$
+- Update tutorials for decoupled fit. Code should be accurate now, but needs to be rerun since the output will now be different (not using `override_second_stage_fit_parameters`) $\checkmark$
+	- Focus on image classification/regression $\checkmark$
+	- Ask Daniel to update tabular classification classification/regression (decoupled fit only) $\checkmark$
+	- We each have six to do (classification/regression, standard/validation/AE) $\checkmark$
+- Check if t-SNE/LIME/SHAP/GradCam. Those may need to be updated too. **They do not use decoupled models** $\checkmark$
+- **BUG FOUND**: custom Model object attributes such as best weights and decision threshold were not being saved properly. Fixed! $\checkmark$
 ## Class
 - Runs with both pairwise and anchor
 
+- Stage 1
+	1. Last 2 layers have no activation (linear functions)
+	2. Goal is to encourage a straight-line representation in the second to last layer (right before the output)
+	3. Third to last layer is unrestricted
+	4. Constant speed representation loss on second to last layer, with adjacent pairs and reference point pairs to encourage a straight line representation
+		1. Potentially, encourage diversity of weights leading into second to last layer
+		2. Still, third to last is an arbitrary shape
+- Stage 2
+	1. Throw away last 2 layers, replace it with a single output unit
+	2. Freeze feature extractor up to the previous third to last layer (now second to last)
+	3. "Compress" the last two layers, or "compress" multi-dimensional straight-line representation into a singular output
+
+Other idea:
+- `UnitNormalization`
+	- Stage one
+		- Some constant-speed representation loss (adjacent and anchor pairs)
+	- Stage two
+		- Fine tuning to allow for non-constant speeds using MSE loss as objective
+
+Third idea:
+- Same as above but with a non-linear regressor, freezing instead of fine-tuning in the second stage.
+
+Baseline:
+- No semicircle/`UnitNormalization`, constant speed representation loss (linear shape) with a linear regressor afterwards.
+
+- Use SEP-C instead of ONP
+
+Cauchy-Schwartz:
+- $\|a\|\cdot\|b\| - \langle a, b\rangle$, maybe squared. Less computationally expensive than PCC and related things (few operations). No logarithm (faster than entropy). Parallelizable.
+- Can also have a ratio loss (nudge near $1$)
+
+---
+# 7/24/26
+
+## Research
+#### Medium Priority
+- Try to do explicit representation learning by adding representation layer as separate output with a representation loss
+	- Does AE still work? Maybe not
+	- Is `imbal` alone flexible enough to allow for this?
+	- Compatible with June paper loss functions? If not, what can we do?
+
+```
+rep_loss = RepresentationLoss()
+
+def loss_fn(y_true, y_pred, weights=None):
+	...
+
+model = Model(input=Input(), output=[prediction_layer, representation_layer])
+
+model.compile(
+    loss=['mse', rep_loss]
+)
+
+model.train(x, [true_prediction, true_prediction])
+```
+#### Low priority:
+- See 7/14 email (1:00pm)
+## Class
 - Stage 1
 	1. Last 2 layers have no activation (linear functions)
 	2. Goal is to encourage a straight-line representation in the second to last layer (right before the output)

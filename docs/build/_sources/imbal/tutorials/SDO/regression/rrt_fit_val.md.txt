@@ -175,9 +175,9 @@ like for the above code.
 ```text
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.324
-MAE for log10 flux >= -4: 0.722
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 11ms/step
+MAE for log10 flux < -4: 1.326
+MAE for log10 flux >= -4: 0.520
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -216,13 +216,13 @@ we get the following results:
 
 ```text
 (after training output)
-Restoring model weights from fit on sample weight candidate at index 2
+Restoring model weights from fit on sample weight candidate at index 1
 ...
 Number of test samples with log10 flux < -4: 586
 Number of test samples with log10 flux >= -4: 14
-19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 14ms/step
-MAE for log10 flux < -4: 1.287
-MAE for log10 flux >= -4: 0.753
+19/19 ━━━━━━━━━━━━━━━━━━━━ 0s 10ms/step
+MAE for log10 flux < -4: 1.317
+MAE for log10 flux >= -4: 0.841
 ```
 
 <div style="display: flex; gap: 8px; max-width: 100%;">
@@ -250,7 +250,7 @@ history = model.rRT_fit(
     sample_density=sample_densities,
     # sample_weight=weight_candidates, # Uncomment to use varying alphas for reciprocal importance (see above section)
     # candidate_evaluation_sample_weight=w_val[2], # Uncomment to use varying alphas
-    validation_data=(x_val, y_val, w_val),
+    # validation_data=(x_val, y_val, w_val),
     # validation_densities=val_densities,
     validation_split=0.1,
     epochs=500,
