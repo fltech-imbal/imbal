@@ -95,11 +95,11 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 ### Example Output
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 2.6929 - mae: 1.2303 
-Test Loss: 2.6929
-Test MAE: 1.2303
-Common sample MAE (< ln(10)): 1.2228
-Rare sample MAE (>= ln(10)): 1.6055
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Test Loss: 1.8846
+Test MAE: 0.9431
+Common sample MAE (< ln(10)): 0.9219
+Rare sample MAE (>= ln(10)): 2.0021
 ```
 ---
 
@@ -150,11 +150,11 @@ model.rRT_fit(
 ### Results
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - loss: 2.3280 - mae: 1.0937
-Test Loss: 2.3280
-Test MAE: 1.0937
-Common sample MAE (< ln(10)): 1.0869
-Rare sample MAE (>= ln(10)): 1.4342
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Test Loss: 1.5179
+Test MAE: 0.8287
+Common sample MAE (< ln(10)): 0.8049
+Rare sample MAE (>= ln(10)): 2.0228
 ```
 
 ![Model Results](../../../../_static/tutorials/SEP-C/decoupled_fit_custom_alpha_regression_visualizer.png)

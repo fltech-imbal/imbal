@@ -92,14 +92,14 @@ if model.best_decision_threshold is not None:
 ### Example Output
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.3871 - HSS: 0.3683 - loss: 0.1572   
-Test Loss: 0.1572
-Test F1Score: 0.3871
-Test HSS: 0.3683
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 954us/step
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.3810 - HSS: 0.3619 - loss: 0.1488
+Test Loss: 0.1488
+Test F1Score: 0.3810
+Test HSS: 0.3619
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 783us/step
 Best found threshold: 0.9
-F1Score using Best Threshold: 0.6667
-HSS using Best Threshold: 0.6594
+F1Score using Best Threshold: 0.6286
+HSS using Best Threshold: 0.6201
 ```
 
 ---
@@ -123,14 +123,14 @@ model.cRT_fit(
 ### Results
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6286 - HSS: 0.6201 - loss: 0.0741   
-Test Loss: 0.0741
-Test F1Score: 0.6286
-Test HSS: 0.6201
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 943us/step
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.5946 - HSS: 0.5849 - loss: 0.0699
+Test Loss: 0.0699
+Test F1Score: 0.5946
+Test HSS: 0.5849
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 783us/step
 Best found threshold: 0.7
-F1Score using Best Threshold: 0.6250
-HSS using Best Threshold: 0.6170
+F1Score using Best Threshold: 0.6000
+HSS using Best Threshold: 0.5920
 ```
 
 This optional approach gives you manual control over class importance, while `cRT_fit` automates the process.
