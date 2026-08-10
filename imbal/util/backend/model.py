@@ -8,6 +8,7 @@ import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
 from imbal.util.backend.tools import verify_weight_scale
 
+@keras.utils.register_keras_serializable()
 def mse_reconstruction_loss(y_true, y_pred):
     sq = tf.math.squared_difference(y_true, y_pred)
     axes = tf.range(1, tf.rank(sq))
@@ -57,6 +58,8 @@ class Model(keras.Model):
         self._second_stage_fit_kwargs = kwargs.get('_second_stage_fit_kwargs', {})
         self._mode_subpackage = kwargs.get('_mode_subpackage', None)
         self._mode_enum = kwargs.get('_mode_enum', None)
+        self._compiled_optimizer = kwargs.get('_compiled_optimizer', None)
+        self._reconstruction_lambda = kwargs.get('_reconstruction_lambda', None)
 
     def get_config(self):
         config = super().get_config()
@@ -74,7 +77,9 @@ class Model(keras.Model):
             '_decoder_branch' : self._decoder_branch,
             '_second_stage_fit_kwargs' : self._second_stage_fit_kwargs,
             '_mode_subpackage' : self._mode_subpackage,
-            '_mode_enum' : self._mode_enum.value if self._mode_enum is not None else None
+            '_mode_enum' : self._mode_enum.value if self._mode_enum is not None else None,
+            '_compiled_optimizer' : self._compiled_optimizer,
+            '_reconstruction_lambda' : self._reconstruction_lambda
         })
         return config
 
@@ -307,6 +312,7 @@ class Model(keras.Model):
         second_stage_fit_kwargs = kwargs.copy()
         if 'callbacks' in kwargs:
             second_stage_fit_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
+        self.optimizer = copy.deepcopy(self._compiled_optimizer)
 
         # Allow second stage overrides
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
@@ -396,6 +402,29 @@ class Model(keras.Model):
                 w_val = w_val.reshape(-1)
                 validation_data = (x_val, y_val, w_val)
 
+            if self._use_decoder_branch and self._reconstruction_lambda is None:
+                if verbose_imbal > 0:
+                    print(f'Determining reconstruction lambda...')
+                self._reconstruction_lambda = self._determine_reconstruction_lambda(
+                    training_model,
+                    x=x_train,
+                    y=y_train,
+                    sample_weight=w_train,
+                    validation_data=validation_data,
+                    validation_split=validation_split,
+                    batch_size=None if stratify_batches else batch_size,
+                    shuffle=shuffle,
+                    **kwargs
+                )
+
+                if verbose_imbal > 0:
+                    print(f'Found reconstruction lambda {self._reconstruction_lambda:.4f}')
+
+                print(training_model.get_compile_config())
+                config = training_model.get_compile_config()
+                config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
+                training_model.compile_from_config(config)
+
             history = keras.Model.fit(
                 training_model,
                 x=x_train,
@@ -484,6 +513,44 @@ class Model(keras.Model):
         self._use_decoder_branch = self._generate_decoder_branch
 
         return history
+
+    def _determine_reconstruction_lambda(
+        self,
+        model,
+        x=None,
+        y=None,
+        sample_weight=None,
+        validation_data=None,
+        validation_split=None,
+        batch_size=None,
+        shuffle=True,
+        **kwargs
+    ):
+        starting_model_weights = model.get_weights()
+
+        history = keras.Model.fit(
+            model,
+            x=x,
+            y=y,
+            sample_weight=sample_weight,
+            validation_data=validation_data,
+            validation_split=validation_split,
+            epochs=100,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            **kwargs
+        )
+
+        combined_loss = np.array(history.history['loss'])
+        half_length = len(combined_loss) // 2
+        decoder_loss = np.array(history.history[[key for key in history.history if key.startswith('imbal')][0]])[half_length:]
+        standard_loss = combined_loss[half_length:] - decoder_loss[half_length:]
+        ratios = standard_loss / decoder_loss
+
+        model.set_weights(starting_model_weights)
+
+        return np.mean(ratios).astype(np.float32)
+
 
     def _optimize_metric(
         self,
@@ -666,6 +733,9 @@ class Model(keras.Model):
             self._compile_for_decoder_branch(**kwargs)
 
         super().compile(**kwargs)
+
+        self._compiled_optimizer = self.optimizer
+        self.optimizer = copy.deepcopy(self._compiled_optimizer)
 
         self._compile_config = serialization_lib.SerializableDict(
             **kwargs,

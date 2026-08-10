@@ -279,21 +279,86 @@ model.train(x, [true_prediction, true_prediction])
 	2. Freeze feature extractor up to the previous third to last layer (now second to last)
 	3. "Compress" the last two layers, or "compress" multi-dimensional straight-line representation into a singular output
 
-Other idea:
-- `UnitNormalization`
-	- Stage one
-		- Some constant-speed representation loss (adjacent and anchor pairs)
-	- Stage two
-		- Fine tuning to allow for non-constant speeds using MSE loss as objective
+Other idea: $\checkmark$
+- `UnitNormalization` $\checkmark$
+	- Stage one $\checkmark$
+		- Some constant-speed representation loss (adjacent and anchor pairs) $\checkmark$
+	- Stage two $\checkmark$
+		- Fine tuning to allow for non-constant speeds using MSE loss as objective $\checkmark$
 
 Third idea:
 - Same as above but with a non-linear regressor, freezing instead of fine-tuning in the second stage.
 
-Baseline:
-- No semicircle/`UnitNormalization`, constant speed representation loss (linear shape) with a linear regressor afterwards.
+Baseline: $\checkmark$
+- No semicircle/`UnitNormalization`, constant speed representation loss (linear shape) with a linear regressor afterwards. $\checkmark$
 
 - Use SEP-C instead of ONP
 
-Cauchy-Schwartz:
-- $\|a\|\cdot\|b\| - \langle a, b\rangle$, maybe squared. Less computationally expensive than PCC and related things (few operations). No logarithm (faster than entropy). Parallelizable.
+Cauchy-Schwartz: $\checkmark$
+- $\|a\|\cdot\|b\| - \langle a, b\rangle$, maybe squared. Less computationally expensive than PCC and related things (few operations). No logarithm (faster than entropy). Parallelizable. $\checkmark$
 - Can also have a ratio loss (nudge near $1$)
+
+---
+## Research
+- See paper notes
+## Class
+- SEP-EC and SEP-C
+- Loss ratio for unit hypersphere $\checkmark$
+- Stage 1
+	1. Last 2 layers have no activation (linear functions)
+	2. Goal is to encourage a straight-line representation in the second to last layer (right before the output)
+	3. Third to last layer is unrestricted
+	4. Constant speed representation loss on second to last layer, with adjacent pairs and reference point pairs to encourage a straight line representation
+		1. Potentially, encourage diversity of weights leading into second to last layer
+		2. Still, third to last is an arbitrary shape
+- Stage 2
+	1. Throw away last 2 layers, replace it with a single output unit
+	2. Freeze feature extractor up to the previous third to last layer (now second to last)
+	3. "Compress" the last two layers, or "compress" multi-dimensional straight-line representation into a singular output
+- **Why?** Second to last layer learns many redundant features, so we throw it out and replace it with a single output unit.
+
+**Dimensions**
+	1. Unit hypersphere yes/no $\checkmark$
+		- If not, should have some ratio loss (close to 1) $\checkmark$
+	2. Representation loss function used $\checkmark$
+		1. Distance PCC $\checkmark$
+		2. Cauchy-Schwartz $\checkmark$
+		3. Entropy $\checkmark$
+	3. Freezing, tuning, or joint? $\checkmark$
+	4. Also, throw away second to last and freeze third to last $\checkmark$
+		1. Add in Augmented PCC $\checkmark$
+	5. SEP-EC / SEP-C $\checkmark$
+
+---
+# 7/29/26
+
+## Research
+- Focus on section 3 next for paper $\checkmark$
+	- Add table with overview in section 3 $\checkmark$
+	- Add an example for SHAP in explanation of predictions
+	- Add number of events in training set vs test set (not instances)
+		- Also add common/rare percentages for training and test sets
+		- extend discussion from NASA report
+- Section 4
+	- Plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		- Plot series that are highly over/underestimating (based on scatter plot) (2)
+		- Also plot two that are quite accurate
+
+---
+# 7/31/26
+
+## Research
+- Change `\cite` to `\citeyear` where appropriate in paper $\checkmark$
+- Remove subjective wording from related work $\checkmark$
+- Instead of "work", referring to a paper/study, we can be more direct: $\checkmark$
+	- Richardson et al. `\citeyear{richardson2018}` used CME data to derive $\checkmark$
+	- In general, eliminate the word "work" wherever possible $\checkmark$
+- Add an example for SHAP in explanation of predictions
+- Add number of events in training set vs test set (not instances) $\checkmark$
+	- Also add common/rare percentages for training and test sets $\checkmark$
+	- extend discussion from NASA report, and remove "overexplained" parts of the NASA report $\checkmark$
+- Section 4
+	- Plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		- Plot series that are highly over/underestimating (based on scatter plot) (2)
+		- Also plot two that are quite accurate
+
