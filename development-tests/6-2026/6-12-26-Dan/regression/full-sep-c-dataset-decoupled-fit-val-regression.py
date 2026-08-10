@@ -3,6 +3,7 @@ import pandas as pd
 import tensorflow as tf
 import keras
 from tensorflow.keras import layers
+import matplotlib.pyplot as plt
 import os
 from aore_metric import AORE
 
@@ -192,3 +193,140 @@ print("Error:", absolute_errors[large_error_idx])
 
 imbal.regression.lime_explain_tabular_sample(x_test[large_error_idx], model, x_train, figure_save_path="dec_fit_val_large_error.html",
                                              feature_names=feature_names)
+
+# ----------------------------
+# Visualization
+# ----------------------------
+def plot_prediction_feature_graphs(
+    dataframe,
+    y_true,
+    y_pred,
+    output_path="predicted_peak_intensity_feature_plots.png",
+):
+    """Plot predicted peak intensity against CME speed, longitude, and latitude.
+
+    Marker definitions:
+      - Blue circles: background samples (actual value < 0)
+      - Green circles: non-background non-SEP events (0 <= actual value < ln(10))
+      - Red circles: SEP samples (actual value >= ln(10))
+      - Black upward triangles: false positives
+      - Black downward triangles: false negatives
+
+    Replace the dictionary keys below if your CSV uses different column names.
+    """
+    threshold = np.log(10)
+
+    background_mask = y_true < 0
+    non_background_non_sep_mask = (y_true >= 0) & (y_true < threshold)
+    sep_mask = y_true >= threshold
+
+    false_positive_mask = background_mask & (y_pred >= threshold)
+    false_negative_mask = sep_mask & (y_pred < threshold)
+
+    # Exclude FP/FN samples from the ordinary circle markers so each point is
+    # shown only once and the triangle markers remain easy to see.
+    ordinary_background_mask = background_mask & ~false_positive_mask
+    ordinary_sep_mask = sep_mask & ~false_negative_mask
+
+    feature_settings = [
+        ("CME_DONKI_speed_norm", "Linear Speed"),
+        ("CME_DONKI_longitude_norm", "Longitude"),
+        ("CME_DONKI_latitude_norm", "Latitude"),
+    ]
+
+    missing_columns = [
+        column_name
+        for column_name, _ in feature_settings
+        if column_name not in dataframe.columns
+    ]
+    if missing_columns:
+        raise KeyError(
+            "The following plotting columns were not found in the test CSV: "
+            + ", ".join(missing_columns)
+        )
+
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+
+    for axis, (column_name, display_name) in zip(axes, feature_settings):
+        x_values = dataframe[column_name].to_numpy()
+
+        axis.scatter(
+            x_values[ordinary_background_mask],
+            y_pred[ordinary_background_mask],
+            c="blue",
+            marker="o",
+            s=28,
+            label="Background",
+            zorder=1,
+        )
+        axis.scatter(
+            x_values[non_background_non_sep_mask],
+            y_pred[non_background_non_sep_mask],
+            c="green",
+            marker="o",
+            s=32,
+            label="Elevated",
+            zorder=2,
+        )
+        axis.scatter(
+            x_values[ordinary_sep_mask],
+            y_pred[ordinary_sep_mask],
+            c="red",
+            marker="o",
+            s=35,
+            label="SEP",
+            zorder=3,
+        )
+        axis.scatter(
+            x_values[false_positive_mask],
+            y_pred[false_positive_mask],
+            c="black",
+            marker="^",
+            s=55,
+            label="FP",
+            zorder=4,
+        )
+        axis.scatter(
+            x_values[false_negative_mask],
+            y_pred[false_negative_mask],
+            c="black",
+            marker="v",
+            s=55,
+            label="FN",
+            zorder=4,
+        )
+
+        axis.set_title(f"Predicted Peak Intensity LN vs {display_name}")
+        axis.set_xlabel(display_name)
+        axis.set_ylabel("Predicted Peak Intensity LN")
+        axis.legend(loc="upper left")
+
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.show()
+
+    print(f"Saved prediction feature plots to: {output_path}")
+    print(f"False positive count: {np.sum(false_positive_mask)}")
+    print(f"False negative count: {np.sum(false_negative_mask)}")
+
+
+plot_prediction_feature_graphs(test_data, y_true, y_pred)
+
+# ----------------------------
+# False Positive Analysis
+# ----------------------------
+
+false_positive_mask = (y_true < 0) & (y_pred >= np.log(10))
+false_positive_count = np.sum(false_positive_mask)
+
+print(f"False positive count: {false_positive_count}")
+
+# Replace these with the actual column names you want.
+columns_to_print = [
+    "CME_DONKI_speed_norm",
+    "CME_DONKI_latitude_norm",
+    "CME_DONKI_longitude_norm",
+]
+
+print("\nData from False Positive Samples:")
+print(test_data.loc[false_positive_mask, columns_to_print])

@@ -119,11 +119,11 @@ print(f"Rare sample MAE (>= ln(10)): {rare_mae:.4f}")
 ### Example Output
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 3.6128 - mae: 1.6497 
-Test Loss: 3.6128
-Test MAE: 1.6497
-Common sample MAE (< ln(10)): 1.6558
-Rare sample MAE (>= ln(10)): 1.3453
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step
+Test Loss: 5.0734
+Test MAE: 2.1026
+Common sample MAE (< ln(10)): 2.1123
+Rare sample MAE (>= ln(10)): 1.6173
 ```
 
 ---
@@ -184,11 +184,11 @@ model.rRT_fit(
 ### Results
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - loss: 1.8734 - mae: 0.9008 
-Test Loss: 1.8734
-Test MAE: 0.9008
-Common sample MAE (< ln(10)): 0.8898
-Rare sample MAE (>= ln(10)): 1.4512
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step
+Test Loss: 5.3628
+Test MAE: 2.1992
+Common sample MAE (< ln(10)): 2.2158
+Rare sample MAE (>= ln(10)): 1.3704
 
 ```
 

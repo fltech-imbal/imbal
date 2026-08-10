@@ -34,6 +34,10 @@ OUTPUT_CSV_PATH = SCRIPT_DIRECTORY / "predicted_ln_peak_intensity.csv"
 
 BATCH_SIZE = 32
 
+# Desired inclusive range for final pseudo-label predictions.
+DESIRED_MIN = -1.60944
+DESIRED_MAX = -0.68278
+
 # Predictions greater than ln(10) are counted as false positives.
 FP_THRESHOLD = np.log(10.0)
 
@@ -119,6 +123,60 @@ def print_false_positive_count(predictions: np.ndarray) -> None:
     print(f"FP (> ln(10)): {false_positive_count}")
 
 
+def min_max_scale_to_desired_range(predictions: np.ndarray) -> np.ndarray:
+    """Scale only prediction bounds that violate the desired range.
+
+    Four cases are handled:
+    1. Both bounds violated: scale to [DESIRED_MIN, DESIRED_MAX].
+    2. Upper bound only: preserve the raw minimum and scale the maximum down.
+    3. Lower bound only: scale the minimum up and preserve the raw maximum.
+    4. Neither bound violated: return the predictions unchanged.
+    """
+    flattened = np.asarray(predictions, dtype=np.float64).reshape(-1)
+    if not np.isfinite(flattened).all():
+        raise ValueError("The model produced NaN or infinite predictions.")
+
+    source_min = float(np.min(flattened))
+    source_max = float(np.max(flattened))
+
+    lower_violated = source_min < DESIRED_MIN
+    upper_violated = source_max > DESIRED_MAX
+
+    if not lower_violated and not upper_violated:
+        print(
+            "Prediction bounds are already within the desired range; "
+            "no scaling was applied."
+        )
+        return flattened.copy()
+
+    target_min = DESIRED_MIN if lower_violated else source_min
+    target_max = DESIRED_MAX if upper_violated else source_max
+
+    if lower_violated and upper_violated:
+        case_description = "both lower and upper bounds violated"
+    elif upper_violated:
+        case_description = "only the upper bound violated"
+    else:
+        case_description = "only the lower bound violated"
+
+    print(
+        f"Scaling case: {case_description}. "
+        f"Mapping [{source_min:.6f}, {source_max:.6f}] to "
+        f"[{target_min:.6f}, {target_max:.6f}]."
+    )
+
+    if np.isclose(source_min, source_max):
+        clamped_value = float(np.clip(source_min, DESIRED_MIN, DESIRED_MAX))
+        print(
+            "All raw predictions are equal; assigning every prediction "
+            f"to {clamped_value:.6f}."
+        )
+        return np.full(flattened.shape, clamped_value, dtype=np.float64)
+
+    normalized = (flattened - source_min) / (source_max - source_min)
+    return target_min + normalized * (target_max - target_min)
+
+
 def save_predictions(predictions: np.ndarray, output_path: Path) -> None:
     flattened_predictions = np.asarray(predictions).reshape(-1)
     output_data = pd.DataFrame({TARGET_COLUMN: flattened_predictions})
@@ -144,7 +202,19 @@ def main() -> None:
 
     print_false_positive_count(predictions)
 
-    save_predictions(predictions, OUTPUT_CSV_PATH)
+    raw_predictions = np.asarray(predictions, dtype=np.float64).reshape(-1)
+    scaled_predictions = min_max_scale_to_desired_range(raw_predictions)
+
+    print(
+        f"Raw prediction range: [{raw_predictions.min():.6f}, "
+        f"{raw_predictions.max():.6f}]"
+    )
+    print(
+        f"Final prediction range: [{scaled_predictions.min():.6f}, "
+        f"{scaled_predictions.max():.6f}]"
+    )
+
+    save_predictions(scaled_predictions, OUTPUT_CSV_PATH)
 
 
 if __name__ == "__main__":
