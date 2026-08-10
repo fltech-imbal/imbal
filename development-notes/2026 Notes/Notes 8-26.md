@@ -43,7 +43,7 @@
 	- In fact, second half of how long it ran for $\checkmark$
 - No need to have sample weights for calculating $\lambda$ because sample weight cancels out in top an bottom of ratio $\checkmark$
 - Handle all bullet points in 8/4/26 email
-- Make the above changes, wait for Daniel's changes, and **then** to average of 5 runs
+- Make the above changes, wait for Daniel's changes, and **then** to average of 5 runs $\checkmark$
 * For results
 	* Get results using 5 runs averaged, using median run for best result.
 	* actual vs predicted (with each time series as a different color)

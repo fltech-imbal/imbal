@@ -420,7 +420,6 @@ class Model(keras.Model):
                 if verbose_imbal > 0:
                     print(f'Found reconstruction lambda {self._reconstruction_lambda:.4f}')
 
-                print(training_model.get_compile_config())
                 config = training_model.get_compile_config()
                 config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
                 training_model.compile_from_config(config)
@@ -519,7 +518,6 @@ class Model(keras.Model):
         model,
         x=None,
         y=None,
-        sample_weight=None,
         validation_data=None,
         validation_split=None,
         batch_size=None,
@@ -528,23 +526,26 @@ class Model(keras.Model):
     ):
         starting_model_weights = model.get_weights()
 
+        current_kwargs = kwargs.copy()
+        if 'callbacks' in kwargs:
+            current_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
+
         history = keras.Model.fit(
             model,
             x=x,
             y=y,
-            sample_weight=sample_weight,
             validation_data=validation_data,
             validation_split=validation_split,
             epochs=100,
             batch_size=batch_size,
             shuffle=shuffle,
-            **kwargs
+            **current_kwargs
         )
 
         combined_loss = np.array(history.history['loss'])
         half_length = len(combined_loss) // 2
         decoder_loss = np.array(history.history[[key for key in history.history if key.startswith('imbal')][0]])[half_length:]
-        standard_loss = combined_loss[half_length:] - decoder_loss[half_length:]
+        standard_loss = combined_loss[half_length:] - decoder_loss
         ratios = standard_loss / decoder_loss
 
         model.set_weights(starting_model_weights)
@@ -866,6 +867,25 @@ class Model(keras.Model):
                 return str(array)
             else:
                 return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
+
+        if self._use_decoder_branch and self._reconstruction_lambda is None:
+            if verbose_imbal > 0:
+                print(f'Determining reconstruction lambda...')
+            self._reconstruction_lambda = self._determine_reconstruction_lambda(
+                model,
+                x=x,
+                y=y,
+                batch_size=None if stratify_batches else batch_size,
+                shuffle=shuffle,
+                **kwargs
+            )
+
+            if verbose_imbal > 0:
+                print(f'Found reconstruction lambda {self._reconstruction_lambda:.4f}')
+
+            config = model.get_compile_config()
+            config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
+            model.compile_from_config(config)
 
         for index, weights in enumerate(sample_weight):
             tf.keras.backend.clear_session()
