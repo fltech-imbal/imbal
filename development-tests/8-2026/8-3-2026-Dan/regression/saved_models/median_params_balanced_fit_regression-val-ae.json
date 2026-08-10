@@ -1,0 +1,17 @@
+{
+    "selection_metric": "aore",
+    "selection_method": "median of five runs sorted by AORE",
+    "median_seed": 46,
+    "best_alpha_index": 1,
+    "best_alpha": 0.5,
+    "median_model_test_loss": 0.8752436637878418,
+    "median_model_overall_mae": 0.5212071537971497,
+    "median_model_common_mae": 0.4934943914413452,
+    "median_model_rare_mae": 1.908693552017212,
+    "median_model_aore": 1.2149503529071808,
+    "average_test_loss_across_5_seeds": 0.8530121326446534,
+    "average_overall_mae_across_5_seeds": 0.4591402053833008,
+    "average_common_mae_across_5_seeds": 0.4225191980600357,
+    "average_rare_mae_across_5_seeds": 2.2926324129104616,
+    "average_aore_across_5_seeds": 1.3758863091468811
+}
