@@ -36,6 +36,18 @@
             }
           },
           {
+            "id": "a391a5b53da3d62e",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.13.4"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.13.4"
+            }
+          },
+          {
             "id": "9b2326acae2d59ee",
             "type": "leaf",
             "state": {
@@ -50,7 +62,7 @@
             }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -70,7 +82,9 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -198,7 +212,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "5fbfe8afc36d9634",
+  "active": "a391a5b53da3d62e",
   "lastOpenFiles": [
     "2026 Notes/Notes 6-26.md",
     "2026 Notes/Notes 7-26.md",
