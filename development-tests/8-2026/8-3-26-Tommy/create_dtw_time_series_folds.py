@@ -6,9 +6,11 @@ import numpy as np
 import os
 import shutil
 
-TIME_SERIES_DATA_PATH = 'all-time-series'
+TIME_SERIES_DATA_PATH = 'all-time-series-24h'
 CLUSTER_SIZE = 5
 SHOW_PLOTS = False
+OUTPUT_PATH = 'dtw-data-24h'
+TARGET_NAME = 'p16.4_tplus6'
 
 def load_time_series(path):
     series = []
@@ -26,8 +28,8 @@ print(len(time_series_list))
 distance_records = []
 def get_pair_distance(series_list, index_one, index_two):
 
-    intensity_series_one = np.log(series_list[index_one]['Proton Intensity'].to_numpy() + 1e-9)
-    intensity_series_two = np.log(series_list[index_two]['Proton Intensity'].to_numpy() + 1e-9)
+    intensity_series_one = np.log(series_list[index_one][TARGET_NAME].to_numpy() + 1e-9)
+    intensity_series_two = np.log(series_list[index_two][TARGET_NAME].to_numpy() + 1e-9)
 
     _, distance = dtw_path(intensity_series_one, intensity_series_two)
 
@@ -118,7 +120,7 @@ from matplotlib import pyplot as plt
 for i, cluster in enumerate(found_clusters):
     if SHOW_PLOTS:
         for index in cluster:
-            intensities = np.log(time_series_list[index]['Proton Intensity'].to_numpy() + 1e-9)
+            intensities = np.log(time_series_list[index][TARGET_NAME].to_numpy() + 1e-9)
             x = np.arange(len(intensities))
             plt.plot(x, intensities)
             plt.title(f'Cluster {i+1} - File {index+1}')
@@ -135,8 +137,8 @@ test = folds[4]
 print(folds)
 
 for i in range(CLUSTER_SIZE):
-    if os.path.exists(f'dtw-data/fold-{i+1}'):
-        shutil.rmtree(f'dtw-data/fold-{i+1}')
-    os.mkdir(f'dtw-data/fold-{i+1}')
+    if os.path.exists(f'{OUTPUT_PATH}/fold-{i+1}'):
+        shutil.rmtree(f'{OUTPUT_PATH}/fold-{i+1}')
+    os.mkdir(f'{OUTPUT_PATH}/fold-{i+1}')
     for value in folds[i]:
-        time_series_list[value].to_csv(f'dtw-data/fold-{i+1}/sep_event_{value+1}_filled_ie_trim.csv', index=False)
+        time_series_list[value].to_csv(f'{OUTPUT_PATH}/fold-{i+1}/sep_event_{value+1}_filled_ie_trim.csv', index=False)
