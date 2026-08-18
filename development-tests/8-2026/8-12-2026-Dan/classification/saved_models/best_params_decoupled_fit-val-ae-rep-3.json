@@ -1,0 +1,8 @@
+{
+    "best_weight_index": 2,
+    "best_class_weights": [
+        0.7,
+        0.3
+    ],
+    "best_decision_threshold": 0.8099999999999999
+}

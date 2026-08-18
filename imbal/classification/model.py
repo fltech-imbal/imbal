@@ -37,6 +37,7 @@ class Model(backend.Model):
         shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
+        seed=None,
         **kwargs
     ):
         """
@@ -136,6 +137,7 @@ class Model(backend.Model):
             shuffle=shuffle,
             stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
+            seed=seed,
             **kwargs
         )
 
@@ -154,6 +156,7 @@ class Model(backend.Model):
         shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
+        seed=None,
         **kwargs
     ):
         """
@@ -258,5 +261,6 @@ class Model(backend.Model):
             shuffle=shuffle,
             stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
+            seed=seed,
             **kwargs
         )

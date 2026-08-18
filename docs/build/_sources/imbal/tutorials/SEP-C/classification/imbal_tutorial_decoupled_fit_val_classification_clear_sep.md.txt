@@ -99,14 +99,14 @@ if model.best_decision_threshold is not None:
 ### Example Output
 
 ```text
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.4528 - HSS: 0.4370 - loss: 0.2092   
-Test Loss: 0.2092
-Test F1Score: 0.4528
-Test HSS: 0.4370
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 889us/step
-Best found threshold: 0.9
-F1Score using Best Threshold: 0.6154
-HSS using Best Threshold: 0.6059
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6111 - HSS: 0.6020 - loss: 0.1475
+Test Loss: 0.1475
+Test F1Score: 0.6111
+Test HSS: 0.6020
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 826us/step
+Best found threshold: 0.6
+F1Score using Best Threshold: 0.6111
+HSS using Best Threshold: 0.6020
 ```
 ---
 
@@ -141,13 +141,14 @@ Restoring model weights from fit on class weight candidate at index 0
 Class weights of best fit: [0.9 0.1]
 Performing final fit using combined training and validation data
 ...  
-Test Loss: 0.0544
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6471 - HSS: 0.6392 - loss: 0.0550
+Test Loss: 0.0550
 Test F1Score: 0.6471
 Test HSS: 0.6392
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step 
-Best found threshold: 0.4
-F1Score using Best Threshold: 0.6857
-HSS using Best Threshold: 0.6785
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step
+Best found threshold: 0.6500
+F1Score using Best Threshold: 0.7586
+HSS using Best Threshold: 0.7540
 ```
 
 > **NOTE:** at the end of training, the index of the best class weight is printed. For convenience, the associated class weight is also printed out.
