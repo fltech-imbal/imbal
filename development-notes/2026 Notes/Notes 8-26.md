@@ -42,7 +42,7 @@
 - Try 50-100 epoch average for calculating $\lambda$ $\checkmark$
 	- In fact, second half of how long it ran for $\checkmark$
 - No need to have sample weights for calculating $\lambda$ because sample weight cancels out in top an bottom of ratio $\checkmark$
-- Handle all bullet points in 8/4/26 email
+- Handle all bullet points in 8/4/26 email $\checkmark$
 - Make the above changes, wait for Daniel's changes, and **then** to average of 5 runs $\checkmark$
 * For results
 	* Get results using 5 runs averaged, using median run for best result.
@@ -52,6 +52,42 @@
 	* Remove code examples.
 	* Limitation of decoder branch generation is it assumed the original mode is sequential (containing no branches).
 	* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		- Plot series that are highly over/underestimating (based on scatter plot) (2)
+		- Also plot two that are quite accurate
+	- SHAP will be used for explanations in section `4 SEP Forecasting tasks`
+
+---
+# 8/10/26
+- Each fit has 4 configs: reg/bal/dec, +val, +ae, +ae-3 $\checkmark$
+	- Alpha is not specified by default $\checkmark$
+- In the table, report... $\checkmark$
+	- The config (described above) $\checkmark$
+	- the alpha of the median model (if applicable) $\checkmark$
+- **While doing runs with balanced/decoupled, check intermediate results to make sure things are performing *as expected* (better than regular, at least similar to each other)** $\checkmark$
+* For results $\checkmark$
+	* Get results using 5 runs averaged, using median run for best result. $\checkmark$
+	* actual vs predicted (with each time series as a different color)
+	* In section 3.3, add reference to section 3.2.1 when discussing balanced fit.
+	* For t-SNE description, include the purpose is to compress the representation space to 2D
+	* Remove code examples.
+	* Limitation of decoder branch generation is it assumed the original mode is sequential (containing no branches).
+	* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		- Plot series that are highly over/underestimating (based on scatter plot) (2)
+		- Also plot two that are quite accurate
+	- SHAP will be used for explanations in section `4 SEP Forecasting tasks`
+
+# 8/12/26
+- For baseline, train to convergence rather than to arbitrary epoch count $\checkmark$
+- In paper, P16.4 is the target channel, t+6 is the target
+- Rerun DTW, then log-normalize new dataset and re-run everything $\checkmark$
+- Update information about the dataset
+
+- For results $\checkmark$
+	* Get results using 5 runs averaged, using median run for best result. $\checkmark$
+	* actual vs predicted (with each time series as a different color)
+	* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		* Pick time series that are furthest from the line for for further analysis
+			* See blue comment in overleaf
 		- Plot series that are highly over/underestimating (based on scatter plot) (2)
 		- Also plot two that are quite accurate
 	- SHAP will be used for explanations in section `4 SEP Forecasting tasks`

@@ -13,7 +13,7 @@ Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.BALANCED
+FIT = FitType.REGULAR
 VALIDATION_DATA = True
 AE = True
 AE_THIRD_TO_LAST = True
@@ -27,7 +27,7 @@ EPOCHS = 10000 if VALIDATION_DATA else 200
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_2'
+OUTPUT_POSTFIX = '_5'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -201,7 +201,7 @@ model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or 
 if FIT != FitType.REGULAR and VALIDATION_DATA and WEIGHT_CANDIDATES:
     print([0.1*(i+1) for i in range(10)][model.best_weight_index])
 
-print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2)
+print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, model._reconstruction_lambda)
 
 # print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
