@@ -91,3 +91,28 @@
 		- Plot series that are highly over/underestimating (based on scatter plot) (2)
 		- Also plot two that are quite accurate
 	- SHAP will be used for explanations in section `4 SEP Forecasting tasks`
+
+# 8/18/26
+## Paper
+- In paper, P16.4 is the target channel, t+6 is the target $\checkmark$
+- Update information about the dataset $\checkmark$
+
+- For results $\checkmark$
+	* Get results using 5 runs averaged, using median run for best result. $\checkmark$
+	* actual vs predicted (with each time series as a different color)
+	* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+		* Pick time series that are furthest from the line for for further analysis
+			* See blue comment in overleaf
+		- Plot series that are highly over/underestimating (based on scatter plot) (2)
+		- Also plot two that are quite accurate
+	- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+## Research
+- How to incorporate representation loss?
+	- Multiple experts?
+	- Gradient conflicts?
+- Planning to present a paper in a month-ish
+## Thesis
+- What could be a representation loss that encourages ordering in the trace but not constant ratio?  Note that each batch is sorted from stratified sampling.
+# 8/19/26
+
+## Paper

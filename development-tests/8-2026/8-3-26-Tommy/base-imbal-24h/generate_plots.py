@@ -4,10 +4,10 @@ import imbal
 import keras
 
 import numpy as np
-DATA_PATH = 'cleaned-dtw-SEP-EC-data'
-OUTPUT_PATH = "dtw-results"
+OUTPUT_PATH = "results"
+DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
-FULL_NAME = '_decoupled_w_validation_ae'
+FULL_NAME = '_decoupled_w_validation_ae_3'
 USE_DELTA = False
 WEIGHT_CANDIDATES = False
 INCLUDE_IDS = True
@@ -26,19 +26,20 @@ SAVE = False
 #
 # def loss_fn(y_true, y_pred):
 #     return keras.losses.mean_squared_error(y_true, y_pred) + 0.5*pcc(y_true, y_pred)
+
+
 # Load the entire model (architecture, weights, and optimizer state)
-model = tf.keras.models.load_model(
-    f'models/{DATA_PREFIX}{FULL_NAME}.keras',
-    custom_objects={
-        # 'loss_fn': loss_fn,
-        'Model' : imbal.regression.Model
-    }
-)
-print(type(model))
-
-# Verify the model structure
-model.summary()
-
+# model = tf.keras.models.load_model(
+#     f'models/{DATA_PREFIX}{FULL_NAME}.keras',
+#     custom_objects={
+#         # 'loss_fn': loss_fn,
+#         'Model' : imbal.regression.Model
+#     }
+# )
+# print(type(model))
+#
+# # Verify the model structure
+# model.summary()
 
 
 def load_sep_ec(path_prefix):
@@ -50,9 +51,9 @@ def load_sep_ec(path_prefix):
         val_labels = val_data.pop("delta_log_Intensity")
         test_labels = test_data.pop("delta_log_Intensity")
     else:
-        training_labels = training_data.pop("Proton Intensity")
-        val_labels = val_data.pop("Proton Intensity")
-        test_labels = test_data.pop("Proton Intensity")
+        training_labels = training_data.pop("p16.4_tplus6")
+        val_labels = val_data.pop("p16.4_tplus6")
+        test_labels = test_data.pop("p16.4_tplus6")
 
     training_ids = training_data.pop('Event ID') if INCLUDE_IDS else None
     val_ids = val_data.pop('Event ID') if INCLUDE_IDS else None
@@ -64,8 +65,6 @@ def load_sep_ec(path_prefix):
     training_labels = training_labels.to_numpy()
     val_labels = val_labels.to_numpy()
     test_labels = test_labels.to_numpy()
-
-
     return (training_data, training_labels, training_ids), (val_data, val_labels, val_ids), (test_data, test_labels, test_ids)
 
 (x_train, y_train, train_ids), (x_val, y_val, val_ids), (x_test, y_test, test_ids) = load_sep_ec(
@@ -74,8 +73,17 @@ def load_sep_ec(path_prefix):
 
 print("x_train shape:", x_train.shape)
 print("y_train shape:", y_train.shape)
+print("x_val shape:", x_val.shape)
+print("y_val shape:", y_val.shape)
 print("x_test shape:", x_test.shape)
 print("y_test shape:", y_test.shape)
+
+print(y_train[y_train >= np.log(10)].shape)
+print(y_train[y_train < np.log(10)].shape)
+print(y_val[y_val >= np.log(10)].shape)
+print(y_val[y_val < np.log(10)].shape)
+print(y_test[y_test >= np.log(10)].shape)
+print(y_test[y_test < np.log(10)].shape)
 
 predictions = model.predict(x_test)
 predictions = predictions.reshape(-1)
@@ -135,6 +143,7 @@ def plot_true_vs_predictions(
         plt.savefig(save_figure)
     plt.legend()
     plt.show()
+
 plot_true_vs_predictions(
     y_test,
     predictions,
