@@ -14,7 +14,7 @@ LABEL_EPSILON = 1e-5
 ORIGINAL_DATA_PATH = "../dtw-data-24H"
 USE_DELTA = False
 PREDICT_P_T = False
-INCLUDE_EVENT_ID = False
+INCLUDE_EVENT_ID = True
 TARGET_NAME = 'p16.4_tplus6'
 
 """

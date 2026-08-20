@@ -69,6 +69,8 @@ print("y_train shape:", y_train.shape)
 print("x_test shape:", x_test.shape)
 print("y_test shape:", y_test.shape)
 
+print(y_train[y_train > np.log(10)].shape)
+print(y_train[y_train <= np.log(10)].shape)
 print(y_test[y_test > np.log(10)].shape)
 print(y_test[y_test <= np.log(10)].shape)
 
