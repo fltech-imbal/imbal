@@ -99,7 +99,7 @@
 
 - For results $\checkmark$
 	* Get results using 5 runs averaged, using median run for best result. $\checkmark$
-	* actual vs predicted (with each time series as a different color)
+	* actual vs predicted (with each time series as a different color) $\checkmark$
 	* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
 		* Pick time series that are furthest from the line for for further analysis
 			* See blue comment in overleaf
@@ -113,6 +113,19 @@
 - Planning to present a paper in a month-ish
 ## Thesis
 - What could be a representation loss that encourages ordering in the trace but not constant ratio?  Note that each batch is sorted from stratified sampling.
-# 8/19/26
 
+---
+# 8/20/26
 ## Paper
+- Blue for "low error", pink for high
+- Stratified sample for passing to SHAP
+	- Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
+* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+	- Pick time series that are furthest from the line for for further analysis
+		- See blue comment in overleaf
+	- Plot series that are highly over/underestimating (based on scatter plot) (2)
+	- Also plot two that are quite accurate
+- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+## Research
+- Work on representation loss usage
+	- Test with one (and more) of my representation losses
