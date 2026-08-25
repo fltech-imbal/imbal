@@ -96,6 +96,7 @@ class Model(keras.Model):
         shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
+        seed=None,
         **kwargs
     ):
         """
@@ -173,6 +174,7 @@ class Model(keras.Model):
             stratify_batches=stratify_batches,
             verbose_imbal=verbose_imbal,
             require_weighting=False,
+            seed=None,
             **kwargs
         )
 
@@ -312,7 +314,7 @@ class Model(keras.Model):
         second_stage_fit_kwargs = kwargs.copy()
         if 'callbacks' in kwargs:
             second_stage_fit_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
-        self.optimizer = copy.deepcopy(self._compiled_optimizer)
+        self._reset_optimizer(self)
 
         # Allow second stage overrides
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
@@ -522,6 +524,7 @@ class Model(keras.Model):
                 x_final, y_final, w_final = self._stratify_data(x_final, y_final, w_final, batch_size, shuffle)
 
             training_model.set_weights(initial_weights)
+            self._reset_optimizer(training_model)
             history = keras.Model.fit(
                 training_model,
                 x=x_final,
@@ -604,6 +607,7 @@ class Model(keras.Model):
 
             for split_index, (train_indices, val_indices) in enumerate(validation_splits):
                 model.set_weights(initial_weights)
+                self._reset_optimizer(model)
                 x_train = x[train_indices]
                 x_val = x[val_indices]
                 y_train_primary = primary_y[train_indices]
@@ -692,6 +696,7 @@ class Model(keras.Model):
                 for split_index, (train_indices, val_indices) in enumerate(validation_splits):
                     tf.keras.backend.clear_session()
                     model.set_weights(initial_weights)
+                    self._reset_optimizer(model)
 
                     x_train = x[train_indices]
                     x_val = x[val_indices]
@@ -810,6 +815,7 @@ class Model(keras.Model):
             x_final, y_final, w_final = x, y, weights
 
         model.set_weights(initial_weights)
+        self._reset_optimizer(model)
         history = keras.Model.fit(
             model,
             x=x_final,
@@ -825,6 +831,9 @@ class Model(keras.Model):
         tf.keras.backend.clear_session()
 
         return history
+
+    def _reset_optimizer(self, model):
+        model.optimizer = copy.deepcopy(self._compiled_optimizer)
 
     def _determine_reconstruction_lambda(
         self,
@@ -862,6 +871,7 @@ class Model(keras.Model):
         ratios = standard_loss / decoder_loss
 
         model.set_weights(starting_model_weights)
+        self._reset_optimizer(model)
 
         return np.mean(ratios).astype(np.float32)
 
@@ -1262,6 +1272,7 @@ class Model(keras.Model):
                 del multi_fit_x
 
             model.set_weights(starting_model_weights)
+            self._reset_optimizer(model)
 
         gc.collect()
         tf.keras.backend.clear_session()
