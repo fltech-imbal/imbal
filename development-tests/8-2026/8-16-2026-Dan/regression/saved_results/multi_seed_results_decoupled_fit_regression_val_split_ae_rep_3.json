@@ -1,0 +1,136 @@
+{
+    "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+    ],
+    "all_seed_results": [
+        {
+            "seed": 42,
+            "best_alpha_index": 2,
+            "best_alpha": 0.4,
+            "test_loss": 0.7405648827552795,
+            "overall_mae": 0.31447774171829224,
+            "common_mae": 0.27365103363990784,
+            "rare_mae": 2.3585331439971924,
+            "aore": 1.3365054428577423
+        },
+        {
+            "seed": 43,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.59229576587677,
+            "overall_mae": 0.21505333483219147,
+            "common_mae": 0.17474976181983948,
+            "rare_mae": 2.2329177856445312,
+            "aore": 1.2239855602383614
+        },
+        {
+            "seed": 44,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.5940157771110535,
+            "overall_mae": 0.23498255014419556,
+            "common_mae": 0.18047140538692474,
+            "rare_mae": 2.9641740322113037,
+            "aore": 1.5995782911777496
+        },
+        {
+            "seed": 45,
+            "best_alpha_index": 2,
+            "best_alpha": 0.4,
+            "test_loss": 0.6467214822769165,
+            "overall_mae": 0.4269031584262848,
+            "common_mae": 0.3954884707927704,
+            "rare_mae": 1.9997310638427734,
+            "aore": 1.2133171111345291
+        },
+        {
+            "seed": 46,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.4180513024330139,
+            "overall_mae": 0.24118301272392273,
+            "common_mae": 0.20465494692325592,
+            "rare_mae": 2.070021152496338,
+            "aore": 1.1556020826101303
+        }
+    ],
+    "results_sorted_by_aore": [
+        {
+            "seed": 46,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.4180513024330139,
+            "overall_mae": 0.24118301272392273,
+            "common_mae": 0.20465494692325592,
+            "rare_mae": 2.070021152496338,
+            "aore": 1.1556020826101303
+        },
+        {
+            "seed": 45,
+            "best_alpha_index": 2,
+            "best_alpha": 0.4,
+            "test_loss": 0.6467214822769165,
+            "overall_mae": 0.4269031584262848,
+            "common_mae": 0.3954884707927704,
+            "rare_mae": 1.9997310638427734,
+            "aore": 1.2133171111345291
+        },
+        {
+            "seed": 43,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.59229576587677,
+            "overall_mae": 0.21505333483219147,
+            "common_mae": 0.17474976181983948,
+            "rare_mae": 2.2329177856445312,
+            "aore": 1.2239855602383614
+        },
+        {
+            "seed": 42,
+            "best_alpha_index": 2,
+            "best_alpha": 0.4,
+            "test_loss": 0.7405648827552795,
+            "overall_mae": 0.31447774171829224,
+            "common_mae": 0.27365103363990784,
+            "rare_mae": 2.3585331439971924,
+            "aore": 1.3365054428577423
+        },
+        {
+            "seed": 44,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "test_loss": 0.5940157771110535,
+            "overall_mae": 0.23498255014419556,
+            "common_mae": 0.18047140538692474,
+            "rare_mae": 2.9641740322113037,
+            "aore": 1.5995782911777496
+        }
+    ],
+    "average_test_loss_across_5_seeds": 0.5983298420906067,
+    "average_overall_mae_across_5_seeds": 0.28651995956897736,
+    "average_common_mae_across_5_seeds": 0.24580312371253968,
+    "average_rare_mae_across_5_seeds": 2.3250754356384276,
+    "average_aore_across_5_seeds": 1.3057976976037025,
+    "median_model": {
+        "selection_metric": "aore",
+        "selection_method": "median of five runs sorted by AORE",
+        "median_rank_by_aore": 3,
+        "median_seed": 43,
+        "best_alpha_index": 1,
+        "best_alpha": 0.3,
+        "median_model_test_loss": 0.59229576587677,
+        "median_model_overall_mae": 0.21505333483219147,
+        "median_model_common_mae": 0.17474976181983948,
+        "median_model_rare_mae": 2.2329177856445312,
+        "median_model_aore": 1.2239855602383614,
+        "average_test_loss_across_5_seeds": 0.5983298420906067,
+        "average_overall_mae_across_5_seeds": 0.28651995956897736,
+        "average_common_mae_across_5_seeds": 0.24580312371253968,
+        "average_rare_mae_across_5_seeds": 2.3250754356384276,
+        "average_aore_across_5_seeds": 1.3057976976037025
+    }
+}

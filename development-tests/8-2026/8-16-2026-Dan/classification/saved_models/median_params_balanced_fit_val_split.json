@@ -1,0 +1,22 @@
+{
+    "selection_metric": "f1_score_using_best_threshold",
+    "selection_method": "median of valid nonzero-F1 runs sorted by F1Score using the best decision threshold",
+    "median_seed": 44,
+    "median_rank_by_f1": 3,
+    "best_weight_index": 3,
+    "best_class_weights": [
+        0.6,
+        0.4
+    ],
+    "best_decision_threshold": 0.8800000000000001,
+    "median_model_test_loss": 0.1569049060344696,
+    "median_model_hss_using_best_threshold": 0.5007889866828918,
+    "median_model_f1_score_using_best_threshold": 0.5128204822540283,
+    "median_model_tss_using_best_threshold": 0.64802485704422,
+    "average_test_loss_across_valid_runs": 0.09562779814004899,
+    "average_hss_using_best_threshold_across_valid_runs": 0.5323940515518188,
+    "average_f1_score_using_best_threshold_across_valid_runs": 0.5433926582336426,
+    "average_tss_using_best_threshold_across_valid_runs": 0.6501553654670715,
+    "valid_run_count": 5,
+    "excluded_run_count": 0
+}
