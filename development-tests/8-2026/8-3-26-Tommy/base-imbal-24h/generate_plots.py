@@ -216,7 +216,12 @@ high_error_rare_label = rare_label_mispredicted[error_indices[-1]]
 # )
 
 import matplotlib.dates as mdates
-def plot_time_series(df, predictions, labels=None):
+def plot_time_series(
+    df,
+    predictions,
+    labels=None,
+    save_figure=None
+):
     fig, ax = plt.subplots(figsize=(20, 6))
 
     # ax.plot(
@@ -351,6 +356,10 @@ def plot_time_series(df, predictions, labels=None):
         fontsize=11
     )
     fig.tight_layout()
+
+    if save_figure is not None:
+        plt.savefig(save_figure)
+
     plt.show()
 
 columns, (x_train, y_train, train_ids, train_times), (x_val, y_val, val_ids, val_times), (x_test, y_test, test_ids, test_times) = load_sep_ec(
@@ -380,5 +389,13 @@ print(x_test_df)
 print(x_test_df.shape)
 print(test_ids.shape)
 print(y_test_df.shape)
-plot_time_series(x_test_df[test_ids==41], predictions[test_ids==41])
-plot_time_series(x_test_df[test_ids==10], predictions[test_ids==10])
+plot_time_series(
+    x_test_df[test_ids==41],
+    predictions[test_ids==41],
+    save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_high_error_time_series.png" if SAVE else None,
+)
+plot_time_series(
+    x_test_df[test_ids==10],
+    predictions[test_ids==10],
+    save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_low_error_time_series.png" if SAVE else None,
+)
