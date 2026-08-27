@@ -150,3 +150,18 @@
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
 - Use toy dataset for ensuring representation losses are working properly
+
+----
+# 8/27/26
+
+## Thesis
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+## Paper
+-  Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
+- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+## NASA
+- Use toy dataset for ensuring representation losses are working properly
+- SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate

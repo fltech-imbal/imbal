@@ -7,7 +7,7 @@ import numpy as np
 DATA_PATH = 'cleaned-dtw-SEP-EC-data'
 OUTPUT_PATH = "dtw-results"
 DATA_PREFIX = 'sep_e_log_normalized'
-FULL_NAME = '_balanced_w_validation'
+FULL_NAME = '_decoupled_w_validation_ae_3'
 USE_DELTA = False
 WEIGHT_CANDIDATES = True
 INCLUDE_IDS = True
@@ -51,9 +51,9 @@ def load_sep_ec(path_prefix):
         val_labels = val_data.pop("delta_log_Intensity")
         test_labels = test_data.pop("delta_log_Intensity")
     else:
-        training_labels = training_data.pop("Proton Intensity")
-        val_labels = val_data.pop("Proton Intensity")
-        test_labels = test_data.pop("Proton Intensity")
+        training_labels = training_data.pop("p16.4_tplus6")
+        val_labels = val_data.pop("p16.4_tplus6")
+        test_labels = test_data.pop("p16.4_tplus6")
 
     training_ids = training_data.pop('Event ID') if INCLUDE_IDS else None
     val_ids = val_data.pop('Event ID') if INCLUDE_IDS else None

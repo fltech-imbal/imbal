@@ -162,6 +162,7 @@ def shap_explain_tabular_sample(
 
     ax.set_title(title_string)
 
+    plt.gcf().subplots_adjust(left=0.35)
     if save_figure:
         plt.savefig(figure_save_path)
 
