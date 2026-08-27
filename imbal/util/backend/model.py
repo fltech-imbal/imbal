@@ -8,36 +8,6 @@ import imbal.util.backend as backend
 from imbal.util.backend.constants import ModelType
 from imbal.util.backend.tools import verify_weight_scale
 
-@keras.utils.register_keras_serializable()
-def mse_reconstruction_loss(y_true, y_pred):
-    sq = tf.math.squared_difference(y_true, y_pred)
-    axes = tf.range(1, tf.rank(sq))
-    loss_per_example = tf.reduce_mean(sq, axis=axes)
-    return loss_per_example
-
-def _clone_callbacks(callbacks):
-    if callbacks is None:
-        return None
-    cloned = []
-    for cb in callbacks:
-        if hasattr(cb, "get_config"):
-            try:
-                config = cb.get_config()
-                cls = cb.__class__
-                new_cb = cls.from_config(config)
-                cloned.append(new_cb)
-                continue
-            except Exception:
-                pass
-        try:
-            cloned.append(copy.deepcopy(cb))
-            continue
-        except Exception:
-            pass
-        raise RuntimeError("Unable to create copy of passed callbacks")
-
-    return cloned
-
 @tf.keras.utils.register_keras_serializable()
 class Model(keras.Model):
     def __init__(self, *args, **kwargs):
@@ -52,8 +22,10 @@ class Model(keras.Model):
 
         self._generate_decoder_branch = kwargs.get('_generate_decoder_branch', False)
         self._use_decoder_branch = kwargs.get('_use_decoder_branch', False)
+        self._use_representation_loss = kwargs.get('_use_representation_loss', False)
         self._representation_layer_index = kwargs.get('_representation_layer_index', -2)
         self._extended_model = kwargs.get('_extended_model', None)
+        self._representation_model = kwargs.get('_representation_model', None)
         self._decoder_branch = kwargs.get('_decoder_branch', None)
         self._second_stage_fit_kwargs = kwargs.get('_second_stage_fit_kwargs', {})
         self._mode_subpackage = kwargs.get('_mode_subpackage', None)
@@ -74,6 +46,7 @@ class Model(keras.Model):
             '_use_decoder_branch' : self._use_decoder_branch,
             '_representation_layer_index' : self._representation_layer_index,
             '_extended_model' : self._extended_model,
+            '_use_representation_loss' : self._use_representation_loss,
             '_decoder_branch' : self._decoder_branch,
             '_second_stage_fit_kwargs' : self._second_stage_fit_kwargs,
             '_mode_subpackage' : self._mode_subpackage,
@@ -387,7 +360,12 @@ class Model(keras.Model):
             require_weighting=require_weighting
         )
 
-        training_model = self._extended_model if self._use_decoder_branch else self
+        training_model = self
+        if self._use_decoder_branch:
+            training_model = self._extended_model
+        elif self._use_representation_loss:
+            training_model = self._representation_model
+
         initial_weights = training_model.get_weights()
 
         if repeated_validation_split:
@@ -416,7 +394,9 @@ class Model(keras.Model):
             sample_weight = sample_weight.reshape(-1)
 
             if stratify_batches:
-                x_train, y_train, w_train = self._stratify_data(x, y, sample_weight, batch_size, shuffle)
+                x_train, y_train, w_train = _stratify_data(
+                    x, y, sample_weight, batch_size, shuffle, self
+                )
             else:
                 x_train, y_train = x, y
                 w_train = sample_weight
@@ -448,6 +428,10 @@ class Model(keras.Model):
                 config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
                 training_model.compile_from_config(config)
 
+            print(len(y))
+            print(y[0].shape)
+            print(y[1].shape)
+            print(training_model.summary())
             history = keras.Model.fit(
                 training_model,
                 x=x_train,
@@ -519,7 +503,9 @@ class Model(keras.Model):
                 kwargs['callbacks'] = None
 
             if stratify_batches:
-                x_final, y_final, w_final = self._stratify_data(x_final, y_final, w_final, batch_size, shuffle)
+                x_final, y_final, w_final = _stratify_data(
+                    x_final, y_final, w_final, batch_size, shuffle, self
+                )
 
             training_model.set_weights(initial_weights)
             history = keras.Model.fit(
@@ -534,7 +520,6 @@ class Model(keras.Model):
             )
 
         self._use_decoder_branch = self._generate_decoder_branch
-
         return history
 
     def _repeated_validation_split_fit(
@@ -614,8 +599,8 @@ class Model(keras.Model):
                 w_val = weights[val_indices]
 
                 if stratify_batches:
-                    fit_x, fit_y, fit_weights = self._stratify_data(
-                        x_train, y_train, w_train, batch_size, shuffle
+                    fit_x, fit_y, fit_weights = _stratify_data(
+                        x_train, y_train, w_train, batch_size, shuffle, self
                     )
                 else:
                     fit_x, fit_y, fit_weights = x_train, y_train, w_train
@@ -703,8 +688,8 @@ class Model(keras.Model):
                     w_val = weights[val_indices]
 
                     if stratify_batches:
-                        fit_x, fit_y, fit_weights = self._stratify_data(
-                            x_train, y_train, w_train, batch_size, shuffle
+                        fit_x, fit_y, fit_weights = _stratify_data(
+                            x_train, y_train, w_train, batch_size, shuffle, self
                         )
                     else:
                         fit_x, fit_y, fit_weights = x_train, y_train, w_train
@@ -803,8 +788,8 @@ class Model(keras.Model):
             final_kwargs['callbacks'] = None
 
         if stratify_batches:
-            x_final, y_final, w_final = self._stratify_data(
-                x, y, weights, batch_size, shuffle
+            x_final, y_final, w_final = _stratify_data(
+                x, y, weights, batch_size, shuffle, self
             )
         else:
             x_final, y_final, w_final = x, y, weights
@@ -974,6 +959,7 @@ class Model(keras.Model):
         self,
         generate_decoder_branch=False,
         representation_layer_index=-2,
+        representation_loss=None,
         **kwargs
     ):
         """
@@ -1022,12 +1008,17 @@ class Model(keras.Model):
                 metrics=["accuracy"]
             )
         """
+        if representation_loss is not None and generate_decoder_branch:
+            raise RuntimeError("Representation loss is not compatible with decoder branch generation")
+
         self._generate_decoder_branch = generate_decoder_branch
         self._representation_layer_index = representation_layer_index
+        self._representation_loss = representation_loss
         self._decoder_branch = None
         self._extended_model = None
 
         self._use_decoder_branch = self._generate_decoder_branch
+        self._use_representation_loss = self._representation_loss is not None
 
         weighted_metrics = kwargs.get("weighted_metrics", None)
         metrics = kwargs.get("metrics", None)
@@ -1043,8 +1034,11 @@ class Model(keras.Model):
             self._compare_metric_uses_weights = False
 
         if self._generate_decoder_branch:
-            imbal.util.generate_decoder(self)
+            _generate_decoder(self)
             self._compile_for_decoder_branch(**kwargs)
+        elif self._representation_loss is not None:
+            _generate_representation_model(self)
+            self._compile_for_representation(**kwargs)
 
         super().compile(**kwargs)
 
@@ -1077,8 +1071,8 @@ class Model(keras.Model):
         updated_compile_kwargs = kwargs.copy()
         model_loss = updated_compile_kwargs.get('loss', False)
         updated_compile_kwargs['loss'] = (
-            [updated_compile_kwargs['loss'], mse_reconstruction_loss] if model_loss
-            else mse_reconstruction_loss
+            [updated_compile_kwargs['loss'], self._representation_loss] if model_loss
+            else self._representation_loss
         )
 
         model_metrics = kwargs.get('metrics', None)
@@ -1099,22 +1093,34 @@ class Model(keras.Model):
 
         self._extended_model.compile(**updated_compile_kwargs)
 
-    def override_second_stage_fit_parameters(self, **kwargs):
-        """
-        Used to optionally override the parameters passed to the second stage of
-        a decoupled fit. For instance, if you wanted to use a callback
-        during the second stage of a decoupled fit, but not the first,
-        you can call :code:`override_second_stage_fit_parameters` before
-        calling the decoupled fit`, specifying a callback in
-        :code:`override_second_stage_fit_parameters` but not in the fit call.
+    def _compile_for_representation(self, **kwargs):
+        representation_index = self._representation_layer_index
 
-        Args:
-            **kwargs: Any keyword arguments accepted by  `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+        updated_compile_kwargs = kwargs.copy()
+        model_loss = updated_compile_kwargs.get('loss', False)
+        updated_compile_kwargs['loss'] = (
+            [updated_compile_kwargs['loss'], _mse_reconstruction_loss] if model_loss
+            else _mse_reconstruction_loss
+        )
 
-        Returns:
-            None
-        """
-        self._second_stage_fit_kwargs = kwargs.copy()
+        model_metrics = kwargs.get('metrics', None)
+        if model_metrics is not None:
+            is_list_like = backend.tools.is_list_like(model_metrics[0])
+            updated_compile_kwargs['metrics'] = (
+                updated_compile_kwargs['metrics'] + [[]] if is_list_like
+                else [updated_compile_kwargs['metrics']] + [[]]
+            )
+
+        weighted_model_metrics = kwargs.get('weighted_metrics', None)
+        if weighted_model_metrics is not None:
+            is_list_like = backend.tools.is_list_like(weighted_model_metrics[0])
+            updated_compile_kwargs['weighted_metrics'] = (
+                updated_compile_kwargs['weighted_metrics'] + [[]] if is_list_like
+                else [updated_compile_kwargs['weighted_metrics']] + [[]]
+            )
+
+        self._representation_model.compile(**updated_compile_kwargs)
+
 
     def _multi_weight(
         self,
@@ -1174,13 +1180,6 @@ class Model(keras.Model):
                     'some candidate evaluation weights must be specified'
                 )
 
-        def format_array_string(array):
-            array = np.array(array)
-            if array.shape[0] < 7:
-                return str(array)
-            else:
-                return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
-
         if self._use_decoder_branch and self._reconstruction_lambda is None:
             if verbose_imbal > 0:
                 print(f'Determining reconstruction lambda...')
@@ -1203,7 +1202,9 @@ class Model(keras.Model):
         for index, weights in enumerate(sample_weight):
             tf.keras.backend.clear_session()
             if stratify_batches:
-                multi_fit_x, multi_fit_y, multi_fit_weights = self._stratify_data(x, y, weights, batch_size, shuffle)
+                multi_fit_x, multi_fit_y, multi_fit_weights = _stratify_data(
+                    x, y, weights, batch_size, shuffle, self
+                )
             else:
                 multi_fit_x, multi_fit_y, multi_fit_weights = x, y, weights
 
@@ -1212,7 +1213,7 @@ class Model(keras.Model):
                 current_kwargs['callbacks'] = _clone_callbacks(kwargs['callbacks'])
 
             if verbose_imbal > 1:
-                print(f'Performing fit on {weight_type} candidate at index {index}:\n{format_array_string(weights if weight_type == "sample weight" else class_weight[index])}')
+                print(f'Performing fit on {weight_type} candidate at index {index}:\n{_format_array_string(weights if weight_type == "sample weight" else class_weight[index])}')
 
             if validation_data is not None:
                 x_val, y_val, w_val = validation_data
@@ -1269,7 +1270,7 @@ class Model(keras.Model):
         if verbose_imbal > 0:
             print(f'Restoring model weights from fit on {weight_type} candidate at index {best_weights_index}')
             if weight_type == 'class weight':
-                print(f'Class weights of best fit: {format_array_string(class_weight[best_weights_index])}')
+                print(f'Class weights of best fit: {_format_array_string(class_weight[best_weights_index])}')
 
         if class_weight is not None:
             self.best_class_weights = class_weight[best_weights_index]
@@ -1299,14 +1300,6 @@ class Model(keras.Model):
 
         assert isinstance(x, (tf.Tensor, np.ndarray))
         assert isinstance(y, (tf.Tensor, np.ndarray))
-        # Assumptions
-        # - At least x is provided
-        # - Data in x is a NumPy array/tensor
-
-        # Order of operations:
-        # - Make sure all training data is weighted
-        # - Split validation data (if necessary)
-        # - Make sure all validation data is weighted
 
         # Ensure some sample weights exist
         sample_weight = self._auto_compute_weights(
@@ -1316,7 +1309,6 @@ class Model(keras.Model):
             sample_density,
             require_weighting
         )
-
 
         # Split validation data if necessary
         if validation_split is not None and validation_data is None:
@@ -1355,6 +1347,8 @@ class Model(keras.Model):
         sample_weight = verify_weight_scale(sample_weight, show_warning=False)
         if self._use_decoder_branch:
             y = [y, x]
+        elif self._use_representation_loss:
+            y = [y, y]
 
         return (x, y, sample_weight), validation_data
 
@@ -1391,43 +1385,230 @@ class Model(keras.Model):
                 sample_weight = np.ones(len(labels))
         return sample_weight
 
+def _stratify_data(
+    x,
+    y,
+    sample_weight,
+    batch_size,
+    shuffle,
+    model
+):
+    if model._use_representation_loss or model._use_decoder_branch:
+        x = backend.MultiDatasetWithBatching(
+            x,
+            y,
+            sample_weights=sample_weight,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            multi_output=True,
+            output_label_index=0,
+            mode=model._mode_enum
+        )
+    else:
+        x = backend.DatasetWithBatching(
+            x,
+            y,
+            sample_weights=sample_weight,
+            batch_size=batch_size,
+            shuffle=shuffle,
+            mode=model._mode_enum
+        )
+    return x, None, None
 
-    def _unpack_validation(self, validation_data):
-        if len(validation_data) == 2:
-            x_val, y_val = validation_data
-            w_val = None
-        else:
-            x_val, y_val, w_val = validation_data
-        return x_val, y_val, w_val
+    def override_second_stage_fit_parameters(self, **kwargs):
+        """
+        Used to optionally override the parameters passed to the second stage of
+        a decoupled fit. For instance, if you wanted to use a callback
+        during the second stage of a decoupled fit, but not the first,
+        you can call :code:`override_second_stage_fit_parameters` before
+        calling the decoupled fit`, specifying a callback in
+        :code:`override_second_stage_fit_parameters` but not in the fit call.
 
-    def _stratify_data(
-        self,
-        x,
-        y,
-        sample_weight,
-        batch_size,
-        shuffle
-    ):
-        if self._use_decoder_branch:
-            x = backend.MultiDatasetWithBatching(
-                x,
-                y,
-                sample_weights=sample_weight,
-                batch_size=batch_size,
-                shuffle=shuffle,
-                multi_output=True,
-                output_label_index=0,
-                mode=self._mode_enum
-            )
-        else:
-            x = backend.DatasetWithBatching(
-                x,
-                y,
-                sample_weights=sample_weight,
-                batch_size=batch_size,
-                shuffle=shuffle,
-                mode=self._mode_enum
-            )
-        return x, None, None
+        Args:
+            **kwargs: Any keyword arguments accepted by  `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+
+        Returns:
+            None
+        """
+        self._second_stage_fit_kwargs = kwargs.copy()
+
+@keras.utils.register_keras_serializable()
+def _mse_reconstruction_loss(y_true, y_pred):
+    sq = tf.math.squared_difference(y_true, y_pred)
+    axes = tf.range(1, tf.rank(sq))
+    loss_per_example = tf.reduce_mean(sq, axis=axes)
+    return loss_per_example
+
+def _clone_callbacks(callbacks):
+    if callbacks is None:
+        return None
+    cloned = []
+    for cb in callbacks:
+        if hasattr(cb, "get_config"):
+            try:
+                config = cb.get_config()
+                cls = cb.__class__
+                new_cb = cls.from_config(config)
+                cloned.append(new_cb)
+                continue
+            except Exception:
+                pass
+        try:
+            cloned.append(copy.deepcopy(cb))
+            continue
+        except Exception:
+            pass
+        raise RuntimeError("Unable to create copy of passed callbacks")
+    return cloned
+
+def _unpack_validation(validation_data):
+    if len(validation_data) == 2:
+        x_val, y_val = validation_data
+        w_val = None
+    else:
+        x_val, y_val, w_val = validation_data
+    return x_val, y_val, w_val
 
 
+def _format_array_string(array):
+    array = np.array(array)
+    if array.shape[0] < 7:
+        return str(array)
+    else:
+        return f'[{"  ".join([str(x) for x in array[:3]])}  ...  {"  ".join([str(x) for x in array[-3:]])}]'
+
+def _generate_decoder(model):
+    representation_layer_index = backend.tools.positive_model_layer_index(model, model._representation_layer_index)
+    reverse_model = model.layers[:representation_layer_index][::-1]
+
+    def _detect_branches(layers):
+        for layer in layers:
+            if len(layer._outbound_nodes) > 1:
+                return True
+            if len(layer._inbound_nodes) > 1:
+                return True
+        return False
+
+    if _detect_branches(reverse_model):
+        raise RuntimeError("In order to generate a decoder branch automatically, the layers "
+                           "before the specified representation layer must not contain branching "
+                           "or merging paths.")
+
+    # Determine AE blocks
+    ae_blocks = []
+    last_block_end_index = 0
+    for index, layer in enumerate(reverse_model):
+        if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer'):
+            ae_blocks.append(reverse_model[last_block_end_index:index + 1][::-1])
+            last_block_end_index = index + 1
+    # Exclude input layer
+    if last_block_end_index != len(reverse_model) - 1:
+        ae_blocks.append(reverse_model[last_block_end_index:-1][::-1])
+
+    # print('\n----- FOUND BLOCKS -----\n')  # Debug, delete later
+    # for block in ae_blocks:
+    #     print('----- BLOCK -----')
+    #     for layer in block:
+    #         print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
+    # print('\n\n')
+
+    # Perform per-layer conversions (i.e. Conv2D to Conv2DTranspose)
+    # within each block
+    ae_branch_blocks = []
+    for block_index, block in enumerate(ae_blocks):
+        current_input_shape = block[-1].output.shape[1:]
+        current_ae_block = []
+        reshape_layer = keras.layers.Reshape(current_input_shape,
+                                             name=f'imbal_auto_generated_ae_safeguard_reshape_block_{block_index}')
+        current_ae_block.append(reshape_layer)
+        print('----- BLOCK -----')  # Debug, delete later
+        for layer_index, layer in enumerate(block):
+            new_layer = None
+            config = layer.get_config()
+            config['name'] = f'imbal_auto_generated_ae_block_{block_index}_layer_{layer_index}'
+            if isinstance(layer, keras.layers.Conv2D):
+                layer_shape_change = layer.input.shape[-1] / layer.output.shape[-1]
+                config.pop('groups', None)
+                config['filters'] = round(config['filters'] * layer_shape_change)
+                new_layer = keras.layers.Conv2DTranspose(**config)
+            elif isinstance(layer, keras.layers.Conv2DTranspose):
+                layer_shape_change = layer.input.shape[-1] / layer.output.shape[-1]
+                config['filters'] = round(config['filters'] * layer_shape_change)
+                new_layer = keras.layers.Conv2D(**config)
+            elif isinstance(layer, keras.layers.MaxPooling2D):
+                config.pop('groups', None)
+                config['strides'] = layer.strides
+                config.pop('pool_size', None)
+                config['kernel_size'] = layer.pool_size
+                config['filters'] = round(block[layer_index - 1].get_config()['filters'])
+                new_layer = keras.layers.Conv2DTranspose(**config)
+            elif isinstance(layer, keras.layers.Dense):
+                units = layer.input.shape[-1]
+                config['units'] = units
+                new_layer = keras.layers.Dense(**config)
+            elif isinstance(layer, keras.layers.Flatten):
+                config.pop('data_format', None)
+                config.pop('channels_last', None)
+                config['target_shape'] = block[layer_index - 1].output.shape[1:]
+                new_layer = keras.layers.Reshape(**config)
+
+            # Failsafe for non-trainable layers
+            elif not (hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer')):
+                new_layer = type(layer).from_config(config)
+
+            # Raise exception if layer could not be converted
+            if new_layer is None:
+                raise RuntimeError(f'Unable to perform AE conversion of layer {layer}')
+
+            # print(f'\t{new_layer}')  # Debug, delete later
+            # print(f'\t\t{new_layer.get_config()}')  # Debug, delete later
+
+            current_ae_block.append(new_layer)
+        ae_branch_blocks.append(current_ae_block)
+
+    for block in ae_branch_blocks:
+        for i in range(1, len(block)):
+            current_layer = block[i]
+            if isinstance(current_layer, keras.layers.Reshape):
+                prev_layer = block[i - 1]
+                block[i - 1] = current_layer
+                block[i] = prev_layer
+
+    # For better results, last block should only be made on trainable layers (activation
+    # and normalization layers can sometimes prevent reaching the goal reconstruction)
+    refined_last_block = []
+    for layer in ae_branch_blocks[-1]:
+        if hasattr(layer, 'kernel_initializer') and hasattr(layer, 'bias_initializer') \
+                or isinstance(layer, keras.layers.MaxPooling2D) or isinstance(layer, keras.layers.Reshape):
+            refined_last_block.append(layer)
+    ae_branch_blocks[-1] = refined_last_block
+
+    # print('\n----- AE CONVERSION -----\n')  # Debug, delete later
+    # for block in ae_branch_blocks:
+    #     print('----- BLOCK -----')
+    #     for layer in block:
+    #         print(f'\t{layer}, {layer.get_config()}')  # Debug, delete later
+
+    # Connect final layer structure
+    ae_layer_list = [layer for block in ae_branch_blocks for layer in block]
+    last_layer = model.layers[representation_layer_index]
+    for layer in ae_layer_list:
+        print(layer.name)
+        print(last_layer.output.shape)
+        layer(last_layer.output)
+        last_layer = layer
+
+    if not (hasattr(model, 'inputs') and hasattr(model, 'outputs')):
+        raise RuntimeError('Model\'s "inputs" and "outputs" fields are not set.')
+
+    model._extended_model = model.__class__(inputs=model.inputs, outputs=model.outputs + [ae_layer_list[-1].output])
+    model._decoder_branch = ae_layer_list
+
+def _generate_representation_model(model):
+    representation_layer_index = backend.tools.positive_model_layer_index(model, model._representation_layer_index)
+    representation_layer = model.layers[representation_layer_index]
+
+    if not (hasattr(model, 'inputs') and hasattr(model, 'outputs')):
+        raise RuntimeError('Model\'s "inputs" and "outputs" fields are not set.')
+
+    model._representation_model = model.__class__(inputs=model.inputs, outputs=model.outputs + [representation_layer.output])

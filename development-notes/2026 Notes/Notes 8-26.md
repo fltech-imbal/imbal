@@ -127,5 +127,26 @@
 	- Also plot two that are quite accurate
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## Research
-- Work on representation loss usage
+- Work on representation loss usage $\checkmark$
 	- Test with one (and more) of my representation losses
+
+---
+# 8/25/26
+
+## Thesis
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+## Paper
+- Blue for "low error", pink for high
+- Stratified sample for passing to SHAP
+	- Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
+* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
+	- Pick time series that are furthest from the line for for further analysis
+		- See blue comment in overleaf
+	- Plot series that are highly over/underestimating (based on scatter plot) (2)
+	- Also plot two that are quite accurate
+- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+## NASA
+- Use toy dataset for ensuring representation losses are working properly
