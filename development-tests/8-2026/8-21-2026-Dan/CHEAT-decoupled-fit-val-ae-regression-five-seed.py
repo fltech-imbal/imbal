@@ -99,7 +99,7 @@ os.makedirs("saved_results", exist_ok=True)
 
 from imbal.regression import reciprocal_importance
 
-alpha_candidates = [0.2, 0.5, 0.8, 0.9, 1.0, 1.1]
+alpha_candidates = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1]
 
 all_seed_results = []
 temporary_model_paths = {}
@@ -167,7 +167,7 @@ for seed in seeds:
         generate_decoder_branch=True,
     )
 
-    model.rRT_fit(
+    stage_one_history, stage_two_history = model.rRT_fit(
         x_train,
         y_train,
         validation_data=(x_val, y_val.reshape(-1, 1), sw_val),
@@ -184,6 +184,9 @@ for seed in seeds:
         ],
     )
 
+    stage_one_epochs_trained = len(stage_one_history.history["loss"])
+
+    stage_two_epochs_trained = len(stage_two_history.history["loss"])
     best_alpha_index = int(model.best_weight_index)
     best_alpha = float(alpha_candidates[best_alpha_index])
 
@@ -207,6 +210,8 @@ for seed in seeds:
         "aore": seed_evaluation["aore"],
         "best_alpha_index": best_alpha_index,
         "best_alpha": best_alpha,
+        "stage_one_epochs_trained": int(stage_one_epochs_trained),
+        "stage_two_epochs_trained": int(stage_two_epochs_trained),
     }
     all_seed_results.append(seed_result)
 
@@ -217,7 +222,8 @@ for seed in seeds:
     print(f"AORE: {seed_evaluation['aore']:.4f}")
     print(f"Best alpha index: {best_alpha_index}")
     print(f"Best alpha: {best_alpha}")
-
+    print(f"Stage 1 epochs trained: {stage_one_epochs_trained}")
+    print(f"Stage 2 epochs trained: {stage_two_epochs_trained}")
 # ----------------------------
 # Average results across all seeds
 # ----------------------------
@@ -233,7 +239,12 @@ average_rare_mae = float(
 average_aore = float(
     np.mean([result["aore"] for result in all_seed_results])
 )
-
+average_stage_one_epochs_trained = float(
+    np.mean([result["stage_one_epochs_trained"] for result in all_seed_results])
+)
+average_stage_two_epochs_trained = float(
+    np.mean([result["stage_two_epochs_trained"] for result in all_seed_results])
+)
 # ----------------------------
 # Select and save median-AORE model
 # ----------------------------
@@ -259,6 +270,8 @@ median_params = {
     "median_rank_by_aore": (len(sorted_results) // 2) + 1,
     "best_alpha_index": int(median_result["best_alpha_index"]),
     "best_alpha": float(median_result["best_alpha"]),
+    "median_model_stage_one_epochs_trained": int(median_result["stage_one_epochs_trained"]),
+    "median_model_stage_two_epochs_trained": int(median_result["stage_two_epochs_trained"]),
     "overall_mae": float(median_result["overall_mae"]),
     "common_mae": float(median_result["common_mae"]),
     "rare_mae": float(median_result["rare_mae"]),
@@ -267,6 +280,8 @@ median_params = {
     "average_common_mae_across_5_seeds": average_common_mae,
     "average_rare_mae_across_5_seeds": average_rare_mae,
     "average_aore_across_5_seeds": average_aore,
+    "average_stage_one_epochs_trained_across_5_seeds": average_stage_one_epochs_trained,
+    "average_stage_two_epochs_trained_across_5_seeds": average_stage_two_epochs_trained,
 }
 
 with open(MEDIAN_PARAMS_SAVE_PATH, "w") as file:
@@ -282,6 +297,8 @@ with open(MULTI_SEED_RESULTS_SAVE_PATH, "w") as file:
             "average_common_mae": average_common_mae,
             "average_rare_mae": average_rare_mae,
             "average_aore": average_aore,
+            "average_stage_one_epochs_trained": average_stage_one_epochs_trained,
+            "average_stage_two_epochs_trained": average_stage_two_epochs_trained,
             "median_model": median_params,
         },
         file,
@@ -301,12 +318,15 @@ print(f"Average overall MAE: {average_overall_mae:.4f}")
 print(f"Average common MAE: {average_common_mae:.4f}")
 print(f"Average rare MAE: {average_rare_mae:.4f}")
 print(f"Average AORE: {average_aore:.4f}")
-
+print(f"Average Stage 1 Epochs Trained: {average_stage_one_epochs_trained:.2f}")
+print(f"Average Stage 2 Epochs Trained: {average_stage_two_epochs_trained:.2f}")
 print("\n" + "=" * 60)
 print("Median model saved")
 print("=" * 60)
 print(f"Median seed: {median_seed}")
 print(f"Median model AORE: {median_result['aore']:.4f}")
+print(f"Median model Stage 1 epochs trained: {median_result['stage_one_epochs_trained']}")
+print(f"Median model Stage 2 epochs trained: {median_result['stage_two_epochs_trained']}")
 print(f"Best alpha: {median_result['best_alpha']}")
 print(f"Model path: {MODEL_SAVE_PATH}")
 print(f"Median parameters path: {MEDIAN_PARAMS_SAVE_PATH}")

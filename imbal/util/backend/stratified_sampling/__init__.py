@@ -1,3 +1,3 @@
-from .split import split
+from .split import split, stratified_kfold
 from .dataset_with_batching import DatasetWithBatching
 from .multi_dataset_with_batching import MultiDatasetWithBatching

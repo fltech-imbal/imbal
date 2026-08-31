@@ -12,7 +12,8 @@ from .sample_weighting import (
 from .stratified_sampling import (
     DatasetWithBatching,
     MultiDatasetWithBatching,
-    split
+    split,
+    stratified_kfold
 )
 
 from .visualization import generate_tsne_visualization
