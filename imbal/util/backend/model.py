@@ -430,10 +430,17 @@ class Model(keras.Model):
                 config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
                 training_model.compile_from_config(config)
 
-            print(len(y))
-            print(y[0].shape)
-            print(y[1].shape)
-            print(training_model.summary())
+            # print(len(y))
+            # print(y[0].shape)
+            # print(y[1].shape)
+            # tf.keras.utils.plot_model(
+            #     training_model,
+            #     show_shapes=True,
+            #     to_file="model_flowchart.png"
+            # )
+            # print(training_model.summary())
+            # print(training_model.inputs)
+            # print(training_model.outputs)
             history = keras.Model.fit(
                 training_model,
                 x=x_train,
@@ -1109,8 +1116,8 @@ class Model(keras.Model):
         updated_compile_kwargs = kwargs.copy()
         model_loss = updated_compile_kwargs.get('loss', False)
         updated_compile_kwargs['loss'] = (
-            [updated_compile_kwargs['loss'], _mse_reconstruction_loss] if model_loss
-            else _mse_reconstruction_loss
+            [updated_compile_kwargs['loss'], self._representation_loss] if model_loss
+            else self._representation_loss
         )
 
         model_metrics = kwargs.get('metrics', None)

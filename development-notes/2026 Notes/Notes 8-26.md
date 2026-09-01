@@ -139,16 +139,17 @@
 	- More common samples means larger gradient vector
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
-- Blue for "low error", pink for high
-- Stratified sample for passing to SHAP
-	- Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
-* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$)
-	- Pick time series that are furthest from the line for for further analysis
-		- See blue comment in overleaf
-	- Plot series that are highly over/underestimating (based on scatter plot) (2)
-	- Also plot two that are quite accurate
+- Blue for "low error", pink for high $\checkmark$
+- Stratified sample for passing to SHAP $\checkmark$
+	- Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset 
+* Later on, plots like Torres 2025 paper, including individual time series on scatter plot and like Figure 3 true vs. predicted over time, and different channels (mind that predictions are at time $t+6$) $\checkmark$
+	- Pick time series that are furthest from the line for for further analysis $\checkmark$
+		- See blue comment in overleaf $\checkmark$
+	- Plot series that are highly over/underestimating (based on scatter plot) (2) $\checkmark$
+	- Also plot two that are quite accurate $\checkmark$
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
+- Address bug with representation loss branch $\checkmark$
 - Use toy dataset for ensuring representation losses are working properly
 
 ----
@@ -161,6 +162,16 @@
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
 -  Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
+	- Other options for SHAP
+- For time series plots
+	- Electrons can be lighter, "grayed-out" colors
+	- Actual proton is red, other protons are different colors (green, blue)
+		- Also, lighter/lower transparency for non-predicted channels
+	- Prediction is a dashed red line (maybe dark red)
+	- Actual and predicted are thicker (3-4?) vs other channels (2)
+	- Crop the time series to focus on the rising edge (get rid of 24 hour padding)
+	- Add date to x-axis, as well as labels for all axis
+	- Once happy with the time series plots, superimpose a circle on the pink plot that corresponds to the area of high error on the true vs predicted scatter plot
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
 - Use toy dataset for ensuring representation losses are working properly
