@@ -1,0 +1,162 @@
+{
+    "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+    ],
+    "all_seed_results": [
+        {
+            "seed": 42,
+            "best_alpha_index": 0,
+            "best_alpha": 0.2,
+            "stage_one_epochs_trained": 136,
+            "stage_two_epochs_trained": 74,
+            "test_loss": 0.48329079151153564,
+            "overall_mae": 0.24891218543052673,
+            "common_mae": 0.2047167867422104,
+            "rare_mae": 2.461629629135132,
+            "aore": 1.3552709072828293
+        },
+        {
+            "seed": 43,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 165,
+            "stage_two_epochs_trained": 342,
+            "test_loss": 0.5815615653991699,
+            "overall_mae": 0.2551102936267853,
+            "common_mae": 0.21962040662765503,
+            "rare_mae": 2.0319716930389404,
+            "aore": 1.1435409933328629
+        },
+        {
+            "seed": 44,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 90,
+            "stage_two_epochs_trained": 164,
+            "test_loss": 0.4999043345451355,
+            "overall_mae": 0.3062908947467804,
+            "common_mae": 0.27099326252937317,
+            "rare_mae": 2.073526620864868,
+            "aore": 1.1899087578058243
+        },
+        {
+            "seed": 45,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 32,
+            "stage_two_epochs_trained": 92,
+            "test_loss": 0.5238543152809143,
+            "overall_mae": 0.31610435247421265,
+            "common_mae": 0.27965235710144043,
+            "rare_mae": 2.1411335468292236,
+            "aore": 1.2286189496517181
+        },
+        {
+            "seed": 46,
+            "best_alpha_index": 0,
+            "best_alpha": 0.2,
+            "stage_one_epochs_trained": 120,
+            "stage_two_epochs_trained": 123,
+            "test_loss": 0.48950713872909546,
+            "overall_mae": 0.23299378156661987,
+            "common_mae": 0.18623033165931702,
+            "rare_mae": 2.574284076690674,
+            "aore": 1.4036389291286469
+        }
+    ],
+    "results_sorted_by_aore": [
+        {
+            "seed": 43,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 165,
+            "stage_two_epochs_trained": 342,
+            "test_loss": 0.5815615653991699,
+            "overall_mae": 0.2551102936267853,
+            "common_mae": 0.21962040662765503,
+            "rare_mae": 2.0319716930389404,
+            "aore": 1.1435409933328629
+        },
+        {
+            "seed": 44,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 90,
+            "stage_two_epochs_trained": 164,
+            "test_loss": 0.4999043345451355,
+            "overall_mae": 0.3062908947467804,
+            "common_mae": 0.27099326252937317,
+            "rare_mae": 2.073526620864868,
+            "aore": 1.1899087578058243
+        },
+        {
+            "seed": 45,
+            "best_alpha_index": 1,
+            "best_alpha": 0.3,
+            "stage_one_epochs_trained": 32,
+            "stage_two_epochs_trained": 92,
+            "test_loss": 0.5238543152809143,
+            "overall_mae": 0.31610435247421265,
+            "common_mae": 0.27965235710144043,
+            "rare_mae": 2.1411335468292236,
+            "aore": 1.2286189496517181
+        },
+        {
+            "seed": 42,
+            "best_alpha_index": 0,
+            "best_alpha": 0.2,
+            "stage_one_epochs_trained": 136,
+            "stage_two_epochs_trained": 74,
+            "test_loss": 0.48329079151153564,
+            "overall_mae": 0.24891218543052673,
+            "common_mae": 0.2047167867422104,
+            "rare_mae": 2.461629629135132,
+            "aore": 1.3552709072828293
+        },
+        {
+            "seed": 46,
+            "best_alpha_index": 0,
+            "best_alpha": 0.2,
+            "stage_one_epochs_trained": 120,
+            "stage_two_epochs_trained": 123,
+            "test_loss": 0.48950713872909546,
+            "overall_mae": 0.23299378156661987,
+            "common_mae": 0.18623033165931702,
+            "rare_mae": 2.574284076690674,
+            "aore": 1.4036389291286469
+        }
+    ],
+    "average_test_loss_across_5_seeds": 0.5156236290931702,
+    "average_overall_mae_across_5_seeds": 0.27188230156898496,
+    "average_common_mae_across_5_seeds": 0.2322426289319992,
+    "average_rare_mae_across_5_seeds": 2.2565091133117674,
+    "average_aore_across_5_seeds": 1.2641957074403762,
+    "average_stage_one_epochs_trained_across_5_seeds": 108.6,
+    "average_stage_two_epochs_trained_across_5_seeds": 159.0,
+    "median_model": {
+        "selection_metric": "aore",
+        "selection_method": "median of five runs sorted by AORE",
+        "median_rank_by_aore": 3,
+        "median_seed": 45,
+        "best_alpha_index": 1,
+        "best_alpha": 0.3,
+        "median_model_stage_one_epochs_trained": 32,
+        "median_model_stage_two_epochs_trained": 92,
+        "median_model_test_loss": 0.5238543152809143,
+        "median_model_overall_mae": 0.31610435247421265,
+        "median_model_common_mae": 0.27965235710144043,
+        "median_model_rare_mae": 2.1411335468292236,
+        "median_model_aore": 1.2286189496517181,
+        "average_test_loss_across_5_seeds": 0.5156236290931702,
+        "average_overall_mae_across_5_seeds": 0.27188230156898496,
+        "average_common_mae_across_5_seeds": 0.2322426289319992,
+        "average_rare_mae_across_5_seeds": 2.2565091133117674,
+        "average_aore_across_5_seeds": 1.2641957074403762,
+        "average_stage_one_epochs_trained_across_5_seeds": 108.6,
+        "average_stage_two_epochs_trained_across_5_seeds": 159.0
+    }
+}

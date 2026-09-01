@@ -63,7 +63,7 @@ class Model(keras.Model):
         sample_weight=None,
         candidate_evaluation_sample_weight=None,
         validation_data=None,
-        validation_split=None,
+        validation_split=5,
         epochs=1,
         batch_size=32,
         shuffle=True,
@@ -92,8 +92,11 @@ class Model(keras.Model):
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The data used to validate the model during training.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
-            validation_split: Optional, default :code:`None`. A float value representing the proportion of the
-                    provided training data to split off into a separate dataset used for model validation.
+            validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
+                    provided training data used for each of 5 repeated stratified validation splits. If an integer
+                    greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
+                    uses every training sample exactly once for validation. For classification, the number of folds
+                    cannot exceed the number of samples in the rarest class.
             epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -162,7 +165,7 @@ class Model(keras.Model):
         candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
-        validation_split=None,
+        validation_split=5,
         epochs=1,
         batch_size=32,
         shuffle=True,
@@ -206,7 +209,7 @@ class Model(keras.Model):
         candidate_evaluation_class_weight=None,
         validation_data=None,
         validation_densities=None,
-        validation_split=None,
+        validation_split=5,
         epochs=1,
         batch_size=32,
         shuffle=True,
@@ -310,7 +313,8 @@ class Model(keras.Model):
             verbose_imbal=verbose_imbal,
             seed=seed,
             require_weighting=True,
-            epochs=len(stage_one_history.epoch) if stage_two_epochs is None else stage_two_epochs,
+            # epochs=len(stage_one_history.epoch) if stage_two_epochs is None else stage_two_epochs,
+            epochs=stage_one_epochs if stage_two_epochs is None else stage_two_epochs,
             **second_stage_fit_kwargs
         )
 
@@ -346,7 +350,10 @@ class Model(keras.Model):
         self.best_decision_threshold = None
         self.best_weight_index = None
 
+        # validation_split controls imbal's repeated holdout / k-fold validation only when
+        # explicit validation_data has not been supplied. Explicit validation_data takes precedence.
         repeated_validation_split = validation_split is not None and validation_data is None
+        effective_validation_split = validation_split if validation_data is None else None
 
         (x, y, sample_weight), validation_data = self._prepare_training_data(
             x=x,
@@ -356,7 +363,7 @@ class Model(keras.Model):
             sample_weight=sample_weight,
             validation_data=validation_data,
             validation_densities=validation_densities,
-            validation_split=None if repeated_validation_split else validation_split,
+            validation_split=None if repeated_validation_split else effective_validation_split,
             shuffle=shuffle,
             seed=seed,
             require_weighting=require_weighting
@@ -532,6 +539,67 @@ class Model(keras.Model):
         self._use_decoder_branch = self._generate_decoder_branch
         return history
 
+    def _generate_validation_splits(
+        self,
+        x,
+        y,
+        validation_split,
+        shuffle,
+        seed
+    ):
+        """Generate either five repeated percentage holdouts or exhaustive k-fold splits."""
+        if isinstance(validation_split, bool) or not isinstance(validation_split, (int, float, np.integer, np.floating)):
+            raise ValueError('validation_split must be a number between 0 and 1 or a number >= 2')
+
+        validation_split = float(validation_split)
+
+        if 0.0 < validation_split < 1.0:
+            validation_splits = []
+            num_validation_splits = 5
+            for split_index in range(num_validation_splits):
+                split_seed = None if seed is None else seed + split_index
+                (_, _, train_indices), (_, _, val_indices) = imbal.util.backend.split(
+                    x,
+                    y,
+                    np.arange(x.shape[0]),
+                    test_size=validation_split,
+                    shuffle=shuffle,
+                    seed=split_seed,
+                    mode=self._mode_enum
+                )
+                validation_splits.append((
+                    np.asarray(train_indices, dtype=np.int64),
+                    np.asarray(val_indices, dtype=np.int64)
+                ))
+            return validation_splits, 'repeated_holdout'
+
+        # For values >= 2, round to the nearest integer and use the result as the number of k-fold validation folds
+        if validation_split >= 2.0:
+            num_folds = int(round(validation_split))
+            index_folds = imbal.util.backend.stratified_kfold(
+                x,
+                y,
+                np.arange(x.shape[0]),
+                k=num_folds,
+                shuffle=shuffle,
+                seed=seed,
+                mode=self._mode_enum
+            )
+
+            validation_splits = []
+            for (_, _, train_indices), (_, _, val_indices) in index_folds:
+                validation_splits.append((
+                    np.asarray(train_indices, dtype=np.int64),
+                    np.asarray(val_indices, dtype=np.int64)
+                ))
+
+            return validation_splits, 'kfold'
+
+        raise ValueError(
+            'validation_split must be strictly between 0 and 1 for repeated percentage validation, '
+            'or an integer >= 2 for k-fold validation'
+        )
+
     def _repeated_validation_split_fit(
         self,
         model,
@@ -551,35 +619,51 @@ class Model(keras.Model):
         initial_weights,
         **kwargs
     ):
-        num_validation_splits = 5
         primary_y = y[0] if self._use_decoder_branch else y
         sample_weight = np.asarray(sample_weight)
 
-        validation_splits = []
-        for split_index in range(num_validation_splits):
-            split_seed = None if seed is None else seed + split_index
-            (_, _, train_indices), (_, _, val_indices) = imbal.util.backend.split(
-                x,
-                primary_y,
-                np.arange(x.shape[0]),
-                test_size=validation_split,
-                shuffle=shuffle,
-                seed=split_seed,
-                mode=self._mode_enum
-            )
-            validation_splits.append((
-                np.asarray(train_indices, dtype=np.int64),
-                np.asarray(val_indices, dtype=np.int64)
-            ))
+        validation_splits, validation_mode = self._generate_validation_splits(
+            x=x,
+            y=primary_y,
+            validation_split=validation_split,
+            shuffle=shuffle,
+            seed=seed
+        )
+        num_validation_splits = len(validation_splits)
 
         if self._use_decoder_branch and self._reconstruction_lambda is None:
             if verbose_imbal > 0:
                 print(f'Determining reconstruction lambda...')
+            reconstruction_validation_data = None
+            reconstruction_validation_split = validation_split
+            reconstruction_x = x
+            reconstruction_y = y
+
+            # Keras validation_split only accepts a fraction. For k-fold mode, use the
+            # first generated fold explicitly when estimating the reconstruction lambda.
+            if validation_mode == 'kfold':
+                reconstruction_train_indices, reconstruction_val_indices = validation_splits[0]
+                reconstruction_x = x[reconstruction_train_indices]
+                reconstruction_x_val = x[reconstruction_val_indices]
+                reconstruction_y_primary = primary_y[reconstruction_train_indices]
+                reconstruction_y_val_primary = primary_y[reconstruction_val_indices]
+                reconstruction_y = (
+                    [reconstruction_y_primary, reconstruction_x]
+                    if self._use_decoder_branch else reconstruction_y_primary
+                )
+                reconstruction_y_val = (
+                    [reconstruction_y_val_primary, reconstruction_x_val]
+                    if self._use_decoder_branch else reconstruction_y_val_primary
+                )
+                reconstruction_validation_data = (reconstruction_x_val, reconstruction_y_val)
+                reconstruction_validation_split = None
+
             self._reconstruction_lambda = self._determine_reconstruction_lambda(
                 model,
-                x=x,
-                y=y,
-                validation_split=validation_split,
+                x=reconstruction_x,
+                y=reconstruction_y,
+                validation_data=reconstruction_validation_data,
+                validation_split=reconstruction_validation_split,
                 batch_size=None if stratify_batches else batch_size,
                 shuffle=shuffle,
                 **kwargs

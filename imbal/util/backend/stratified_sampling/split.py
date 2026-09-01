@@ -66,6 +66,119 @@ def split(
     else:
         return (x_train, y_train), (x_test, y_test)
 
+
+def stratified_kfold(
+    x_set,
+    y_set,
+    sample_weights=None,
+    k=5,
+    seed=None,
+    shuffle=True,
+    mode=ModelType.CLASSIFICATION,
+):
+    """
+    Generate exhaustive stratified k-fold train/validation splits.
+
+    Every sample appears in exactly one validation fold. Classification
+    stratifies by class. Regression follows the same strategy used by imbal's
+    stratified batching: sort by the continuous target, form neighboring
+    pseudo-classes of size k, and distribute those samples across the k folds.
+    """
+    if isinstance(k, bool) or not isinstance(k, (int, np.integer)) or k < 2:
+        raise ValueError('k must be an integer greater than or equal to 2')
+
+    x_set = np.asarray(x_set)
+    y_set = np.asarray(y_set)
+    num_samples = x_set.shape[0]
+
+    if num_samples != y_set.shape[0]:
+        raise ValueError('Length of all passed arrays must be equal')
+    if k > num_samples:
+        raise ValueError(f'k ({k}) cannot exceed the number of samples ({num_samples})')
+
+    exclude_weights = sample_weights is None
+    if exclude_weights:
+        sample_weights = np.ones(num_samples)
+    else:
+        sample_weights = np.asarray(sample_weights)
+        if sample_weights.shape[-1] != num_samples:
+            raise ValueError('Length of all passed arrays must be equal')
+
+    labels = y_set
+    if labels.ndim > 1:
+        if labels.shape[-1] == 1:
+            labels = labels.reshape(-1)
+        elif mode == ModelType.CLASSIFICATION:
+            labels = np.argmax(labels, axis=-1)
+        else:
+            labels = labels.reshape(-1)
+    else:
+        labels = labels.reshape(-1)
+
+    rng = np.random.default_rng(seed)
+    fold_validation_indices = [[] for _ in range(k)]
+
+    if mode == ModelType.CLASSIFICATION:
+        unique_labels, class_counts = np.unique(labels, return_counts=True)
+        rarest_class_count = int(np.min(class_counts))
+        if k > rarest_class_count:
+            raise ValueError(
+                f'k ({k}) cannot be larger than the number of samples in the '
+                f'rarest class ({rarest_class_count})'
+            )
+
+        for class_label in unique_labels:
+            class_indices = np.flatnonzero(labels == class_label)
+            if shuffle:
+                class_indices = class_indices.copy()
+                rng.shuffle(class_indices)
+            for fold_index, class_fold in enumerate(np.array_split(class_indices, k)):
+                fold_validation_indices[fold_index].extend(class_fold.tolist())
+
+    elif mode == ModelType.REGRESSION:
+        sorted_indices = np.argsort(labels)
+
+        # Each consecutive group contains nearby target values. Giving one member
+        # of each full group to every fold spreads the target distribution across
+        # folds while still using each original sample exactly once.
+        for start in range(0, num_samples, k):
+            group = sorted_indices[start:start + k].copy()
+            if shuffle:
+                rng.shuffle(group)
+            for fold_index, sample_index in enumerate(group):
+                fold_validation_indices[fold_index].append(int(sample_index))
+    else:
+        raise ValueError(f'Unsupported model mode: {mode}')
+
+    all_indices = np.arange(num_samples, dtype=np.int64)
+    folds = []
+
+    for fold_indices in fold_validation_indices:
+        val_indices = np.asarray(fold_indices, dtype=np.int64)
+        train_mask = np.ones(num_samples, dtype=bool)
+        train_mask[val_indices] = False
+        train_indices = all_indices[train_mask]
+
+        if shuffle:
+            train_indices = train_indices.copy()
+            val_indices = val_indices.copy()
+            rng.shuffle(train_indices)
+            rng.shuffle(val_indices)
+
+        x_train = x_set[train_indices]
+        y_train = y_set[train_indices]
+        x_val = x_set[val_indices]
+        y_val = y_set[val_indices]
+
+        if exclude_weights:
+            folds.append(((x_train, y_train), (x_val, y_val)))
+        else:
+            w_train = sample_weights[..., train_indices]
+            w_val = sample_weights[..., val_indices]
+            folds.append(((x_train, y_train, w_train), (x_val, y_val, w_val)))
+
+    return folds
+
 def _stratified_regression_split(
     x_set,
     y_set,

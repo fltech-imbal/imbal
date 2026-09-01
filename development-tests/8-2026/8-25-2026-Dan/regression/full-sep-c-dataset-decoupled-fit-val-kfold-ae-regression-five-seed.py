@@ -17,19 +17,19 @@ seeds = [42, 43, 44, 45, 46]
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 5000
+max_epochs = 500
 batch_size = 32
 threshold = np.log(10)
-validation_split = 0.3
+validation_split = 5
 patience = 100
 
 # Set this to True to skip five-seed training and load the saved median model.
 LOAD_SAVED_MODEL = True
 
-MODEL_SAVE_PATH = "saved_models/decoupled-fit-model-val-split-ae.keras"
-MEDIAN_PARAMS_SAVE_PATH = "saved_models/median_params_decoupled_fit_regression_val_split_ae.json"
-MULTI_SEED_RESULTS_SAVE_PATH = "saved_results/multi_seed_results_decoupled_fit_regression_val_split_ae.json"
-TEMP_MODEL_DIRECTORY = "saved_models/five_seed_temp_models/decoupled-fit_regression-val-split-ae"
+MODEL_SAVE_PATH = "saved_models/decoupled-fit-model-val-kfold-ae.keras"
+MEDIAN_PARAMS_SAVE_PATH = "saved_models/median_params_decoupled_fit_regression_val_kfold_ae.json"
+MULTI_SEED_RESULTS_SAVE_PATH = "saved_results/multi_seed_results_decoupled_fit_regression_val_kfold_ae.json"
+TEMP_MODEL_DIRECTORY = "saved_models/five_seed_temp_models/decoupled-fit_regression-val-kfold-ae"
 
 os.makedirs("saved_models", exist_ok=True)
 os.makedirs("saved_results", exist_ok=True)
@@ -187,8 +187,10 @@ else:
             seed=seed,
         )
 
+        # With validation_split=5, imbal uses 5-fold validation internally
+        # to estimate the epoch count, then trains the final model using the
+        # estimated number of epochs. This History is for that final fit.
         stage_one_epochs_trained = len(stage_one_history.history["loss"])
-
         stage_two_epochs_trained = len(stage_two_history.history["loss"])
         best_alpha_index = int(model.best_weight_index)
         best_alpha = float(alpha_candidates[best_alpha_index])
@@ -229,8 +231,6 @@ else:
         print(f"AORE: {seed_evaluation['aore']:.4f}")
         print(f"Best alpha index: {best_alpha_index}")
         print(f"Best alpha: {best_alpha}")
-        print(f"Stage 1 epochs trained: {stage_one_epochs_trained}")
-        print(f"Stage 2 epochs trained: {stage_two_epochs_trained}")
         print(f"Stage 1 epochs trained: {stage_one_epochs_trained}")
         print(f"Stage 2 epochs trained: {stage_two_epochs_trained}")
     # ----------------------------
@@ -361,3 +361,5 @@ else:
         y_test,
         median_predictions,
     )
+
+    shutil.rmtree(TEMP_MODEL_DIRECTORY)

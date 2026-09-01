@@ -17,19 +17,19 @@ seeds = [42, 43, 44, 45, 46]
 
 target_column = "ln_peak_intensity"
 
-max_epochs = 5000
+max_epochs = 500
 batch_size = 32
 threshold = np.log(10)
-validation_split = 0.3
+validation_split = 5
 patience = 100
 
 # Set this to True to skip five-seed training and load the saved median model.
-LOAD_SAVED_MODEL = True
+LOAD_SAVED_MODEL = False
 
-MODEL_SAVE_PATH = "saved_models/decoupled-fit-model-val-split-ae.keras"
-MEDIAN_PARAMS_SAVE_PATH = "saved_models/median_params_decoupled_fit_regression_val_split_ae.json"
-MULTI_SEED_RESULTS_SAVE_PATH = "saved_results/multi_seed_results_decoupled_fit_regression_val_split_ae.json"
-TEMP_MODEL_DIRECTORY = "saved_models/five_seed_temp_models/decoupled-fit_regression-val-split-ae"
+MODEL_SAVE_PATH = "saved_models/balanced-fit-model-val-kfold.keras"
+MEDIAN_PARAMS_SAVE_PATH = "saved_models/median_params_balanced_fit_regression_val_kfold.json"
+MULTI_SEED_RESULTS_SAVE_PATH = "saved_results/multi_seed_results_balanced_fit_regression_val_kfold.json"
+TEMP_MODEL_DIRECTORY = "saved_models/five_seed_temp_models/balanced-fit_regression-val-kfold"
 
 os.makedirs("saved_models", exist_ok=True)
 os.makedirs("saved_results", exist_ok=True)
@@ -59,8 +59,7 @@ def build_model(input_shape: int) -> imbal.regression.Model:
     hidden2 = layers.Dense(12, activation="relu", name="hidden_layer2")(hidden1)
     hidden3 = layers.Dense(8, activation="relu", name="hidden_layer3")(hidden2)
     hidden4 = layers.Dense(6, activation="relu", name="hidden_layer4")(hidden3)
-    flatten = layers.Flatten(name="representation_flatten")(hidden4)
-    outputs = layers.Dense(1, name="output_layer")(flatten)
+    outputs = layers.Dense(1, name="output_layer")(hidden4)
     return imbal.regression.Model(
         inputs=inputs,
         outputs=outputs,
@@ -165,11 +164,10 @@ else:
             loss="mean_squared_error",
             optimizer="adam",
             weighted_metrics=[AORE(threshold=threshold), "mae"],
-            generate_decoder_branch=True,
         )
 
 
-        stage_one_history, stage_two_history = model.rRT_fit(
+        history = model.balanced_fit(
             x_train,
             y_train,
             validation_split=validation_split,
@@ -187,9 +185,8 @@ else:
             seed=seed,
         )
 
-        stage_one_epochs_trained = len(stage_one_history.history["loss"])
+        epochs_trained = len(history.history["loss"])
 
-        stage_two_epochs_trained = len(stage_two_history.history["loss"])
         best_alpha_index = int(model.best_weight_index)
         best_alpha = float(alpha_candidates[best_alpha_index])
 
@@ -205,8 +202,7 @@ else:
             "seed": int(seed),
             "best_alpha_index": int(best_alpha_index),
             "best_alpha": float(best_alpha),
-            "stage_one_epochs_trained": int(stage_one_epochs_trained),
-            "stage_two_epochs_trained": int(stage_two_epochs_trained),
+            "epochs_trained": int(epochs_trained),
             "test_loss": seed_evaluation["test_loss"],
             "overall_mae": seed_evaluation["overall_mae"],
             "common_mae": seed_evaluation["common_mae"],
@@ -229,10 +225,8 @@ else:
         print(f"AORE: {seed_evaluation['aore']:.4f}")
         print(f"Best alpha index: {best_alpha_index}")
         print(f"Best alpha: {best_alpha}")
-        print(f"Stage 1 epochs trained: {stage_one_epochs_trained}")
-        print(f"Stage 2 epochs trained: {stage_two_epochs_trained}")
-        print(f"Stage 1 epochs trained: {stage_one_epochs_trained}")
-        print(f"Stage 2 epochs trained: {stage_two_epochs_trained}")
+        print(f"Epochs trained: {epochs_trained}")
+
     # ----------------------------
     # Average results across all five seeds
     # ----------------------------
@@ -251,12 +245,10 @@ else:
     average_aore = float(
         np.mean([result["aore"] for result in all_seed_results])
     )
-    average_stage_one_epochs_trained = float(
-        np.mean([result["stage_one_epochs_trained"] for result in all_seed_results])
+    average_epochs_trained = float(
+        np.mean([result["epochs_trained"] for result in all_seed_results])
     )
-    average_stage_two_epochs_trained = float(
-        np.mean([result["stage_two_epochs_trained"] for result in all_seed_results])
-    )
+
     # ----------------------------
     # Select and save median-AORE model
     # ----------------------------
@@ -279,8 +271,7 @@ else:
         "median_seed": int(median_result["seed"]),
         "best_alpha_index": int(median_result["best_alpha_index"]),
         "best_alpha": float(median_result["best_alpha"]),
-        "median_model_stage_one_epochs_trained": int(median_result["stage_one_epochs_trained"]),
-        "median_model_stage_two_epochs_trained": int(median_result["stage_two_epochs_trained"]),
+        "median_model_epochs_trained": int(median_result["epochs_trained"]),
         "median_model_test_loss": float(median_result["test_loss"]),
         "median_model_overall_mae": float(median_result["overall_mae"]),
         "median_model_common_mae": float(median_result["common_mae"]),
@@ -291,8 +282,7 @@ else:
         "average_common_mae_across_5_seeds": average_common_mae,
         "average_rare_mae_across_5_seeds": average_rare_mae,
         "average_aore_across_5_seeds": average_aore,
-        "average_stage_one_epochs_trained_across_5_seeds": average_stage_one_epochs_trained,
-        "average_stage_two_epochs_trained_across_5_seeds": average_stage_two_epochs_trained,
+        "average_epochs_trained_across_5_seeds": average_epochs_trained,
     }
 
     with open(MEDIAN_PARAMS_SAVE_PATH, "w") as file:
@@ -318,8 +308,7 @@ else:
                 "average_common_mae_across_5_seeds": average_common_mae,
                 "average_rare_mae_across_5_seeds": average_rare_mae,
                 "average_aore_across_5_seeds": average_aore,
-                "average_stage_one_epochs_trained_across_5_seeds": average_stage_one_epochs_trained,
-                "average_stage_two_epochs_trained_across_5_seeds": average_stage_two_epochs_trained,
+                "average_epochs_trained_across_5_seeds": average_epochs_trained,
                 "median_model": median_model_data,
             },
             file,
@@ -335,15 +324,14 @@ else:
     print(f"Average Common MAE: {average_common_mae:.4f}")
     print(f"Average Rare MAE: {average_rare_mae:.4f}")
     print(f"Average AORE: {average_aore:.4f}")
-    print(f"Average Stage 1 Epochs Trained: {average_stage_one_epochs_trained:.2f}")
-    print(f"Average Stage 2 Epochs Trained: {average_stage_two_epochs_trained:.2f}")
+    print(f"Average Epochs Trained: {average_epochs_trained:.2f}")
+
     print("\n" + "=" * 60)
     print("Median-AORE model saved")
     print("=" * 60)
     print(f"Median seed: {median_result['seed']}")
     print(f"Median model AORE: {median_result['aore']:.4f}")
-    print(f"Median model Stage 1 epochs trained: {median_result['stage_one_epochs_trained']}")
-    print(f"Median model Stage 2 epochs trained: {median_result['stage_two_epochs_trained']}")
+    print(f"Median model epochs trained: {median_result['epochs_trained']}")
     print(f"Model path: {MODEL_SAVE_PATH}")
     print(f"Median parameters path: {MEDIAN_PARAMS_SAVE_PATH}")
     print(f"Multi-seed results path: {MULTI_SEED_RESULTS_SAVE_PATH}")
@@ -361,3 +349,5 @@ else:
         y_test,
         median_predictions,
     )
+
+    shutil.rmtree(TEMP_MODEL_DIRECTORY)
