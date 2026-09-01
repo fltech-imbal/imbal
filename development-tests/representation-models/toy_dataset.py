@@ -22,7 +22,7 @@ SINGLE_WEIGHT_ALPHA = 1
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 100
-EPOCHS = 10000
+EPOCHS = 1000
 
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
@@ -40,29 +40,18 @@ SEED = 42
 Load data
 """
 
-def load_sep_ec(path_prefix):
-    training_data = pd.read_csv(path_prefix + '_training.csv')
-    test_data = pd.read_csv(path_prefix + '_test.csv')
-    val_data = pd.read_csv(path_prefix + '_validation.csv')
-    if USE_DELTA:
-        training_labels = training_data.pop("delta_log_Intensity")
-        val_labels = val_data.pop("delta_log_Intensity")
-        test_labels = test_data.pop("delta_log_Intensity")
-    else:
-        training_labels = training_data.pop("p16.4_tplus6")
-        val_labels = val_data.pop("p16.4_tplus6")
-        test_labels = test_data.pop("p16.4_tplus6")
-    training_data = training_data.to_numpy()
-    val_data = val_data.to_numpy()
-    test_data = test_data.to_numpy()
-    training_labels = training_labels.to_numpy()
-    val_labels = val_labels.to_numpy()
-    test_labels = test_labels.to_numpy()
-    return (training_data, training_labels), (val_data, val_labels), (test_data, test_labels)
-
-(x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_ec(
-    f"{DATA_PATH}/{DATA_PREFIX}",
-)
+x_train = tf.clip_by_value(tf.random.normal((1000, 2)) + tf.random.normal((1000, 2), stddev=0.1), clip_value_min=-3, clip_value_max=3)
+x_train = x_train.numpy()
+y_train = tf.reshape(tf.linalg.norm(x_train, axis=1), (-1, 1))
+y_train = y_train.numpy()
+x_val = tf.clip_by_value(tf.random.normal((250, 2)) + tf.random.normal((250, 2), stddev=0.1), clip_value_min=-3, clip_value_max=3)
+x_val = x_val.numpy()
+y_val = tf.reshape(tf.linalg.norm(x_val, axis=1), (-1, 1))
+y_val = y_val.numpy()
+x_test = tf.clip_by_value(tf.random.normal((250, 2)) + tf.random.normal((250, 2), stddev=0.1), clip_value_min=-3, clip_value_max=3)
+x_test = x_test.numpy()
+y_test = tf.reshape(tf.linalg.norm(x_test, axis=1), (-1, 1))
+y_test = y_test.numpy()
 
 print("x_train shape:", x_train.shape)
 print("y_train shape:", y_train.shape)
@@ -73,6 +62,18 @@ print(y_train[y_train > np.log(10)].shape)
 print(y_train[y_train <= np.log(10)].shape)
 print(y_test[y_test > np.log(10)].shape)
 print(y_test[y_test <= np.log(10)].shape)
+
+print()
+
+from imbal.util.backend.constants import ModelType
+temp = imbal.util.backend.DatasetWithBatching(
+    x_train,
+    y_train,
+    mode=ModelType.REGRESSION
+)
+
+print('test')
+print(temp[0][1])
 
 """
 Build model
@@ -85,7 +86,9 @@ if FIT == FitType.REGULAR:
 #     SEED
 # )
 
-LAYER_DIMS = [128, 128, 128, 64, 64, 64, 32, 32, 32]
+# tf.config.run_functions_eagerly(True)
+
+LAYER_DIMS = [64, 64, 64, 32, 32, 2]
 
 inputs = keras.Input(shape=(x_train.shape[1],))
 
@@ -105,6 +108,7 @@ def safe_norm(x, axis):
     return tf.sqrt(tf.reduce_sum(tf.square(x), axis=axis) + 1e-12)
 
 def cauchy_schwartz(labels, representations, weight=None):
+    # print(labels)
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
     distance_to_first_label = tf.abs(labels[1:] - labels[0])
 
@@ -119,8 +123,13 @@ def cauchy_schwartz(labels, representations, weight=None):
     a = combined_label_distances
     b = combined_representation_distances
 
-    # print(tf.reduce_mean(tf.multiply(a, a)) * tf.reduce_mean(tf.multiply(b, b)) - tf.reduce_mean(tf.multiply(a, b))**2)
-    return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
+    n = tf.cast(tf.size(a), tf.float32)
+
+    return (
+                   tf.reduce_sum(a * a) * tf.reduce_sum(b * b)
+                   - tf.square(tf.reduce_sum(a * b))
+           ) / tf.square(n)
+
 
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -221,7 +230,7 @@ mae = np.mean(np.abs(predictions - y_test))
 common_mae = np.mean(np.abs(common_predictions - common_labels))
 rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
-model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
+# model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
 
 if FIT != FitType.REGULAR and VALIDATION_DATA and WEIGHT_CANDIDATES:
     print([0.1*(i+1) for i in range(10)][model.best_weight_index])
@@ -232,9 +241,17 @@ print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, mo
 
 # print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
-imbal.regression.plot_true_vs_predictions(
+# imbal.regression.plot_true_vs_predictions(
+#     y_test,
+#     predictions,
+#     title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {[0.1*(i+1) for i in range(10)][model.best_weight_index]:.1f}" if WEIGHT_CANDIDATES else ""}',
+#     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.png"
+# )
+
+imbal.regression.tsne_visualization(
+    model,
+    x_test,
     y_test,
-    predictions,
-    title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {[0.1*(i+1) for i in range(10)][model.best_weight_index]:.1f}" if WEIGHT_CANDIDATES else ""}',
-    save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.png"
+    perplexity=30,
+    save_figure='toy_dataset_tsne.png'
 )

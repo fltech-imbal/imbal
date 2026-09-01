@@ -216,6 +216,7 @@ high_error_rare_label = rare_label_mispredicted[error_indices[-1]]
 # )
 
 import matplotlib.dates as mdates
+from matplotlib.ticker import MaxNLocator
 def plot_time_series(
     df,
     predictions,
@@ -223,6 +224,11 @@ def plot_time_series(
     save_figure=None
 ):
     fig, ax = plt.subplots(figsize=(20, 6))
+
+    df = df[120:-120]
+    predictions = predictions[120:-120]
+    if labels is not None:
+        labels = labels[120:-120]
 
     # ax.plot(
     #     df["Timestamp"],
@@ -236,7 +242,7 @@ def plot_time_series(
         df['e0.5_t'],
         label="E0.5 Channel",
         linewidth=2,
-        color="#FF8800"
+        color="#DDDDDD"
     )
 
     ax.plot(
@@ -244,7 +250,7 @@ def plot_time_series(
         df['e1.8_t'],
         label="E1.8 Channel",
         linewidth=2,
-        color="#FF4400"
+        color="#BBBBBB"
     )
 
     ax.plot(
@@ -252,7 +258,7 @@ def plot_time_series(
         df['e4.4_t'],
         label="E4.4 Channel",
         linewidth=2,
-        color="#FF0000"
+        color="#999999"
     )
 
     ax.plot(
@@ -260,15 +266,15 @@ def plot_time_series(
         df['p6.1_t'],
         label="P6.1 Channel",
         linewidth=2,
-        color="#0044FF"
+        color="#0044FFAA"
     )
 
     ax.plot(
         df["Timestamp"],
         df['p16.4_t'],
         label="P16.4 Channel",
-        linewidth=2,
-        color="#000000" # 00CCCC
+        linewidth=3,
+        color="#FF0000" # 00CCCC
     )
 
     ax.plot(
@@ -276,7 +282,7 @@ def plot_time_series(
         df['p33.0_t'],
         label="P33.0 Channel",
         linewidth=2,
-        color="#00DD00"
+        color="#00DD00AA"
     )
 
     if labels is not None:
@@ -292,16 +298,17 @@ def plot_time_series(
         df["Timestamp"],
         df['p16.4_t'],
         #label="P16.4 Channel",
-        linewidth=2,
-        color="#000000" # 00CCCC
+        linewidth=3,
+        color="#FF0000"  # 00CCCC
     )
 
     ax.plot(
         df["Timestamp"] + pd.Timedelta(minutes=30),
         predictions,
         label="Predicted P16.4 Channel",
-        linewidth=2,
-        color="#8800FF"
+        linewidth=3,
+        color="#880000",
+        linestyle="dashed"
     )
 
 
@@ -348,17 +355,27 @@ def plot_time_series(
     #ax.set_ylabel("ln(Flux (cc/s/sr))", fontsize=16)
 
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    plt.xticks(rotation=90, fontsize=12)
+    ax.xaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 3)))
+    plt.xticks(rotation=70, fontsize=12)
     ax.tick_params(axis="both", labelsize=12)
 
     ax.legend(
         loc="upper left",
         fontsize=11
     )
-    fig.tight_layout()
+    fig.tight_layout(pad=4)
 
     if save_figure is not None:
         plt.savefig(save_figure)
+
+    start_date = df.iloc[0]["Timestamp"]
+    end_date = df.iloc[-1]["Timestamp"]
+    if start_date == end_date:
+        plt.xlabel(f'Event on {start_date.strftime("%Y-%m-%d")}', fontsize=16, labelpad=15)
+    else:
+        plt.xlabel(f'Event from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}', fontsize=16, labelpad=15)
+
+    plt.ylabel("ln(Flux) (/cc/s/sr)", fontsize=16)
 
     plt.show()
 

@@ -161,17 +161,31 @@
 	- More common samples means larger gradient vector
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
--  Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset
-	- Other options for SHAP
-- For time series plots
-	- Electrons can be lighter, "grayed-out" colors
-	- Actual proton is red, other protons are different colors (green, blue)
-		- Also, lighter/lower transparency for non-predicted channels
-	- Prediction is a dashed red line (maybe dark red)
-	- Actual and predicted are thicker (3-4?) vs other channels (2)
-	- Crop the time series to focus on the rising edge (get rid of 24 hour padding)
-	- Add date to x-axis, as well as labels for all axis
-	- Once happy with the time series plots, superimpose a circle on the pink plot that corresponds to the area of high error on the true vs predicted scatter plot
+-  Add to documentation that SHAP has trouble with large datasets, and to use stratified split to "sub-sample" the dataset $\checkmark$
+	- Other options for SHAP $\checkmark$
+- For time series plots $\checkmark$
+	- Electrons can be lighter, "grayed-out" colors $\checkmark$
+	- Actual proton is red, other protons are different colors (green, blue) $\checkmark$
+		- Also, lighter/lower transparency for non-predicted channels $\checkmark$
+	- Prediction is a dashed red line (maybe dark red) $\checkmark$
+	- Actual and predicted are thicker (3-4?) vs other channels (2) $\checkmark$
+	- Crop the time series to focus on the rising edge (get rid of 24 hour padding) $\checkmark$
+	- Add date to x-axis, as well as labels for all axis $\checkmark$
+	- Once happy with the time series plots, superimpose a circle on the pink plot that corresponds to the area of high error on the true vs predicted scatter plot $\checkmark$
+- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+## NASA
+- Use toy dataset for ensuring representation losses are working properly
+- SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
+
+---
+# 9/1/26
+
+## Thesis
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
 - Use toy dataset for ensuring representation losses are working properly

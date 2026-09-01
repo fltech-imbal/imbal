@@ -19,7 +19,10 @@ def shap_explain_tabular_sample(
     Args:
         sample: The sample to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: A Numpy array containing the data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on. It is worth noting that for
+            large datasets, the training data may need to be downsampled for SHAP. SHAP recommends random sampling or
+            k-means sampling, however, we recommend sampling via stratified split (such as with :code:`imbal.classification.split`)
+            the number of samples that should be passed to this parameter is typically in the hundreds.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
@@ -71,16 +74,16 @@ def shap_explain_tabular_dataset(
     Args:
         dataset: The dataset to generate a SHAP explanation for.
         model: The PyTorch model to generate a SHAP explanation from.
-        training_data: A Numpy array containing the data the given model was trained on.
+        training_data: A Numpy array containing the data the given model was trained on. It is worth noting that for
+            large datasets, the training data may need to be downsampled for SHAP. SHAP recommends random sampling or
+            k-means sampling, however, we recommend sampling via stratified split (such as with :code:`imbal.classification.split`)
+            the number of samples that should be passed to this parameter is typically in the hundreds.
         class_names: Optional, default :code:`None`. An array of strings, which maps
             class labels (as integer indices) to class names. Used to label the
             generated figure.
         feature_names: Optional, default :code:`None`. An array of strings, which maps
             features (by integer index) to feature names. Used to label the
             generated figure.
-        label_to_explain: The label of the class
-            you wish to generate an explanation for. This label need not be the same
-            as the true label for the provided image.
         save_figure: Optional, default :code:`False`. Whether to save the generated figure.
         figure_save_path: Optional, default :code:`"shap-explanation.png"`. The path to
             save the generated figure to.

@@ -66,7 +66,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=True,
+        shuffle=False,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -101,7 +101,7 @@ class Model(keras.Model):
                 The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The batch size to use during training.
-            shuffle: Optional, default :code:`True` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
+            shuffle: Optional, default :code:`False` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 Whether to shuffle the data before each epoch.
             stratify_batches: Optional, default :code:`True`. Whether to stratify data batch-wise during training.
                 See :doc:`DatasetWithBatching </imbal/classification/dataset_with_batching>` for details.
@@ -168,7 +168,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=True,
+        shuffle=False,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -212,7 +212,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=True,
+        shuffle=False,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
