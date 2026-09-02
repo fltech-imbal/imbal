@@ -1172,8 +1172,8 @@ class Model(keras.Model):
         updated_compile_kwargs = kwargs.copy()
         model_loss = updated_compile_kwargs.get('loss', False)
         updated_compile_kwargs['loss'] = (
-            [updated_compile_kwargs['loss'], self._representation_loss] if model_loss
-            else self._representation_loss
+            [updated_compile_kwargs['loss'], _mse_reconstruction_loss] if model_loss
+            else _mse_reconstruction_loss
         )
 
         model_metrics = kwargs.get('metrics', None)
