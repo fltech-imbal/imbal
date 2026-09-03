@@ -13,8 +13,8 @@ Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.REGULAR
-VALIDATION_DATA = False
+FIT = FitType.BALANCED
+VALIDATION_DATA = True
 AE = False
 AE_THIRD_TO_LAST = False
 WEIGHT_CANDIDATES = False
@@ -22,12 +22,12 @@ SINGLE_WEIGHT_ALPHA = 1
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 100
-EPOCHS = 1000
+EPOCHS = 10000
 
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
-DATA_PREFIX = 'sep_e_log_normalized'
+DATA_PREFIX = 'toy_dataset'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_5'
+OUTPUT_POSTFIX = '_balanced_1'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -130,6 +130,8 @@ def cauchy_schwartz(labels, representations, weight=None):
                    - tf.square(tf.reduce_sum(a * b))
            ) / tf.square(n)
 
+def stub_function(y_true, y_pred, weights=None):
+    return 0
 
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -137,7 +139,7 @@ model.compile(
     weighted_metrics=['mae'],
     generate_decoder_branch=AE,
     representation_layer_index=-3 if AE_THIRD_TO_LAST else -2,
-    representation_loss=cauchy_schwartz
+    # representation_loss=cauchy_schwartz
 )
 
 # if FIT == FitType.DECOUPLED:
@@ -230,7 +232,7 @@ mae = np.mean(np.abs(predictions - y_test))
 common_mae = np.mean(np.abs(common_predictions - common_labels))
 rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
-# model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
+model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
 
 if FIT != FitType.REGULAR and VALIDATION_DATA and WEIGHT_CANDIDATES:
     print([0.1*(i+1) for i in range(10)][model.best_weight_index])
@@ -253,5 +255,5 @@ imbal.regression.tsne_visualization(
     x_test,
     y_test,
     perplexity=30,
-    save_figure='toy_dataset_tsne.png'
+    save_figure=f'toy_dataset_tsne{OUTPUT_POSTFIX}.png'
 )

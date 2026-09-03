@@ -14,7 +14,7 @@ Set script parameters
 
 LEARNING_RATE = 5e-5
 FIT = FitType.REGULAR
-VALIDATION_DATA = False
+VALIDATION_DATA = True
 AE = False
 AE_THIRD_TO_LAST = False
 WEIGHT_CANDIDATES = False
@@ -27,7 +27,7 @@ EPOCHS = 10000
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_5'
+OUTPUT_POSTFIX = '_just_rep_loss_1'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -101,6 +101,9 @@ outputs = layers.Dense(1)(x)
 
 model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="SEP_EC")
 
+def stub_function(y_true, y_pred):
+    return 0
+
 def safe_norm(x, axis):
     return tf.sqrt(tf.reduce_sum(tf.square(x), axis=axis) + 1e-12)
 
@@ -124,7 +127,7 @@ def cauchy_schwartz(labels, representations, weight=None):
 
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-    loss='mse',
+    loss=stub_function,
     weighted_metrics=['mae'],
     generate_decoder_branch=AE,
     representation_layer_index=-3 if AE_THIRD_TO_LAST else -2,

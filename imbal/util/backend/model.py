@@ -232,7 +232,7 @@ class Model(keras.Model):
         stage_one_sample_weights = np.ones(x.shape[0])
 
         if validation_data is not None:
-            x_val, y_val, w_val = self._unpack_validation(validation_data)
+            x_val, y_val, w_val = _unpack_validation(validation_data)
             stage_one_validation = (x_val, y_val, np.ones(x_val.shape[0]))
         else:
             stage_one_validation = None
@@ -437,17 +437,6 @@ class Model(keras.Model):
                 config['loss_weights'] = [1.0, float(self._reconstruction_lambda)]
                 training_model.compile_from_config(config)
 
-            # print(len(y))
-            # print(y[0].shape)
-            # print(y[1].shape)
-            # tf.keras.utils.plot_model(
-            #     training_model,
-            #     show_shapes=True,
-            #     to_file="model_flowchart.png"
-            # )
-            # print(training_model.summary())
-            # print(training_model.inputs)
-            # print(training_model.outputs)
             history = keras.Model.fit(
                 training_model,
                 x=x_train,
@@ -499,7 +488,7 @@ class Model(keras.Model):
             final_epochs = np.argmin(history.history['val_loss']) + 1
             x_val, y_val, w_val = validation_data
             x_final = np.concatenate((x, x_val), axis=0)
-            if self._use_decoder_branch:
+            if self._use_decoder_branch or self._use_representation_loss:
                 y_final = [np.concatenate((y[i], y_val[i]), axis=0) for i in range(len(y))]
             else:
                 y_final = np.concatenate((y, y_val), axis=0)
@@ -1427,7 +1416,7 @@ class Model(keras.Model):
 
         # Ensure some validation weights exist
         if validation_data is not None:
-            x_val, y_val, w_val = self._unpack_validation(validation_data)
+            x_val, y_val, w_val = _unpack_validation(validation_data)
             w_val = self._auto_compute_weights(
                 y_val,
                 w_val,
@@ -1443,10 +1432,13 @@ class Model(keras.Model):
 
             if self._use_decoder_branch:
                 y_val = [y_val, x_val]
+            if self._use_representation_loss:
+                y_val = [y_val, y_val]
 
             validation_data = (x_val, y_val, w_val)
 
         sample_weight = verify_weight_scale(sample_weight, show_warning=False)
+
         if self._use_decoder_branch:
             y = [y, x]
         elif self._use_representation_loss:
@@ -1487,6 +1479,23 @@ class Model(keras.Model):
                 sample_weight = np.ones(len(labels))
         return sample_weight
 
+    def override_second_stage_fit_parameters(self, **kwargs):
+        """
+        Used to optionally override the parameters passed to the second stage of
+        a decoupled fit. For instance, if you wanted to use a callback
+        during the second stage of a decoupled fit, but not the first,
+        you can call :code:`override_second_stage_fit_parameters` before
+        calling the decoupled fit`, specifying a callback in
+        :code:`override_second_stage_fit_parameters` but not in the fit call.
+
+        Args:
+            **kwargs: Any keyword arguments accepted by  `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
+
+        Returns:
+            None
+        """
+        self._second_stage_fit_kwargs = kwargs.copy()
+
 def _stratify_data(
     x,
     y,
@@ -1516,23 +1525,6 @@ def _stratify_data(
             mode=model._mode_enum
         )
     return x, None, None
-
-    def override_second_stage_fit_parameters(self, **kwargs):
-        """
-        Used to optionally override the parameters passed to the second stage of
-        a decoupled fit. For instance, if you wanted to use a callback
-        during the second stage of a decoupled fit, but not the first,
-        you can call :code:`override_second_stage_fit_parameters` before
-        calling the decoupled fit`, specifying a callback in
-        :code:`override_second_stage_fit_parameters` but not in the fit call.
-
-        Args:
-            **kwargs: Any keyword arguments accepted by  `TensorFlow's model.fit function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_
-
-        Returns:
-            None
-        """
-        self._second_stage_fit_kwargs = kwargs.copy()
 
 @keras.utils.register_keras_serializable()
 def _mse_reconstruction_loss(y_true, y_pred):
