@@ -221,7 +221,10 @@ def plot_time_series(
     df,
     predictions,
     labels=None,
-    save_figure=None
+    save_figure=None,
+    extra_crop_start=None,
+    extra_crop_end=None,
+    tick_hours=3
 ):
     fig, ax = plt.subplots(figsize=(20, 6))
 
@@ -229,6 +232,18 @@ def plot_time_series(
     predictions = predictions[120:-120]
     if labels is not None:
         labels = labels[120:-120]
+
+    if extra_crop_start is not None:
+        df = df[extra_crop_start:]
+        predictions = predictions[extra_crop_start:]
+        if labels is not None:
+            labels = labels[extra_crop_start:]
+
+    if extra_crop_end is not None:
+        df = df[:-extra_crop_end]
+        predictions = predictions[:-extra_crop_end]
+        if labels is not None:
+            labels = labels[:-extra_crop_end]
 
     # ax.plot(
     #     df["Timestamp"],
@@ -354,8 +369,8 @@ def plot_time_series(
     #ax.set_xlabel("Event on 2001-04-15", fontsize=16)
     #ax.set_ylabel("ln(Flux (cc/s/sr))", fontsize=16)
 
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, 3)))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%d/%y %H:%M"))
+    ax.xaxis.set_major_locator(mdates.HourLocator(byhour=range(0, 24, tick_hours)))
     plt.xticks(rotation=70, fontsize=12)
     ax.tick_params(axis="both", labelsize=12)
 
@@ -365,18 +380,17 @@ def plot_time_series(
     )
     fig.tight_layout(pad=4)
 
-    if save_figure is not None:
-        plt.savefig(save_figure)
-
     start_date = df.iloc[0]["Timestamp"]
     end_date = df.iloc[-1]["Timestamp"]
     if start_date == end_date:
-        plt.xlabel(f'Event on {start_date.strftime("%Y-%m-%d")}', fontsize=16, labelpad=15)
+        plt.xlabel(f'Event on {start_date.strftime("%m-%d-%Y")}', fontsize=16, labelpad=15)
     else:
-        plt.xlabel(f'Event from {start_date.strftime("%Y-%m-%d")} to {end_date.strftime("%Y-%m-%d")}', fontsize=16, labelpad=15)
+        plt.xlabel(f'Event from {start_date.strftime("%m-%d-%Y")} to {end_date.strftime("%m-%d-%Y")}', fontsize=16, labelpad=15)
 
-    plt.ylabel("ln(Flux) (/cc/s/sr)", fontsize=16)
+    plt.ylabel("ln(Flux)", fontsize=16)
 
+    if save_figure is not None:
+        plt.savefig(save_figure)
     plt.show()
 
 columns, (x_train, y_train, train_ids, train_times), (x_val, y_val, val_ids, val_times), (x_test, y_test, test_ids, test_times) = load_sep_ec(
@@ -410,9 +424,15 @@ plot_time_series(
     x_test_df[test_ids==41],
     predictions[test_ids==41],
     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_high_error_time_series.png" if SAVE else None,
+    extra_crop_start=108,
+    extra_crop_end=108,
+    tick_hours=3
 )
 plot_time_series(
     x_test_df[test_ids==10],
     predictions[test_ids==10],
     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_low_error_time_series.png" if SAVE else None,
+    extra_crop_start=72,
+    extra_crop_end=576,
+    tick_hours=6
 )

@@ -28,3 +28,7 @@ balanced joint:
 
 Balanced w/ validation:
 - 2332 None 0.0078093237 0.010927663 0.009474518 None
+
+Balanced w/ validation + fine-tuning:
+- 102 None 0.0023420504 0.004066391 0.0032904376 None
+- 10000 None 0.45375866 1.6455258 1.0949295 None

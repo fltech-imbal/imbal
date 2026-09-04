@@ -90,8 +90,6 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- We expect this to be better than winner of first 2 experiments w/ hypersphere
 - **Round 4:** Hypersphere, constant distance ratio, *non-linear regressor*, trying best from rounds 2 and 3 to see which does better... or, is round 2 sufficient when using a non-linear regressor? (multiple layer regressor with activation functions)
 
-
-
 **Other thoughts...**
 - Might be worth trying to weight samples by `t+6 - t` in the future
 - Something for gradient conflicts
@@ -100,10 +98,10 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
-- Crop time series plots further to highlight areas of interested (right before and right after rising edge)
-	- Assume each picture will be 6.5 inches, across the page. Is is visible?
-	- Include dates in each tick mark, ticks can be 6-12 hours apart
-	- y label can simply be `ln(flux)`Loss
+- Crop time series plots further to highlight areas of interested (right before and right after rising edge) $\checkmark$
+	- Assume each picture will be 6.5 inches, across the page. Is is visible? $\checkmark$
+	- Include dates in each tick mark, ticks can be 6-12 hours apart $\checkmark$
+	- y label can simply be `ln(flux)`Loss $\checkmark$
 ## NASA
 
 **Using toy dataset...**
