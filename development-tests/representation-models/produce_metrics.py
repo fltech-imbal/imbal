@@ -1,6 +1,8 @@
-FILE_PATH = 'results/results.txt'
+FILE_PATH = 'intermediate-thesis-results.txt'
+NUM_VALUES_PER_ROW = 5
 
-NUM_VALUES_PER_ROW = 6
+# FILE_PATH = 'results/results.txt'
+# NUM_VALUES_PER_ROW = 6
 
 with open(FILE_PATH, 'r') as f:
     lines = f.readlines()
