@@ -1,4 +1,4 @@
-FILE_PATH = 'intermediate-thesis-results.txt'
+FILE_PATH = 'results/results.txt'
 NUM_VALUES_PER_ROW = 5
 
 # FILE_PATH = 'results/results.txt'

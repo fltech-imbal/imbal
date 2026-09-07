@@ -47,6 +47,7 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
 - `validation_split` overrides previous behavior in some cases
 	- Can this be split into `k_folds` and `validation_split`
+
 ---
 # 9/3/26
 
@@ -97,24 +98,30 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- More common samples means larger gradient vector
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
-- SHAP will be used for explanations in section `4 SEP Forecasting tasks
 - Crop time series plots further to highlight areas of interested (right before and right after rising edge) $\checkmark$
 	- Assume each picture will be 6.5 inches, across the page. Is is visible? $\checkmark$
 	- Include dates in each tick mark, ticks can be 6-12 hours apart $\checkmark$
 	- y label can simply be `ln(flux)`Loss $\checkmark$
+- Can remove date caption
+- Add time series plots to paper and beg
+- "picture-in-picture" for T-SNE plot, showing potential high-error sample
+- (!!!) SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
 
 **Using toy dataset...**
 
-|         | MSE Loss     | Representation Loss | Fine Tuning/Joint | MAE | Rare MAE | AORE |
-| ------- | ------------ | ------------------- | ----------------- | --- | -------- | ---- |
-| Round 1 | $\checkmark$ | $\times$            | N/A               |     |          |      |
-| Round 2 | $\times$     | $\checkmark$        | N/A               | N/A | N/A      | N/A  |
-| Round 3 | $\checkmark$ | $\checkmark$        | joint             |     |          |      |
-| Round 4 | $\checkmark$ | $\checkmark$        | fine tuning       |     |          |      |
+|         | MSE Loss     | Representation Loss | Fine Tuning/Joint | MAE     | Rare MAE | AORE   |
+| ------- | ------------ | ------------------- | ----------------- | ------- | -------- | ------ |
+| Round 1 | $\checkmark$ | $\times$            | N/A               | 0.0078, | 0.0109,  | 0.0095 |
+| Round 2 | $\times$     | $\checkmark$        | N/A               | N/A     | N/A      | N/A    |
+| Round 3 | $\checkmark$ | $\checkmark$        | joint             | 0.1534, | 0.4415,  | 0.3095 |
+| Round 4 | $\checkmark$ | $\checkmark$        | fine tuning       | 0.2281, | 0.8248,  | 0.5491 |
 
 - Representation learning, add `representation_lambda` parameter for `Model.compile`
 	- For reconstruction branch, default behavior is determining lambda ourselves. If they specify a lambda, use theirs instead.
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
 - `validation_split` overrides previous behavior in some cases
 	- Can this be split into `k_folds` and `validation_split`
+- Perhaps add $(\|a\|-\|b\|)^2$ to cauchy-schwartz loss (makes distance ratio 1)
+- Alternative: $\|a-\frac{1}{\alpha} b\|$ as loss function ($\alpha$) sets the distance ratio (for thesis)
+- Switch to SEP-C **tutorial** dataset and rerun experiments in 4 tables above (small real dataset)
