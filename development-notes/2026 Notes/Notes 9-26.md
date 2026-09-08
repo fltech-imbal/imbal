@@ -52,16 +52,16 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 
 ## Thesis
 - **Round 1**
-	- Entropy, Cauchy-Schwartz, Distance PCC, Variance
-		- Ignore joint, ignore regular, always $\alpha=1$
-	- Generate TSNE and true vs. predicted
-	- **Round 1b** - Pick top 2 performing from previous, vary joint/tuning, vary $\alpha$
+	- Entropy, Cauchy-Schwartz, Distance PCC, Variance $\checkmark$
+		- Ignore joint, ignore regular, always $\alpha=1$ $\checkmark$
+	- Generate TSNE and true vs. predicted $\checkmark$
+	- **Round 1b** - Pick top 2 performing from previous, vary joint/tuning, vary $\alpha$ $\checkmark$
 - **Round 2**
-	- Pick top performing for each loss from round 1b, add decorrelation loss
-	- **JUST** enable decorrelation, see if it performs better
-	- Generate TSNE and true vs. predicted
-	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere, vary $\alpha$
-		- Generate TSNE and true vs. predicted
+	- Pick top performing for each loss from round 1b, add decorrelation loss $\checkmark$
+	- **JUST** enable decorrelation, see if it performs better $\checkmark$
+	- Generate TSNE and true vs. predicted $\checkmark$
+	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere, vary $\alpha$ $\checkmark$
+		- Generate TSNE and true vs. predicted $\checkmark$
 - **Round 3**
 	- Hypersphere with cosine loss, FT/joint, vary $\alpha$
 	- Generate TSNE and true vs. predicted
@@ -98,10 +98,6 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
-- Crop time series plots further to highlight areas of interested (right before and right after rising edge) $\checkmark$
-	- Assume each picture will be 6.5 inches, across the page. Is is visible? $\checkmark$
-	- Include dates in each tick mark, ticks can be 6-12 hours apart $\checkmark$
-	- y label can simply be `ln(flux)`Loss $\checkmark$
 ## NASA
 
 **Using toy dataset...**
@@ -118,3 +114,27 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
 - `validation_split` overrides previous behavior in some cases
 	- Can this be split into `k_folds` and `validation_split`
+- Perhaps add $(\|a\|-\|b\|)^2$ to cauchy-schwartz loss (makes distance ratio 1)  
+- Alternative: $\|a-\frac{1}{\alpha} b\|$ as loss function ($\alpha$) sets the distance ratio (for thesis)  
+- Switch to SEP-C **tutorial** dataset and rerun experiments in 4 tables above (small real dataset)
+---
+
+$$
+\begin{array}{l}
+(\|rep\|-\beta\|lab\|)^2=0
+\\\\
+\|rep\|-\beta\|lab\|=0
+\\\\
+-\beta\|lab\|=-\|rep\|
+\\\\
+\beta = \frac{\|rep\|}{\|lab\|}
+\\\\\\\\
+
+\|rep - \beta\cdot label\|=0
+\\\\
+rep-\beta\cdot label = \mathbf{0}
+\\\\
+-\beta \cdot label = -rep
+
+\end{array}
+$$

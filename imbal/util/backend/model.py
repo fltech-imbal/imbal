@@ -338,7 +338,7 @@ class Model(keras.Model):
         validation_split=None,
         epochs=1,
         batch_size=32,
-        shuffle=True,
+        shuffle=False,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -349,6 +349,8 @@ class Model(keras.Model):
         self.best_class_weights = None
         self.best_decision_threshold = None
         self.best_weight_index = None
+
+
 
         # validation_split controls imbal's repeated holdout / k-fold validation only when
         # explicit validation_data has not been supplied. Explicit validation_data takes precedence.
@@ -425,7 +427,7 @@ class Model(keras.Model):
                     sample_weight=w_train,
                     validation_data=validation_data,
                     validation_split=validation_split,
-                    batch_size=None if stratify_batches else batch_size,
+                    batch_size=batch_size,
                     shuffle=shuffle,
                     **kwargs
                 )
@@ -445,7 +447,7 @@ class Model(keras.Model):
                 validation_data=validation_data,
                 validation_split=0.0 if validation_split is None else validation_split,
                 epochs=epochs,
-                batch_size=None if stratify_batches else batch_size,
+                batch_size=batch_size,
                 shuffle=shuffle,
                 **kwargs
             )
@@ -526,6 +528,7 @@ class Model(keras.Model):
             )
 
         self._use_decoder_branch = self._generate_decoder_branch
+        self._use_representation_loss = self._representation_loss is not None
         return history
 
     def _generate_validation_splits(
@@ -552,7 +555,7 @@ class Model(keras.Model):
                     y,
                     np.arange(x.shape[0]),
                     test_size=validation_split,
-                    shuffle=shuffle,
+                    shuffle=True,
                     seed=split_seed,
                     mode=self._mode_enum
                 )
@@ -570,7 +573,7 @@ class Model(keras.Model):
                 y,
                 np.arange(x.shape[0]),
                 k=num_folds,
-                shuffle=shuffle,
+                shuffle=True,
                 seed=seed,
                 mode=self._mode_enum
             )
@@ -908,7 +911,7 @@ class Model(keras.Model):
         validation_data=None,
         validation_split=None,
         batch_size=None,
-        shuffle=True,
+        shuffle=False,
         **kwargs
     ):
         starting_model_weights = model.get_weights()
@@ -981,7 +984,7 @@ class Model(keras.Model):
 
         predictions = model.predict(x_metric)
 
-        if self._use_decoder_branch:
+        if self._use_decoder_branch or self._use_representation_loss:
             y_metric = y_metric[0]
 
         if self._mode_enum == ModelType.REGRESSION:
@@ -1239,7 +1242,7 @@ class Model(keras.Model):
         candidate_evaluation_class_weight=None,
         epochs=1,
         batch_size=32,
-        shuffle=True,
+        shuffle=False,
         stratify_batches=True,
         verbose_imbal=1,
         class_weight=None,
