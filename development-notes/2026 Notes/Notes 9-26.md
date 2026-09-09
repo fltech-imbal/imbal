@@ -48,7 +48,7 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 - `validation_split` overrides previous behavior in some cases
 	- Can this be split into `k_folds` and `validation_split`
 ---
-# 9/3/26
+# 9/8/26
 
 ## Thesis
 - **Round 1**
@@ -56,12 +56,15 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 		- Ignore joint, ignore regular, always $\alpha=1$ $\checkmark$
 	- Generate TSNE and true vs. predicted $\checkmark$
 	- **Round 1b** - Pick top 2 performing from previous, vary joint/tuning, vary $\alpha$ $\checkmark$
+		- **Rerun all round 1 with $\alpha$ varying 0.1, 0.3, 0.5, 0.7 $\times$**
+		- Original distribution for first stage, only vary alphas in second stage
 - **Round 2**
 	- Pick top performing for each loss from round 1b, add decorrelation loss $\checkmark$
 	- **JUST** enable decorrelation, see if it performs better $\checkmark$
 	- Generate TSNE and true vs. predicted $\checkmark$
 	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere, vary $\alpha$ $\checkmark$
 		- Generate TSNE and true vs. predicted $\checkmark$
+		- **No need for decorrelation** $\times$
 - **Round 3**
 	- Hypersphere with cosine loss, FT/joint, vary $\alpha$
 	- Generate TSNE and true vs. predicted
@@ -71,6 +74,11 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 - **Round 4**
 	- Pick best two from round 2, use a non-linear regressor and constant speed (hence going back to round 2 loss functions)
 	- Generate TSNE and true vs. predicted
+- **Round 5**
+	- Best 2-3 from Rounds 3-4
+	- Add learnable $R$ parameter (described in 9/7/26)
+
+**SEP-E and SEP-C**
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
@@ -82,20 +90,20 @@ Axes of exploration:
 
 We expect non-unit space and constant ratio to work well, and unit hypersphere and non-constant ratio to work well
 
-**Order of tasks:**
-- **Round 1:** Constant + linear (no hypersphere) w/ 6+ dimensions in the representation space (using 32 for SEP-E) w/ fine tuning
-	- **Round 2:** Then, constant + no hypersphere + "decorrelation among features" loss (we expect this to help) (with joint as well if first experiments shows it to be any better)
-	- Keep results of the "winner" of above 2 experiments, try it with hypersphere to see if there is any improvement 
-- **Round 3:** Later, unit hypersphere with non-constant speed, cosine similarity-based representation loss
-	- We expect this to be better than winner of first 2 experiments w/ hypersphere
-- **Round 4:** Hypersphere, constant distance ratio, *non-linear regressor*, trying best from rounds 2 and 3 to see which does better... or, is round 2 sufficient when using a non-linear regressor? (multiple layer regressor with activation functions)
-
 **Other thoughts...**
 - Might be worth trying to weight samples by `t+6 - t` in the future
 - Something for gradient conflicts
 	- Think not only of direction, but length
 	- More common samples means larger gradient vector
 	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+- 9/7/26 email
+	- Learnable $R$ value using a model with no input, one output, loss update is $(R-r)^2$, where $R$ is the learned ratio and $r$ is the current ratio
+		- Use sigmoid scaled from $[\frac{1}{a}, a]$ as activation for output logit
+	- Can be added to primary representation loss functions
+	- Using custom Keras layer
+		- No input, no weights, just bias, which is passed to ratio loss
+	- Potentially using one model, one input, one "pseudo-input", concatenated into a single output. Then use custom loss to separate back out and compute separate components
+		- TensorFlow Concatenate layer
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
@@ -108,7 +116,10 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 | Round 2 | $\times$     | $\checkmark$        | N/A               | N/A | N/A      | N/A  |
 | Round 3 | $\checkmark$ | $\checkmark$        | joint             |     |          |      |
 | Round 4 | $\checkmark$ | $\checkmark$        | fine tuning       |     |          |      |
-
+- For shuffling
+	- When shuffle is `False`, our shuffling and TF shuffling is off
+	- When shuffle is `True`, our shuffling is ON, but *TF remains OFF*
+- Is `decoupled_fit` compatible with representation loss? Are there issues at the moment?
 - Representation learning, add `representation_lambda` parameter for `Model.compile`
 	- For reconstruction branch, default behavior is determining lambda ourselves. If they specify a lambda, use theirs instead.
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate

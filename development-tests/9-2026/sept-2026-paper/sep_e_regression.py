@@ -17,7 +17,6 @@ Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.BALANCED
 VALIDATION_DATA = True
 AE = False
 AE_THIRD_TO_LAST = False
@@ -34,7 +33,7 @@ EPOCHS = 10000
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_variance_varied_alphas_hypersphere_1'
+OUTPUT_POSTFIX = '_entropy_2'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -98,14 +97,11 @@ x_test = x_test[y_test_sort_indices]
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
 RATIO_LOSS_LAMBDA = 1
-REPRESENTATION_LOSS = minimize_variance_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=False)
+REPRESENTATION_LOSS = maximize_entropy_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=False)
 
 """
 Build model
 """
-
-if FIT == FitType.REGULAR:
-    WEIGHT_CANDIDATES = None
 
 # tf.keras.utils.set_random_seed(
 #     SEED
@@ -144,11 +140,6 @@ Generate sample densities
 """
 
 
-fit_function = model.fit
-if FIT == FitType.BALANCED:
-    fit_function = model.balanced_fit
-if FIT == FitType.DECOUPLED:
-    fit_function = model.rRT_fit
 
 if VALIDATION_DATA:
     kde_bandwidth = imbal.regression.fit_kde(
@@ -185,15 +176,13 @@ else:
 
     val_data = None
 
-training_history = fit_function(
+training_history = model.fit(
     x_train,
     y_train,
-    sample_weight=sample_weights,
     shuffle=False,
-    validation_data=val_data,
-    epochs=(EPOCHS, EPOCHS) if FIT == FitType.DECOUPLED else EPOCHS,
+    validation_data=(val_data[0], val_data[1]),
+    epochs=EPOCHS,
     batch_size=BATCH_SIZE,
-    candidate_evaluation_sample_weight=(val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
     callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
 )
 
@@ -210,15 +199,12 @@ if FIT_MODE == 'tune':
         representation_layer_index=-3 if AE_THIRD_TO_LAST else -2
     )
 
-    sample_weights = sample_weights[model.best_weight_index]
-    val_data = (val_data[0], val_data[1], val_data[2][model.best_weight_index])
-
-    training_history = fit_function(
+    training_history = model.balanced_fit(
         x_train,
         y_train,
         sample_weight=sample_weights,
         validation_data=val_data,
-        epochs=(EPOCHS, EPOCHS) if FIT == FitType.DECOUPLED else EPOCHS,
+        epochs=EPOCHS,
         batch_size=BATCH_SIZE,
         shuffle=False,
         candidate_evaluation_sample_weight=(
@@ -244,7 +230,7 @@ mae = np.mean(np.abs(predictions - y_test))
 common_mae = np.mean(np.abs(common_predictions - common_labels))
 rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
-model.save(f"models/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
+model.save(f"models/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
 
 print(len(y_train[y_train < np.log(10)]), len(y_train[y_train >= np.log(10)]))
 print(len(common_predictions), len(rare_predictions))
@@ -256,12 +242,12 @@ imbal.regression.plot_true_vs_predictions(
     y_test,
     predictions,
     title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {WEIGHT_CANDIDATES[best_weight_index]:.1f}" if WEIGHT_CANDIDATES is not None else ""}',
-    save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
+    save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
 )
 
 imbal.regression.tsne_visualization(
     model,
     x_test,
     y_test,
-    save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{FIT.name.lower()}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
+    save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
 )
