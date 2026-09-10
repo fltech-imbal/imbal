@@ -150,19 +150,26 @@ def maximize_entropy_w_ratio_loss(train_label_min, train_label_max, lambda_val=1
 
     return loss_function_decorrelation if decorr else loss_function
 
-def cauchy_schwartz_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False):
+def cauchy_schwartz_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
 
     def loss_function(labels, representations, weight=None):
         return cauchy_schwartz(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
-    return loss_function
 
-def distance_pcc_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False):
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return cauchy_schwartz(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
+    return loss_function_decorrelation if decorr else loss_function
+
+def distance_pcc_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
 
     def loss_function(labels, representations, weight=None):
         return distance_pcc(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
-    return loss_function
+
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return distance_pcc(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
+
+    return loss_function_decorrelation if decorr else loss_function
 
 def minimize_variance_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
@@ -183,9 +190,16 @@ def distance_difference(labels, representations, weight=None, unit=False):
     )
     return tf.norm(distance_to_next_label - distance_to_next_representation)
 
-def distance_difference_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False):
+def distance_difference_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
 
     def loss_function(labels, representations, weight=None):
         return distance_difference(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
-    return loss_function
+
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return distance_difference(labels, representations, weight) + current_ratio_loss(labels, representations,
+                                                                                       weight) + decorrelation(labels,
+                                                                                                               representations,
+                                                                                                               weight)
+
+    return loss_function_decorrelation if decorr else loss_function
