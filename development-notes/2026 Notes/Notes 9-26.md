@@ -56,14 +56,14 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 		- Ignore joint, ignore regular, always $\alpha=1$ $\checkmark$
 	- Generate TSNE and true vs. predicted $\checkmark$
 	- **Round 1b** - Pick top 2 performing from previous, vary joint/tuning, vary $\alpha$ $\checkmark$
-		- **Rerun all round 1 with $\alpha$ varying 0.1, 0.3, 0.5, 0.7 $\times$**
-		- Original distribution for first stage, only vary alphas in second stage
+		- **Rerun all round 1 with $\alpha$ varying 0.1, 0.3, 0.5, 0.7 $\checkmark$**
+		- Original distribution for first stage, only vary alphas in second stage $\checkmark$
 - **Round 2**
-	- Pick top performing for each loss from round 1b, add decorrelation loss $\checkmark$
-	- **JUST** enable decorrelation, see if it performs better $\checkmark$
-	- Generate TSNE and true vs. predicted $\checkmark$
-	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere, vary $\alpha$ $\checkmark$
-		- Generate TSNE and true vs. predicted $\checkmark$
+	- Pick top performing for each loss from round 1b, add decorrelation loss
+	- **JUST** enable decorrelation, see if it performs better 
+	- Generate TSNE and true vs. predicted 
+	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere, vary $\alpha$
+		- Generate TSNE and true vs. predicted
 		- **No need for decorrelation** $\times$
 - **Round 3**
 	- Hypersphere with cosine loss, FT/joint, vary $\alpha$

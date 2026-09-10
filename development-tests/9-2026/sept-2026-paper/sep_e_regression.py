@@ -23,7 +23,7 @@ AE_THIRD_TO_LAST = False
 # WEIGHT_CANDIDATES = None
 WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
 SINGLE_WEIGHT_ALPHA = 1
-FIT_MODE = 'tune'
+FIT_MODE = 'joint'
 UNIT_REPRESENTATIONS = True
 
 REPRESENTATION_LAYER_INDEX = -2
@@ -33,7 +33,8 @@ EPOCHS = 10000
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_entropy_2'
+OUTPUT_POSTFIX = '_variance_joint_4'
+DECORRELATION = False
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -97,7 +98,7 @@ x_test = x_test[y_test_sort_indices]
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
 RATIO_LOSS_LAMBDA = 1
-REPRESENTATION_LOSS = maximize_entropy_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=False)
+REPRESENTATION_LOSS = minimize_variance_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
 
 """
 Build model
@@ -176,19 +177,39 @@ else:
 
     val_data = None
 
-training_history = model.fit(
-    x_train,
-    y_train,
-    shuffle=False,
-    validation_data=(val_data[0], val_data[1]),
-    epochs=EPOCHS,
-    batch_size=BATCH_SIZE,
-    callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
-)
+training_history = None
+best_weight_index = None
+
+if FIT_MODE == 'tune':
+    training_history = model.fit(
+        x_train,
+        y_train,
+        shuffle=False,
+        validation_data=(val_data[0], val_data[1]),
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+    )
+elif FIT_MODE == 'joint':
+    training_history = model.balanced_fit(
+        x_train,
+        y_train,
+        sample_weight=sample_weights,
+        validation_data=val_data,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        candidate_evaluation_sample_weight=(
+            val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
+        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss',
+                                                 patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True,
+                                                 min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+    )
+    best_weight_index = model.best_weight_index
 
 stage_one_len = len(training_history.history['loss'])
 stage_two_len = None
-best_weight_index = model.best_weight_index
+
 
 if FIT_MODE == 'tune':
     model.compile(
@@ -215,6 +236,7 @@ if FIT_MODE == 'tune':
     )
 
     stage_two_len = len(training_history.history['loss'])
+    best_weight_index = model.best_weight_index
 
 predictions = model.predict(x_test)
 predictions = predictions.reshape(-1)
