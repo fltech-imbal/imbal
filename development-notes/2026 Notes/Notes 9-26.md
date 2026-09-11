@@ -137,6 +137,7 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- Entropy, Cauchy-Schwartz, Distance PCC, Variance 
 		- Ignore joint, ignore regular, always vary alpha, balanced distribution for prediction loss always!
 	- **Round 1b** - Pick top 2 performing from previous, try joint
+	- **Round 1c** - Pick top 2 performing, try neighbor and global
 - **Round 2**
 	- Pick top performing for each loss from round 1b, add decorrelation loss 
 	- **JUST** enable decorrelation, see if it performs better
@@ -178,6 +179,12 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 		- No input, no weights, just bias, which is passed to ratio loss
 	- Potentially using one model, one input, one "pseudo-input", concatenated into a single output. Then use custom loss to separate back out and compute separate components
 		- TensorFlow Concatenate layer
+- Options for weighting cosine representation loss
+	- MDI with an appropriate $\alpha$
+	- Cosine from 0 to $\frac{\pi}{2}$
+	- Normalize distances from 0-1, using $1-x^2$
+	- Something else concave?
+	- Make sure to include a small epsilon as to not have 0 weights sum to $n$.
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA

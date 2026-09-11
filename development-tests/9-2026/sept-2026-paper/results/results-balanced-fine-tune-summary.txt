@@ -1,0 +1,32 @@
+balanced, alpha=1, fine-tuned, ENTROPY:
+[185.0, 15.2, 0.2537, 0.183, 0.2126, 0.0, 0.0]
+
+balanced, alpha=1, fine-tuned, CAUCHY-SCHWARTZ:
+[1768.8, 615.2, 5.4146, 78.1762, 0.2419, 0.0368, 0.0422]
+
+balanced, alpha=1, fine-tuned, DISTANCE PCC:
+[94.6, 59.4, 0.2635, 0.1946, 0.2235, 0.0, 0.0]
+
+balanced, alpha=1, fine-tuned, VARIANCE:
+[105.0, 81.2, 0.267, 0.1872, 0.2207, 0.0, 0.0]
+
+balanced, alpha=1, fine-tuned, DISTANCE DIFFERENCE:
+[1225.2, 25.0, 0.3147, 0.2957, 0.3037, 0.0, 0.0]
+
+balanced, fine-tuned, ENTROPY W/ VARIED ALPHAS:
+[113.8, 40.4, 0.2408, 0.179, 0.2049, 0.0, 0.54]
+
+balanced, fine-tuned, VARIANCE W/ VARIED ALPHAS:
+[54.8, 140.0, 0.2318, 0.1806, 0.202, 0.0, 0.34]
+
+balanced, ENTROPY W/ VARIED ALPHAS, JOINT:
+[143.6, 0.0, 0.2507, 0.1837, 0.2118, 0.0, 0.58]
+
+balanced, VARIANCE W/ VARIED ALPHAS, JOINT:
+[86.8, 0.0, 0.2662, 0.1992, 0.2273, 0.0, 0.38]
+
+balanced, fine-tuned, ENTROPY W/ VARIED ALPHAS, DECORRELATION:
+[167.2, 33.0, 0.2365, 0.1704, 0.1981, 0.0, 0.46]
+
+balanced, fine-tuned, VARIANCE W/ VARIED ALPHAS, DECORRELATION:
+[72.6, 97.6, 0.2377, 0.187, 0.2082, 0.0, 0.46]

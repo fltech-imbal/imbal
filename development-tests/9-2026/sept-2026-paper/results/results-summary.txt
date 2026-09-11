@@ -1,0 +1,14 @@
+balanced, fine-tuned, ENTROPY:
+[2394.0, 10.4, 0.2423, 0.2099, 0.2234, 0.0, 0.62]
+
+balanced, fine-tuned, CAUCHY-SCHWARTZ:
+[353.0, 2674.6, 0.3238, 0.2928, 0.3057, 0.0, 0.7]
+
+balanced, fine-tuned, DISTANCE PCC:
+[2762.8, 117.2, 0.3567, 0.2852, 0.3152, 0.0, 0.26]
+
+balanced, fine-tuned, VARIANCE:
+[2563.4, 46.0, 0.3292, 0.2631, 0.2908, 0.0, 0.22]
+
+balanced, alpha=1, fine-tuned, DISTANCE DIFFERENCE:
+[2741.0, 64.0, 0.3413, 0.2774, 0.3042, 0.0, 0.18]

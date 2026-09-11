@@ -1,4 +1,4 @@
-FILE_PATH = 'results/results.txt'
+FILE_PATH = 'results/results-balanced-fine-tune.txt'
 
 NUM_VALUES_PER_ROW = 7
 
