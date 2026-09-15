@@ -129,15 +129,14 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 - Alternative: $\|a-\frac{1}{\alpha} b\|$ as loss function ($\alpha$) sets the distance ratio (for thesis)  
 - Switch to SEP-C **tutorial** dataset and rerun experiments in 4 tables above (small real dataset)
 ---
-
 # 9/10/26
 
 ## Thesis
 - **Round 1**
-	- Entropy, Cauchy-Schwartz, Distance PCC, Variance 
-		- Ignore joint, ignore regular, always vary alpha, balanced distribution for prediction loss always!
-	- **Round 1b** - Pick top 2 performing from previous, try joint
-	- **Round 1c** - Pick top 2 performing, try neighbor and global
+	- Entropy, Cauchy-Schwartz, Distance PCC, Variance $\checkmark$
+		- Ignore joint, ignore regular, always vary alpha, balanced distribution for prediction loss always! $\checkmark$
+	- **Round 1b** - Pick top 2 performing from previous, try joint $\checkmark$
+	- **Round 1c** - Pick top 2 performing, try neighbor and global $\checkmark$
 - **Round 2**
 	- Pick top performing for each loss from round 1b, add decorrelation loss 
 	- **JUST** enable decorrelation, see if it performs better
@@ -188,15 +187,6 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA
-
-**Using toy dataset...**
-
-|         | MSE Loss     | Representation Loss | Fine Tuning/Joint | MAE | Rare MAE | AORE |
-| ------- | ------------ | ------------------- | ----------------- | --- | -------- | ---- |
-| Round 1 | $\checkmark$ | $\times$            | N/A               |     |          |      |
-| Round 2 | $\times$     | $\checkmark$        | N/A               | N/A | N/A      | N/A  |
-| Round 3 | $\checkmark$ | $\checkmark$        | joint             |     |          |      |
-| Round 4 | $\checkmark$ | $\checkmark$        | fine tuning       |     |          |      |
 - For shuffling
 	- When shuffle is `False`, our shuffling and TF shuffling is off
 	- When shuffle is `True`, our shuffling is ON, but *TF remains OFF*

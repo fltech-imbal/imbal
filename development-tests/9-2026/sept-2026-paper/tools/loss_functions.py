@@ -79,26 +79,30 @@ def distance_pcc_decorrelation(labels, representations, weight=None, unit=False)
     return 1 - tfp.stats.correlation(distance_to_next_label, tf.expand_dims(distance_to_next_representation, axis=-1)) + tf.reduce_mean(tf.math.abs(tfp.stats.correlation(extended_representations)))
 
 def cauchy_schwartz(labels, representations, weight=None, unit=False):
-    # print(labels)
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
-    # distance_to_first_label = tf.abs(labels[1:] - labels[0])
-
+    distance_to_next_label = tf.reshape(distance_to_next_label, (-1))
     distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
-    # distance_to_first_representation = safe_norm(representations[1:] - representations[0], axis=1)
 
-    # combined_label_distances = tf.concat([distance_to_next_label, distance_to_first_label], axis=0)
-    # combined_label_distances = tf.squeeze(combined_label_distances)
-    # combined_representation_distances = tf.concat(
-    #     [distance_to_next_representation, distance_to_first_representation],
-    #     axis=0)
-    # a = combined_label_distances
-    # b = combined_representation_distances
     a = distance_to_next_label
     b = distance_to_next_representation
-
-    # print(tf.reduce_mean(tf.multiply(a, a)) * tf.reduce_mean(tf.multiply(b, b)) - tf.reduce_mean(tf.multiply(a, b))**2)
     return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
 
+def global_cauchy_schwartz(labels, representations, weight=None, unit=False):
+    distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
+    distance_to_first_label = tf.abs(labels[1:] - labels[0])
+
+
+    distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
+    distance_to_first_representation = safe_norm(representations[1:] - representations[0], axis=1)
+
+    combined_label_distances = tf.concat([distance_to_next_label, distance_to_first_label], axis=0)
+    combined_label_distances = tf.squeeze(combined_label_distances)
+    combined_representation_distances = tf.concat(
+        [distance_to_next_representation, distance_to_first_representation],
+        axis=0)
+    a = combined_label_distances
+    b = combined_representation_distances
+    return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
 
 def maximize_entropy(labels, representations, weight=None):
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
@@ -202,4 +206,36 @@ def distance_difference_w_ratio_loss(train_label_min, train_label_max, lambda_va
                                                                                                                representations,
                                                                                                                weight)
 
+    return loss_function_decorrelation if decorr else loss_function
+
+def global_cauchy_schwartz_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
+    current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
+
+    def loss_function(labels, representations, weight=None):
+        return global_cauchy_schwartz(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
+
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return global_cauchy_schwartz(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
+    return loss_function_decorrelation if decorr else loss_function
+
+def cosine_similarity(labels, representations, weight=None, unit=False):
+    # distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
+    # distance_to_next_label = tf.reshape(distance_to_next_label, (-1))
+    difference_to_next_representation = representations[1:] - representations[:-1]
+
+    first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:1], axis=1, epsilon=1e-8)
+    second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
+
+    similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
+
+    return tf.reduce_mean(similarities)
+
+def cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
+    current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
+
+    def loss_function(labels, representations, weight=None):
+        return cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
+
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
     return loss_function_decorrelation if decorr else loss_function

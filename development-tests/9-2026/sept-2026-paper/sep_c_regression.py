@@ -3,506 +3,282 @@ Import packages
 """
 import imbal
 import tensorflow as tf
-import tensorflow_probability as tfp
+import keras
+from keras import layers
 import numpy as np
-from tools import FitType, load_sep_c_data, generate_plots, build_sep_ec_model, generate_weights, pcc
+import pandas as pd
+from tools import load_sep_c_data
 from tools.loss_functions import *
 
-# Axes of Exploration
-# - Representation loss used
-# - regular/balanced
-# - joint/freeze/tune
-# - num of representation layers
-# - constrain ratio? y/n
+# tf.config.run_functions_eagerly(True)
 
 """
 Set script parameters
 """
 
-# tf.config.run_functions_eagerly(True)
-
-FIGURE_NAME = 'balanced_unit_entropy_w_ratio_5'
-LEARNING_RATE = 1e-4
-FIT = FitType.BALANCED
-SINGLE_WEIGHT_ALPHA = 1
+LEARNING_RATE = 1e-3
 VALIDATION_DATA = True
+AE = False
+AE_THIRD_TO_LAST = False
+# WEIGHT_CANDIDATES = None
+WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
+SINGLE_WEIGHT_ALPHA = 1
+FIT_MODE = 'tune'
+BALANCED_FIRST_STAGE = False
+UNIT_REPRESENTATIONS = True
+NONLINEAR_REGRESSOR = True
 
-FIT_MODE = 'joint'
-MSE_LAMBDA = 1
-REPRESENTATION_LOSS_FUNCTION = maximize_entropy
-REPRESENTATION_LAMBDA = 1
-UNIT_REPRESENTATION = True
-RATIO_CONSTRAIN = True
-JUST_RATIO = False
-EXTRA_REGRESSOR_LAYERS = False
-PCC_LAMBDA = 0
-LOSS_SMOOTHING = 0.0
-THREE_D = False
+REPRESENTATION_LAYER_INDEX = -2
+EARLY_STOPPING_PATIENCE = 100
+EPOCHS = 10000
 
-MANUALLY_SORT_EVERY_BATCH = True
+DATA_PATH = "cleaned-SEP-C-data"
+DATA_PREFIX = 'sep_c_w_noise'
+OUTPUT_PATH = "results-final-c"
+MODEL_OUTPUT_PATH = "models-final-c"
+OUTPUT_POSTFIX = '_distance_pcc_nonlinear_5'
+DECORRELATION = False
+USE_DELTA = False
+
+# Will be mostly left unchanged
+STRATIFY = True
 BATCH_SIZE = 2048
-EARLY_STOPPING_PATIENCE = 200
-EPOCHS = 50000
-SECOND_STAGE_EPOCHS = 50000
-
-DATA_PATH = 'cleaned-SEP-C-data'
-DATA_PREFIX = 'sep_c'
-VALUE_MIN = -1.61
-VALUE_MAX = 8.75
-VAL_DELTA = 1e-6
+KDE_BIN_COUNT=64
+SEED = 42
 
 """
 Load data
 """
 
 (x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_c_data(
-    f"{DATA_PATH}/{DATA_PREFIX}"
+    f"{DATA_PATH}/{DATA_PREFIX}",
 )
 
-TRAIN_LABEL_MIN = y_train.min()
-TRAIN_LABEL_MAX = y_train.max()
+print("x_train shape:", x_train.shape)
+print("y_train shape:", y_train.shape)
+print("x_test shape:", x_test.shape)
+print("y_test shape:", y_test.shape)
+
+print(y_train[y_train > np.log(10)].shape)
+print(y_train[y_train <= np.log(10)].shape)
+print(y_test[y_test > np.log(10)].shape)
+print(y_test[y_test <= np.log(10)].shape)
+
+y_test = y_test.reshape(-1)
+y_test_sort_indices = np.argsort(y_test)
+y_test = y_test[y_test_sort_indices]
+x_test = x_test[y_test_sort_indices]
+
+# temp = imbal.util.backend.DatasetWithBatching(
+#     x_train,
+#     y_train,
+#     batch_size=64,
+#     shuffle=True,
+#     mode=imbal.util.backend.constants.ModelType.REGRESSION
+# )
+#
+# print(temp[0])
+
+train_label_min = np.min(y_train)
+train_label_max = np.max(y_train)
+RATIO_LOSS_LAMBDA = 1
+REPRESENTATION_LOSS = distance_pcc_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
 
 """
 Build model
 """
 
-LAYER_DIMS = [128, 128, 128, 64, 64, 64, 32, 32, 3 if THREE_D else 2]
+# tf.keras.utils.set_random_seed(
+#     SEED
+# )
 
-model = build_sep_ec_model(
-    x_train.shape,
-    LAYER_DIMS,
-    unit=UNIT_REPRESENTATION,
-    extra_regressor_layers=EXTRA_REGRESSOR_LAYERS,
+LAYER_DIMS = [18, 9, 6]
+
+inputs = keras.Input(shape=(x_train.shape[1],))
+
+x = inputs
+for index, num_units in enumerate(LAYER_DIMS):
+    x = layers.Dense(num_units, activation='relu')(x)
+    if index == len(LAYER_DIMS) - 1 and UNIT_REPRESENTATIONS:
+        x = layers.UnitNormalization()(x)
+
+if NONLINEAR_REGRESSOR:
+    REPRESENTATION_LAYER_INDEX = -6
+    for i in range(4):
+        x = layers.Dense(6, activation='relu')(x)
+
+outputs = layers.Dense(1)(x)
+
+model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="SEP_EC")
+
+model.compile(
+    optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+    loss='mse',
+    weighted_metrics=['mae'],
+    generate_decoder_branch=AE,
+    representation_layer_index=REPRESENTATION_LAYER_INDEX,
+    representation_loss=REPRESENTATION_LOSS,
 )
-model.summary()
+
+# if FIT == FitType.DECOUPLED:
+#     model.override_second_stage_fit_parameters(
+#         callbacks=[keras.callbacks.EarlyStopping(patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5)] if VALIDATION_DATA else None
+#     )
+
 """
 Generate sample densities
 """
-(x_train, y_train, sample_weights), val_data = generate_weights(
-    x_train,
-    y_train,
-    x_val,
-    y_val,
-    weight_alpha=SINGLE_WEIGHT_ALPHA,
-    combine_validation=not VALIDATION_DATA,
-)
 
 
-x_val, y_val, w_val = val_data
 
-sort_indices = np.argsort(y_val.squeeze())
-x_val = x_val[sort_indices]
-y_val = y_val[sort_indices]
-w_val = w_val[sort_indices]
+if VALIDATION_DATA:
+    kde_bandwidth = imbal.regression.fit_kde(
+        y_train,
+        bin_count=KDE_BIN_COUNT
+    )
 
-def compute_regression_loss(y_true, y_pred, sample_weight=None):
-    pcc_value = pcc(y_true, y_pred)*PCC_LAMBDA
+    sample_densities = imbal.regression.get_sample_densities(
+        y_train,
+        kde_bandwidth,
+    )
+    sample_weights = imbal.regression.reciprocal_importance(sample_densities, alpha=WEIGHT_CANDIDATES if WEIGHT_CANDIDATES is not None else SINGLE_WEIGHT_ALPHA)
+    val_densities = imbal.regression.get_sample_densities(
+        y_val,
+        kde_bandwidth,
+        distribution=y_train
+    )
+    w_val = imbal.regression.reciprocal_importance(val_densities, alpha=WEIGHT_CANDIDATES if WEIGHT_CANDIDATES is not None else SINGLE_WEIGHT_ALPHA)
+    val_data = (x_val, y_val, w_val)
+else:
+    x_train = np.concatenate((x_train, x_val))
+    y_train = np.concatenate((y_train, y_val))
 
-    if sample_weight is None:
-        sample_weight = tf.ones_like(y_true)
+    kde_bandwidth = imbal.regression.fit_kde(
+        y_train,
+        bin_count=KDE_BIN_COUNT
+    )
+
+    sample_densities = imbal.regression.get_sample_densities(
+        y_train,
+        kde_bandwidth,
+    )
+    sample_weights = imbal.regression.reciprocal_importance(sample_densities)
+
+    val_data = None
+
+training_history = None
+best_weight_index = None
+
+if FIT_MODE == 'tune':
+    if BALANCED_FIRST_STAGE:
+        training_history = model.balanced_fit(
+            x_train,
+            y_train,
+            sample_weight=sample_weights,
+            validation_data=val_data,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            candidate_evaluation_sample_weight=(
+                val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
+            callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss',
+                                                     patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True,
+                                                     min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+        )
+        best_weight_index = model.best_weight_index
     else:
-        sample_weight = tf.reshape(sample_weight, y_true.shape)
+        training_history = model.fit(
+            x_train,
+            y_train,
+            shuffle=False,
+            validation_data=(val_data[0], val_data[1]),
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+        )
 
-    return tf.reduce_sum(tf.square(y_true - y_pred) * sample_weight) / tf.reduce_sum(sample_weight) + pcc_value
 
-def combined_loss(
-    labels,
-    predictions,
-    representations,
-    sample_weight=None,
-    alpha=1
-):
-    regression_loss = compute_regression_loss(labels, predictions, sample_weight=sample_weight)
-    representation_loss = REPRESENTATION_LOSS_FUNCTION(labels, representations, weight=sample_weight, unit=UNIT_REPRESENTATION)
-    if RATIO_CONSTRAIN:
-        if JUST_RATIO:
-            representation_loss = ratio_loss(labels, representations, TRAIN_LABEL_MIN, TRAIN_LABEL_MAX, REPRESENTATION_LAMBDA, UNIT_REPRESENTATION)
-        else:
-            representation_loss += ratio_loss(labels, representations, TRAIN_LABEL_MIN, TRAIN_LABEL_MAX, REPRESENTATION_LAMBDA, UNIT_REPRESENTATION)
-    total_loss = regression_loss * MSE_LAMBDA + representation_loss * alpha
-    return total_loss, regression_loss, representation_loss
-
-print(np.shape(x_train))
-print(np.shape(y_train))
-print(np.shape(sample_weights))
-
-train_dataset = tf.data.Dataset.from_tensor_slices(
-    (
+elif FIT_MODE == 'joint':
+    training_history = model.balanced_fit(
         x_train,
         y_train,
-        tf.ones_like(y_train) if FIT == FitType.REGULAR else sample_weights,
-     )
-).shuffle(buffer_size=1000, reshuffle_each_iteration=True).batch(BATCH_SIZE)
+        sample_weight=sample_weights,
+        validation_data=val_data,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        candidate_evaluation_sample_weight=(
+            val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
+        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss',
+                                                 patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True,
+                                                 min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+    )
+    best_weight_index = model.best_weight_index
 
-optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
-second_stage_optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
+stage_one_len = len(training_history.history['loss'])
+stage_two_len = None
 
-@tf.function
-def joint_step(x, y, w, train=True):
-    if MANUALLY_SORT_EVERY_BATCH:
-        sort_indices = tf.argsort(tf.squeeze(y))
-        x = tf.gather(x, sort_indices)
-        y = tf.gather(y, sort_indices)
-        w = tf.gather(w, sort_indices)
+second_stage_best_weight_index = None
+if FIT_MODE == 'tune':
+    model.compile(
+        optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
+        loss='mse',
+        weighted_metrics=['mae'],
+        generate_decoder_branch=AE,
+        representation_layer_index=REPRESENTATION_LAYER_INDEX
+    )
 
-    mae = None
-    with tf.GradientTape() as tape:
-        predictions, representations, temp = model(x, training=train)
+    training_history = model.balanced_fit(
+        x_train,
+        y_train,
+        sample_weight=sample_weights,
+        validation_data=val_data,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+        candidate_evaluation_sample_weight=(
+            val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
+        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss',
+                                                 patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True,
+                                                 min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+    )
 
-        tf.debugging.check_numerics(predictions, "outputs")
-        tf.debugging.check_numerics(representations, "reps")
+    stage_two_len = len(training_history.history['loss'])
+    second_stage_best_weight_index = model.best_weight_index
 
-        total_loss, regression_loss, representation_loss = combined_loss(
-            y,
-            predictions,
-            representations,
-            alpha=REPRESENTATION_LAMBDA,
-            sample_weight=w
-        )
+predictions = model.predict(x_test)
+predictions = predictions.reshape(-1)
+y_test = y_test.reshape(-1)
 
-        w = tf.reshape(w, y.shape)
-        mae = tf.reduce_sum(tf.abs(predictions - y) * w) / tf.reduce_sum(w)
+common_sample_mask =(y_test < np.log(10))
+common_predictions = predictions[common_sample_mask]
+rare_predictions = predictions[~common_sample_mask]
+common_labels = y_test[common_sample_mask]
+rare_labels = y_test[~common_sample_mask]
 
-    gradients = tape.gradient(total_loss, model.trainable_weights)
-    optimizer.apply_gradients(zip(gradients, model.trainable_weights))
+mae = np.mean(np.abs(predictions - y_test))
+common_mae = np.mean(np.abs(common_predictions - common_labels))
+rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
-    if train:
-        return total_loss, regression_loss, representation_loss
-    else:
-        return total_loss, regression_loss, representation_loss, mae
+model.save(f"{MODEL_OUTPUT_PATH}/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
 
-@tf.function
-def representation_step(x, y, w, train=True):
-    if MANUALLY_SORT_EVERY_BATCH:
-        sort_indices = tf.argsort(tf.squeeze(y))
-        x = tf.gather(x, sort_indices)
-        y = tf.gather(y, sort_indices)
-        w = tf.gather(w, sort_indices)
+print(len(y_train[y_train < np.log(10)]), len(y_train[y_train >= np.log(10)]))
+print(len(common_predictions), len(rare_predictions))
+print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index], None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index])
 
-    mae = None
-    with tf.GradientTape() as tape:
-        predictions, representations, temp = model(x, training=train)
+# print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
-        total_loss, regression_loss, representation_loss = combined_loss(
-            y,
-            predictions,
-            representations,
-            alpha=REPRESENTATION_LAMBDA,
-            sample_weight=w
-        )
-
-        w = tf.reshape(w, y.shape)
-        mae = tf.reduce_sum(tf.abs(predictions - y) * w) / tf.reduce_sum(w)
-
-        gradient_loss = representation_loss + regression_loss * LOSS_SMOOTHING
-
-    gradients = tape.gradient(gradient_loss, model.trainable_weights)
-    optimizer.apply_gradients(zip(gradients, model.trainable_weights))
-
-    if train:
-        return total_loss, regression_loss, representation_loss
-    else:
-        return total_loss, regression_loss, representation_loss, mae
-
-@tf.function
-def regression_step(x, y, w, train=True):
-    if MANUALLY_SORT_EVERY_BATCH:
-        sort_indices = tf.argsort(tf.squeeze(y))
-        x = tf.gather(x, sort_indices)
-        y = tf.gather(y, sort_indices)
-        w = tf.gather(w, sort_indices)
-
-    mae = None
-    with tf.GradientTape() as tape:
-        predictions, representations, _ = model(x, training=train)
-
-        total_loss, regression_loss, representation_loss = combined_loss(
-            y,
-            predictions,
-            representations,
-            alpha=REPRESENTATION_LAMBDA,
-            sample_weight=w
-        )
-
-        w = tf.reshape(w, y.shape)
-        mae = tf.reduce_sum(tf.abs(predictions - y) * w) / tf.reduce_sum(w)
-
-        gradient_loss = regression_loss + representation_loss * LOSS_SMOOTHING
-
-    gradients = tape.gradient(gradient_loss, model.trainable_weights)
-    optimizer.apply_gradients(zip(gradients, model.trainable_weights))
-
-    if train:
-        return total_loss, regression_loss, representation_loss
-    else:
-        return total_loss, regression_loss, representation_loss, mae
-
-
-
-
-best_val_metric = None
-timer = 0
-best_weights = None
-
-first_stage_epochs = None
-second_stage_epochs = None
-
-if FIT_MODE == 'joint':
-    for epoch in range(EPOCHS):
-        print(f"\nStart of epoch {epoch + 1}")
-
-        for step, (x_batch, y_reg_batch, weights) in enumerate(train_dataset):
-
-            loss, reg_loss, rep_loss = joint_step(x_batch, y_reg_batch, weights)
-            if step % 10 == 0:
-                print(
-                    f"  Step {step:3d} | "
-                    f"Total: {float(loss):.4f} | "
-                    f"Regression: {float(reg_loss):.4f} | "
-                    f"Representation: {float(rep_loss):.4f}"
-                )
-
-        if VALIDATION_DATA:
-            val_loss, val_reg_loss, val_rep_loss, mae = joint_step(x_val, y_val, w_val, train=False)
-            print(
-                f"  Validation for epoch {epoch + 1} | "
-                f"Total: {float(val_loss):.4f} | "
-                f"Regression: {float(val_reg_loss):.4f} | "
-                f"Representation: {float(val_rep_loss):.4f} | "
-                f"MAE: {float(mae):.4f}"
-            )
-            if best_val_metric is None or mae <= best_val_metric - VAL_DELTA:
-                best_val_metric = mae
-                timer = 0
-                best_weights = model.get_weights()
-            else:
-                timer += 1
-            if timer == EARLY_STOPPING_PATIENCE:
-                model.set_weights(best_weights)
-                first_stage_epochs = epoch+1 - EARLY_STOPPING_PATIENCE
-                break
-
-elif FIT_MODE == 'freeze':
-    for epoch in range(EPOCHS):
-        print(f"\nStart of epoch {epoch + 1}")
-
-        for step, (x_batch, y_reg_batch, weights) in enumerate(train_dataset):
-
-            if MANUALLY_SORT_EVERY_BATCH:
-                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
-                x_batch = tf.gather(x_batch, sort_indices)
-                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
-
-            loss, reg_loss, rep_loss = representation_step(x_batch, y_reg_batch, weights)
-            if step % 10 == 0:
-                print(
-                    f"  Step {step:3d} | "
-                    f"Total: {float(loss):.4f} | "
-                    f"Regression: {float(reg_loss):.4f} | "
-                    f"Representation: {float(rep_loss):.4f}"
-                )
-
-        if VALIDATION_DATA:
-            val_loss, val_reg_loss, val_rep_loss, mae = representation_step(x_val, y_val, w_val, train=False)
-            print(
-                f"  Validation for epoch {epoch + 1} | "
-                f"Total: {float(val_loss):.4f} | "
-                f"Regression: {float(val_reg_loss):.4f} | "
-                f"Representation: {float(val_rep_loss):.4f} | "
-                f"MAE: {float(mae):.4f}"
-            )
-            if best_val_metric is None or val_rep_loss <= best_val_metric - VAL_DELTA:
-                best_val_metric = val_rep_loss
-                timer = 0
-                best_weights = model.get_weights()
-            else:
-                timer += 1
-            if timer == EARLY_STOPPING_PATIENCE:
-                model.set_weights(best_weights)
-                first_stage_epochs = epoch + 1 - EARLY_STOPPING_PATIENCE
-                break
-
-
-    for layer in model.layers:
-        layer.trainable = False
-        if layer.name == 'representation':
-           break
-    best_val_metric = None
-    timer = 0
-    best_weights = None
-
-    optimizer = second_stage_optimizer
-
-    for epoch in range(SECOND_STAGE_EPOCHS):
-        print(f"\nStart of epoch {epoch + 1}")
-
-        for step, (x_batch, y_reg_batch, weights) in enumerate(train_dataset):
-
-            if MANUALLY_SORT_EVERY_BATCH:
-                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
-                x_batch = tf.gather(x_batch, sort_indices)
-                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
-
-            loss, reg_loss, rep_loss = regression_step(x_batch, y_reg_batch, weights)
-            if step % 10 == 0:
-                print(
-                    f"  Step {step:3d} | "
-                    f"Total: {float(loss):.4f} | "
-                    f"Regression: {float(reg_loss):.4f} | "
-                    f"Representation: {float(rep_loss):.4f}"
-                )
-        if VALIDATION_DATA:
-            val_loss, val_reg_loss, val_rep_loss, mae = regression_step(x_val, y_val, w_val, train=False)
-            print(
-                f"  Validation for epoch {epoch + 1} | "
-                f"Total: {float(val_loss):.4f} | "
-                f"Regression: {float(val_reg_loss):.4f} | "
-                f"Representation: {float(val_rep_loss):.4f} | "
-                f"MAE: {float(mae):.4f}"
-            )
-            if best_val_metric is None or mae <= best_val_metric - VAL_DELTA:
-                best_val_metric = mae
-                timer = 0
-                best_weights = model.get_weights()
-            else:
-                timer += 1
-            if timer == EARLY_STOPPING_PATIENCE:
-                model.set_weights(best_weights)
-                second_stage_epochs = epoch + 1 - EARLY_STOPPING_PATIENCE
-                break
-
-elif FIT_MODE == 'tune':
-    for epoch in range(EPOCHS):
-        print(f"\nStart of epoch {epoch + 1}")
-
-        for step, (x_batch, y_reg_batch, weights) in enumerate(train_dataset):
-
-            if MANUALLY_SORT_EVERY_BATCH:
-                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
-                x_batch = tf.gather(x_batch, sort_indices)
-                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
-
-            loss, reg_loss, rep_loss = representation_step(x_batch, y_reg_batch, weights)
-            if step % 10 == 0:
-                print(
-                    f"  Step {step:3d} | "
-                    f"Total: {float(loss):.4f} | "
-                    f"Regression: {float(reg_loss):.4f} | "
-                    f"Representation: {float(rep_loss):.4f}"
-                )
-
-        if VALIDATION_DATA:
-            val_loss, val_reg_loss, val_rep_loss, mae = representation_step(x_val, y_val, w_val, train=False)
-            print(
-                f"  Validation for epoch {epoch + 1} | "
-                f"Total: {float(val_loss):.4f} | "
-                f"Regression: {float(val_reg_loss):.4f} | "
-                f"Representation: {float(val_rep_loss):.4f} | "
-                f"MAE: {float(mae):.4f}"
-            )
-            if best_val_metric is None or val_rep_loss <= best_val_metric - VAL_DELTA:
-                best_val_metric = val_rep_loss
-                timer = 0
-                best_weights = model.get_weights()
-            else:
-                timer += 1
-            if timer == EARLY_STOPPING_PATIENCE:
-                model.set_weights(best_weights)
-                first_stage_epochs = epoch + 1 - EARLY_STOPPING_PATIENCE
-                break
-
-    optimizer = second_stage_optimizer
-    best_val_metric = None
-    timer = 0
-    best_weights = None
-
-    for epoch in range(SECOND_STAGE_EPOCHS):
-        print(f"\nStart of epoch {epoch + 1}")
-
-        for step, (x_batch, y_reg_batch, weights) in enumerate(train_dataset):
-
-            if MANUALLY_SORT_EVERY_BATCH:
-                sort_indices = tf.argsort(tf.squeeze(y_reg_batch))
-                x_batch = tf.gather(x_batch, sort_indices)
-                y_reg_batch = tf.gather(y_reg_batch, sort_indices)
-
-            loss, reg_loss, rep_loss = regression_step(x_batch, y_reg_batch, weights)
-            if step % 10 == 0:
-                print(
-                    f"  Step {step:3d} | "
-                    f"Total: {float(loss):.4f} | "
-                    f"Regression: {float(reg_loss):.4f} | "
-                    f"Representation: {float(rep_loss):.4f}"
-                )
-
-        if VALIDATION_DATA:
-            val_loss, val_reg_loss, val_rep_loss, mae = regression_step(x_val, y_val, w_val, train=False)
-            print(
-                f"  Validation for epoch {epoch + 1} | "
-                f"Total: {float(val_loss):.4f} | "
-                f"Regression: {float(val_reg_loss):.4f} | "
-                f"Representation: {float(val_rep_loss):.4f} | "
-                f"MAE: {float(mae):.4f}"
-            )
-            if best_val_metric is None or mae <= best_val_metric - VAL_DELTA:
-                best_val_metric = mae
-                timer = 0
-                best_weights = model.get_weights()
-            else:
-                timer += 1
-
-            if timer == EARLY_STOPPING_PATIENCE:
-                model.set_weights(best_weights)
-                second_stage_epochs = epoch + 1 - EARLY_STOPPING_PATIENCE
-                break
-
-common_mask = y_train < np.log(10)
-generate_plots(
-    x_train,
-    y_train,
-    model=model,
-    common_mask=common_mask,
-    path_prefix='results_sep_c/training',
-    three_d=THREE_D,
-    vmin=VALUE_MIN,
-    vmax=VALUE_MAX,
-    plot_names=FIGURE_NAME
-)
-common_mask = y_val < np.log(10)
-generate_plots(
-    x_val,
-    y_val,
-    model=model,
-    common_mask=common_mask,
-    path_prefix='results_sep_c/validation',
-    three_d=THREE_D,
-    vmin=VALUE_MIN,
-    vmax=VALUE_MAX,
-    plot_names=FIGURE_NAME
+imbal.regression.plot_true_vs_predictions(
+    y_test,
+    predictions,
+    title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
+    save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
 )
 
-common_mask = y_test < np.log(10)
-common_mae, rare_mae, aore = generate_plots(
+imbal.regression.tsne_visualization(
+    model,
     x_test,
     y_test,
-    model=model,
-    common_mask=common_mask,
-    path_prefix='results_sep_c/test',
-    three_d=THREE_D,
-    vmin=VALUE_MIN,
-    vmax=VALUE_MAX,
-    plot_names=FIGURE_NAME
+    representation_layer_index=REPRESENTATION_LAYER_INDEX,
+    save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
 )
-
-print(first_stage_epochs, second_stage_epochs, common_mae, rare_mae, aore)
-
-# 0-5: Unit representation, DTW folds
-# 6-11: Unit representation, DTW folds (swap test and val)
-# 12-17: Unit representation, peak flux folds (swap all folds)
-# 18-23: Unit representation, DTW folds (predicting intensity)
-# 24-29: Non-unit representation, DTW folds (predicting intensity)
-# 30-35: Non-unit representation, DTW folds (predicting intensity)
-# 36-41: Non-unit representation, DTW folds (predicting ln(intensity))
-# 42-47: Non-unit representation, DTW folds (predicting ln(intensity))  }
-# 48-53: Non-unit representation, DTW folds (predicting ln(intensity))  } varying epsilon
-# 54-59: Non-unit representation, DTW folds (predicting ln(intensity))  }

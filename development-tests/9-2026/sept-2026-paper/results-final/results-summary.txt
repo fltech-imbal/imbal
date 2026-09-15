@@ -1,0 +1,29 @@
+Original Distribution first stage, ENTROPY:
+[99.4, 96.4, 0.2378, 0.1675, 0.1969, 0.0, 0.7]
+
+Original Distribution first stage, VARIANCE:
+[51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62]
+
+Original Distribution first stage, DISTANCE PCC:
+[44.2, 240.0, 0.2314, 0.1794, 0.2012, 0.0, 0.46]
+
+Original Distribution first stage, DISTANCE DIFFERENCE:
+[1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42]
+
+Original Distribution first stage, CAUCHY SCHWARTZ:
+[76.0, 350.0, 0.2353, 0.1681, 0.1962, 0.0, 0.58]
+
+Balanced Distribution first stage, ENTROPY:
+[152.8, 35.0, 0.2401, 0.1692, 0.1989, 0.54, 0.7]
+
+Balanced Distribution first stage, VARIANCE:
+[69.0, 168.2, 0.2369, 0.1789, 0.2032, 0.46, 0.58]
+
+Balanced Distribution first stage, DISTANCE PCC:
+[66.0, 193.6, 0.2374, 0.1722, 0.1995, 0.5, 0.54]
+
+Balanced Distribution first stage, DISTANCE DIFFERENCE:
+[1619.2, 23.0, 0.3255, 0.2641, 0.2898, 0.3, 0.46]
+
+Balanced Distribution first stage, CAUCHY SCHWARTZ:
+[71.6, 319.8, 0.2314, 0.1729, 0.1974, 0.14, 0.54]

@@ -23,8 +23,10 @@ AE_THIRD_TO_LAST = False
 # WEIGHT_CANDIDATES = None
 WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
 SINGLE_WEIGHT_ALPHA = 1
-FIT_MODE = 'joint'
+FIT_MODE = 'tune'
+BALANCED_FIRST_STAGE = False
 UNIT_REPRESENTATIONS = True
+NONLINEAR_REGRESSOR = False
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 100
@@ -32,8 +34,9 @@ EPOCHS = 10000
 
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
-OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_variance_joint_4'
+OUTPUT_PATH = "results-final"
+MODEL_OUTPUT_PATH = "models-final"
+OUTPUT_POSTFIX = '_cosine_hypersphere_5'
 DECORRELATION = False
 USE_DELTA = False
 
@@ -98,7 +101,7 @@ x_test = x_test[y_test_sort_indices]
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
 RATIO_LOSS_LAMBDA = 1
-REPRESENTATION_LOSS = minimize_variance_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
+REPRESENTATION_LOSS = cosine_similarity_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
 
 """
 Build model
@@ -118,6 +121,11 @@ for index, num_units in enumerate(LAYER_DIMS):
     if index == len(LAYER_DIMS) - 1 and UNIT_REPRESENTATIONS:
         x = layers.UnitNormalization()(x)
 
+if NONLINEAR_REGRESSOR:
+    REPRESENTATION_LAYER_INDEX = -6
+    for i in range(4):
+        x = layers.Dense(32, activation='relu')(x)
+
 outputs = layers.Dense(1)(x)
 
 model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="SEP_EC")
@@ -127,7 +135,7 @@ model.compile(
     loss='mse',
     weighted_metrics=['mae'],
     generate_decoder_branch=AE,
-    representation_layer_index=-3 if AE_THIRD_TO_LAST else -2,
+    representation_layer_index=REPRESENTATION_LAYER_INDEX,
     representation_loss=REPRESENTATION_LOSS,
 )
 
@@ -181,15 +189,34 @@ training_history = None
 best_weight_index = None
 
 if FIT_MODE == 'tune':
-    training_history = model.fit(
-        x_train,
-        y_train,
-        shuffle=False,
-        validation_data=(val_data[0], val_data[1]),
-        epochs=EPOCHS,
-        batch_size=BATCH_SIZE,
-        callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
-    )
+    if BALANCED_FIRST_STAGE:
+        training_history = model.balanced_fit(
+            x_train,
+            y_train,
+            sample_weight=sample_weights,
+            validation_data=val_data,
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            shuffle=False,
+            candidate_evaluation_sample_weight=(
+                val_data[2][2] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES is not None else None,
+            callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss',
+                                                     patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True,
+                                                     min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+        )
+        best_weight_index = model.best_weight_index
+    else:
+        training_history = model.fit(
+            x_train,
+            y_train,
+            shuffle=False,
+            validation_data=(val_data[0], val_data[1]),
+            epochs=EPOCHS,
+            batch_size=BATCH_SIZE,
+            callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
+        )
+
+
 elif FIT_MODE == 'joint':
     training_history = model.balanced_fit(
         x_train,
@@ -210,14 +237,14 @@ elif FIT_MODE == 'joint':
 stage_one_len = len(training_history.history['loss'])
 stage_two_len = None
 
-
+second_stage_best_weight_index = None
 if FIT_MODE == 'tune':
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
         loss='mse',
         weighted_metrics=['mae'],
         generate_decoder_branch=AE,
-        representation_layer_index=-3 if AE_THIRD_TO_LAST else -2
+        representation_layer_index=REPRESENTATION_LAYER_INDEX
     )
 
     training_history = model.balanced_fit(
@@ -236,7 +263,7 @@ if FIT_MODE == 'tune':
     )
 
     stage_two_len = len(training_history.history['loss'])
-    best_weight_index = model.best_weight_index
+    second_stage_best_weight_index = model.best_weight_index
 
 predictions = model.predict(x_test)
 predictions = predictions.reshape(-1)
@@ -252,18 +279,18 @@ mae = np.mean(np.abs(predictions - y_test))
 common_mae = np.mean(np.abs(common_predictions - common_labels))
 rare_mae = np.mean(np.abs(rare_predictions - rare_labels))
 
-model.save(f"models/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
+model.save(f"{MODEL_OUTPUT_PATH}/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}.keras")
 
 print(len(y_train[y_train < np.log(10)]), len(y_train[y_train >= np.log(10)]))
 print(len(common_predictions), len(rare_predictions))
-print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, model._reconstruction_lambda, None if WEIGHT_CANDIDATES is None else WEIGHT_CANDIDATES[best_weight_index])
+print(stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index], None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index])
 
 # print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
 imbal.regression.plot_true_vs_predictions(
     y_test,
     predictions,
-    title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}{f", Alpha: {WEIGHT_CANDIDATES[best_weight_index]:.1f}" if WEIGHT_CANDIDATES is not None else ""}',
+    title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
     save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
 )
 
@@ -271,5 +298,6 @@ imbal.regression.tsne_visualization(
     model,
     x_test,
     y_test,
+    representation_layer_index=REPRESENTATION_LAYER_INDEX,
     save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
 )

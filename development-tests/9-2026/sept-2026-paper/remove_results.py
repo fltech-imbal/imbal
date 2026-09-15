@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-folder_path = Path("results")
+folder_path = Path("results-original-distribution")
 prefix = ""
 
 # Finds all matching files recursively
