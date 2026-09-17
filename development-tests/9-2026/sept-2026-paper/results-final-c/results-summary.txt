@@ -1,0 +1,32 @@
+Original Distribution first stage, ENTROPY:
+[976.8, 376.0, 0.431, 3.1487, 1.8164, 0.0, 0.3]
+
+Original Distribution first stage, VARIANCE:
+[1555.8, 12.6, 0.2642, 2.3727, 1.3391, 0.0, 0.26]
+
+Original Distribution first stage, DISTANCE PCC:
+[1160.8, 158.8, 0.3934, 2.3189, 1.375, 0.0, 0.26]
+
+Original Distribution first stage, DISTANCE DIFFERENCE:
+[935.4, 1181.2, 0.5015, 2.6088, 1.5758, 0.0, 0.46]
+
+Original Distribution first stage, CAUCHY SCHWARTZ:
+[1129.4, 864.8, 0.3842, 2.3923, 1.4079, 0.0, 0.26]
+
+Original Distribution first stage, VARIANCE, DECORRELATION:
+[341.8, 228.2, 0.6885, 2.6497, 1.6883, 0.0, 0.3]
+
+Original Distribution first stage, DISTANCE PCC, DECORRELATION:
+[529.4, 398.6, 0.3538, 4.7125, 2.5758, 0.0, 0.22]
+
+Original Distribution first stage, VARIANCE, HYPERSPHERE:
+[334.0, 641.4, 0.2983, 3.6737, 2.019, 0.0, 0.34]
+
+Original Distribution first stage, DISTANCE PCC, HYPERSPHERE:
+[498.2, 444.2, 0.4051, 3.8391, 2.1557, 0.0, 0.38]
+
+Original Distribution first stage, VARIANCE, HYPERSPHERE, NON-LINEAR REGRESSOR:
+[196.6, 401.6, 0.394, 4.1622, 2.315, 0.0, 0.26]
+
+Original Distribution first stage, DISTANCE PCC, HYPERSPHERE, NON-LINEAR REGRESSOR:
+[618.4, 325.4, 0.3728, 3.2269, 1.8278, 0.0, 0.3]
