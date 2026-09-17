@@ -220,13 +220,10 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 		- Keep RI for MSE, two sets of weights
 - **Round 4** $\checkmark$
 	- Pick best two from round 2, use a non-linear regressor and constant speed (hence going back to round 2 loss functions) $\checkmark$
-- **Round 5**
-	- Best 2-3 from Rounds 3-4 
-	- Add learnable $R$ parameter (described in 9/7/26)
 ### **SEP-E and SEP-C** $\checkmark$
 
-**(!!!)** Experiment with t-SNE perplexity to have more "snake-like", "continuous" plots (or some other t-SNE parameters?)
-- Look into ConR, RankSim for what they might used for their diagrams
+**(!!!)** Experiment with t-SNE perplexity to have more "snake-like", "continuous" plots (or some other t-SNE parameters?) $\checkmark$
+- Look into ConR, RankSim for what they might used for their diagrams $\checkmark$
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
@@ -234,8 +231,6 @@ Axes of exploration:
 - Use more than 2 (6) dimensions in representation space
 - (!!!) Inclusion/excluison of weighting samples inversely with respect to the distance in the label space (futher labels need not have similar representations)
 - joint, freeze, fine-tuning (fine-tuning will probably work best)
-
-We expect non-unit space and constant ratio to work well, and unit hypersphere and non-constant ratio to work well
 
 **Other thoughts...**
 - Might be worth trying to weight samples by `t+6 - t` in the future

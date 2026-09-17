@@ -219,23 +219,63 @@ def global_cauchy_schwartz_w_ratio_loss(train_label_min, train_label_max, lambda
     return loss_function_decorrelation if decorr else loss_function
 
 def cosine_similarity(labels, representations, weight=None, unit=False):
-    # distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
-    # distance_to_next_label = tf.reshape(distance_to_next_label, (-1))
+
     difference_to_next_representation = representations[1:] - representations[:-1]
 
-    first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:1], axis=1, epsilon=1e-8)
+    first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:-1], axis=1, epsilon=1e-8)
     second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
 
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
+    return 1 - tf.reduce_mean(similarities)
 
-    return tf.reduce_mean(similarities)
+def weighted_cosine_similarity(labels, representations, weight=None, unit=False, epsilon=0.1):
+    difference_to_next_label = tf.squeeze(tf.abs(labels[1:] - labels[:-1]))
+    difference_to_next_representation = representations[1:] - representations[:-1]
+
+    normalized_label_distances = (difference_to_next_label[1:] + difference_to_next_label[:-1])/2
+    normalized_label_distances = normalized_label_distances / tf.reduce_max(normalized_label_distances) * (1 - epsilon)
+    weights = 1 - normalized_label_distances**2
+
+    first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:-1], axis=1, epsilon=1e-8)
+    second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
+
+    similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
+    return tf.reduce_mean((1 - similarities) * weights)
 
 def cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
+
+    if lambda_val == 0:
+        def loss_function(labels, representations, weight=None):
+            return cosine_similarity(labels, representations, weight)
+
+        def loss_function_decorrelation(labels, representations, weight=None):
+            return cosine_similarity(labels, representations, weight) + decorrelation(labels, representations, weight)
+
+        return loss_function_decorrelation if decorr else loss_function
 
     def loss_function(labels, representations, weight=None):
         return cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
 
     def loss_function_decorrelation(labels, representations, weight=None):
         return cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
+    return loss_function_decorrelation if decorr else loss_function
+
+def weighted_cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
+    current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
+
+    if lambda_val == 0:
+        def loss_function(labels, representations, weight=None):
+            return weighted_cosine_similarity(labels, representations, weight)
+
+        def loss_function_decorrelation(labels, representations, weight=None):
+            return weighted_cosine_similarity(labels, representations, weight) + decorrelation(labels, representations, weight)
+
+        return loss_function_decorrelation if decorr else loss_function
+
+    def loss_function(labels, representations, weight=None):
+        return weighted_cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight)
+
+    def loss_function_decorrelation(labels, representations, weight=None):
+        return weighted_cosine_similarity(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
     return loss_function_decorrelation if decorr else loss_function

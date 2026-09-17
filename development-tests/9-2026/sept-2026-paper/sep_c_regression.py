@@ -23,10 +23,11 @@ AE_THIRD_TO_LAST = False
 # WEIGHT_CANDIDATES = None
 WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
 SINGLE_WEIGHT_ALPHA = 1
-FIT_MODE = 'tune'
+FIT_MODE = 'joint'
 BALANCED_FIRST_STAGE = False
-UNIT_REPRESENTATIONS = True
-NONLINEAR_REGRESSOR = True
+UNIT_REPRESENTATIONS = False
+NONLINEAR_REGRESSOR = False
+DECORRELATION = False
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 100
@@ -36,8 +37,7 @@ DATA_PATH = "cleaned-SEP-C-data"
 DATA_PREFIX = 'sep_c_w_noise'
 OUTPUT_PATH = "results-final-c"
 MODEL_OUTPUT_PATH = "models-final-c"
-OUTPUT_POSTFIX = '_distance_pcc_nonlinear_5'
-DECORRELATION = False
+OUTPUT_POSTFIX = '_cosine_joint_weighted_5'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -81,8 +81,8 @@ x_test = x_test[y_test_sort_indices]
 
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
-RATIO_LOSS_LAMBDA = 1
-REPRESENTATION_LOSS = distance_pcc_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
+RATIO_LOSS_LAMBDA = 0
+REPRESENTATION_LOSS = weighted_cosine_similarity_w_ratio_loss(train_label_min, train_label_max, RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
 
 """
 Build model
@@ -279,6 +279,7 @@ imbal.regression.tsne_visualization(
     model,
     x_test,
     y_test,
+    perplexity=50,
     representation_layer_index=REPRESENTATION_LAYER_INDEX,
     save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
 )
