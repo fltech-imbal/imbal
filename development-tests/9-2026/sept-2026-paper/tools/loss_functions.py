@@ -224,6 +224,8 @@ def cosine_similarity(labels, representations, weight=None, unit=False):
 
     first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:-1], axis=1, epsilon=1e-8)
     second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
+    print(first_vectors_normalized[50])
+    print(second_vectors_normalized[50])
 
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
     return 1 - tf.reduce_mean(similarities)

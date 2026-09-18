@@ -10,7 +10,7 @@ import pandas as pd
 from tools import FitType
 from tools.loss_functions import *
 
-# tf.config.run_functions_eagerly(True)
+tf.config.run_functions_eagerly(True)
 
 """
 Set script parameters
@@ -37,7 +37,7 @@ DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results-final"
 MODEL_OUTPUT_PATH = "models-final"
-OUTPUT_POSTFIX = '_cosine_weighted_5'
+OUTPUT_POSTFIX = '_temp'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -101,7 +101,7 @@ x_test = x_test[y_test_sort_indices]
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
 RATIO_LOSS_LAMBDA = 0
-REPRESENTATION_LOSS = weighted_cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
+REPRESENTATION_LOSS = cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
 """
 Build model
 """
