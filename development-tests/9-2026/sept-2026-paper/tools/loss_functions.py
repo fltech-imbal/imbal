@@ -221,7 +221,6 @@ def global_cauchy_schwartz_w_ratio_loss(train_label_min, train_label_max, lambda
 def cosine_similarity(labels, representations, weight=None, unit=False):
 
     difference_to_next_representation = representations[1:] - representations[:-1]
-
     first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:-1], axis=1, epsilon=1e-8)
     second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
 

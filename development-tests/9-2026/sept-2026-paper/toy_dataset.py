@@ -16,11 +16,10 @@ from tools.loss_functions import *
 Set script parameters
 """
 
-LEARNING_RATE = 5e-5
+LEARNING_RATE = 1e-3
 VALIDATION_DATA = True
 AE = False
 AE_THIRD_TO_LAST = False
-# WEIGHT_CANDIDATES = None
 WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
 SINGLE_WEIGHT_ALPHA = 1
 FIT_MODE = 'tune'
@@ -31,7 +30,7 @@ NONLINEAR_REGRESSOR = False
 
 REPRESENTATION_LAYER_INDEX = -2
 EARLY_STOPPING_PATIENCE = 100
-EPOCHS = 10000
+EPOCHS = 100
 
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
@@ -70,23 +69,12 @@ def load_sep_ec(path_prefix):
     test_labels = test_labels.to_numpy()
     return (training_data, training_labels), (val_data, val_labels), (test_data, test_labels)
 
-(x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_ec(
-    f"{DATA_PATH}/{DATA_PREFIX}",
-)
-
-print("x_train shape:", x_train.shape)
-print("y_train shape:", y_train.shape)
-print("x_test shape:", x_test.shape)
-print("y_test shape:", y_test.shape)
-
-print(y_train[y_train > np.log(10)].shape)
-print(y_train[y_train <= np.log(10)].shape)
-print(y_test[y_test > np.log(10)].shape)
-print(y_test[y_test <= np.log(10)].shape)
-
-y_test_sort_indices = np.argsort(y_test)
-y_test = y_test[y_test_sort_indices]
-x_test = x_test[y_test_sort_indices]
+x_train = np.random.random((3000, 2))
+y_train = np.linalg.norm(x_train, axis=1)
+x_val = np.random.random((200, 2))
+y_val = np.linalg.norm(x_val, axis=1)
+x_test = np.random.random((400, 2))
+y_test = np.linalg.norm(x_test, axis=1)
 
 # temp = imbal.util.backend.DatasetWithBatching(
 #     x_train,
@@ -95,13 +83,18 @@ x_test = x_test[y_test_sort_indices]
 #     shuffle=True,
 #     mode=imbal.util.backend.constants.ModelType.REGRESSION
 # )
-#
+
 # print(temp[0])
+
+def dud_loss(y_true, y_pred, weights=None):
+    return 0
 
 train_label_min = np.min(y_train)
 train_label_max = np.max(y_train)
 RATIO_LOSS_LAMBDA = 0
 REPRESENTATION_LOSS = cosine_similarity_w_ratio_loss(train_label_min, train_label_max, lambda_val=RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
+# REPRESENTATION_LOSS = dud_loss
+
 """
 Build model
 """
@@ -110,7 +103,7 @@ Build model
 #     SEED
 # )
 
-LAYER_DIMS = [128, 128, 128, 64, 64, 64, 32, 32, 32]
+LAYER_DIMS = [32, 32, 32, 16, 16, 16, 8, 8, 8, 2]
 
 inputs = keras.Input(shape=(x_train.shape[1],))
 
@@ -297,7 +290,7 @@ imbal.regression.tsne_visualization(
     model,
     x_test,
     y_test,
-    perplexity=150,
+    perplexity=5,
     representation_layer_index=REPRESENTATION_LAYER_INDEX,
     save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
 )
