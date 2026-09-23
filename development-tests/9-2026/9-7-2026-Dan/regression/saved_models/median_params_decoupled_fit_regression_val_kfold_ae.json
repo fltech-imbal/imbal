@@ -1,0 +1,22 @@
+{
+    "selection_metric": "aore",
+    "selection_method": "median of five runs sorted by AORE",
+    "median_rank_by_aore": 3,
+    "median_seed": 45,
+    "best_alpha_index": 2,
+    "best_alpha": 0.4,
+    "median_model_stage_one_epochs_trained": 29,
+    "median_model_stage_two_epochs_trained": 65,
+    "median_model_test_loss": 0.577907145023346,
+    "median_model_overall_mae": 0.46629831194877625,
+    "median_model_common_mae": 0.4322377145290375,
+    "median_model_rare_mae": 2.171597480773926,
+    "median_model_aore": 1.318947896361351,
+    "average_test_loss_across_5_seeds": 0.5698231995105744,
+    "average_overall_mae_across_5_seeds": 0.3737067818641663,
+    "average_common_mae_across_5_seeds": 0.33356321752071383,
+    "average_rare_mae_across_5_seeds": 2.3835606813430785,
+    "average_aore_across_5_seeds": 1.3786337316036223,
+    "average_stage_one_epochs_trained_across_5_seeds": 75.4,
+    "average_stage_two_epochs_trained_across_5_seeds": 138.6
+}

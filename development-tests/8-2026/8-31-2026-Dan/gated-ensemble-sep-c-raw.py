@@ -31,6 +31,14 @@ MAX_EPOCHS = 500
 PATIENCE = 100
 BATCH_SIZE = 32
 
+LOAD_SAVED_MODEL = True
+MODEL_RUN_NAME = "gated_ensemble_sep_c"
+MODEL_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "saved_models", MODEL_RUN_NAME)
+COMMON_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "common_expert.keras")
+RARE_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "rare_expert.keras")
+GATE_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "gate.keras")
+ENSEMBLE_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "ensemble.keras")
+
 
 def set_global_determinism(seed=42):
     os.environ["PYTHONHASHSEED"] = str(seed)
@@ -513,6 +521,26 @@ def print_gate_summary(gate, features, region_labels, split_name):
     )
 
 
+def print_elevated_rare_tables(common_expert, rare_expert, gate, features, targets, split_name):
+    true_targets = np.asarray(targets).reshape(-1)
+    common_predictions = np.asarray(common_expert(features, training=False)).reshape(-1)
+    rare_predictions = np.asarray(rare_expert(features, training=False)).reshape(-1)
+    gate_probabilities = np.asarray(gate(features, training=False))
+    final_predictions = gate_probabilities[:, 0] * common_predictions + gate_probabilities[:, 1] * rare_predictions
+    regions = [("ELEVATED SAMPLES", (true_targets >= 0.0) & (true_targets < RARE_THRESHOLD)),
+               ("RARE SAMPLES", true_targets >= RARE_THRESHOLD)]
+    for name, mask in regions:
+        indices = np.flatnonzero(mask)
+        print(f"\n{split_name} {name}")
+        header = (f"{'Idx':>5} {'True y':>10} {'CommonPred':>12} {'RarePred':>12} "
+                  f"{'g(C)':>9} {'g(R)':>9} {'FinalPred':>12} {'Delta':>12}")
+        print(header); print("-" * len(header))
+        for i in indices:
+            delta = final_predictions[i] - true_targets[i]
+            print(f"{i:5d} {true_targets[i]:10.4f} {common_predictions[i]:12.4f} {rare_predictions[i]:12.4f} "
+                  f"{gate_probabilities[i,0]:9.4f} {gate_probabilities[i,1]:9.4f} {final_predictions[i]:12.4f} {delta:12.4f}")
+
+
 def run_two_expert_gated_ensemble(seed=42):
     set_global_determinism(seed)
     (
@@ -538,96 +566,115 @@ def run_two_expert_gated_ensemble(seed=42):
     print(f"Rare training samples: {len(rare_features)}")
     print(f"Testing samples: {len(testing_features)}")
 
-    common_epochs = get_expert_epoch_count_with_kfold(
-        common_features, common_targets, "common_expert", seed=seed
-    )
-    rare_epochs = get_expert_epoch_count_with_kfold(
-        rare_features, rare_targets, "rare_expert", seed=seed
-    )
-    print("\nK-fold Epoch Estimates")
-    print(f"Common expert epochs: {common_epochs}")
-    print(f"Rare expert epochs: {rare_epochs}")
+    if LOAD_SAVED_MODEL:
+        print(f"\nLoading saved models from: {MODEL_DIRECTORY}")
+        required = [COMMON_MODEL_PATH, RARE_MODEL_PATH, GATE_MODEL_PATH]
+        missing = [p for p in required if not os.path.exists(p)]
+        if missing:
+            raise FileNotFoundError(f"Saved model files not found: {missing}")
+        common_expert = keras.models.load_model(COMMON_MODEL_PATH)
+        rare_expert = keras.models.load_model(RARE_MODEL_PATH)
+        gate = keras.models.load_model(GATE_MODEL_PATH)
+        ensemble = build_gated_ensemble(common_expert, rare_expert, gate)
+    else:
+        common_epochs = get_expert_epoch_count_with_kfold(
+            common_features, common_targets, "common_expert", seed=seed
+        )
+        rare_epochs = get_expert_epoch_count_with_kfold(
+            rare_features, rare_targets, "rare_expert", seed=seed
+        )
+        print("\nK-fold Epoch Estimates")
+        print(f"Common expert epochs: {common_epochs}")
+        print(f"Rare expert epochs: {rare_epochs}")
 
-    common_expert = train_expert(
-        common_features,
-        common_targets,
-        "common_expert",
-        common_epochs,
-        seed + 1000,
-    )
-    rare_expert = train_expert(
-        rare_features,
-        rare_targets,
-        "rare_expert",
-        rare_epochs,
-        seed + 2000,
-    )
+        common_expert = train_expert(
+            common_features,
+            common_targets,
+            "common_expert",
+            common_epochs,
+            seed + 1000,
+        )
+        rare_expert = train_expert(
+            rare_features,
+            rare_targets,
+            "rare_expert",
+            rare_epochs,
+            seed + 2000,
+        )
 
-    candidate_rare_class_weights = [
-        1.0,
-        2.0,
-        3.0,
-        4.0,
-        5.0,
-        6.0,
-        7.0,
-        8.0,
-        9.0,
-        10.0,
-    ]
+        candidate_rare_class_weights = [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+        ]
 
-    best_gate_rare_class_weight = None
-    best_gate_epoch_count = None
-    best_validation_aore = np.inf
+        best_gate_rare_class_weight = None
+        best_gate_epoch_count = None
+        best_validation_aore = np.inf
 
-    print("\nGate Class-Weight Search")
-    for rare_class_weight in candidate_rare_class_weights:
-        candidate_validation_aore, candidate_gate_epochs = (
-            evaluate_gate_weight_with_kfold(
-                training_features,
-                training_targets,
-                training_region_labels,
-                common_expert,
-                rare_expert,
-                rare_class_weight=rare_class_weight,
-                fold_count=5,
-                seed=seed,
+        print("\nGate Class-Weight Search")
+        for rare_class_weight in candidate_rare_class_weights:
+            candidate_validation_aore, candidate_gate_epochs = (
+                evaluate_gate_weight_with_kfold(
+                    training_features,
+                    training_targets,
+                    training_region_labels,
+                    common_expert,
+                    rare_expert,
+                    rare_class_weight=rare_class_weight,
+                    fold_count=5,
+                    seed=seed,
+                )
             )
-        )
 
+            print(
+                f"Rare class weight={rare_class_weight}, "
+                f"mean best gate epochs={candidate_gate_epochs}, "
+                f"mean validation ensemble AORE={candidate_validation_aore:.4f}"
+            )
+
+            if candidate_validation_aore < best_validation_aore:
+                best_validation_aore = candidate_validation_aore
+                best_gate_rare_class_weight = rare_class_weight
+                best_gate_epoch_count = candidate_gate_epochs
+
+        print("\nBest Gate Configuration")
+        print(f"Rare class weight: {best_gate_rare_class_weight}")
+        print(f"Gate epochs: {best_gate_epoch_count}")
         print(
-            f"Rare class weight={rare_class_weight}, "
-            f"mean best gate epochs={candidate_gate_epochs}, "
-            f"mean validation ensemble AORE={candidate_validation_aore:.4f}"
+            "Mean k-fold validation ensemble AORE used for selection: "
+            f"{best_validation_aore:.4f}"
         )
 
-        if candidate_validation_aore < best_validation_aore:
-            best_validation_aore = candidate_validation_aore
-            best_gate_rare_class_weight = rare_class_weight
-            best_gate_epoch_count = candidate_gate_epochs
+        # The experts are not retrained here. Only the winning gate is trained
+        # once on the full training set using its selected class weight/epoch count.
+        gate = train_gate(
+            training_features,
+            training_region_labels,
+            rare_class_weight=best_gate_rare_class_weight,
+            epoch_count=best_gate_epoch_count,
+            seed=seed + 3000,
+        )
+        ensemble = build_gated_ensemble(common_expert, rare_expert, gate)
 
-    print("\nBest Gate Configuration")
-    print(f"Rare class weight: {best_gate_rare_class_weight}")
-    print(f"Gate epochs: {best_gate_epoch_count}")
-    print(
-        "Mean k-fold validation ensemble AORE used for selection: "
-        f"{best_validation_aore:.4f}"
-    )
-
-    # The experts are not retrained here. Only the winning gate is trained
-    # once on the full training set using its selected class weight/epoch count.
-    gate = train_gate(
-        training_features,
-        training_region_labels,
-        rare_class_weight=best_gate_rare_class_weight,
-        epoch_count=best_gate_epoch_count,
-        seed=seed + 3000,
-    )
-    ensemble = build_gated_ensemble(common_expert, rare_expert, gate)
+        os.makedirs(MODEL_DIRECTORY, exist_ok=True)
+        common_expert.save(COMMON_MODEL_PATH)
+        rare_expert.save(RARE_MODEL_PATH)
+        gate.save(GATE_MODEL_PATH)
+        ensemble.save(ENSEMBLE_MODEL_PATH)
+        print(f"\nSaved models to: {MODEL_DIRECTORY}")
 
     print("\nGate Results")
     print_gate_summary(gate, training_features, training_region_labels, "Training")
     print_gate_summary(gate, testing_features, testing_region_labels, "Test")
+    print_elevated_rare_tables(common_expert, rare_expert, gate, testing_features, testing_targets, "Test")
 
     training_metrics = evaluate_regressor_with_aore_components(
         ensemble,
@@ -681,10 +728,6 @@ def run_two_expert_gated_ensemble(seed=42):
     test_predictions = ensemble.predict(testing_features)
     imbal.regression.plot_true_vs_predictions(testing_targets, test_predictions)
 
-    ensemble.save("two_expert_gated_ensemble_sep_c.keras")
-    common_expert.save("common_expert_sep_c.keras")
-    rare_expert.save("rare_expert_sep_c.keras")
-    gate.save("common_rare_gate_sep_c.keras")
 
     return ensemble, common_expert, rare_expert, gate
 
