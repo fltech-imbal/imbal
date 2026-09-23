@@ -222,8 +222,9 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 	- Pick best two from round 2, use a non-linear regressor and constant speed (hence going back to round 2 loss functions) $\checkmark$
 ### **SEP-E and SEP-C** $\checkmark$
 
-**(!!!)** Experiment with t-SNE perplexity to have more "snake-like", "continuous" plots (or some other t-SNE parameters?) $\checkmark$
-- Look into ConR, RankSim for what they might used for their diagrams $\checkmark$
+- Debug cosine loss with toy dataset... we don't expect negative cosine values
+- Representation space without ReLU activation?
+- Hypersphere + weighted by distance for cosine (marked as TODO in results)
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
@@ -252,6 +253,8 @@ Axes of exploration:
 	- Normalize distances from 0-1, using $1-x^2$
 	- Something else concave?
 	- Make sure to include a small epsilon as to not have 0 weights sum to $n$.
+	
+![[Pasted image 20260917170356.png|500]]
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks
 ## NASA

@@ -1,16 +1,16 @@
-Round 1
+ROUND 1
 
 Original Distribution first stage, ENTROPY:
-[99.4, 96.4, 0.2378, 0.1675, 0.1969, 0.0, 0.7]
+[99.4, 96.4, 0.2378, 0.1675, 0.1969, 0.0, 0.7] 
 
 Original Distribution first stage, VARIANCE:
-[51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62]
+[51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62] 
 
 Original Distribution first stage, DISTANCE PCC:
-[44.2, 240.0, 0.2314, 0.1794, 0.2012, 0.0, 0.46]
+[44.2, 240.0, 0.2314, 0.1794, 0.2012, 0.0, 0.46] 
 
 Original Distribution first stage, DISTANCE DIFFERENCE:
-[1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42]
+[1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42] 
 
 Original Distribution first stage, CAUCHY SCHWARTZ:
 [76.0, 350.0, 0.2353, 0.1681, 0.1962, 0.0, 0.58]
@@ -18,27 +18,30 @@ Original Distribution first stage, CAUCHY SCHWARTZ:
 Original distribution first stage, COSINE:
 [249.8, 20.4, 0.2292, 0.1665, 0.1928, 0.0, 0.62]
 
+Original distribution first stage, COSINE, WEIGHTED:
+[271.4, 17.2, 0.229, 0.1711, 0.1953, 0.0, 0.62]
+
+================================================================================
+
+ROUND 2
+
 Balanced Distribution first stage, ENTROPY:
-[152.8, 35.0, 0.2401, 0.1692, 0.1989, 0.54, 0.7]
+[152.8, 35.0, 0.2401, 0.1692, 0.1989, 0.54, 0.7] 
 
 Balanced Distribution first stage, VARIANCE:
-[69.0, 168.2, 0.2369, 0.1789, 0.2032, 0.46, 0.58]
+[69.0, 168.2, 0.2369, 0.1789, 0.2032, 0.46, 0.58] 
 
 Balanced Distribution first stage, DISTANCE PCC:
-[66.0, 193.6, 0.2374, 0.1722, 0.1995, 0.5, 0.54]
+[66.0, 193.6, 0.2374, 0.1722, 0.1995, 0.5, 0.54] 
 
 Balanced Distribution first stage, DISTANCE DIFFERENCE:
-[1619.2, 23.0, 0.3255, 0.2641, 0.2898, 0.3, 0.46]
+[1619.2, 23.0, 0.3255, 0.2641, 0.2898, 0.3, 0.46] 
 
 Balanced Distribution first stage, CAUCHY SCHWARTZ:
-[71.6, 319.8, 0.2314, 0.1729, 0.1974, 0.14, 0.54]
-
-===================================================================
-
-Round 2
+[71.6, 319.8, 0.2314, 0.1729, 0.1974, 0.14, 0.54] 
 
 Original distribution first stage, ENTROPY, JOINT:
-[131.8, 0.0, 0.2447, 0.187, 0.2112, 0.38, 0.0]
+[131.8, 0.0, 0.2447, 0.187, 0.2112, 0.38, 0.0] 
 
 Original distribution first stage, CAUCHY-SCHWARTZ, JOINT:
 [84.6, 0.0, 2.1159, 4.174, 3.3119, 0.3, 0.0]
@@ -47,43 +50,45 @@ Original distribution first stage, COSINE, JOINT:
 [432.6, 0.0, 0.2427, 0.1793, 0.2058, 0.58, 0.0]
 
 Original distribution first stage, CAUCHY-SCHWARTZ, GLOBAL ANCHOR IN LOSS:
-[1146.8, 324.6, 0.2371, 0.1684, 0.1972, 0.0, 0.46]
+[1146.8, 324.6, 0.2371, 0.1684, 0.1972, 0.0, 0.46] 
 
 Original distribution first stage, ENTROPY, DECORRELATION:
-[151.6, 132.4, 0.2296, 0.1751, 0.198, 0.0, 0.46]
+[151.6, 132.4, 0.2296, 0.1751, 0.198, 0.0, 0.46] 
 
 Original distribution first stage, CAUCHY-SCHWARTZ, DECORRELATION:
 [79.2, 364.8, 0.2296, 0.1763, 0.1986, 0.0, 0.58]
 
-Original distribution first stage, COSINE, DECORRELATION (HYPERSPHERE OFF):
-[244.8, 16.6, 0.2347, 0.1888, 0.208, 0.0, 0.54]
+Original distribution first stage, COSINE, DECORRELATION:
+[368.4, 39.4, 0.2335, 0.1652, 0.1938, 0.0, 0.7]
 
-Original distribution first stage, ENTROPY, HYPERSPHERE:
-[1542.6, 980.6, 0.2837, 0.2723, 0.2771, 0.0, 0.66]
+================================================================================
 
-Original distribution first stage, CAUCHY-SCHWARTZ, HYPERSPHERE:
+ROUND 3
+
+Original distribution first stage, ENTROPY, HYPERSPHERE (NO DECORRELATION):
+[1542.6, 980.6, 0.2837, 0.2723, 0.2771, 0.0, 0.66] 
+
+Original distribution first stage, CAUCHY-SCHWARTZ, HYPERSPHERE (NO DECORRELATION):
 [411.8, 2818.2, 0.3382, 0.2672, 0.2969, 0.0, 0.62]
 
-Original distribution first stage, COSINE, HYPERSPHERE:
-[2762.2, 1.6, 0.2755, 0.2176, 0.2418, 0.0, 0.34]
+Original distribution first stage, COSINE, HYPERSPHERE (NO DECORRELATION):
+[3103.6667, 3.0, 0.262, 0.2182, 0.2365, 0.0, 0.4333]
 
-=====================================================================
+Original distribution first stage, COSINE, HYPERSPHERE (NO DECORRELATION), WEIGHTED:
+[1959.8, 1.4, 0.2553, 0.201, 0.2237, 0.0, 0.42]
 
-Round 3
+================================================================================
 
-NEXT STEP
-Add label difference weights for cosine loss (using concave function similar to cosine curve)
-Largest distance might map to 90 degrees? Have some epsilon to prevent 0 weighting
-
-=====================================================================
-
-Round 4
+ROUND 4
 
 Original distribution first stage, ENTROPY, HYPERSPHERE, NON-LINEAR REGRESSOR:
-[278.2, 9.6, 0.2552, 0.1948, 0.2201, 0.0, 0.3]
+[278.2, 9.6, 0.2552, 0.1948, 0.2201, 0.0, 0.3] 
 
 Original distribution first stage, CAUCHY-SCHWARTZ, HYPERSPHERE, NON-LINEAR REGRESSOR:
 [732.2, 3.6, 0.2802, 0.2029, 0.2353, 0.0, 0.18]
+
+
+
 
 
 

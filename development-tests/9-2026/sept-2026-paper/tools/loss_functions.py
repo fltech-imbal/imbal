@@ -187,12 +187,12 @@ def minimize_variance_w_ratio_loss(train_label_min, train_label_max, lambda_val=
     return loss_function_decorrelation if decorr else loss_function
 
 def distance_difference(labels, representations, weight=None, unit=False):
-    distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
+    distance_to_next_label = tf.squeeze(tf.abs(labels[1:] - labels[:-1]))
     distance_to_next_representation = safe_norm(
         representations[1:] - representations[:-1],
         axis=1
     )
-    return tf.norm(distance_to_next_label - distance_to_next_representation)
+    return tf.reduce_mean(tf.abs(distance_to_next_label - distance_to_next_representation))
 
 def distance_difference_w_ratio_loss(train_label_min, train_label_max, lambda_val=1, unit=False, decorr=False):
     current_ratio_loss = ratio_loss(train_label_min, train_label_max, lambda_val, unit=unit)
@@ -223,6 +223,8 @@ def cosine_similarity(labels, representations, weight=None, unit=False):
     difference_to_next_representation = representations[1:] - representations[:-1]
     first_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[:-1], axis=1, epsilon=1e-8)
     second_vectors_normalized = tf.linalg.l2_normalize(difference_to_next_representation[1:], axis=1, epsilon=1e-8)
+    # print(first_vectors_normalized[50])
+    # print(second_vectors_normalized[50])
 
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
     return 1 - tf.reduce_mean(similarities)

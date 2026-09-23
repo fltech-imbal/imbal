@@ -23,9 +23,9 @@ AE_THIRD_TO_LAST = False
 # WEIGHT_CANDIDATES = None
 WEIGHT_CANDIDATES = [0.1, 0.3, 0.5, 0.7]
 SINGLE_WEIGHT_ALPHA = 1
-FIT_MODE = 'joint'
+FIT_MODE = 'tune'
 BALANCED_FIRST_STAGE = False
-UNIT_REPRESENTATIONS = False
+UNIT_REPRESENTATIONS = True
 NONLINEAR_REGRESSOR = False
 DECORRELATION = False
 
@@ -37,7 +37,7 @@ DATA_PATH = "cleaned-SEP-C-data"
 DATA_PREFIX = 'sep_c_w_noise'
 OUTPUT_PATH = "results-final-c"
 MODEL_OUTPUT_PATH = "models-final-c"
-OUTPUT_POSTFIX = '_cosine_joint_weighted_5'
+OUTPUT_POSTFIX = '_cosine_weighted_hypersphere_5'
 USE_DELTA = False
 
 # Will be mostly left unchanged
