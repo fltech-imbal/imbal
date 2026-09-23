@@ -282,6 +282,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         self._rebuild_batchable()
 
         self._num_samples = len(self._batchable_data)
+        self._shuffle_indices = np.arange(self._num_batches)
 
     @property
     def num_batches(self) -> int:
@@ -294,9 +295,9 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         if idx < 0 or idx >= self._num_batches:
             raise IndexError('Index out of range')
 
-        labels = self._batchable_labels[idx::self._num_batches]
+        labels = self._batchable_labels[self._shuffle_indices[idx]::self._num_batches]
 
-        data = self._batchable_data[idx::self._num_batches]
+        data = self._batchable_data[self._shuffle_indices[idx]::self._num_batches]
 
         return (data,
             labels,
@@ -311,17 +312,12 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
         """
         if not self._shuffle:
             return
-        for i in range(len(self._data_by_class)):
-            rng = np.random.default_rng(self._seed + i)
-            indices = rng.permutation(len(self._data_by_class[i]))
 
-            self._data_by_class[i] = self._data_by_class[i][indices]
-            self._data_labels[i] = self._data_labels[i][indices]
-            self._data_weights[i] = self._data_weights[i][indices]
+        rng = np.random.default_rng(self._seed)
+        self._shuffle_indices = rng.permutation(self._num_batches)
 
-        self._rebuild_batchable()
 
-        self._seed += self._num_batches
+        self._seed += 1
 
     def unpack(self):
         return self._batchable_data, self._batchable_labels, self._batchable_weights

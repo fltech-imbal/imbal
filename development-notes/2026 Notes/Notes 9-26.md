@@ -203,28 +203,7 @@ We expect non-unit space and constant ratio to work well, and unit hypersphere a
 # 9/15/26
 
 ## Thesis
-- **Round 1**$\checkmark$
-	- Entropy, Cauchy-Schwartz, Distance PCC, Variance $\checkmark$
-		- Ignore joint, ignore regular, always vary alpha, balanced distribution for prediction loss always! $\checkmark$
-	- **Round 1b** - Pick top 2 performing from previous, try joint $\checkmark$
-	- **Round 1c** - Pick top 2 performing, try neighbor and global $\checkmark$
-- **Round 2** $\checkmark$
-	- Pick top performing for each loss from round 1b, add decorrelation loss  $\checkmark$
-	- **JUST** enable decorrelation, see if it performs better $\checkmark$
-	- **Round 2b** best performing 2 from round 2, enable/disable hypersphere $\checkmark$
-		- **No need for decorrelation **$\checkmark$
-- **Round 3** $\checkmark$
-	- Hypersphere with cosine loss, FT/joint, vary $\alpha$ $\checkmark$
-	- **With time, try enable weighting based on label distance**
-		- Will have to be calculated "on-the-fly", in the loss 
-		- Keep RI for MSE, two sets of weights
-- **Round 4** $\checkmark$
-	- Pick best two from round 2, use a non-linear regressor and constant speed (hence going back to round 2 loss functions) $\checkmark$
-### **SEP-E and SEP-C** $\checkmark$
 
-- Debug cosine loss with toy dataset... we don't expect negative cosine values
-- Representation space without ReLU activation?
-- Hypersphere + weighted by distance for cosine (marked as TODO in results)
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
@@ -256,14 +235,14 @@ Axes of exploration:
 	
 ![[Pasted image 20260917170356.png|500]]
 ## Paper
-- SHAP will be used for explanations in section `4 SEP Forecasting tasks
+- SHAP will be used for explanations in section `4 SEP Forecasting tasks` $\checkmark$
 ## NASA
-- For shuffling
-	- When shuffle is `False`, our shuffling and TF shuffling is off
-	- When shuffle is `True`, our shuffling is ON, but *TF remains OFF*
-- Is `decoupled_fit` compatible with representation loss? Are there issues at the moment?
-- Representation learning, add `representation_lambda` parameter for `Model.compile`
-	- For reconstruction branch, default behavior is determining lambda ourselves. If they specify a lambda, use theirs instead.
+- For shuffling $\checkmark$
+	- When shuffle is `False`, our shuffling and TF shuffling is off $\checkmark$
+	- When shuffle is `True`, our shuffling is ON, but *TF remains OFF $\checkmark$*
+- Is `decoupled_fit` compatible with representation loss? Are there issues at the moment? $\checkmark$
+- Representation learning, add `representation_lambda` parameter for `Model.compile` $\checkmark$
+	- For reconstruction branch, default behavior is determining lambda ourselves. If they specify a lambda, use theirs instead. $\checkmark$
 - After all of above, start updating the documentation and tutorials!
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
 - Perhaps add $(\|a\|-\|b\|)^2$ to cauchy-schwartz loss (makes distance ratio 1)  

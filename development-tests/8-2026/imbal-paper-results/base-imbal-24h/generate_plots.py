@@ -185,7 +185,7 @@ error_indices = np.argsort(misprediction_errors)
 high_error_rare_sample = rare_samples_mispredicted[error_indices[-1]]
 high_error_rare_label = rare_label_mispredicted[error_indices[-1]]
 
-(x_sub_1, y_sub_1), (x_sub_2, y_sub_2) = imbal.regression.split(x_train, y_train, train_size=0.03)
+(x_sub_1, y_sub_1), (x_sub_2, y_sub_2) = imbal.regression.split(x_train, y_train, train_size=0.02)
 
 # imbal.regression.shap_explain_tabular_sample(
 #     sample=high_error_rare_sample,
@@ -195,17 +195,29 @@ high_error_rare_label = rare_label_mispredicted[error_indices[-1]]
 #     feature_names=columns,
 #     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_shap_explain_rare_high_error_sample.png" if SAVE else None,
 # )
-#
-# common_samples_mispredicted = x_test[(y_test < np.log(10))]
-# common_label_mispredicted = y_test[(y_test < np.log(10))]
-# common_predictions_mispredicted = predictions[(y_test < np.log(10))]
-#
-# misprediction_errors = np.abs(common_predictions_mispredicted - common_label_mispredicted)
-# error_indices = np.argsort(misprediction_errors)
-#
-# high_error_common_sample = common_samples_mispredicted[error_indices[-1]]
-# high_error_common_label = common_label_mispredicted[error_indices[-1]]
-#
+
+low_error_rare_sample = rare_samples_mispredicted[error_indices[5]]
+low_error_rare_label = rare_label_mispredicted[error_indices[5]]
+
+imbal.regression.shap_explain_tabular_sample(
+    sample=low_error_rare_sample,
+    actual_label=round(low_error_rare_label, 3),
+    model=model,
+    training_data=x_sub_1,
+    feature_names=columns,
+    save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_shap_explain_rare_low_error_sample.png" if SAVE else None,
+)
+
+common_samples_mispredicted = x_test[(y_test < np.log(10))]
+common_label_mispredicted = y_test[(y_test < np.log(10))]
+common_predictions_mispredicted = predictions[(y_test < np.log(10))]
+
+misprediction_errors = np.abs(common_predictions_mispredicted - common_label_mispredicted)
+error_indices = np.argsort(misprediction_errors)
+
+high_error_common_sample = common_samples_mispredicted[error_indices[-1]]
+high_error_common_label = common_label_mispredicted[error_indices[-1]]
+
 # imbal.regression.shap_explain_tabular_sample(
 #     sample=high_error_common_sample,
 #     actual_label=round(high_error_common_label, 3),

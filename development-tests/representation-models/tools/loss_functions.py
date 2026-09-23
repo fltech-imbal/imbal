@@ -87,21 +87,13 @@ def distance_pcc_decorrelation(labels, representations, weight=None, unit=False)
     return 1 - tfp.stats.correlation(distance_to_next_label, tf.expand_dims(distance_to_next_representation, axis=-1)) + tf.reduce_mean(tf.math.abs(tfp.stats.correlation(extended_representations)))
 
 def cauchy_schwartz(labels, representations, weight=None, unit=False):
+    print(labels)
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
-    distance_to_first_label = tf.abs(labels[1:] - labels[0])
-
+    distance_to_next_label = tf.reshape(distance_to_next_label, (-1))
     distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
-    distance_to_first_representation = safe_norm(representations[1:] - representations[0], axis=1)
 
-    combined_label_distances = tf.concat([distance_to_next_label, distance_to_first_label], axis=0)
-    combined_label_distances = tf.squeeze(combined_label_distances)
-    combined_representation_distances = tf.concat(
-        [distance_to_next_representation, distance_to_first_representation],
-        axis=0)
-    a = combined_label_distances
-    b = combined_representation_distances
-
-    # print(tf.reduce_mean(tf.multiply(a, a)) * tf.reduce_mean(tf.multiply(b, b)) - tf.reduce_mean(tf.multiply(a, b))**2)
+    a = distance_to_next_label
+    b = distance_to_next_representation
     return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
 
 

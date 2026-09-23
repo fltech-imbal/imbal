@@ -8,8 +8,7 @@ def shap_explain_tabular_sample(
     feature_names=None,
     actual_label=None,
     plot_type='bar',
-    figure_save_path='shap-explanation.png',
-    save_figure=False,
+    save_figure=None,
     show=True
 ):
     """
@@ -49,7 +48,6 @@ def shap_explain_tabular_sample(
         class_names=class_names,
         feature_names=feature_names,
         actual_label=actual_label,
-        figure_save_path=figure_save_path,
         show=show,
         plot_type=plot_type,
         save_figure=save_figure,
@@ -64,8 +62,7 @@ def shap_explain_tabular_dataset(
     feature_names=None,
     plot_type='bar',
     save_figure=False,
-    figure_save_path='shap-explanation.png',
-    show=True,
+    show=None,
 ):
     """
     Utilizes kernel SHAP to generate an explanation for the classification of a particular dataset
@@ -101,7 +98,6 @@ def shap_explain_tabular_dataset(
         training_data,
         class_names=class_names,
         feature_names=feature_names,
-        figure_save_path=figure_save_path,
         show=show,
         plot_type=plot_type,
         save_figure=save_figure,

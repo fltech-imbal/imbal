@@ -78,8 +78,7 @@ def shap_explain_tabular_sample(
     label_to_explain=None,
     actual_label=None,
     plot_type='bar',
-    figure_save_path='shap-explanation.png',
-    save_figure=False,
+    save_figure=None,
     show=True,
     mode='classification'
 ):
@@ -163,9 +162,8 @@ def shap_explain_tabular_sample(
     ax.set_title(title_string)
 
     plt.gcf().subplots_adjust(left=0.35)
-    if save_figure:
-        plt.savefig(figure_save_path)
-
+    if save_figure is not None:
+        plt.savefig(save_figure)
     if show:
         plt.show()
 
@@ -177,8 +175,7 @@ def shap_explain_tabular_dataset(
     class_names=None,
     feature_names=None,
     plot_type='heatmap',
-    figure_save_path='shap-explanation.png',
-    save_figure=False,
+    save_figure=None,
     show=True,
     mode='classification'
 ):
@@ -228,7 +225,7 @@ def shap_explain_tabular_dataset(
 
     plt.title(f'Explanation of {explanation_label} across dataset')
 
-    if save_figure:
-        plt.savefig(figure_save_path)
+    if save_figure is not None:
+        plt.savefig(save_figure)
     if show:
         plt.show()

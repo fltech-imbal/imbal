@@ -8,12 +8,15 @@ from keras import layers
 import numpy as np
 import pandas as pd
 from tools import FitType
+
+# tf.config.run_functions_eagerly(True)
+
 """
 Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.REGULAR
+FIT = FitType.DECOUPLED
 VALIDATION_DATA = True
 AE = False
 AE_THIRD_TO_LAST = False
@@ -27,7 +30,7 @@ EPOCHS = 10000
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_just_rep_loss_1'
+OUTPUT_POSTFIX = '_temp'
 USE_DELTA = False
 
 # Will be mostly left unchanged
@@ -108,6 +111,7 @@ def safe_norm(x, axis):
     return tf.sqrt(tf.reduce_sum(tf.square(x), axis=axis) + 1e-12)
 
 def cauchy_schwartz(labels, representations, weight=None):
+    print(labels)
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
     distance_to_first_label = tf.abs(labels[1:] - labels[0])
 
@@ -122,16 +126,19 @@ def cauchy_schwartz(labels, representations, weight=None):
     a = combined_label_distances
     b = combined_representation_distances
 
+    c = tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b))
+
     # print(tf.reduce_mean(tf.multiply(a, a)) * tf.reduce_mean(tf.multiply(b, b)) - tf.reduce_mean(tf.multiply(a, b))**2)
-    return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
+    return (c - tf.reduce_sum(tf.multiply(a, b))**2) / c
 
 model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
-    loss=stub_function,
+    loss='mse',
     weighted_metrics=['mae'],
     generate_decoder_branch=AE,
     representation_layer_index=-3 if AE_THIRD_TO_LAST else -2,
-    representation_loss=cauchy_schwartz
+    representation_loss=cauchy_schwartz,
+
 )
 
 # if FIT == FitType.DECOUPLED:
@@ -199,6 +206,7 @@ training_history = fit_function(
     validation_split=None,
     epochs=(EPOCHS, EPOCHS) if FIT == FitType.DECOUPLED else EPOCHS,
     batch_size=BATCH_SIZE,
+    shuffle=False,
     candidate_evaluation_sample_weight=(val_data[2][-1] if VALIDATION_DATA else sample_weights[-1]) if WEIGHT_CANDIDATES else None,
     callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
 )

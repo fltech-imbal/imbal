@@ -66,7 +66,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=False,
+        shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -168,7 +168,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=False,
+        shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -212,7 +212,7 @@ class Model(keras.Model):
         validation_split=5,
         epochs=1,
         batch_size=32,
-        shuffle=False,
+        shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -296,6 +296,7 @@ class Model(keras.Model):
         second_stage_fit_kwargs.update(self._second_stage_fit_kwargs)
 
         self._use_decoder_branch = False
+        self._use_representation_loss = False
         stage_two_history = self._enforced_fit(
             x=x,
             y=y,
@@ -313,12 +314,12 @@ class Model(keras.Model):
             verbose_imbal=verbose_imbal,
             seed=seed,
             require_weighting=True,
-            # epochs=len(stage_one_history.epoch) if stage_two_epochs is None else stage_two_epochs,
             epochs=stage_one_epochs if stage_two_epochs is None else stage_two_epochs,
             **second_stage_fit_kwargs
         )
 
         self._use_decoder_branch = self._generate_decoder_branch
+        self._use_representation_loss = self._representation_loss is not None
         if self._generate_decoder_branch:
             self._extended_model.trainable = True
 
@@ -338,7 +339,7 @@ class Model(keras.Model):
         validation_split=None,
         epochs=1,
         batch_size=32,
-        shuffle=False,
+        shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
         seed=None,
@@ -448,7 +449,7 @@ class Model(keras.Model):
                 validation_split=0.0 if validation_split is None else validation_split,
                 epochs=epochs,
                 batch_size=batch_size,
-                shuffle=shuffle,
+                shuffle=False,
                 **kwargs
             )
 
@@ -523,7 +524,7 @@ class Model(keras.Model):
                 sample_weight=w_final,
                 epochs=final_epochs,
                 batch_size=None if stratify_batches else batch_size,
-                shuffle=shuffle,
+                shuffle=False,
                 **kwargs
             )
 
@@ -555,7 +556,7 @@ class Model(keras.Model):
                     y,
                     np.arange(x.shape[0]),
                     test_size=validation_split,
-                    shuffle=True,
+                    shuffle=shuffle,
                     seed=split_seed,
                     mode=self._mode_enum
                 )
@@ -573,7 +574,7 @@ class Model(keras.Model):
                 y,
                 np.arange(x.shape[0]),
                 k=num_folds,
-                shuffle=True,
+                shuffle=shuffle,
                 seed=seed,
                 mode=self._mode_enum
             )
@@ -704,7 +705,7 @@ class Model(keras.Model):
                     validation_data=(x_val, y_val, w_val),
                     epochs=epochs,
                     batch_size=None if stratify_batches else batch_size,
-                    shuffle=shuffle,
+                    shuffle=False,
                     **current_kwargs
                 )
 
@@ -802,7 +803,7 @@ class Model(keras.Model):
                         validation_data=current_val_data,
                         epochs=epochs,
                         batch_size=None if stratify_batches else batch_size,
-                        shuffle=shuffle,
+                        shuffle=False,
                         **current_kwargs
                     )
 
@@ -891,7 +892,7 @@ class Model(keras.Model):
             sample_weight=w_final,
             epochs=final_epochs,
             batch_size=None if stratify_batches else batch_size,
-            shuffle=shuffle,
+            shuffle=False,
             **final_kwargs
         )
 
@@ -911,7 +912,7 @@ class Model(keras.Model):
         validation_data=None,
         validation_split=None,
         batch_size=None,
-        shuffle=False,
+        shuffle=True,
         **kwargs
     ):
         starting_model_weights = model.get_weights()
@@ -928,7 +929,7 @@ class Model(keras.Model):
             validation_split=validation_split,
             epochs=100,
             batch_size=batch_size,
-            shuffle=shuffle,
+            shuffle=False,
             **current_kwargs
         )
 
@@ -1053,6 +1054,8 @@ class Model(keras.Model):
         generate_decoder_branch=False,
         representation_layer_index=-2,
         representation_loss=None,
+        representation_lambda=1,
+        reconstruction_lambda=None,
         **kwargs
     ):
         """
@@ -1109,6 +1112,7 @@ class Model(keras.Model):
         self._representation_loss = representation_loss
         self._decoder_branch = None
         self._extended_model = None
+        self._reconstruction_lambda = reconstruction_lambda
 
         self._use_decoder_branch = self._generate_decoder_branch
         self._use_representation_loss = self._representation_loss is not None
@@ -1131,7 +1135,7 @@ class Model(keras.Model):
             self._compile_for_decoder_branch(**kwargs)
         elif self._representation_loss is not None:
             _generate_representation_model(self)
-            self._compile_for_representation(**kwargs)
+            self._compile_for_representation(representation_lambda, **kwargs)
 
         super().compile(**kwargs)
 
@@ -1184,10 +1188,16 @@ class Model(keras.Model):
                 else [updated_compile_kwargs['weighted_metrics']] + [[]]
             )
 
+        if self._reconstruction_lambda is not None:
+            updated_compile_kwargs['loss_weights'] = [1, self._reconstruction_lambda]
+
         self._extended_model.compile(**updated_compile_kwargs)
 
-    def _compile_for_representation(self, **kwargs):
-        representation_index = self._representation_layer_index
+    def _compile_for_representation(
+        self,
+        representation_lambda,
+        **kwargs
+    ):
 
         updated_compile_kwargs = kwargs.copy()
         model_loss = updated_compile_kwargs.get('loss', False)
@@ -1211,6 +1221,8 @@ class Model(keras.Model):
                 updated_compile_kwargs['weighted_metrics'] + [[]] if is_list_like
                 else [updated_compile_kwargs['weighted_metrics']] + [[]]
             )
+
+        updated_compile_kwargs['loss_weights'] = [1, representation_lambda]
 
         self._representation_model.compile(**updated_compile_kwargs)
 
@@ -1242,7 +1254,7 @@ class Model(keras.Model):
         candidate_evaluation_class_weight=None,
         epochs=1,
         batch_size=32,
-        shuffle=False,
+        shuffle=True,
         stratify_batches=True,
         verbose_imbal=1,
         class_weight=None,
@@ -1329,7 +1341,7 @@ class Model(keras.Model):
                 validation_split=0.0 if validation_split is None else validation_split,
                 epochs=epochs,
                 batch_size=batch_size,
-                shuffle=shuffle,
+                shuffle=False,
                 **current_kwargs
             )
             if verbose_imbal > 0:
