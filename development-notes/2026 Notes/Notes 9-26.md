@@ -236,6 +236,7 @@ Axes of exploration:
 ![[Pasted image 20260917170356.png|500]]
 ## Paper
 - SHAP will be used for explanations in section `4 SEP Forecasting tasks` $\checkmark$
+- Update figure 6 (tSNE) plot with higher perplexity
 ## NASA
 - For shuffling $\checkmark$
 	- When shuffle is `False`, our shuffling and TF shuffling is off $\checkmark$
@@ -243,6 +244,73 @@ Axes of exploration:
 - Is `decoupled_fit` compatible with representation loss? Are there issues at the moment? $\checkmark$
 - Representation learning, add `representation_lambda` parameter for `Model.compile` $\checkmark$
 	- For reconstruction branch, default behavior is determining lambda ourselves. If they specify a lambda, use theirs instead. $\checkmark$
+- After all of above, start updating the documentation and tutorials!
+- SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
+- Perhaps add $(\|a\|-\|b\|)^2$ to cauchy-schwartz loss (makes distance ratio 1)  
+- Alternative: $\|a-\frac{1}{\alpha} b\|$ as loss function ($\alpha$) sets the distance ratio (for thesis)  
+- Switch to SEP-C **tutorial** dataset and rerun experiments in 4 tables above (small real dataset)
+
+
+---
+
+# 9/24/26
+
+## Thesis
+
+```
+delta_i/max(delta_i) -- consider 2D representation space with a unit
+circle like the clock.  The vector at one end (12pm) and the vector at
+the opposite end (6pm) would be in opposite direction.  I suggest
+normalizing by the max distance in the hypersphere which is 2.
+```
+- Could also do (some preferred cosine for triplet based on distance in label space - cosine for representations from model)
+	- Could be a hyperparameter to control "wind-y-ness"
+
+```
+======== ideas to explore =======
+
+1.  "tiny" network for distance ratio that outputs only in the
+desirable range as discussed ~2 weeks ago.
+
+2.  importance functions as discussed in the email on 9/18.  The
+modified sigmoid is not needed since it is solely based on labels, not
+the network.
+
+3.  normalization with max distance in hypercicle as discussed above.
+```
+
+Axes of exploration:
+- Latent space unit hypersphere: y/n
+- Loss function, constant vs non-constant distance ratio
+- Use more than 2 (6) dimensions in representation space
+- (!!!) Inclusion/excluison of weighting samples inversely with respect to the distance in the label space (futher labels need not have similar representations)
+- joint, freeze, fine-tuning (fine-tuning will probably work best)
+
+**Other thoughts...**
+- Might be worth trying to weight samples by `t+6 - t` in the future
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+- 9/7/26 email
+	- Learnable $R$ value using a model with no input, one output, loss update is $(R-r)^2$, where $R$ is the learned ratio and $r$ is the current ratio
+		- Use sigmoid scaled from $[\frac{1}{a}, a]$ as activation for output logit
+	- Can be added to primary representation loss functions
+	- Using custom Keras layer
+		- No input, no weights, just bias, which is passed to ratio loss
+	- Potentially using one model, one input, one "pseudo-input", concatenated into a single output. Then use custom loss to separate back out and compute separate components
+		- TensorFlow Concatenate layer
+- Options for weighting cosine representation loss
+	- MDI with an appropriate $\alpha$
+	- Cosine from 0 to $\frac{\pi}{2}$
+	- Normalize distances from 0-1, using $1-x^2$
+	- Something else concave?
+	- Make sure to include a small epsilon as to not have 0 weights sum to $n$.
+	
+![[Pasted image 20260917170356.png|500]]
+## Paper
+- Update figure 6 (tSNE) plot with higher perplexity
+## NASA
 - After all of above, start updating the documentation and tutorials!
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
 - Perhaps add $(\|a\|-\|b\|)^2$ to cauchy-schwartz loss (makes distance ratio 1)  
