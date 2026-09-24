@@ -165,13 +165,13 @@ def plot_true_vs_predictions(
 # )
 #
 # # TSNE
-# imbal.regression.tsne_visualization(
-#     model,
-#     x_test,
-#     y_test,
-#     # perplexity=300,
-#     save_figure=f'{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}-sep-proton-time-series-tsne.png'
-# )
+imbal.regression.tsne_visualization(
+    model,
+    x_test,
+    y_test,
+    perplexity=200,
+    save_figure=f'{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}-sep-proton-time-series-tsne.png'
+)
 
 columns = columns.tolist()
 
@@ -199,14 +199,14 @@ high_error_rare_label = rare_label_mispredicted[error_indices[-1]]
 low_error_rare_sample = rare_samples_mispredicted[error_indices[5]]
 low_error_rare_label = rare_label_mispredicted[error_indices[5]]
 
-imbal.regression.shap_explain_tabular_sample(
-    sample=low_error_rare_sample,
-    actual_label=round(low_error_rare_label, 3),
-    model=model,
-    training_data=x_sub_1,
-    feature_names=columns,
-    save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_shap_explain_rare_low_error_sample.png" if SAVE else None,
-)
+# imbal.regression.shap_explain_tabular_sample(
+#     sample=low_error_rare_sample,
+#     actual_label=round(low_error_rare_label, 3),
+#     model=model,
+#     training_data=x_sub_1,
+#     feature_names=columns,
+#     save_figure=f"{OUTPUT_PATH}/{DATA_PREFIX}{FULL_NAME}_shap_explain_rare_low_error_sample.png" if SAVE else None,
+# )
 
 common_samples_mispredicted = x_test[(y_test < np.log(10))]
 common_label_mispredicted = y_test[(y_test < np.log(10))]
