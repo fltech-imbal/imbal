@@ -253,7 +253,7 @@ Axes of exploration:
 
 ---
 
-# 9/24/26
+# 9/23/26
 
 ## Thesis
 
@@ -270,21 +270,24 @@ normalizing by the max distance in the hypersphere which is 2.
 ======== ideas to explore =======
 
 1.  "tiny" network for distance ratio that outputs only in the
-desirable range as discussed ~2 weeks ago.
+desirable range as discussed ~2 weeks ago. (9/7/26 email)
 
 2.  importance functions as discussed in the email on 9/18.  The
 modified sigmoid is not needed since it is solely based on labels, not
 the network.
+- Can use average, min, or max (start with max)
 
-3.  normalization with max distance in hypercicle as discussed above.
+2.  normalization with max distance in hypercicle as discussed above.
+- could still be worth weighting triples by distance (but still ignoring those that are very small distance)
 ```
+
+**Priority on 1, then 3**
+
+- In runs, some t-SNE plots are very tight, while others are more scattered. Is there a pattern to what makes the plots "tight"? If so... why does that pattern occur? Is it based on performance, or does t-SNE have some "bias" on what causes a snake-like representation
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
-- Loss function, constant vs non-constant distance ratio
-- Use more than 2 (6) dimensions in representation space
-- (!!!) Inclusion/excluison of weighting samples inversely with respect to the distance in the label space (futher labels need not have similar representations)
-- joint, freeze, fine-tuning (fine-tuning will probably work best)
+- (!!!) Inclusion/excluison of weighting samples inversely with respect to the distance in the label space (futher labels need not have similar representations
 
 **Other thoughts...**
 - Might be worth trying to weight samples by `t+6 - t` in the future
@@ -309,7 +312,7 @@ Axes of exploration:
 	
 ![[Pasted image 20260917170356.png|500]]
 ## Paper
-- Update figure 6 (tSNE) plot with higher perplexity
+- Update figure 6 (tSNE) plot with higher perplexity $\checkmark$
 ## NASA
 - After all of above, start updating the documentation and tutorials!
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
