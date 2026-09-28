@@ -5,16 +5,55 @@ import shutil
 # CONFIGURATION
 # ============================================================
 
-# Change for each assignment: HW1, HW2, HW3, etc.
-ASSIGNMENT_NAME = "HW1"
+# Change these for each assignment: HW1, HW2, HW3, etc.
+ASSIGNMENT_NAME = "HW2"
+SUBMISSIONS_FOLDER = "HW2submissions"
 
-# Folder containing the raw downloaded Java submissions
-SUBMISSIONS_FOLDER = "HW1submissions"
+# Student -> section mapping.
+# Keep this for future homeworks unless enrollment changes.
+STUDENT_SECTIONS = {
+    # section01
+    "blackwellchris": "Section01",
+    "clarkehannah": "Section01",
+    "demerssthilairejerye": "Section01",
+    "haughwoutavery": "Section01",
+    "koullapimilena": "Section01",
+    "santanaadrian": "Section01",
+    "venechjoseph": "Section01",
 
-# Directory containing this script
+    # section02
+    "condematthew": "Section02",
+    "hilatristan": "Section02",
+    "youngjack": "Section02",
+
+    # section03
+    "blueparker": "Section03",
+    "caballeroespinosaisrael": "Section03",
+    "cicerrellaolivia": "Section03",
+    "claimongk": "Section03",
+    "delatesean": "Section03",
+    "masuecosmavis": "Section03",
+    "mcnallyjack": "Section03",
+    "petraccoeddie": "Section03",
+    "robertzane": "Section03",
+    "rochacarson": "Section03",
+    "sharberairen": "Section03",
+    "singhsureena": "Section03",
+    "treigerkappshochstatterclara": "Section03",
+    "williamsalexander": "Section03",
+    "youngjackson": "Section03",
+
+    # section04
+    "campagnacalli": "Section04",
+    "curtisciara": "Section04",
+    "davisjoshua": "Section04",
+    "gomezmatthew": "Section04",
+    "gumienygavin": "Section04",
+    "kowalskirichie": "Section04",
+    "milanesdayton": "Section04",
+}
+
 BASE_DIR = Path(__file__).resolve().parent
-
-# Input/output directories
 SOURCE_DIR = BASE_DIR / SUBMISSIONS_FOLDER
 OUTPUT_DIR = BASE_DIR / ASSIGNMENT_NAME
 
@@ -24,7 +63,7 @@ OUTPUT_DIR = BASE_DIR / ASSIGNMENT_NAME
 # ============================================================
 
 if not SOURCE_DIR.exists():
-    print(f"Error: submissions folder does not exist:")
+    print("Error: submissions folder does not exist:")
     print(SOURCE_DIR)
     raise SystemExit(1)
 
@@ -57,51 +96,30 @@ print(f"Found {len(java_files)} Java file(s).\n")
 # PROCESS SUBMISSIONS
 # ============================================================
 
+processed_students = set()
+processed_files = 0
+
 for java_file in java_files:
-
-    # --------------------------------------------------------
-    # Get student name
-    #
-    # Example:
-    # santanaadrian_2061820_54292363_HW1.java
-    # ->
-    # santanaadrian
-    # --------------------------------------------------------
-
     parts = java_file.stem.split("_")
-
     student_name = parts[0]
 
+    # Ignore files whose student is not in the section mapping.
+    section = STUDENT_SECTIONS.get(student_name)
+    if section is None:
+        continue
 
-    # --------------------------------------------------------
-    # Get actual Java filename
-    #
-    # The part after the LAST underscore is treated as the
-    # student's original filename.
-    #
-    # Examples:
-    #
-    # santanaadrian_2061820_54292363_HW1.java
-    # -> HW1.java
-    #
-    # santanaadrian_2061820_54292363_SinglyLinkedList.java
-    # -> SinglyLinkedList.java
-    # --------------------------------------------------------
-
+    # Restore the student's original Java filename.
+    # Example:
+    # santanaadrian_2061820_54292363_HW2.java -> HW2.java
     actual_filename = parts[-1] + java_file.suffix
 
+    # These directories are only created when this student
+    # actually has a submission.
+    section_dir = OUTPUT_DIR / section
+    student_dir = section_dir / student_name
 
-    # --------------------------------------------------------
-    # Create student directory
-    # --------------------------------------------------------
-
-    student_dir = OUTPUT_DIR / student_name
+    section_dir.mkdir(exist_ok=True)
     student_dir.mkdir(exist_ok=True)
-
-
-    # --------------------------------------------------------
-    # Copy file while restoring its original filename
-    # --------------------------------------------------------
 
     destination = student_dir / actual_filename
 
@@ -113,9 +131,12 @@ for java_file in java_files:
 
     shutil.copy2(java_file, destination)
 
+    processed_files += 1
+    processed_students.add((section, student_name))
+
     print(
         f"{java_file.name}\n"
-        f"  -> {ASSIGNMENT_NAME}/{student_name}/{actual_filename}"
+        f"  -> {ASSIGNMENT_NAME}/{section}/{student_name}/{actual_filename}"
     )
 
 
@@ -123,13 +144,7 @@ for java_file in java_files:
 # FINISHED
 # ============================================================
 
-student_dirs = [
-    directory
-    for directory in OUTPUT_DIR.iterdir()
-    if directory.is_dir()
-]
-
 print("\nFinished.")
-print(f"Processed {len(java_files)} Java file(s).")
-print(f"Created/found {len(student_dirs)} student folder(s).")
+print(f"Processed {processed_files} Java file(s).")
+print(f"Organized {len(processed_students)} student folder(s).")
 print(f"Output directory: {OUTPUT_DIR}")
