@@ -349,6 +349,8 @@ class MultiDatasetWithBatching(tf.keras.utils.PyDataset):
         else:
             self._num_samples = len(self._batchable_data)
 
+        self._shuffle_indices = np.arange(self._num_batches)
+
     def __len__(self) -> int:
         return self._num_batches
 
@@ -356,26 +358,19 @@ class MultiDatasetWithBatching(tf.keras.utils.PyDataset):
         if idx < 0 or idx >= self._num_batches:
             raise IndexError('Index out of range')
 
-        batch_size = ceil((self._num_samples - idx) / self._num_batches)
-        if self._shuffle:
-            rng = np.random.default_rng(self._seed + idx)
-            shuffle_indices = rng.permutation(batch_size)
-        else:
-            shuffle_indices = np.arange(batch_size)
-
         if self._multi_output:
-            labels = tuple([y[idx::self._num_batches][shuffle_indices] for y in self._batchable_labels])
+            labels = tuple([y[self._shuffle_indices[idx]::self._num_batches] for y in self._batchable_labels])
         else:
-            labels = self._batchable_labels[idx::self._num_batches][shuffle_indices]
+            labels = self._batchable_labels[self._shuffle_indices[idx]::self._num_batches]
 
         if self._multi_input:
-            data = tuple([x[idx::self._num_batches][shuffle_indices] for x in self._batchable_data])
+            data = tuple([x[self._shuffle_indices[idx]::self._num_batches] for x in self._batchable_data])
         else:
-            data = self._batchable_data[idx::self._num_batches][shuffle_indices]
+            data = self._batchable_data[self._shuffle_indices[idx]::self._num_batches]
 
         return (data,
             labels,
-            np.reshape(self._batchable_weights[idx::self._num_batches][shuffle_indices], (-1, 1)))
+            np.reshape(self._batchable_weights[self._shuffle_indices[idx]::self._num_batches], (-1, 1)))
 
     def on_epoch_end(self) -> None:
         """
@@ -386,23 +381,9 @@ class MultiDatasetWithBatching(tf.keras.utils.PyDataset):
         """
         if not self._shuffle:
             return
-        for i in range(len(self._data_by_class)):
-            rng = np.random.default_rng(self._seed + i)
-            indices = rng.permutation(len(self._data_by_class[i]))
 
-            if self._multi_input:
-                for j in range(len(self._data_by_class[i])):
-                    self._data_by_class[i][j] = self._data_by_class[i][j][indices]
-            else:
-                self._data_by_class[i] = self._data_by_class[i][indices]
-
-            if self._multi_output:
-                for j in range(len(self._data_labels[i])):
-                    self._data_labels[i][j] = self._data_labels[i][j][indices]
-            else:
-                self._data_labels[i] = self._data_labels[i][indices]
-
-            self._data_weights[i] = self._data_weights[i][indices]
+        rng = np.random.default_rng(self._seed)
+        self._shuffle_indices = rng.permutation(self._num_batches)
 
         self._rebuild_batchable()
 

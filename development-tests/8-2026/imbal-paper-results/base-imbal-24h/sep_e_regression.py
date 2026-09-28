@@ -13,9 +13,9 @@ Set script parameters
 """
 
 LEARNING_RATE = 5e-5
-FIT = FitType.REGULAR
+FIT = FitType.DECOUPLED
 VALIDATION_DATA = True
-AE = False
+AE = True
 AE_THIRD_TO_LAST = False
 WEIGHT_CANDIDATES = False
 SINGLE_WEIGHT_ALPHA = 1
@@ -27,7 +27,7 @@ EPOCHS = 10000
 DATA_PATH = "cleaned-dtw-SEP-EC-data"
 DATA_PREFIX = 'sep_e_log_normalized'
 OUTPUT_PATH = "results"
-OUTPUT_POSTFIX = '_1'
+OUTPUT_POSTFIX = '_temp_delete'
 USE_DELTA = False
 
 # Will be mostly left unchanged

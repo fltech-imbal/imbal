@@ -301,7 +301,7 @@ class DatasetWithBatching(tf.keras.utils.PyDataset):
 
         return (data,
             labels,
-            np.reshape(self._batchable_weights[idx::self._num_batches], (-1, 1)))
+            np.reshape(self._batchable_weights[self._shuffle_indices[idx]::self._num_batches], (-1, 1)))
 
     def on_epoch_end(self) -> None:
         """
