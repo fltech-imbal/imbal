@@ -16,9 +16,7 @@ def ratio_loss(train_label_min, train_label_max, lambda_val=1, ratio_bound=3, un
         ideal_ratio = tf.cast(ideal_ratio, tf.float32)
 
         distance_to_next_label = labels[1:] - labels[:-1]
-
         distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
-
         ratio = tf.reduce_sum(distance_to_next_representation) / (tf.reduce_sum(distance_to_next_label) + 1e-12)
         ratio = tf.clip_by_value(ratio, 1e-7, 1e7)
 
@@ -81,7 +79,7 @@ def distance_pcc_decorrelation(labels, representations, weight=None, unit=False)
 
 def cauchy_schwartz(labels, representations, weight=None, unit=False):
     distance_to_next_label = tf.abs(labels[1:] - labels[:-1])
-    distance_to_next_label = tf.reshape(distance_to_next_label, (-1))
+    distance_to_next_label = tf.reshape(distance_to_next_label, (-1,))
     distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
 
     a = distance_to_next_label
