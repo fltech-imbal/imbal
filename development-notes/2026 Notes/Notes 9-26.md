@@ -299,3 +299,65 @@ Axes of exploration:
 ## NASA
 - After all of above, start updating the documentation and tutorials!
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
+
+---
+
+# 9/30/26
+
+## Thesis
+
+```
+======== ideas to explore =======
+
+1.  "tiny" network for distance ratio that outputs only in the
+desirable range as discussed ~2 weeks ago. (9/7/26 email)
+
+2.  importance functions as discussed in the email on 9/18.  The
+modified sigmoid is not needed since it is solely based on labels, not
+the network.
+- Can use average, min, or max (start with max) for cutoff on computing cosine similarity
+
+2.  normalization with max distance in hypercircle as discussed above.
+- could still be worth weighting triples by distance (but still ignoring those that are very small distance) 
+```
+
+**Priority on 1, then 3**
+
+For 1:
+- Include learned ratio in results (save it to modified model object, and print it)
+
+For 3:
+- Multiply by $3$ instead of $\pi$ to give slack for min and max label of test set
+- For non-unit hypersphere, use old cosine similarity (all similarities are 1)
+
+| Representation space | Representation Loss                                                              | Ratio Range Loss (encouraged to be in desirable range) to prevent collapse ($r=0$) or explosion (r=$\inf$) |
+| -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| no hypersphere       | constant distance ratio (ex. entropy, variance) or cosine with similarity $= 1$  | Enabled                                                                                                    |
+| w/ hypersphere       | Cosine with derived desirable cosine values (label distance / label range * $3$) | Disabled                                                                                                   |
+
+- In runs, some t-SNE plots are very tight, while others are more scattered. Is there a pattern to what makes the plots "tight"? If so... why does that pattern occur? Is it based on performance, or does t-SNE have some "bias" on what causes a snake-like representation
+
+Axes of exploration:
+- Latent space unit hypersphere: y/n
+- (!!!) Inclusion/excluison of weighting samples inversely with respect to the distance in the label space (futher labels need not have similar representations
+
+**Other thoughts...**
+- Might be worth trying to weight samples by `t+6 - t` in the future
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+- Options for weighting cosine representation loss
+	- MDI with an appropriate $\alpha$
+	- Cosine from 0 to $\frac{\pi}{2}$
+	- Normalize distances from 0-1, using $1-x^2$
+	- Something else concave?
+	- Make sure to include a small epsilon as to not have 0 weights sum to $n$.
+	
+![[Pasted image 20260917170356.png|500]]
+## Paper
+- ...
+## NASA
+- After all of above, start updating the documentation and tutorials!
+	- Use a simple representation loss
+- SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
