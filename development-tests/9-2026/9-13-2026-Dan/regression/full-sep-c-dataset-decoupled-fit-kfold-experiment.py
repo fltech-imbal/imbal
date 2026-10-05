@@ -363,7 +363,7 @@ print("CONTROLLED EXPERIMENT SUMMARY")
 print("=" * 100)
 print(
     f"{'k':>3} | {'S1':>5} | {'S2':>5} | {'alpha':>5} | "
-    f"{'orig AORE':>10} | {'ctrl AORE':>10} | {'ctrl rare':>10}"
+    f"{'orig AORE':>10} | {'ctrl AORE':>10} | {'ctrl rare':>10} | {'recon lambda':>12}"
 )
 print("-" * 100)
 
@@ -375,7 +375,8 @@ for config, result in zip(estimated_configs, controlled_results):
         f"{config['best_alpha']:>5.1f} | "
         f"{config['original_kfold_final_test']['aore']:>10.4f} | "
         f"{result['aore']:>10.4f} | "
-        f"{result['rare_mae']:>10.4f}"
+        f"{result['rare_mae']:>10.4f} | "
+        f"{result['reconstruction_lambda']:>12.4f}"
     )
 
 output = {

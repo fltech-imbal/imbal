@@ -33,7 +33,7 @@ BATCH_SIZE = 32
 MIN_KDE_BANDWIDTH = 0.05
 DENSITY_EPSILON = 1e-7
 
-LOAD_SAVED_MODEL = False
+LOAD_SAVED_MODEL = True
 MODEL_RUN_NAME = "density_trust_sep_c_hierarchical_trust"
 MODEL_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "saved_models", MODEL_RUN_NAME)
 COMMON_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "common_expert.keras")
