@@ -33,6 +33,8 @@ class ExtendedModel(keras.Model):
         self._mode_enum = kwargs.get('_mode_enum', None)
         self._compiled_optimizer = kwargs.get('_compiled_optimizer', None)
         self._reconstruction_lambda = kwargs.get('_reconstruction_lambda', None)
+        self._learned_ratio = kwargs.get('_learned_ratio', None)
+        self._ratio_layer = kwargs.get('_ratio_layer', None)
 
     def get_config(self):
         config = super().get_config()
@@ -53,7 +55,9 @@ class ExtendedModel(keras.Model):
             '_mode_subpackage' : self._mode_subpackage,
             '_mode_enum' : self._mode_enum.value if self._mode_enum is not None else None,
             '_compiled_optimizer' : self._compiled_optimizer,
-            '_reconstruction_lambda' : self._reconstruction_lambda
+            '_reconstruction_lambda' : self._reconstruction_lambda,
+            '_learned_ratio': self._learned_ratio,
+            '_ratio_layer' : self._ratio_layer
         })
         return config
 
@@ -353,7 +357,6 @@ class ExtendedModel(keras.Model):
         self.best_weight_index = None
 
 
-
         # validation_split controls imbal's repeated holdout / k-fold validation only when
         # explicit validation_data has not been supplied. Explicit validation_data takes precedence.
         repeated_validation_split = validation_split is not None and validation_data is None
@@ -531,6 +534,7 @@ class ExtendedModel(keras.Model):
 
         self._use_decoder_branch = self._generate_decoder_branch
         self._use_representation_loss = self._representation_loss is not None
+        self._learned_ratio = np.array(self._ratio_layer.weight) if self._ratio_layer is not None else None
         return history
 
     def _generate_validation_splits(
@@ -1718,7 +1722,9 @@ def _generate_representation_model(model):
     representation_layer_index = backend.tools.positive_model_layer_index(model, model._representation_layer_index)
     representation_layer = model.layers[representation_layer_index]
 
-    trainable_scaler = TrainableScalar()(model.layers[0].output)
+    trainable_scaler = TrainableScalar()
+    model._ratio_layer = trainable_scaler
+    trainable_scaler = trainable_scaler(model.layers[0].output)
 
     outputs = keras.layers.Concatenate(axis=-1)([
         representation_layer.output,

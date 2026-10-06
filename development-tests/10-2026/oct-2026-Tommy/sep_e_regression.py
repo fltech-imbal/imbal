@@ -12,14 +12,13 @@ from tools.loss_functions import *
 from tools.trainable_scalar import TrainableScalar
 from tools.extended_model import ExtendedModel
 from imbal.util.backend.constants import ModelType
+from tools import plot_similarity
 
 # tf.config.run_functions_eagerly(True)
 
 """
 Set script parameters
 """
-
-
 
 """
 Load data
@@ -215,6 +214,7 @@ def run_model(
 
     training_history = None
     best_weight_index = None
+    learned_ratio = None
 
     if FIT_MODE == 'tune':
         if BALANCED_FIRST_STAGE:
@@ -243,6 +243,9 @@ def run_model(
                 batch_size=BATCH_SIZE,
                 callbacks=[keras.callbacks.EarlyStopping(monitor='val_loss' if VALIDATION_DATA else 'loss', patience=EARLY_STOPPING_PATIENCE, restore_best_weights=True, min_delta=1e-5 if VALIDATION_DATA else 1e-3)]
             )
+        if hasattr(model, '_learned_ratio'):
+            learned_ratio = model._learned_ratio
+
 
 
     elif FIT_MODE == 'joint':
@@ -331,4 +334,14 @@ def run_model(
         save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
     )
 
-    return stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index], None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index]
+    _, subset = imbal.regression.split(x_test, y_test, test_size=.33, seed=1)
+    x_test, y_test = subset
+
+    plot_similarity(
+        model,
+        x_test,
+        y_test,
+        save_figure=f"{OUTPUT_PATH}/similarity/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_sim.png"
+    )
+
+    return stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index], None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index], learned_ratio

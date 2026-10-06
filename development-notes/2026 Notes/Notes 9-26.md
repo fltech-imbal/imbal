@@ -324,11 +324,11 @@ the network.
 **Priority on 1, then 3**
 
 For 1:
-- Include learned ratio in results (save it to modified model object, and print it)
+- Include learned ratio in results (save it to modified model object, and print it) $\checkmark$
 
 For 3:
-- Multiply by $3$ instead of $\pi$ to give slack for min and max label of test set
-- For non-unit hypersphere, use old cosine similarity (all similarities are 1)
+- Multiply by $3$ instead of $\pi$ to give slack for min and max label of test set $\checkmark$
+- For non-unit hypersphere, use old cosine similarity (all similarities are 1) $\checkmark$
 
 | Representation space | Representation Loss                                                              | Ratio Range Loss (encouraged to be in desirable range) to prevent collapse ($r=0$) or explosion (r=$\inf$) |
 | -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
@@ -337,10 +337,10 @@ For 3:
 
 ![[Pasted image 20261001164554.png]]
 
-- Come up with a way to plot something similar to the above, but using a scatter plot to account for varying distances between labels in imbalanced data
+- Come up with a way to plot something similar to the above, but using a scatter plot to account for varying distances between labels in imbalanced data $\checkmark$
 	- Start with "rank-based" approach, as shown in the image
-	- For scatter plot, low similarity points should be labeled first, so that high similarity points (yellow, less frequent) stand out
-	- Use Euclidean distance to determine similarity between sample representations
+	- For scatter plot, low similarity points should be labeled first, so that high similarity points (yellow, less frequent) stand out $\checkmark$
+	- Use Euclidean distance to determine similarity between sample representations $\checkmark$
 
 ---
 

@@ -7,19 +7,19 @@ from imbal import util
 import tensorflow as tf
 
 def generate_tsne_visualization(
-        model,
-        data,
-        labels,
-        representation_layer_index=-2,
-        gradient=None,
-        mode='classification',
-        save_figure=None,
-        perplexity=30,
-        bin_count=64,
-        padding_factor=0.01,
-        s=None,
-        c=None,
-        marker=None
+    model,
+    data,
+    labels,
+    representation_layer_index=-2,
+    gradient=None,
+    mode='classification',
+    save_figure=None,
+    perplexity=30,
+    bin_count=64,
+    padding_factor=0.01,
+    s=None,
+    c=None,
+    marker=None
 ):
 
     if representation_layer_index < 0:

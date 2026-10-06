@@ -293,7 +293,7 @@ def enforced_cosine(train_label_min, train_label_max, lambda_val=1, alpha=1, uni
         average_difference_length = (safe_norm(difference_to_next_representation[:-1], axis=1) + safe_norm(difference_to_next_representation[1:], axis=1))
         normalized_difference_length = average_difference_length / label_range * alpha
 
-        ideal_cosines = tf.math.cos(normalized_difference_length * pi)
+        ideal_cosines = tf.math.cos(normalized_difference_length * 3)
 
         similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
         return tf.reduce_mean(ideal_cosines - similarities)**2
