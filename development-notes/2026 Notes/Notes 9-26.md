@@ -335,7 +335,14 @@ For 3:
 | no hypersphere       | constant distance ratio (ex. entropy, variance) or cosine with similarity $= 1$  | Enabled                                                                                                    |
 | w/ hypersphere       | Cosine with derived desirable cosine values (label distance / label range * $3$) | Disabled                                                                                                   |
 
-- In runs, some t-SNE plots are very tight, while others are more scattered. Is there a pattern to what makes the plots "tight"? If so... why does that pattern occur? Is it based on performance, or does t-SNE have some "bias" on what causes a snake-like representation
+![[Pasted image 20261001164554.png]]
+
+- Come up with a way to plot something similar to the above, but using a scatter plot to account for varying distances between labels in imbalanced data
+	- Start with "rank-based" approach, as shown in the image
+	- For scatter plot, low similarity points should be labeled first, so that high similarity points (yellow, less frequent) stand out
+	- Use Euclidean distance to determine similarity between sample representations
+
+---
 
 Axes of exploration:
 - Latent space unit hypersphere: y/n
