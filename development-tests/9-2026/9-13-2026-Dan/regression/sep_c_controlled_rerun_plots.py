@@ -36,16 +36,16 @@ patience = 500
 alpha_candidates = [0.2, 0.3, 0.4]
 
 RUN_CONFIGS = [
-    {"k": 2,  "stage_one_epochs": 264, "stage_two_epochs": 773,
-     "best_alpha": 0.3, "reconstruction_lambda": 6.1034, "ctrl_aore": 1.4391},
-    {"k": 3,  "stage_one_epochs": 276, "stage_two_epochs": 355,
-     "best_alpha": 0.2, "reconstruction_lambda": 5.3471, "ctrl_aore": 1.4603},
-    {"k": 4,  "stage_one_epochs": 88,  "stage_two_epochs": 604,
-     "best_alpha": 0.3, "reconstruction_lambda": 7.7637, "ctrl_aore": 1.3651},
-    {"k": 5,  "stage_one_epochs": 305, "stage_two_epochs": 298,
-     "best_alpha": 0.3, "reconstruction_lambda": 8.4146, "ctrl_aore": 1.4563},
-    {"k": 10, "stage_one_epochs": 155, "stage_two_epochs": 802,
-     "best_alpha": 0.4, "reconstruction_lambda": 7.2484, "ctrl_aore": 1.4301},
+    {"k": 2,  "stage_one_epochs": 260, "stage_two_epochs": 112,
+     "best_alpha": 0.2, "reconstruction_lambda": 7.1967, "ctrl_aore": 1.7061},
+    {"k": 3,  "stage_one_epochs": 59,  "stage_two_epochs": 713,
+     "best_alpha": 0.4, "reconstruction_lambda": 5.7605, "ctrl_aore": 1.1523},
+    {"k": 4,  "stage_one_epochs": 356, "stage_two_epochs": 336,
+     "best_alpha": 0.2, "reconstruction_lambda": 8.7156, "ctrl_aore": 1.7057},
+    {"k": 5,  "stage_one_epochs": 337, "stage_two_epochs": 459,
+     "best_alpha": 0.3, "reconstruction_lambda": 8.6749, "ctrl_aore": 1.6299},
+    {"k": 10, "stage_one_epochs": 225, "stage_two_epochs": 77,
+     "best_alpha": 0.2, "reconstruction_lambda": 7.8554, "ctrl_aore": 1.7486},
 ]
 
 RESULTS_PATH = "saved_results/controlled_rerun_plot_experiment.json"
@@ -193,6 +193,7 @@ def save_imbal_tsne(model, x_values, y_values, config):
             x_values,
             y_values.reshape(-1),
             representation_layer_index=-2,
+            perplexity=50,
         )
         fig = plt.gcf()
         fig.suptitle(
