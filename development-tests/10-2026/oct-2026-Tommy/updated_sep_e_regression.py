@@ -14,8 +14,8 @@ from tools.extended_model import ExtendedModel
 from imbal.util.backend.constants import ModelType
 from tools import plot_similarity
 import math
+from tools.updated_loss_functions import *
 
-# tf.config.run_functions_eagerly(True)
 
 """
 Set script parameters
@@ -37,9 +37,12 @@ def run_model(
     UNIT_REPRESENTATIONS = False,
     DECORRELATION = False,
     NONLINEAR_REGRESSOR = False,
+    FIXED_RATIO = 0,
     LEARNABLE_RATIO = False,
     RATIO_MAX = 5,
+    RATIO_LOSS_LAMBDA = 1,
     PROVIDED_REP_LOSS=cauchy_schwartz_w_ratio_loss,
+    INCLUDE_GLOBAL_ANCHOR=True,
 
     REPRESENTATION_LAYER_INDEX = -2,
     EARLY_STOPPING_PATIENCE = 100,
@@ -102,8 +105,21 @@ def run_model(
 
     train_label_min = np.min(y_train)
     train_label_max = np.max(y_train)
-    RATIO_LOSS_LAMBDA = 0
-    REPRESENTATION_LOSS = PROVIDED_REP_LOSS(train_label_min, train_label_max, lambda_val=RATIO_LOSS_LAMBDA, unit=UNIT_REPRESENTATIONS, decorr=DECORRELATION)
+
+    REPRESENTATION_LOSS = loss_function_builder(
+        PROVIDED_REP_LOSS,
+        train_label_min,
+        train_label_max,
+        fixed_ratio=FIXED_RATIO,
+        learnable_ratio=LEARNABLE_RATIO,
+        ratio_max=RATIO_MAX,
+        ratio_lambda=RATIO_LOSS_LAMBDA,
+        unit_representation=UNIT_REPRESENTATIONS,
+        use_decorrelation=DECORRELATION,
+        decorrelation_lambda=1,
+        include_global_anchor=INCLUDE_GLOBAL_ANCHOR
+    )
+
     """
     Build model
     """
@@ -143,22 +159,6 @@ def run_model(
     else:
         model = imbal.regression.Model(inputs=inputs, outputs=outputs, name="SEP_EC")
 
-    def learnable_ratio_loss(y_true, y_pred):
-        scalar = y_pred[0, -1]
-        representations = y_pred[:, :-1]
-
-        representation_loss = REPRESENTATION_LOSS(y_true, representations)
-
-        learned_ratio = (RATIO_MAX - 1/RATIO_MAX) * tf.sigmoid(scalar) + 1/RATIO_MAX
-
-        distance_to_next_label = y_true[1:] - y_true[:-1]
-        distance_to_next_representation = safe_norm(representations[1:] - representations[:-1], axis=1)
-        ratio = tf.reduce_sum(distance_to_next_representation) / (tf.reduce_sum(distance_to_next_label) + 1e-12)
-        ratio = tf.clip_by_value(ratio, 1e-7, 1e7)
-
-        ratio_loss_value = (ratio - learned_ratio)**2
-
-        return representation_loss + ratio_loss_value
 
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE),
@@ -166,7 +166,7 @@ def run_model(
         weighted_metrics=['mae'],
         generate_decoder_branch=AE,
         representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        representation_loss=REPRESENTATION_LOSS if not LEARNABLE_RATIO else learnable_ratio_loss,
+        representation_loss=REPRESENTATION_LOSS,
     )
 
     # if FIT == FitType.DECOUPLED:

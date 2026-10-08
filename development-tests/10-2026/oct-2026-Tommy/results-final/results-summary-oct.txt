@@ -1,0 +1,45 @@
+Original Distribution first stage, CAUCHY SCHWARTZ:
+[76.0, 350.0, 0.2353, 0.1681, 0.1962, 0.0, 0.58]
+
+Cauchy-Schwartz (learned ratio):
+[2029.4, 252.4, 0.2588, 0.217, 0.2345, 0.0, 0.42, 2.0842]
+
+==================================================================
+
+Original Distribution first stage, ENTROPY:
+[99.4, 96.4, 0.2378, 0.1675, 0.1969, 0.0, 0.7]
+
+Entropy (learned ratio):
+[1.2, 321.6, 0.2343, 0.1728, 0.1985, 0.0, 0.62, 2.5985]
+
+==================================================================
+(improvement)
+
+Original Distribution first stage, VARIANCE:
+[51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62]
+
+Variance (learned ratio):
+[1.0, 291.2, 0.2272, 0.1757, 0.1973, 0.0, 0.38, 2.5988]
+
+==================================================================
+(improvement)
+
+Balanced Distribution first stage, DISTANCE PCC:
+[66.0, 193.6, 0.2374, 0.1722, 0.1995, 0.5, 0.54]
+
+Distance PCC (learned ratio):
+[1.8, 336.4, 0.227, 0.1721, 0.1951, 0.0, 0.5, 2.5978]
+
+==================================================================
+
+(had an error in running distance difference, do not yet have updated results)
+Original Distribution first stage, DISTANCE DIFFERENCE:
+[1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42]
+
+==================================================================
+
+Original distribution first stage, COSINE:
+[249.8, 20.4, 0.2292, 0.1665, 0.1928, 0.0, 0.62]
+
+Cosine Similarity (learned ratio):
+[1.4, 267.4, 0.2334, 0.1717, 0.1975, 0.0, 0.62, 2.5983]

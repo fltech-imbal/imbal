@@ -1,6 +1,6 @@
-FILE_PATH = 'results-final/results.txt'
+FILE_PATH = 'results-final/results-oct.txt'
 
-NUM_VALUES_PER_ROW = 7
+NUM_VALUES_PER_ROW = 8
 
 with open(FILE_PATH, 'r') as f:
     lines = f.readlines()

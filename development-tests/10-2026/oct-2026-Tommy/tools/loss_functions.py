@@ -20,7 +20,7 @@ def ratio_loss(train_label_min, train_label_max, lambda_val=1, ratio_bound=3, un
         ratio = tf.reduce_sum(distance_to_next_representation) / (tf.reduce_sum(distance_to_next_label) + 1e-12)
         ratio = tf.clip_by_value(ratio, 1e-7, 1e7)
 
-        loss_value = (tf.keras.ops.log10(ratio)/(2*tf.keras.ops.log(ideal_ratio)))**2
+        loss_value = (tf.keras.ops.log10(ratio) - (tf.keras.ops.log(ideal_ratio)))**2
 
         return loss_value * lambda_val
 
@@ -313,3 +313,48 @@ def enforced_cosine(train_label_min, train_label_max, lambda_val=1, alpha=1, uni
     def loss_function_decorrelation(labels, representations, weight=None):
         return enforced_cosine_loss(labels, representations, weight) + current_ratio_loss(labels, representations, weight) + decorrelation(labels, representations, weight)
     return loss_function_decorrelation if decorr else loss_function
+
+def get_distance_pairs(
+    labels,
+    representations,
+    include_global_anchor
+):
+    pairwise_label_distances = tf.abs(labels[1:] - labels[:-1])
+    pairwise_label_distances = tf.reshape(pairwise_label_distances, [-1, 1])
+    pairwise_representation_distances = safe_norm(representations[1:] - representations[:-1], axis=1)
+    pairwise_representation_distances = tf.reshape(pairwise_representation_distances, [-1, 1])
+
+    if include_global_anchor:
+        anchor_label_distances = tf.abs(labels[1:] - labels[0])
+        anchor_label_distances = tf.reshape(pairwise_label_distances, [-1, 1])
+        anchor_representation_distances = safe_norm(representations[1:] - representations[0], axis=1)
+        anchor_representation_distances = tf.reshape(pairwise_representation_distances, [-1, 1])
+        pairwise_label_distances = tf.concat([pairwise_label_distances, anchor_label_distances], axis=0)
+        pairwise_representation_distances = tf.concat([pairwise_representation_distances, anchor_representation_distances], axis=0)
+
+    return pairwise_label_distances, pairwise_representation_distances
+
+
+def loss_function_builder(
+    loss,
+    fixed_ratio=None,
+    learnable_ratio=False,
+    ratio_lambda=1,
+    unit_representation=False,
+    use_decorrelation=False,
+    include_global_anchor=False
+):
+
+    def constructed_loss(
+        labels,
+        representations
+    ):
+        label_distance_pairs, representation_distance_pairs = get_distance_pairs(
+            labels,
+            representations,
+            include_global_anchor=include_global_anchor
+        )
+
+
+
+
