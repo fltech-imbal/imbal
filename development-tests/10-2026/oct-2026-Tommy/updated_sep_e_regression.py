@@ -43,6 +43,8 @@ def run_model(
     RATIO_LOSS_LAMBDA = 1,
     PROVIDED_REP_LOSS=cauchy_schwartz_w_ratio_loss,
     INCLUDE_GLOBAL_ANCHOR=True,
+    INCLUDE_RATIO=False,
+    USE_RAW_REPRESENTATIONS=False,
 
     REPRESENTATION_LAYER_INDEX = -2,
     EARLY_STOPPING_PATIENCE = 100,
@@ -117,7 +119,9 @@ def run_model(
         unit_representation=UNIT_REPRESENTATIONS,
         use_decorrelation=DECORRELATION,
         decorrelation_lambda=1,
-        include_global_anchor=INCLUDE_GLOBAL_ANCHOR
+        include_global_anchor=INCLUDE_GLOBAL_ANCHOR,
+        include_ratio= INCLUDE_RATIO,
+        use_raw_representations=USE_RAW_REPRESENTATIONS
     )
 
     """
@@ -349,4 +353,11 @@ def run_model(
     if learned_ratio is not None:
         final_ratio = 1/RATIO_MAX + 1/(1 + math.exp(-learned_ratio)) * (RATIO_MAX - 1/RATIO_MAX)
 
-    return stage_one_len, stage_two_len, common_mae, rare_mae, (mae + rare_mae)/2, None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index], None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index], final_ratio
+    return (int(stage_one_len),
+            int(stage_two_len),
+            float(common_mae),
+            float(rare_mae),
+            float((mae + rare_mae)/2),
+            None if best_weight_index is None else WEIGHT_CANDIDATES[best_weight_index],
+            None if second_stage_best_weight_index is None else WEIGHT_CANDIDATES[second_stage_best_weight_index],
+            float(final_ratio) if final_ratio is not None else None)

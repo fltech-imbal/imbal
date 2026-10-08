@@ -25,12 +25,12 @@ def cauchy_schwartz(label_distances, representation_distances):
     return tf.reduce_sum(tf.multiply(a, a)) * tf.reduce_sum(tf.multiply(b, b)) - tf.reduce_sum(tf.multiply(a, b))**2
 
 def maximize_entropy(label_distances, representation_distances):
-    ratios = label_distances / representation_distances
+    ratios = representation_distances / (label_distances + EPSILON)
     ratios = ratios / tf.reduce_sum(ratios)
     return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
 
-def distance_difference(label_distances, representation_distances):
-    return tf.reduce_mean(tf.abs(label_distances - representation_distances))
+def distance_difference(label_distances, representation_distances, alpha):
+    return tf.reduce_mean(tf.abs(representation_distances - alpha * label_distances))
 
 def cosine_similarity(label_distances, representation_distances):
     first_vectors_normalized = tf.linalg.l2_normalize(representation_distances[:-1], axis=1, epsilon=1e-8)
@@ -39,17 +39,18 @@ def cosine_similarity(label_distances, representation_distances):
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
     return 1 - tf.reduce_mean(similarities)
 
-def enforced_cosine(label_distances, representation_distances):
-    first_vectors_normalized = tf.linalg.l2_normalize(representation_distances[:-1], axis=1, epsilon=1e-8)
-    second_vectors_normalized = tf.linalg.l2_normalize(representation_distances[1:], axis=1, epsilon=1e-8)
+def enforced_cosine(label_distances, representations):
+    representation_differences = representations[1:] - representations[:-1]
+    first_vectors_normalized = tf.linalg.l2_normalize(representation_differences[:-1], axis=1, epsilon=1e-8)
+    second_vectors_normalized = tf.linalg.l2_normalize(representation_differences[1:], axis=1, epsilon=1e-8)
 
-    average_difference_length = (safe_norm(representation_distances[:-1], axis=1) + safe_norm(representation_distances[1:], axis=1))
-    normalized_difference_length = average_difference_length / LABEL_RANGE
+    label_difference = (label_distances[:-1] + label_distances[1:])
+    normalized_difference_length = label_difference / LABEL_RANGE
 
-    ideal_cosines = tf.math.cos(normalized_difference_length * 3)
+    ideal_cosines = tf.reshape(tf.math.cos(normalized_difference_length * 3), (-1,))
 
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
-    return tf.reduce_mean(ideal_cosines - similarities)**2
+    return tf.reduce_mean(tf.square(ideal_cosines - similarities))
 
 
 def get_distance_pairs(
@@ -110,7 +111,6 @@ def decorrelation(representations, eps=1e-6):
     std = tf.sqrt(tf.linalg.diag_part(cov) + eps)
     corr = cov / (std[:, None] * std[None, :] + eps)
 
-    # Belt-and-suspenders: zero out any NaN/Inf that still appears
     corr = tf.where(tf.math.is_finite(corr), corr, tf.zeros_like(corr))
 
     n = tf.shape(corr)[0]
@@ -130,7 +130,9 @@ def loss_function_builder(
     unit_representation=False,
     use_decorrelation=False,
     decorrelation_lambda=1,
-    include_global_anchor=False
+    include_global_anchor=False,
+    include_ratio=False,
+    use_raw_representations=False,
 ):
     global LABEL_RANGE
     LABEL_RANGE = train_label_max - train_label_min
@@ -170,9 +172,21 @@ def loss_function_builder(
             include_global_anchor=include_global_anchor
         )
 
-        rep_loss_value = loss(label_distance_pairs, representation_distance_pairs)
+        if include_ratio:
+            if use_raw_representations:
+                rep_loss_value = loss(label_distance_pairs, representations, ratio)
+            else:
+                rep_loss_value = loss(label_distance_pairs, representation_distance_pairs, ratio)
+        else:
+            if use_raw_representations:
+                rep_loss_value = loss(label_distance_pairs, representations)
+            else:
+                rep_loss_value = loss(label_distance_pairs, representation_distance_pairs)
         ratio_loss_value = ratio_loss_function(label_distance_pairs, representation_distance_pairs, ratio)
         decorrelation_loss_value = decorrelation_loss_function(representations)
+        # print()
+        # print(rep_loss_value, ratio_loss_value, decorrelation_loss_value)
+        # print(rep_loss_value + ratio_loss_value * ratio_lambda + decorrelation_loss_value * decorrelation_lambda)
         return rep_loss_value + ratio_loss_value * ratio_lambda + decorrelation_loss_value * decorrelation_lambda
 
     return constructed_loss
