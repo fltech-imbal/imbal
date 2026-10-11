@@ -13,7 +13,6 @@ Entropy (learned ratio):
 [128.8, 29.6, 0.2343, 0.1757, 0.2002, 0.0, 0.62, 2.7543]
 
 ==================================================================
-(improvement)
 
 Original Distribution first stage, VARIANCE:
 [51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62]
@@ -34,7 +33,7 @@ Distance PCC (learned ratio):
 Original Distribution first stage, DISTANCE DIFFERENCE:
 [1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42]
 
-Distance Difference (implicit earned ratio):
+Distance Difference (implicit learned ratio):
 [148.8, 3.6, 0.2225, 0.1683, 0.191, 0.0, 0.54, 2.7702]
 
 ==================================================================
@@ -46,5 +45,5 @@ Original distribution first stage, COSINE:
 Cosine Similarity of 1:
 [330.6, 3.6, 0.2286, 0.1651, 0.1917, 0.0, 0.1, 0.0]
 
-Enforced Cosine:
+Enforced Cosine (hypersphere):
 [1750.0, 2.2, 0.3072, 0.2275, 0.2609, 0.0, 0.3, 0.0]

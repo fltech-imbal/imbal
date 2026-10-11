@@ -21,7 +21,7 @@ results = []
 #         else:
 #             print(result)
 #     gc.collect()
-
+#
 # results.append("Entropy (learned ratio):")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -37,8 +37,8 @@ results = []
 #         else:
 #             print(result)
 #     gc.collect()
-
-
+#
+#
 # results.append("Variance (learned ratio):")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -54,7 +54,7 @@ results = []
 #         else:
 #             print(result)
 #     gc.collect()
-
+#
 # results.append("Distance PCC (learned ratio):")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -70,7 +70,7 @@ results = []
 #         else:
 #             print(result)
 #     gc.collect()
-
+#
 # results.append("Distance Difference (implicit learned ratio):")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -88,7 +88,7 @@ results = []
 #         else:
 #             print(result)
 #     gc.collect()
-
+#
 # results.append("Cosine Similarity of 1:")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -104,16 +104,14 @@ results = []
 #             print(result)
 #     gc.collect()
 
-results.append("Enforced Cosine:")
+results.append("Cosine Similarity of 1 (and ratio=1):")
 for i in range(5):
-    print(f"Beginning run {i + 1}...")
+    print(f"Beginning run {i+1}...")
     results.append(run_model(
-        LEARNABLE_RATIO=False,
-        OUTPUT_POSTFIX=f'_enforced_cosine_hypersphere_{i + 1}',
-        PROVIDED_REP_LOSS=enforced_cosine,
-        UNIT_REPRESENTATIONS=True,
-        USE_RAW_REPRESENTATIONS=True,
-        INCLUDE_GLOBAL_ANCHOR=False
+        OUTPUT_POSTFIX=f'_cosine_similarity_{i+1}',
+        PROVIDED_REP_LOSS=cosine_similarity,
+        UNIT_REPRESENTATIONS=False,
+        LEARNABLE_RATIO=True
     ))
     for result in results:
         if isinstance(result, tuple):
@@ -122,9 +120,27 @@ for i in range(5):
             print(result)
     gc.collect()
 
-print()
-for result in results:
-    if isinstance(result, tuple):
-        print('-', *result)
-    else:
-        print(result)
+# results.append("Enforced Cosine:")
+# for i in range(5):
+#     print(f"Beginning run {i + 1}...")
+#     results.append(run_model(
+#         LEARNABLE_RATIO=False,
+#         OUTPUT_POSTFIX=f'_enforced_cosine_hypersphere_{i + 1}',
+#         PROVIDED_REP_LOSS=enforced_cosine,
+#         UNIT_REPRESENTATIONS=True,
+#         USE_RAW_REPRESENTATIONS=True,
+#         INCLUDE_GLOBAL_ANCHOR=False
+#     ))
+#     for result in results:
+#         if isinstance(result, tuple):
+#             print('-', *result)
+#         else:
+#             print(result)
+#     gc.collect()
+#
+# print()
+# for result in results:
+#     if isinstance(result, tuple):
+#         print('-', *result)
+#     else:
+#         print(result)

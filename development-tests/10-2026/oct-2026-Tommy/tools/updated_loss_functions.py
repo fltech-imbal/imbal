@@ -132,7 +132,7 @@ def loss_function_builder(
     decorrelation_lambda=1,
     include_global_anchor=False,
     include_ratio=False,
-    use_raw_representations=False,
+    use_raw_representations=False
 ):
     global LABEL_RANGE
     LABEL_RANGE = train_label_max - train_label_min
@@ -140,13 +140,13 @@ def loss_function_builder(
     if fixed_ratio != 0 and learnable_ratio:
         raise RuntimeError("Cannot have fixed and learnable ratio")
 
-    if fixed_ratio:
+    if fixed_ratio > 0:
         ratio_loss_function = ratio_loss(
             train_label_min,
             train_label_max,
             unit=unit_representation
         )
-    elif learnable_ratio > 0:
+    elif learnable_ratio:
         ratio_loss_function = learnable_ratio_loss
     else:
         ratio_loss_function = lambda x, y, z: 0

@@ -1,0 +1,77 @@
+Grade: 85
+
+--- Introduction (5):
+
+ok
+
+--- Related Work (10):
+
+-.5: Hierarchical Classification Adjustment (HCA) is not on
+representation learning.
+
+-.5: missing: Leveraging Group Classification with Descending Soft
+ Labeling for Deep Imbalanced Regression, AAAI 2025
+
+--- Approach (30):
+
+Sec 3.1: ideal properties -> desirable properties (they might not be
+ideal). (1) and (2) seem to be similar.
+
+Sec: 3.3.7: "Cosine similarity representation loss. To combat the
+issue described above, we proposed a loss function that encourages the
+first two properties without preventing the third."  This assumes a
+hypersphere representation.
+
+-1: Cosine: why? -- "this loss function may be assisted by the use of
+weights, where larger distances have a lower weighting in the loss,
+and hence have less of an emphasis on having a high cosine
+similarity."
+
+delta_i/max(delta_i) -- consider 2D representation space with a unit
+circle like the clock.  The vector at one end (12pm) and the vector at
+the opposite end (6pm) would be in opposite direction.  I suggest
+normalizing by the max distance in the hypersphere which is 2.
+
+--- Evaluation (45):
+
+-2: missing predicted vs actual value plot for SEP-E
+
+-1: what is the intuition?  "However, in line with intuition, the best
+performing losses when unit hypersphere representations are used are
+the weighted and unweighted cosine similarity loss functions,"
+
+-1: 4.4 non-linear regressor, not encoder-- "Lastly, L ent and L cs
+were re-ran with unit hypersphere repre- sentations, with the
+additional inclusion of a non-linear encoder."
+
+-2: The 4 rounds of experiments could use more justificaion 
+
+-5: Figure 1: having a maximum predicted value is weird, looks like a
+ bug. Daniel and I have seen some "partial" flatlining for some (not
+ all) of the rare instances, but not quite as flat and also the common
+ instances are not involved.  Also, there seems to be a minimum
+ prediction across common and rare instances.
+
+Figure 1 vs Figure 2: do they have the same perplexity?
+
+
+--- Conclusion (5):
+
+-2: Future work is vague
+
+--- References (5):
+
+ok
+
+
+======== ideas to explore =======
+
+1.  "tiny" network for distance ratio that outputs only in the
+desirable range as discussed ~2 weeks ago.
+
+2.  importance functions as discussed in the email on 9/18.  The
+modified sigmoid is not needed since it is solely based on labels, not
+the network.
+
+3.  normalization with max distance in hypercicle as discussed above.
+
