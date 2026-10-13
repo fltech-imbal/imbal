@@ -1,0 +1,890 @@
+{
+    "experiment_seeds": [
+        47,
+        48,
+        49,
+        50,
+        51
+    ],
+    "k_values": [
+        2,
+        3,
+        4,
+        5,
+        10
+    ],
+    "alpha_candidates": [
+        0.2,
+        0.3,
+        0.4
+    ],
+    "seed_results": [
+        {
+            "seed": 47,
+            "phase_1_kfold_estimates": [
+                {
+                    "seed": 47,
+                    "k": 2,
+                    "stage_one_epochs": 34,
+                    "stage_two_epochs": 304,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 7.502779960632324,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.738621175289154,
+                        "overall_mae": 0.4129039943218231,
+                        "common_mae": 0.38763248920440674,
+                        "rare_mae": 1.678162932395935,
+                        "aore": 1.045533463358879
+                    }
+                },
+                {
+                    "seed": 47,
+                    "k": 3,
+                    "stage_one_epochs": 437,
+                    "stage_two_epochs": 518,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 14.925469398498535,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.6354930400848389,
+                        "overall_mae": 0.23961235582828522,
+                        "common_mae": 0.18140876293182373,
+                        "rare_mae": 3.153671979904175,
+                        "aore": 1.69664216786623
+                    }
+                },
+                {
+                    "seed": 47,
+                    "k": 4,
+                    "stage_one_epochs": 93,
+                    "stage_two_epochs": 122,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 19.150257110595703,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5688902139663696,
+                        "overall_mae": 0.3818930685520172,
+                        "common_mae": 0.34378618001937866,
+                        "rare_mae": 2.2897770404815674,
+                        "aore": 1.3358350545167923
+                    }
+                },
+                {
+                    "seed": 47,
+                    "k": 5,
+                    "stage_one_epochs": 205,
+                    "stage_two_epochs": 260,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 15.381123542785645,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5829271078109741,
+                        "overall_mae": 0.27232643961906433,
+                        "common_mae": 0.22130745649337769,
+                        "rare_mae": 2.826676368713379,
+                        "aore": 1.5495014041662216
+                    }
+                },
+                {
+                    "seed": 47,
+                    "k": 10,
+                    "stage_one_epochs": 228,
+                    "stage_two_epochs": 142,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 17.59727668762207,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.49033668637275696,
+                        "overall_mae": 0.32400739192962646,
+                        "common_mae": 0.28189244866371155,
+                        "rare_mae": 2.4325623512268066,
+                        "aore": 1.3782848715782166
+                    }
+                }
+            ],
+            "phase_2_controlled_retraining": [
+                {
+                    "k": 2,
+                    "seed": 47,
+                    "estimated_stage_one_epochs": 34,
+                    "estimated_stage_two_epochs": 304,
+                    "actual_stage_one_epochs": 34,
+                    "actual_stage_two_epochs": 304,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 7.502779960632324,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.654179573059082,
+                    "overall_mae": 0.4148702323436737,
+                    "common_mae": 0.38835158944129944,
+                    "rare_mae": 1.742570161819458,
+                    "aore": 1.0787201970815659,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k2_seed47.keras"
+                },
+                {
+                    "k": 3,
+                    "seed": 47,
+                    "estimated_stage_one_epochs": 437,
+                    "estimated_stage_two_epochs": 518,
+                    "actual_stage_one_epochs": 437,
+                    "actual_stage_two_epochs": 518,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 14.925469398498535,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7996382117271423,
+                    "overall_mae": 0.268922358751297,
+                    "common_mae": 0.20248523354530334,
+                    "rare_mae": 3.5952084064483643,
+                    "aore": 1.9320653825998306,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k3_seed47.keras"
+                },
+                {
+                    "k": 4,
+                    "seed": 47,
+                    "estimated_stage_one_epochs": 93,
+                    "estimated_stage_two_epochs": 122,
+                    "actual_stage_one_epochs": 93,
+                    "actual_stage_two_epochs": 122,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 19.150257110595703,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.5460547208786011,
+                    "overall_mae": 0.3375917971134186,
+                    "common_mae": 0.3005558252334595,
+                    "rare_mae": 2.191859722137451,
+                    "aore": 1.2647257596254349,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k4_seed47.keras"
+                },
+                {
+                    "k": 5,
+                    "seed": 47,
+                    "estimated_stage_one_epochs": 205,
+                    "estimated_stage_two_epochs": 260,
+                    "actual_stage_one_epochs": 205,
+                    "actual_stage_two_epochs": 260,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 15.381123542785645,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.6378692388534546,
+                    "overall_mae": 0.24886630475521088,
+                    "common_mae": 0.19450993835926056,
+                    "rare_mae": 2.970308542251587,
+                    "aore": 1.609587423503399,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k5_seed47.keras"
+                },
+                {
+                    "k": 10,
+                    "seed": 47,
+                    "estimated_stage_one_epochs": 228,
+                    "estimated_stage_two_epochs": 142,
+                    "actual_stage_one_epochs": 228,
+                    "actual_stage_two_epochs": 142,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 17.59727668762207,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.6807756423950195,
+                    "overall_mae": 0.2952759265899658,
+                    "common_mae": 0.23885478079319,
+                    "rare_mae": 3.120093822479248,
+                    "aore": 1.707684874534607,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k10_seed47.keras"
+                }
+            ]
+        },
+        {
+            "seed": 48,
+            "phase_1_kfold_estimates": [
+                {
+                    "seed": 48,
+                    "k": 2,
+                    "stage_one_epochs": 458,
+                    "stage_two_epochs": 368,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 7.275368690490723,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.7391915321350098,
+                        "overall_mae": 0.22804614901542664,
+                        "common_mae": 0.164857879281044,
+                        "rare_mae": 3.391671657562256,
+                        "aore": 1.8098589032888412
+                    }
+                },
+                {
+                    "seed": 48,
+                    "k": 3,
+                    "stage_one_epochs": 99,
+                    "stage_two_epochs": 71,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.204545021057129,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5378595590591431,
+                        "overall_mae": 0.2528756558895111,
+                        "common_mae": 0.21650294959545135,
+                        "rare_mae": 2.0739355087280273,
+                        "aore": 1.1634055823087692
+                    }
+                },
+                {
+                    "seed": 48,
+                    "k": 4,
+                    "stage_one_epochs": 137,
+                    "stage_two_epochs": 292,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 12.35733413696289,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.4953649938106537,
+                        "overall_mae": 0.33501940965652466,
+                        "common_mae": 0.30843839049339294,
+                        "rare_mae": 1.6658437252044678,
+                        "aore": 1.0004315674304962
+                    }
+                },
+                {
+                    "seed": 48,
+                    "k": 5,
+                    "stage_one_epochs": 104,
+                    "stage_two_epochs": 321,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 10.220927238464355,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5347490906715393,
+                        "overall_mae": 0.3158302307128906,
+                        "common_mae": 0.28338295221328735,
+                        "rare_mae": 1.9403572082519531,
+                        "aore": 1.1280937194824219
+                    }
+                },
+                {
+                    "seed": 48,
+                    "k": 10,
+                    "stage_one_epochs": 501,
+                    "stage_two_epochs": 1019,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 13.837157249450684,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.6534058451652527,
+                        "overall_mae": 0.20523816347122192,
+                        "common_mae": 0.14678139984607697,
+                        "rare_mae": 3.1319737434387207,
+                        "aore": 1.6686059534549713
+                    }
+                }
+            ],
+            "phase_2_controlled_retraining": [
+                {
+                    "k": 2,
+                    "seed": 48,
+                    "estimated_stage_one_epochs": 458,
+                    "estimated_stage_two_epochs": 368,
+                    "actual_stage_one_epochs": 458,
+                    "actual_stage_two_epochs": 368,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 7.275368690490723,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7926619052886963,
+                    "overall_mae": 0.29413744807243347,
+                    "common_mae": 0.22827371954917908,
+                    "rare_mae": 3.5917155742645264,
+                    "aore": 1.94292651116848,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k2_seed48.keras"
+                },
+                {
+                    "k": 3,
+                    "seed": 48,
+                    "estimated_stage_one_epochs": 99,
+                    "estimated_stage_two_epochs": 71,
+                    "actual_stage_one_epochs": 99,
+                    "actual_stage_two_epochs": 71,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.204545021057129,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.48666560649871826,
+                    "overall_mae": 0.25854018330574036,
+                    "common_mae": 0.21700623631477356,
+                    "rare_mae": 2.3380064964294434,
+                    "aore": 1.2982733398675919,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k3_seed48.keras"
+                },
+                {
+                    "k": 4,
+                    "seed": 48,
+                    "estimated_stage_one_epochs": 137,
+                    "estimated_stage_two_epochs": 292,
+                    "actual_stage_one_epochs": 137,
+                    "actual_stage_two_epochs": 292,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 12.35733413696289,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.5652454495429993,
+                    "overall_mae": 0.3468209505081177,
+                    "common_mae": 0.30876684188842773,
+                    "rare_mae": 2.252065896987915,
+                    "aore": 1.2994434237480164,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k4_seed48.keras"
+                },
+                {
+                    "k": 5,
+                    "seed": 48,
+                    "estimated_stage_one_epochs": 104,
+                    "estimated_stage_two_epochs": 321,
+                    "actual_stage_one_epochs": 104,
+                    "actual_stage_two_epochs": 321,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 10.220927238464355,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.4967189133167267,
+                    "overall_mae": 0.3165360987186432,
+                    "common_mae": 0.28126993775367737,
+                    "rare_mae": 2.082192897796631,
+                    "aore": 1.199364498257637,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k5_seed48.keras"
+                },
+                {
+                    "k": 10,
+                    "seed": 48,
+                    "estimated_stage_one_epochs": 501,
+                    "estimated_stage_two_epochs": 1019,
+                    "actual_stage_one_epochs": 501,
+                    "actual_stage_two_epochs": 1019,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 13.837157249450684,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7974295616149902,
+                    "overall_mae": 0.3036043345928192,
+                    "common_mae": 0.2389628291130066,
+                    "rare_mae": 3.539989948272705,
+                    "aore": 1.9217971414327621,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k10_seed48.keras"
+                }
+            ]
+        },
+        {
+            "seed": 49,
+            "phase_1_kfold_estimates": [
+                {
+                    "seed": 49,
+                    "k": 2,
+                    "stage_one_epochs": 78,
+                    "stage_two_epochs": 684,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 5.221553325653076,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5139394402503967,
+                        "overall_mae": 0.29408496618270874,
+                        "common_mae": 0.25729918479919434,
+                        "rare_mae": 2.13582706451416,
+                        "aore": 1.2149560153484344
+                    }
+                },
+                {
+                    "seed": 49,
+                    "k": 3,
+                    "stage_one_epochs": 107,
+                    "stage_two_epochs": 235,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 5.671933174133301,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5763139128684998,
+                        "overall_mae": 0.35651758313179016,
+                        "common_mae": 0.321792870759964,
+                        "rare_mae": 2.0950684547424316,
+                        "aore": 1.225793018937111
+                    }
+                },
+                {
+                    "seed": 49,
+                    "k": 4,
+                    "stage_one_epochs": 128,
+                    "stage_two_epochs": 91,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 8.001748085021973,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.6214259266853333,
+                        "overall_mae": 0.3303928077220917,
+                        "common_mae": 0.29101306200027466,
+                        "rare_mae": 2.3020060062408447,
+                        "aore": 1.3161994069814682
+                    }
+                },
+                {
+                    "seed": 49,
+                    "k": 5,
+                    "stage_one_epochs": 361,
+                    "stage_two_epochs": 379,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 11.600488662719727,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.9142556190490723,
+                        "overall_mae": 0.28253182768821716,
+                        "common_mae": 0.21229057013988495,
+                        "rare_mae": 3.7992773056030273,
+                        "aore": 2.0409045666456223
+                    }
+                },
+                {
+                    "seed": 49,
+                    "k": 10,
+                    "stage_one_epochs": 324,
+                    "stage_two_epochs": 292,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 6.338574409484863,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.7585153579711914,
+                        "overall_mae": 0.24578715860843658,
+                        "common_mae": 0.19749639928340912,
+                        "rare_mae": 2.6635446548461914,
+                        "aore": 1.454665906727314
+                    }
+                }
+            ],
+            "phase_2_controlled_retraining": [
+                {
+                    "k": 2,
+                    "seed": 49,
+                    "estimated_stage_one_epochs": 78,
+                    "estimated_stage_two_epochs": 684,
+                    "actual_stage_one_epochs": 78,
+                    "actual_stage_two_epochs": 684,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 5.221553325653076,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.5537189841270447,
+                    "overall_mae": 0.3246445059776306,
+                    "common_mae": 0.28798791766166687,
+                    "rare_mae": 2.159917116165161,
+                    "aore": 1.2422808110713959,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k2_seed49.keras"
+                },
+                {
+                    "k": 3,
+                    "seed": 49,
+                    "estimated_stage_one_epochs": 107,
+                    "estimated_stage_two_epochs": 235,
+                    "actual_stage_one_epochs": 107,
+                    "actual_stage_two_epochs": 235,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 5.671933174133301,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.606379508972168,
+                    "overall_mae": 0.36163148283958435,
+                    "common_mae": 0.32816168665885925,
+                    "rare_mae": 2.037353515625,
+                    "aore": 1.1994924992322922,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k3_seed49.keras"
+                },
+                {
+                    "k": 4,
+                    "seed": 49,
+                    "estimated_stage_one_epochs": 128,
+                    "estimated_stage_two_epochs": 91,
+                    "actual_stage_one_epochs": 128,
+                    "actual_stage_two_epochs": 91,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 8.001748085021973,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.591598391532898,
+                    "overall_mae": 0.3505983352661133,
+                    "common_mae": 0.31858381628990173,
+                    "rare_mae": 1.95345938205719,
+                    "aore": 1.1520288586616516,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k4_seed49.keras"
+                },
+                {
+                    "k": 5,
+                    "seed": 49,
+                    "estimated_stage_one_epochs": 361,
+                    "estimated_stage_two_epochs": 379,
+                    "actual_stage_one_epochs": 361,
+                    "actual_stage_two_epochs": 379,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 11.600488662719727,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.8746113181114197,
+                    "overall_mae": 0.27322620153427124,
+                    "common_mae": 0.21978580951690674,
+                    "rare_mae": 2.9488070011138916,
+                    "aore": 1.6110166013240814,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k5_seed49.keras"
+                },
+                {
+                    "k": 10,
+                    "seed": 49,
+                    "estimated_stage_one_epochs": 324,
+                    "estimated_stage_two_epochs": 292,
+                    "actual_stage_one_epochs": 324,
+                    "actual_stage_two_epochs": 292,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 6.338574409484863,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.8635700345039368,
+                    "overall_mae": 0.28995898365974426,
+                    "common_mae": 0.2412097007036209,
+                    "rare_mae": 2.7306737899780273,
+                    "aore": 1.5103163868188858,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k10_seed49.keras"
+                }
+            ]
+        },
+        {
+            "seed": 50,
+            "phase_1_kfold_estimates": [
+                {
+                    "seed": 50,
+                    "k": 2,
+                    "stage_one_epochs": 186,
+                    "stage_two_epochs": 562,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 27.684566497802734,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.4748198091983795,
+                        "overall_mae": 0.22305938601493835,
+                        "common_mae": 0.18148821592330933,
+                        "rare_mae": 2.304388999938965,
+                        "aore": 1.2637241929769516
+                    }
+                },
+                {
+                    "seed": 50,
+                    "k": 3,
+                    "stage_one_epochs": 148,
+                    "stage_two_epochs": 154,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 19.839126586914062,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.49000751972198486,
+                        "overall_mae": 0.3135702311992645,
+                        "common_mae": 0.28600406646728516,
+                        "rare_mae": 1.6937146186828613,
+                        "aore": 1.003642424941063
+                    }
+                },
+                {
+                    "seed": 50,
+                    "k": 4,
+                    "stage_one_epochs": 708,
+                    "stage_two_epochs": 424,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 27.245750427246094,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.7218803763389587,
+                        "overall_mae": 0.290202796459198,
+                        "common_mae": 0.2321842759847641,
+                        "rare_mae": 3.1949949264526367,
+                        "aore": 1.7425988614559174
+                    }
+                },
+                {
+                    "seed": 50,
+                    "k": 5,
+                    "stage_one_epochs": 202,
+                    "stage_two_epochs": 509,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 22.347932815551758,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.6043707728385925,
+                        "overall_mae": 0.34852883219718933,
+                        "common_mae": 0.30247706174850464,
+                        "rare_mae": 2.654188394546509,
+                        "aore": 1.501358613371849
+                    }
+                },
+                {
+                    "seed": 50,
+                    "k": 10,
+                    "stage_one_epochs": 540,
+                    "stage_two_epochs": 564,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 18.2543888092041,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.675087571144104,
+                        "overall_mae": 0.3368965983390808,
+                        "common_mae": 0.29024574160575867,
+                        "rare_mae": 2.672550916671753,
+                        "aore": 1.5047237575054169
+                    }
+                }
+            ],
+            "phase_2_controlled_retraining": [
+                {
+                    "k": 2,
+                    "seed": 50,
+                    "estimated_stage_one_epochs": 186,
+                    "estimated_stage_two_epochs": 562,
+                    "actual_stage_one_epochs": 186,
+                    "actual_stage_two_epochs": 562,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 27.684566497802734,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.47939935326576233,
+                    "overall_mae": 0.22695301473140717,
+                    "common_mae": 0.18276073038578033,
+                    "rare_mae": 2.4395124912261963,
+                    "aore": 1.3332327529788017,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k2_seed50.keras"
+                },
+                {
+                    "k": 3,
+                    "seed": 50,
+                    "estimated_stage_one_epochs": 148,
+                    "estimated_stage_two_epochs": 154,
+                    "actual_stage_one_epochs": 148,
+                    "actual_stage_two_epochs": 154,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 19.839126586914062,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.435884028673172,
+                    "overall_mae": 0.2647021412849426,
+                    "common_mae": 0.22931277751922607,
+                    "rare_mae": 2.0365288257598877,
+                    "aore": 1.1506154835224152,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k3_seed50.keras"
+                },
+                {
+                    "k": 4,
+                    "seed": 50,
+                    "estimated_stage_one_epochs": 708,
+                    "estimated_stage_two_epochs": 424,
+                    "actual_stage_one_epochs": 708,
+                    "actual_stage_two_epochs": 424,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 27.245750427246094,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.6813524961471558,
+                    "overall_mae": 0.21796387434005737,
+                    "common_mae": 0.16193650662899017,
+                    "rare_mae": 3.023066520690918,
+                    "aore": 1.6205151975154877,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k4_seed50.keras"
+                },
+                {
+                    "k": 5,
+                    "seed": 50,
+                    "estimated_stage_one_epochs": 202,
+                    "estimated_stage_two_epochs": 509,
+                    "actual_stage_one_epochs": 202,
+                    "actual_stage_two_epochs": 509,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 22.347932815551758,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.5329980254173279,
+                    "overall_mae": 0.2726886570453644,
+                    "common_mae": 0.22484350204467773,
+                    "rare_mae": 2.668135643005371,
+                    "aore": 1.4704121500253677,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k5_seed50.keras"
+                },
+                {
+                    "k": 10,
+                    "seed": 50,
+                    "estimated_stage_one_epochs": 540,
+                    "estimated_stage_two_epochs": 564,
+                    "actual_stage_one_epochs": 540,
+                    "actual_stage_two_epochs": 564,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 18.2543888092041,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7500402331352234,
+                    "overall_mae": 0.2955276370048523,
+                    "common_mae": 0.23840701580047607,
+                    "rare_mae": 3.155365467071533,
+                    "aore": 1.7254465520381927,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k10_seed50.keras"
+                }
+            ]
+        },
+        {
+            "seed": 51,
+            "phase_1_kfold_estimates": [
+                {
+                    "seed": 51,
+                    "k": 2,
+                    "stage_one_epochs": 254,
+                    "stage_two_epochs": 495,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 11.851724624633789,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5535596013069153,
+                        "overall_mae": 0.257157564163208,
+                        "common_mae": 0.19948311150074005,
+                        "rare_mae": 3.1447269916534424,
+                        "aore": 1.7009422779083252
+                    }
+                },
+                {
+                    "seed": 51,
+                    "k": 3,
+                    "stage_one_epochs": 135,
+                    "stage_two_epochs": 623,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.173806190490723,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5693707466125488,
+                        "overall_mae": 0.2741779685020447,
+                        "common_mae": 0.22596895694732666,
+                        "rare_mae": 2.687843084335327,
+                        "aore": 1.481010526418686
+                    }
+                },
+                {
+                    "seed": 51,
+                    "k": 4,
+                    "stage_one_epochs": 246,
+                    "stage_two_epochs": 416,
+                    "best_alpha_index": 0,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.827798843383789,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.6638981699943542,
+                        "overall_mae": 0.21747428178787231,
+                        "common_mae": 0.16748756170272827,
+                        "rare_mae": 2.7201449871063232,
+                        "aore": 1.4688096344470978
+                    }
+                },
+                {
+                    "seed": 51,
+                    "k": 5,
+                    "stage_one_epochs": 83,
+                    "stage_two_epochs": 451,
+                    "best_alpha_index": 2,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 9.96285343170166,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.5529674291610718,
+                        "overall_mae": 0.37506115436553955,
+                        "common_mae": 0.3423421382904053,
+                        "rare_mae": 2.0131938457489014,
+                        "aore": 1.1941275000572205
+                    }
+                },
+                {
+                    "seed": 51,
+                    "k": 10,
+                    "stage_one_epochs": 329,
+                    "stage_two_epochs": 371,
+                    "best_alpha_index": 1,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 12.783488273620605,
+                    "original_kfold_final_test": {
+                        "test_loss": 0.7239794731140137,
+                        "overall_mae": 0.2563857138156891,
+                        "common_mae": 0.19183111190795898,
+                        "rare_mae": 3.4884183406829834,
+                        "aore": 1.8724020272493362
+                    }
+                }
+            ],
+            "phase_2_controlled_retraining": [
+                {
+                    "k": 2,
+                    "seed": 51,
+                    "estimated_stage_one_epochs": 254,
+                    "estimated_stage_two_epochs": 495,
+                    "actual_stage_one_epochs": 254,
+                    "actual_stage_two_epochs": 495,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 11.851724624633789,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.6146349906921387,
+                    "overall_mae": 0.22471942007541656,
+                    "common_mae": 0.16866722702980042,
+                    "rare_mae": 3.031066417694092,
+                    "aore": 1.6278929188847542,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k2_seed51.keras"
+                },
+                {
+                    "k": 3,
+                    "seed": 51,
+                    "estimated_stage_one_epochs": 135,
+                    "estimated_stage_two_epochs": 623,
+                    "actual_stage_one_epochs": 135,
+                    "actual_stage_two_epochs": 623,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.173806190490723,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7100951075553894,
+                    "overall_mae": 0.24554407596588135,
+                    "common_mae": 0.1926058828830719,
+                    "rare_mae": 2.895983934402466,
+                    "aore": 1.5707640051841736,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k3_seed51.keras"
+                },
+                {
+                    "k": 4,
+                    "seed": 51,
+                    "estimated_stage_one_epochs": 246,
+                    "estimated_stage_two_epochs": 416,
+                    "actual_stage_one_epochs": 246,
+                    "actual_stage_two_epochs": 416,
+                    "best_alpha": 0.2,
+                    "reconstruction_lambda": 10.827798843383789,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.5959459543228149,
+                    "overall_mae": 0.22226418554782867,
+                    "common_mae": 0.16644832491874695,
+                    "rare_mae": 3.016777515411377,
+                    "aore": 1.6195208504796028,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k4_seed51.keras"
+                },
+                {
+                    "k": 5,
+                    "seed": 51,
+                    "estimated_stage_one_epochs": 83,
+                    "estimated_stage_two_epochs": 451,
+                    "actual_stage_one_epochs": 83,
+                    "actual_stage_two_epochs": 451,
+                    "best_alpha": 0.4,
+                    "reconstruction_lambda": 9.96285343170166,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.8445144295692444,
+                    "overall_mae": 0.36948496103286743,
+                    "common_mae": 0.32569268345832825,
+                    "rare_mae": 2.5620198249816895,
+                    "aore": 1.4657523930072784,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k5_seed51.keras"
+                },
+                {
+                    "k": 10,
+                    "seed": 51,
+                    "estimated_stage_one_epochs": 329,
+                    "estimated_stage_two_epochs": 371,
+                    "actual_stage_one_epochs": 329,
+                    "actual_stage_two_epochs": 371,
+                    "best_alpha": 0.3,
+                    "reconstruction_lambda": 12.783488273620605,
+                    "same_initialization_as_reference": true,
+                    "test_loss": 0.7642039060592651,
+                    "overall_mae": 0.2641654312610626,
+                    "common_mae": 0.2085699886083603,
+                    "rare_mae": 3.0476438999176025,
+                    "aore": 1.6559046655893326,
+                    "model_path": "saved_models/controlled_kfold_epoch_alpha\\controlled_k10_seed51.keras"
+                }
+            ]
+        }
+    ],
+    "best_k_counts_by_controlled_aore": {
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 2,
+        "10": 0
+    }
+}
