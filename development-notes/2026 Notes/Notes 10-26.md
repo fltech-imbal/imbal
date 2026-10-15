@@ -86,18 +86,18 @@ the network.
 - could still be worth weighting triples by distance (but still ignoring those that are very small distance) 
 ```
 
-- Compare w/ global anchor vs w/o global anchor
-- May want to re-run all experiments from last month
+- Compare w/ global anchor vs w/o global anchor $\checkmark$
+- May want to re-run all experiments from last month $\checkmark$
 
 | Representation space | Representation Loss                                                              | Ratio Range Loss (encouraged to be in desirable range) to prevent collapse ($r=0$) or explosion (r=$\inf$) |
 | -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | no hypersphere       | constant distance ratio (ex. entropy, variance) or cosine with similarity $= 1$  | Enabled                                                                                                    |
 | w/ hypersphere       | Cosine with derived desirable cosine values (label distance / label range * $3$) | Disabled                                                                                                   |
-- Implement "rank-based" approach, for similarity matrix
-	- Use stratified sampling or binning to make this work
-		- Will probably do the same for label-based
-- November and December papers will focus on gradient conflict methods
-	- Also, an idea for contrastive loss
+- Implement "rank-based" approach, for similarity matrix $\checkmark$
+	- Use stratified sampling or binning to make this work $\checkmark$
+		- Will probably do the same for label-based $\checkmark$
+- November and December papers will focus on gradient conflict methods $\checkmark$
+	- Also, an idea for contrastive loss $\checkmark$
 
 ---
 

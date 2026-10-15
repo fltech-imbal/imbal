@@ -2,9 +2,99 @@ from updated_sep_e_regression import run_model
 from tools.updated_loss_functions import *
 import gc
 
-# tf.config.run_functions_eagerly(True)
+tf.config.run_functions_eagerly(True)
 
 results = []
+
+
+"""
+Round 1
+"""
+
+results.append("Cauchy-Schwartz w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_cauchy_schwartz_global_{i+1}',
+        PROVIDED_REP_LOSS=cauchy_schwartz,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    for result in results:
+        if isinstance(result, tuple):
+            print('-', *result)
+        else:
+            print(result)
+    gc.collect()
+
+results.append("Entropy w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_entropy_global_{i+1}',
+        PROVIDED_REP_LOSS=maximize_entropy,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    for result in results:
+        if isinstance(result, tuple):
+            print('-', *result)
+        else:
+            print(result)
+    gc.collect()
+
+results.append("Variance w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_variance_global_{i+1}',
+        PROVIDED_REP_LOSS=minimize_variance,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    for result in results:
+        if isinstance(result, tuple):
+            print('-', *result)
+        else:
+            print(result)
+    gc.collect()
+
+results.append("Distance PCC w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_distance_pcc_global_{i+1}',
+        PROVIDED_REP_LOSS=distance_pcc,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    for result in results:
+        if isinstance(result, tuple):
+            print('-', *result)
+        else:
+            print(result)
+    gc.collect()
+
+results.append("Cauchy-Schwartz:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_cauchy_schwartz_global_{i+1}',
+        PROVIDED_REP_LOSS=cauchy_schwartz,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    for result in results:
+        if isinstance(result, tuple):
+            print('-', *result)
+        else:
+            print(result)
+    gc.collect()
 
 # results.append("Cauchy-Schwartz (learned ratio):")
 # for i in range(5):
@@ -104,21 +194,21 @@ results = []
 #             print(result)
 #     gc.collect()
 
-results.append("Cosine Similarity of 1 (and ratio=1):")
-for i in range(5):
-    print(f"Beginning run {i+1}...")
-    results.append(run_model(
-        OUTPUT_POSTFIX=f'_cosine_similarity_{i+1}',
-        PROVIDED_REP_LOSS=cosine_similarity,
-        UNIT_REPRESENTATIONS=False,
-        LEARNABLE_RATIO=True
-    ))
-    for result in results:
-        if isinstance(result, tuple):
-            print('-', *result)
-        else:
-            print(result)
-    gc.collect()
+# results.append("Cosine Similarity of 1 (and ratio=1):")
+# for i in range(5):
+#     print(f"Beginning run {i+1}...")
+#     results.append(run_model(
+#         OUTPUT_POSTFIX=f'_cosine_similarity_{i+1}',
+#         PROVIDED_REP_LOSS=cosine_similarity,
+#         UNIT_REPRESENTATIONS=False,
+#         LEARNABLE_RATIO=True
+#     ))
+#     for result in results:
+#         if isinstance(result, tuple):
+#             print('-', *result)
+#         else:
+#             print(result)
+#     gc.collect()
 
 # results.append("Enforced Cosine:")
 # for i in range(5):
@@ -128,7 +218,7 @@ for i in range(5):
 #         OUTPUT_POSTFIX=f'_enforced_cosine_hypersphere_{i + 1}',
 #         PROVIDED_REP_LOSS=enforced_cosine,
 #         UNIT_REPRESENTATIONS=True,
-#         USE_RAW_REPRESENTATIONS=True,
+#         USE_RAW_LABELS_AND_REPRESENTATIONS=True,
 #         INCLUDE_GLOBAL_ANCHOR=False
 #     ))
 #     for result in results:

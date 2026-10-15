@@ -6,6 +6,42 @@ from math import pi
 EPSILON = 1e-6
 LABEL_RANGE = None
 
+def greedy_filter_mask(values, epsilon=1e-3):
+    values = tf.reshape(values, [-1])
+    n = tf.shape(values)[0]
+
+    mask = tf.TensorArray(tf.bool, size=n)
+
+    def cond(i, last, count, mask):
+        return i < n
+
+    def body(i, last, count, mask):
+        value = values[i]
+
+        keep = tf.logical_or(
+            tf.equal(count, 0),
+            last - value >= tf.cast(epsilon, values.dtype)
+        )
+
+        mask = mask.write(i, keep)
+        last = tf.where(keep, value, last)
+        count += tf.cast(keep, tf.int32)
+
+        return i + 1, last, count, mask
+
+    _, _, _, mask = tf.while_loop(
+        cond,
+        body,
+        (
+            tf.constant(0),
+            tf.zeros([], dtype=values.dtype),
+            tf.constant(0),
+            mask
+        )
+    )
+
+    return mask.stack()
+
 def minimize_variance(label_distances, representation_distances):
     ratios = representation_distances / (label_distances + EPSILON)
     std_dev = tf.math.reduce_std(tf.keras.ops.log(ratios))
@@ -39,7 +75,8 @@ def cosine_similarity(label_distances, representation_distances):
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
     return 1 - tf.reduce_mean(similarities)
 
-def enforced_cosine(label_distances, representations):
+def enforced_cosine(labels, representations):
+    label_distances = labels[1:] - labels[:-1]
     representation_differences = representations[1:] - representations[:-1]
     first_vectors_normalized = tf.linalg.l2_normalize(representation_differences[:-1], axis=1, epsilon=1e-8)
     second_vectors_normalized = tf.linalg.l2_normalize(representation_differences[1:], axis=1, epsilon=1e-8)
@@ -51,6 +88,23 @@ def enforced_cosine(label_distances, representations):
 
     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
     return tf.reduce_mean(tf.square(ideal_cosines - similarities))
+
+# def enforced_cosine_w_epsilon(labels, representations):
+#     filter_mask = greedy_filter_mask(labels)
+#     labels = labels[filter_mask]
+#     representations = representations[filter_mask]
+#     label_distances = labels[1:] - labels[:-1]
+#     representation_differences = representations[1:] - representations[:-1]
+#     first_vectors_normalized = tf.linalg.l2_normalize(representation_differences[:-1], axis=1, epsilon=1e-8)
+#     second_vectors_normalized = tf.linalg.l2_normalize(representation_differences[1:], axis=1, epsilon=1e-8)
+#
+#     label_difference = (label_distances[:-1] + label_distances[1:])
+#     normalized_difference_length = label_difference / LABEL_RANGE
+#
+#     ideal_cosines = tf.reshape(tf.math.cos(normalized_difference_length * 3), (-1,))
+#
+#     similarities = tf.reduce_sum(first_vectors_normalized * second_vectors_normalized, axis=1)
+#     return tf.reduce_mean(tf.square(ideal_cosines - similarities))
 
 
 def get_distance_pairs(
@@ -132,7 +186,7 @@ def loss_function_builder(
     decorrelation_lambda=1,
     include_global_anchor=False,
     include_ratio=False,
-    use_raw_representations=False
+    use_raw_labels_and_representations=False
 ):
     global LABEL_RANGE
     LABEL_RANGE = train_label_max - train_label_min
@@ -173,13 +227,13 @@ def loss_function_builder(
         )
 
         if include_ratio:
-            if use_raw_representations:
-                rep_loss_value = loss(label_distance_pairs, representations, ratio)
+            if use_raw_labels_and_representations:
+                rep_loss_value = loss(labels, representations, ratio)
             else:
                 rep_loss_value = loss(label_distance_pairs, representation_distance_pairs, ratio)
         else:
-            if use_raw_representations:
-                rep_loss_value = loss(label_distance_pairs, representations)
+            if use_raw_labels_and_representations:
+                rep_loss_value = loss(labels, representations)
             else:
                 rep_loss_value = loss(label_distance_pairs, representation_distance_pairs)
         ratio_loss_value = ratio_loss_function(label_distance_pairs, representation_distance_pairs, ratio)

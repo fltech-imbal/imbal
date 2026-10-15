@@ -8,7 +8,6 @@ from keras import layers
 import numpy as np
 import pandas as pd
 from tools import FitType
-from tools.loss_functions import *
 from tools.trainable_scalar import TrainableScalar
 from tools.extended_model import ExtendedModel
 from imbal.util.backend.constants import ModelType
@@ -41,10 +40,10 @@ def run_model(
     LEARNABLE_RATIO = False,
     RATIO_MAX = 5,
     RATIO_LOSS_LAMBDA = 1,
-    PROVIDED_REP_LOSS=cauchy_schwartz_w_ratio_loss,
+    PROVIDED_REP_LOSS=cauchy_schwartz,
     INCLUDE_GLOBAL_ANCHOR=True,
     INCLUDE_RATIO=False,
-    USE_RAW_REPRESENTATIONS=False,
+    USE_RAW_LABELS_AND_REPRESENTATIONS=False,
 
     REPRESENTATION_LAYER_INDEX = -2,
     EARLY_STOPPING_PATIENCE = 100,
@@ -121,7 +120,7 @@ def run_model(
         decorrelation_lambda=1,
         include_global_anchor=INCLUDE_GLOBAL_ANCHOR,
         include_ratio= INCLUDE_RATIO,
-        use_raw_representations=USE_RAW_REPRESENTATIONS
+        use_raw_labels_and_representations=USE_RAW_LABELS_AND_REPRESENTATIONS
     )
 
     """
@@ -323,31 +322,31 @@ def run_model(
 
     # print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
-    imbal.regression.plot_true_vs_predictions(
-        y_test,
-        predictions,
-        title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
-        save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
-    )
-
-    imbal.regression.tsne_visualization(
-        model,
-        x_test,
-        y_test,
-        perplexity=150,
-        representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
-    )
+    # imbal.regression.plot_true_vs_predictions(
+    #     y_test,
+    #     predictions,
+    #     title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
+    #     save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
+    # )
+    #
+    # imbal.regression.tsne_visualization(
+    #     model,
+    #     x_test,
+    #     y_test,
+    #     perplexity=150,
+    #     representation_layer_index=REPRESENTATION_LAYER_INDEX,
+    #     save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
+    # )
 
     _, subset = imbal.regression.split(x_test, y_test, test_size=.33, seed=1)
     x_test, y_test = subset
 
-    plot_similarity(
-        model,
-        x_test,
-        y_test,
-        save_figure=f"{OUTPUT_PATH}/similarity/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_sim.png"
-    )
+    # plot_similarity(
+    #     model,
+    #     x_test,
+    #     y_test,
+    #     save_figure=f"{OUTPUT_PATH}/similarity/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_sim.png"
+    # )
 
     final_ratio = None
     if learned_ratio is not None:

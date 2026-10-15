@@ -41,7 +41,7 @@ performing losses when unit hypersphere representations are used are
 the weighted and unweighted cosine similarity loss functions,"
 
 -1: 4.4 non-linear regressor, not encoder-- "Lastly, L ent and L cs
-were re-ran with unit hypersphere repre- sentations, with the
+were re-ran with unit hypersphere representations, with the
 additional inclusion of a non-linear encoder."
 
 -2: The 4 rounds of experiments could use more justificaion 

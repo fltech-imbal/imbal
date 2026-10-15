@@ -1,49 +1,191 @@
-Original Distribution first stage, CAUCHY SCHWARTZ:
-[76.0, 350.0, 0.2353, 0.1681, 0.1962, 0.0, 0.58]
+ROUND 1
 
-Cauchy-Schwartz (learned ratio):
-[105.0, 293.6, 0.2329, 0.1703, 0.1965, 0.0, 0.58, 2.4716]
+====================
+CAUCHY-SCHWARTZ
+====================
 
-==================================================================
+Cauchy-Schwartz w/ fixed ratio=1:
+[33.8, 306.8, 0.2322, 0.169, 0.1955, 0.0, 0.54, 0.0]
 
-Original Distribution first stage, ENTROPY:
-[99.4, 96.4, 0.2378, 0.1675, 0.1969, 0.0, 0.7]
+Cauchy-Schwartz w/ global anchor, fixed ratio=1:
+[88.0, 262.0, 0.2366, 0.1742, 0.2003, 0.0, 0.58, 0.0]
 
-Entropy (learned ratio):
-[128.8, 29.6, 0.2343, 0.1757, 0.2002, 0.0, 0.62, 2.7543]
+Cauchy-Schwartz w/ learned ratio:
+[30.6, 339.2, 0.233, 0.1705, 0.1967, 0.0, 0.58, 2.5596]
 
-==================================================================
+Cauchy-Schwartz w/ global anchor, learned ratio:
+[49.2, 369.2, 0.2355, 0.1777, 0.2019, 0.0, 0.3, 2.5393]
 
-Original Distribution first stage, VARIANCE:
-[51.2, 245.4, 0.2342, 0.1795, 0.2024, 0.0, 0.62]
+Cauchy-Schwartz:
+[68.4, 343.2, 0.2328, 0.1771, 0.2004, 0.0, 0.54, 0.0]
 
-Variance (learned ratio):
-[235.2, 43.0, 0.2446, 0.1859, 0.2105, 0.0, 0.42, 2.8703]
+Cauchy-Schwartz w/ global anchor:
+[186.2, 324.0, 0.2318, 0.1703, 0.196, 0.0, 0.54, 0.0]
 
-==================================================================
-Balanced Distribution first stage, DISTANCE PCC:
-[66.0, 193.6, 0.2374, 0.1722, 0.1995, 0.5, 0.54]
+====================
+ENTROPY
+====================
 
-Distance PCC (learned ratio):
-[305.8, 47.0, 0.2452, 0.175, 0.2044, 0.0, 0.54, 2.9389]
+Entropy w/ fixed ratio=1:
+[68.4, 23.8, 0.2323, 0.1692, 0.1956, 0.0, 0.7, 0.0]
 
-==================================================================
-(improvement)
+Entropy w/ global anchor, fixed ratio=1:
+[101.0, 16.2, 0.2301, 0.1699, 0.1951, 0.0, 0.66, 0.0]
 
-Original Distribution first stage, DISTANCE DIFFERENCE:
-[1246.8, 14.0, 0.3142, 0.2515, 0.2778, 0.0, 0.42]
+Entropy w/ learned ratio:
+[158.8, 62.8, 0.2386, 0.1767, 0.2026, 0.0, 0.54, 2.7861]
 
-Distance Difference (implicit learned ratio):
-[148.8, 3.6, 0.2225, 0.1683, 0.191, 0.0, 0.54, 2.7702]
+Entropy w/ global anchor, learned ratio:
+[114.4, 28.4, 0.2335, 0.1738, 0.1988, 0.0, 0.5, 2.7345]
 
-==================================================================
-(improvement)
+Entropy:
+[133.4, 133.0, 0.2435, 0.1664, 0.1987, 0.0, 0.66, 0.0]
 
-Original distribution first stage, COSINE:
-[249.8, 20.4, 0.2292, 0.1665, 0.1928, 0.0, 0.62]
+Entropy w/ global anchor:
+[103.2, 138.2, 0.2382, 0.1791, 0.2039, 0.0, 0.62, 0.0]
+
+====================
+VARIANCE
+====================
+
+Variance w/ fixed ratio=1:
+[484.6, 31.0, 0.253, 0.1915, 0.2173, 0.0, 0.58, 0.0]
+
+Variance w/ global anchor, fixed ratio=1:
+[240.0, 5.8, 0.2478, 0.1844, 0.211, 0.0, 0.46, 0.0]
+
+Variance w/ learned ratio:
+[538.6, 18.0, 0.2664, 0.2221, 0.2406, 0.0, 0.22, 3.1899]
+
+Variance w/ global anchor, learned ratio:
+[245.2, 22.2, 0.2429, 0.1774, 0.2048, 0.0, 0.66, 2.8812]
+
+Variance:
+[84.8, 169.4, 0.2378, 0.1839, 0.2065, 0.0, 0.54, 0.0]
+
+Variance w/ global anchor:
+[83.8, 207.0, 0.2376, 0.1781, 0.203, 0.0, 0.54, 0.0]
+
+====================
+DISTANCE PCC
+====================
+
+Distance PCC w/ fixed ratio=1:
+[125.0, 22.4, 0.2321, 0.1691, 0.1955, 0.0, 0.62, 0.0]
+
+Distance PCC w/ global anchor, fixed ratio=1:
+[133.2, 14.8, 0.2361, 0.1662, 0.1955, 0.0, 0.5, 0.0]
+
+Distance PCC w/ learned ratio:
+[245.4, 83.0, 0.2457, 0.1774, 0.206, 0.0, 0.38, 2.8746]
+
+Distance PCC w/ global anchor, learned ratio:
+[199.4, 46.6, 0.2446, 0.1799, 0.207, 0.0, 0.5, 2.8305]
+
+Distance PCC:
+[99.8, 100.8, 0.2394, 0.1786, 0.2041, 0.0, 0.58, 0.0]
+
+Distance PCC w/ global anchor:
+[126.2, 126.4, 0.2368, 0.1647, 0.1949, 0.0, 0.7, 0.0]
+
+====================
+DISTANCE DIFFERENCE
+====================
+
+Distance Difference w/ implied ratio=1:
+[67.8, 29.0, 0.228, 0.1658, 0.1918, 0.0, 0.62, 0.0]
+
+Distance Difference w/ global anchor, implied ratio=1:
+[75.2, 18.2, 0.231, 0.1706, 0.1959, 0.0, 0.62, 0.0]
+
+**********************************************************
+Distance Difference w/ implied learned ratio:
+[153.8, 6.0, 0.2255, 0.1635, 0.1895, 0.0, 0.58, 2.7725]
+**********************************************************
+
+Distance Difference w/ global anchor, implied learned ratio:
+[173.4, 2.8, 0.2189, 0.1686, 0.1896, 0.0, 0.46, 2.7949]
+
+====================
+COSINE SIMILARITY
+====================
+
+Cosine Similarity of 1 w/ fixed ratio=1:
+[55.0, 60.8, 0.2321, 0.1683, 0.195, 0.0, 0.7, 0.0]
+
+**********************************************************
+Cosine Similarity of 1 w/ global anchor, fixed ratio=1:
+[70.0, 19.8, 0.2302, 0.1656, 0.1926, 0.0, 0.7, 0.0]
+**********************************************************
+
+Cosine Similarity of 1 w/ learned ratio:
+[181.4, 73.6, 0.2358, 0.1682, 0.1965, 0.0, 0.5, 2.8119]
+
+Cosine Similarity of 1 w/ global anchor, learned ratio:
+[158.8, 69.8, 0.2367, 0.1786, 0.2029, 0.0, 0.46, 2.7867]
 
 Cosine Similarity of 1:
-[330.6, 3.6, 0.2286, 0.1651, 0.1917, 0.0, 0.1, 0.0]
+[257.6, 2.8, 0.2272, 0.172, 0.1951, 0.0, 0.58, 0.0]
 
-Enforced Cosine (hypersphere):
-[1750.0, 2.2, 0.3072, 0.2275, 0.2609, 0.0, 0.3, 0.0]
+Cosine Similarity of 1 w/ global anchor:
+[318.8, 2.0, 0.224, 0.1757, 0.1959, 0.0, 0.62, 0.0]
+
+====================
+ENFORCED COSINE
+====================
+
+Enforced Cosine, fixed ratio=1:
+[131.0, 38.6, 0.2303, 0.1792, 0.2006, 0.0, 0.62, 0.0]
+
+**********************************************************
+Enforced Cosine w/ global anchor, fixed ratio=1:
+[160.0, 48.4, 0.2302, 0.1659, 0.1928, 0.0, 0.62, 0.0]
+**********************************************************
+
+Enforced Cosine w/ learned ratio:
+[296.8, 74.8, 0.2352, 0.1753, 0.2004, 0.0, 0.54, 2.9358]
+
+Enforced Cosine w/ global anchor, learned ratio:
+[153.6, 80.4, 0.2359, 0.1775, 0.202, 0.0, 0.46, 2.7766]
+
+Enforced Cosine:
+[94.8, 173.0, 0.2364, 0.1695, 0.1975, 0.0, 0.62, 0.0]
+
+Enforced Cosine w/ global anchor:
+[100.0, 133.8, 0.2399, 0.1714, 0.2001, 0.0, 0.62, 0.0]
+
+=================================================================
+ROUND 2 (DECORRELATION)
+
+Distance Difference w/ implied learned ratio, decorrelation:
+[169.0, 7.4, 0.2205, 0.1645, 0.1879, 0.0, 0.7, 2.7842]
+
+Cosine Similarity of 1 w/ global anchor, fixed ratio=1, decorrelation:
+[309.8, 49.6, 0.2302, 0.1655, 0.1926, 0.0, 0.66, 0.0]
+
+Enforced Cosine w/ global anchor, fixed ratio=1, decorrelation:
+[437.4, 30.8, 0.2317, 0.1732, 0.1977, 0.0, 0.54, 0.0]
+
+=================================================================
+ROUND 3 (HYPERSPHERE)
+
+Distance Difference w/ implied learned ratio, decorrelation, hypersphere:
+[2085.2, 4.4, 0.3101, 0.1924, 0.2417, 0.0, 0.14, 1.3635]
+
+Cosine Similarity of 1 w/ global anchor, fixed ratio=1, hypersphere:
+[1053.8, 759.6, 0.2983, 0.2463, 0.2681, 0.0, 0.5, 0.0]
+
+Enforced Cosine w/ global anchor, hypersphere:
+[1720.6, 7.6, 0.3241, 0.2522, 0.2823, 0.0, 0.14, 0.0]
+
+=================================================================
+ROUND 4 (NON-LINEAR REGRESSOR)
+
+Distance Difference w/ implied learned ratio, decorrelation, nonlinear regressor:
+[326.0, 2.4, 0.2381, 0.1752, 0.2015, 0.0, 0.3, 2.4072]
+
+Cosine Similarity of 1 w/ global anchor, fixed ratio=1, nonlinear regressor:
+[52.4, 29.6, 0.2349, 0.1716, 0.1981, 0.0, 0.5, 0.0]
+
+Enforced Cosine w/ global anchor, hypersphere:
+[108.6, 35.4, 0.2439, 0.1635, 0.1972, 0.0, 0.7, 0.0]

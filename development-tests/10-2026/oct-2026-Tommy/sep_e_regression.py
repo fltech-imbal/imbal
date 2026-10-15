@@ -319,31 +319,31 @@ def run_model(
 
     # print(np.count_nonzero(common_sample_mask), np.count_nonzero(~common_sample_mask))
 
-    imbal.regression.plot_true_vs_predictions(
-        y_test,
-        predictions,
-        title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
-        save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
-    )
-
-    imbal.regression.tsne_visualization(
-        model,
-        x_test,
-        y_test,
-        perplexity=150,
-        representation_layer_index=REPRESENTATION_LAYER_INDEX,
-        save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
-    )
+    # imbal.regression.plot_true_vs_predictions(
+    #     y_test,
+    #     predictions,
+    #     title=f'SEP-E - Common MAE: {common_mae:.4f}, Rare MAE: {rare_mae:.4f}, AORE: {(mae + rare_mae)/2:.4f}',
+    #     save_figure=f"{OUTPUT_PATH}/tvp/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tvp.png"
+    # )
+    #
+    # imbal.regression.tsne_visualization(
+    #     model,
+    #     x_test,
+    #     y_test,
+    #     perplexity=150,
+    #     representation_layer_index=REPRESENTATION_LAYER_INDEX,
+    #     save_figure=f"{OUTPUT_PATH}/tsne/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_tsne.png"
+    # )
 
     _, subset = imbal.regression.split(x_test, y_test, test_size=.33, seed=1)
     x_test, y_test = subset
 
-    plot_similarity(
-        model,
-        x_test,
-        y_test,
-        save_figure=f"{OUTPUT_PATH}/similarity/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_sim.png"
-    )
+    # plot_similarity(
+    #     model,
+    #     x_test,
+    #     y_test,
+    #     save_figure=f"{OUTPUT_PATH}/similarity/{DATA_PREFIX}_{'w' if VALIDATION_DATA or AE else ''}{'_validation' if VALIDATION_DATA else ''}{'_ae' if AE else ''}{'_third_last' if AE_THIRD_TO_LAST and AE else ''}{OUTPUT_POSTFIX}_sim.png"
+    # )
 
     final_ratio = None
     if learned_ratio is not None:

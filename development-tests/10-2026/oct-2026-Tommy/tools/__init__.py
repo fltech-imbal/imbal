@@ -13,5 +13,5 @@ from .pcc import pcc
 from .generate_plots import generate_plots
 from .load_sep_c_data import load_sep_c_data
 from .trainable_scalar import TrainableScalar
-from .plot_similarity import plot_similarity
+from .plot_similarity import plot_similarity_binned, plot_similarity
 from .updated_loss_functions import *
