@@ -1,64 +1,117 @@
-ROUND 1
+====================
+CAUCHY-SCHWARTZ
+====================
 
-Original Distribution first stage, ENTROPY:
-[976.8, 376.0, 0.431, 3.1487, 1.8164, 0.0, 0.3]
+Cauchy-Schwartz w/ global anchor, fixed ratio=1:
+[4613.6, 172.0, 0.2318, 5.8312, 3.0864, 0.0, 0.1, 0.0]
 
-Original Distribution first stage, VARIANCE:
-[1555.8, 12.6, 0.2642, 2.3727, 1.3391, 0.0, 0.26]
+Cauchy-Schwartz, fixed ratio=1:
+[3599.6, 172.0, 0.2316, 5.8315, 3.0864, 0.0, 0.1, 0.0]
 
-Original Distribution first stage, DISTANCE PCC:
-[1160.8, 158.8, 0.3934, 2.3189, 1.375, 0.0, 0.26]
+Cauchy-Schwartz w/ global anchor, learned ratio:
+[3561.2, 191.8, 0.2616, 5.8004, 3.0852, 0.0, 0.14, 2.6]
 
-Original Distribution first stage, DISTANCE DIFFERENCE:
-[935.4, 1181.2, 0.5015, 2.6088, 1.5758, 0.0, 0.46]
+Cauchy-Schwartz w/ learned ratio:
+[3717.4, 1609.0, 0.1977, 4.7983, 2.543, 0.0, 0.22, 2.6]
 
-Original Distribution first stage, CAUCHY SCHWARTZ:
-[1129.4, 864.8, 0.3842, 2.3923, 1.4079, 0.0, 0.26]
+====================
+ENTROPY
+====================
 
-Original distribution first stage, COSINE:
-[476.2, 812.4, 0.3812, 3.5498, 1.9965, 0.0, 0.3]
+Entropy w/ global anchor, fixed ratio=1:
+[558.2, 21.4, 0.3289, 2.2194, 1.2927, 0.0, 0.3, 0.0]
 
-Original distribution first stage, COSINE, WEIGHTED:
-[351.0, 0.0, 0.6691, 2.4823, 1.5935, 0.34, 0.0]
+Entropy, fixed ratio=1:
+[667.8, 49.4, 0.3951, 2.5643, 1.5009, 0.0, 0.26, 0.0]
 
-Original distribution first stage, COSINE, JOINT:
-[505.0, 0.0, 0.5625, 2.856, 1.7317, 0.3, 0.0]
+Entropy w/ global anchor, learned ratio:
+[535.4, 22.2, 0.4267, 2.2494, 1.3559, 0.0, 0.42, 2.6]
 
-================================================================================
+Entropy w/ learned ratio:
+[640.8, 11.2, 0.3772, 2.1551, 1.2835, 0.0, 0.26, 2.6]
 
-ROUND 2
+====================
+VARIANCE
+====================
 
-Original Distribution first stage, VARIANCE, DECORRELATION:
-[341.8, 228.2, 0.6885, 2.6497, 1.6883, 0.0, 0.3]
+Variance w/ global anchor, fixed ratio=1:
+[452.0, 31.6, 0.4253, 1.8444, 1.1487, 0.0, 0.34, 0.0]
 
-Original Distribution first stage, DISTANCE PCC, DECORRELATION:
-[529.4, 398.6, 0.3538, 4.7125, 2.5758, 0.0, 0.22]
+Variance, fixed ratio=1:
+[374.0, 118.0, 0.419, 2.3989, 1.4283, 0.0, 0.3, 0.0]
 
-Original distribution first stage, COSINE, DECORRELATION:
-[1401.2, 548.4, 0.2785, 3.4077, 1.8737, 0.0, 0.38]
+************************************************************
+Variance w/ global anchor, learned ratio:
+[388.2, 23.4, 0.5543, 1.8955, 1.238, 0.0, 0.3, 2.6]
+************************************************************
 
-================================================================================
+Variance w/ learned ratio:
+[434.0, 50.4, 0.3698, 1.929, 1.1646, 0.0, 0.3, 2.6]
 
-ROUND 3
+====================
+DISTANCE PCC
+====================
 
-Original Distribution first stage, VARIANCE, HYPERSPHERE (NO DECORRELATION):
-[334.0, 641.4, 0.2983, 3.6737, 2.019, 0.0, 0.34]
+Distance PCC w/ global anchor, fixed ratio=1:
+[897.6, 18.6, 0.3164, 2.4873, 1.4231, 0.0, 0.22, 0.0]
 
-Original Distribution first stage, DISTANCE PCC, HYPERSPHERE (NO DECORRELATION):
-[498.2, 444.2, 0.4051, 3.8391, 2.1557, 0.0, 0.38]
+Distance PCC, fixed ratio=1:
+[576.0, 37.0, 0.3615, 2.6267, 1.5163, 0.0, 0.26, 0.0]
 
-Original distribution first stage, COSINE, HYPERSPHERE (NO DECORRELATION):
-[496.2, 582.8, 0.4431, 3.5753, 2.0399, 0.0, 0.38]
+Distance PCC w/ global anchor, learned ratio:
+[1153.0, 55.0, 0.4058, 2.1219, 1.2807, 0.0, 0.26, 2.6]
 
-Original distribution first stage, COSINE, WEIGHTED, HYPERSPHERE:
-[786.4, 315.0, 0.5593, 4.0016, 2.3141, 0.0, 0.26]
+Distance PCC w/ learned ratio:
+[756.8, 85.0, 0.2714, 3.2768, 1.8035, 0.0, 0.26, 2.6]
 
-================================================================================
+====================
+DISTANCE DIFFERENCE
+====================
 
-ROUND 4
+Distance Difference w/ global anchor, fixed ratio=1:
+[794.0, 104.0, 0.268, 2.6883, 1.5018, 0.0, 0.26, 0.0]
 
-Original Distribution first stage, VARIANCE, HYPERSPHERE, NON-LINEAR REGRESSOR:
-[196.6, 401.6, 0.394, 4.1622, 2.315, 0.0, 0.26]
+Distance Difference, implied ratio=1:
+[618.6, 11.6, 0.308, 2.3577, 1.3529, 0.0, 0.3, 0.0]
 
-Original Distribution first stage, DISTANCE PCC, HYPERSPHERE, NON-LINEAR REGRESSOR:
-[618.4, 325.4, 0.3728, 3.2269, 1.8278, 0.0, 0.3]
+Distance Difference w/ global anchor, implied learned ratio:
+[621.4, 99.2, 0.3282, 3.1899, 1.787, 0.0, 0.34, 2.0698]
+
+Distance Difference w/ implied learned ratio:
+[2025.2, 491.6, 0.2584, 3.2389, 1.7779, 0.0, 0.26, 1.1937]
+
+====================
+COSINE SIMILARITY
+====================
+
+Cosine Similarity of 1 w/ global anchor, fixed ratio=1:
+[491.0, 420.6, 0.3167, 2.4042, 1.3809, 0.0, 0.3, 0.0]
+
+Cosine Similarity of 1, fixed ratio=1:
+[1072.4, 3.6, 0.1756, 2.6191, 1.4213, 0.0, 0.22, 0.0]
+
+************************************************************
+Cosine Similarity of 1 w/ global anchor, learned ratio:
+[589.0, 39.4, 0.3288, 2.1238, 1.2438, 0.0, 0.3, 2.6]
+************************************************************
+
+Cosine Similarity of 1 w/ learned ratio:
+[551.2, 694.2, 0.2624, 2.8066, 1.5594, 0.0, 0.26, 2.6]
+
+====================
+ENFORCED COSINE
+====================
+
+Enforced Cosine w/ global anchor, fixed ratio=1:
+[1777.8, 233.8, 0.4454, 3.2865, 1.8938, 0.0, 0.3, 0.0]
+
+Enforced Cosine, fixed ratio=1:
+[1052.6, 104.2, 0.3229, 2.6672, 1.518, 0.0, 0.26, 0.0]
+
+************************************************************
+Enforced Cosine w/ global anchor, learned ratio:
+[622.2, 25.6, 0.4603, 1.7346, 1.1099, 0.0, 0.3, 2.6]
+************************************************************
+
+Enforced Cosine w/ learned ratio:
+[655.0, 214.2, 0.4786, 2.6328, 1.5768, 0.0, 0.26, 2.6]

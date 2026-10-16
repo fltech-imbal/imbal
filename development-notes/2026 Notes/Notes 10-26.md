@@ -121,3 +121,51 @@ the network.
 - After all of above, start updating the documentation and tutorials!
 	- Use a simple representation loss
 - SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
+
+---
+
+# 10/8/26
+
+## Thesis
+
+```
+======== ideas to explore =======
+
+1.  "tiny" network for distance ratio that outputs only in the
+desirable range as discussed ~2 weeks ago. (9/7/26 email)
+
+2.  importance functions as discussed in the email on 9/18.  The
+modified sigmoid is not needed since it is solely based on labels, not
+the network.
+- Can use average, min, or max (start with max) for cutoff on computing cosine similarity
+
+2.  normalization with max distance in hypercircle as discussed above.
+- could still be worth weighting triples by distance (but still ignoring those that are very small distance) 
+```
+
+- November and December papers will focus on gradient conflict methods (!!!)
+	- Also, an idea for contrastive loss
+
+---
+
+**Other thoughts...**
+- Might be worth trying to weight samples by `t+6 - t` in the future
+- Something for gradient conflicts
+	- Think not only of direction, but length
+	- More common samples means larger gradient vector
+	- Considering magnitude, scaling such that the magnitude of the vectors are of the same length
+- Options for weighting cosine representation loss
+	- MDI with an appropriate $\alpha$
+	- Cosine from 0 to $\frac{\pi}{2}$
+	- Normalize distances from 0-1, using $1-x^2$
+	- Something else concave?
+	- Make sure to include a small epsilon as to not have 0 weights sum to $n$.
+	
+![[Pasted image 20260917170356.png|500]]
+## Paper
+- ...
+## NASA
+- Add similarity matrix function (label-based only)
+- After all of above, start updating the documentation and tutorials!
+	- Use a simple representation loss
+- SHAP can have some extra parameters for how many features to display, extra padding for the left side of the graph? Investigate
