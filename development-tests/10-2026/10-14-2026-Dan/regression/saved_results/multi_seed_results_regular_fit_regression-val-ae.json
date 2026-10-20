@@ -1,0 +1,131 @@
+{
+    "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+    ],
+    "all_seed_results": [
+        {
+            "seed": 42,
+            "test_loss": 0.5416075587272644,
+            "overall_mae": 0.20795439183712006,
+            "common_mae": 0.1584443747997284,
+            "rare_mae": 2.686755895614624,
+            "aore": 1.4226001352071762,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.5330156087875366,
+            "overall_mae": 0.2016342580318451,
+            "common_mae": 0.15110193192958832,
+            "rare_mae": 2.7316195964813232,
+            "aore": 1.4413607642054558,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.5100160837173462,
+            "overall_mae": 0.19315403699874878,
+            "common_mae": 0.13477297127246857,
+            "rare_mae": 3.1160993576049805,
+            "aore": 1.6254361644387245,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 45,
+            "test_loss": 0.46246832609176636,
+            "overall_mae": 0.2060283124446869,
+            "common_mae": 0.16085189580917358,
+            "rare_mae": 2.467860460281372,
+            "aore": 1.3143561780452728,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.430686891078949,
+            "overall_mae": 0.1956394910812378,
+            "common_mae": 0.13845422863960266,
+            "rare_mae": 3.0587148666381836,
+            "aore": 1.5985845476388931,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        }
+    ],
+    "results_sorted_by_aore": [
+        {
+            "seed": 45,
+            "test_loss": 0.46246832609176636,
+            "overall_mae": 0.2060283124446869,
+            "common_mae": 0.16085189580917358,
+            "rare_mae": 2.467860460281372,
+            "aore": 1.3143561780452728,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 42,
+            "test_loss": 0.5416075587272644,
+            "overall_mae": 0.20795439183712006,
+            "common_mae": 0.1584443747997284,
+            "rare_mae": 2.686755895614624,
+            "aore": 1.4226001352071762,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.5330156087875366,
+            "overall_mae": 0.2016342580318451,
+            "common_mae": 0.15110193192958832,
+            "rare_mae": 2.7316195964813232,
+            "aore": 1.4413607642054558,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.430686891078949,
+            "overall_mae": 0.1956394910812378,
+            "common_mae": 0.13845422863960266,
+            "rare_mae": 3.0587148666381836,
+            "aore": 1.5985845476388931,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.5100160837173462,
+            "overall_mae": 0.19315403699874878,
+            "common_mae": 0.13477297127246857,
+            "rare_mae": 3.1160993576049805,
+            "aore": 1.6254361644387245,
+            "best_alpha_index": -1,
+            "best_alpha": -1
+        }
+    ],
+    "average_overall_mae": 0.20088209807872773,
+    "average_common_mae": 0.1487250804901123,
+    "average_rare_mae": 2.812210035324097,
+    "average_aore": 1.4804675579071045,
+    "median_model": {
+        "median_seed": 43,
+        "median_rank_by_aore": 3,
+        "best_alpha_index": -1,
+        "best_alpha": -1,
+        "overall_mae": 0.2016342580318451,
+        "common_mae": 0.15110193192958832,
+        "rare_mae": 2.7316195964813232,
+        "aore": 1.4413607642054558,
+        "average_overall_mae_across_5_seeds": 0.20088209807872773,
+        "average_common_mae_across_5_seeds": 0.1487250804901123,
+        "average_rare_mae_across_5_seeds": 2.812210035324097,
+        "average_aore_across_5_seeds": 1.4804675579071045
+    }
+}

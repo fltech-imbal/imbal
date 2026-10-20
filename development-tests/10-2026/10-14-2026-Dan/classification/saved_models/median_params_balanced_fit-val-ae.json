@@ -1,0 +1,15 @@
+{
+    "selection_metric": "f1_score_using_best_threshold",
+    "selection_method": "lower median of valid nonzero-F1 runs",
+    "median_seed": 43,
+    "best_weight_index": 0,
+    "best_class_weights": [
+        0.9,
+        0.1
+    ],
+    "best_decision_threshold": 0.48,
+    "f1_score_using_best_threshold": 0.5405405163764954,
+    "hss_using_best_threshold": 0.5295866131782532,
+    "tss_using_best_threshold": 0.6506879925727844,
+    "median_model_test_loss": 0.05991288647055626
+}

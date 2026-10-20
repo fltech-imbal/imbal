@@ -1,0 +1,14 @@
+{
+    "median_seed": 46,
+    "median_rank_by_aore": 3,
+    "best_alpha_index": 1,
+    "best_alpha": 0.5,
+    "overall_mae": 0.4321735203266144,
+    "common_mae": 0.4040377736091614,
+    "rare_mae": 1.8408373594284058,
+    "aore": 1.1224375665187836,
+    "average_overall_mae_across_5_seeds": 0.3846480637788773,
+    "average_common_mae_across_5_seeds": 0.3524389207363129,
+    "average_rare_mae_across_5_seeds": 1.9972532033920287,
+    "average_aore_across_5_seeds": 1.1748460620641707
+}
