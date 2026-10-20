@@ -1,0 +1,148 @@
+{
+    "seeds": [
+        42,
+        43,
+        44,
+        45,
+        46
+    ],
+    "all_seed_results": [
+        {
+            "seed": 42,
+            "test_loss": 0.048865631222724915,
+            "test_f1_score_default_threshold": 0.5882352590560913,
+            "test_hss_default_threshold": 0.5819798707962036,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.7,
+            "f1_score_using_best_threshold": 0.1249999850988388,
+            "hss_using_best_threshold": 0.12285183370113373,
+            "included_in_average": true
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.054409466683864594,
+            "test_f1_score_default_threshold": 0.6511628031730652,
+            "test_hss_default_threshold": 0.6440345048904419,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.4,
+            "f1_score_using_best_threshold": 0.5882353186607361,
+            "hss_using_best_threshold": 0.5790215730667114,
+            "included_in_average": true
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.04969518259167671,
+            "test_f1_score_default_threshold": 0.5365853309631348,
+            "test_hss_default_threshold": 0.5275634527206421,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.55,
+            "f1_score_using_best_threshold": 0.6206895709037781,
+            "hss_using_best_threshold": 0.6133792996406555,
+            "included_in_average": true
+        },
+        {
+            "seed": 45,
+            "test_loss": 0.05073436722159386,
+            "test_f1_score_default_threshold": 0.5909090638160706,
+            "test_hss_default_threshold": 0.5823628306388855,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.1,
+            "f1_score_using_best_threshold": 0.3999999463558197,
+            "hss_using_best_threshold": 0.38240957260131836,
+            "included_in_average": true
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.04207891970872879,
+            "test_f1_score_default_threshold": 0.5945945382118225,
+            "test_hss_default_threshold": 0.5876150131225586,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.45,
+            "f1_score_using_best_threshold": 0.6666666269302368,
+            "hss_using_best_threshold": 0.6607617735862732,
+            "included_in_average": true
+        }
+    ],
+    "valid_seed_results": [
+        {
+            "seed": 42,
+            "test_loss": 0.048865631222724915,
+            "test_f1_score_default_threshold": 0.5882352590560913,
+            "test_hss_default_threshold": 0.5819798707962036,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.7,
+            "f1_score_using_best_threshold": 0.1249999850988388,
+            "hss_using_best_threshold": 0.12285183370113373,
+            "included_in_average": true
+        },
+        {
+            "seed": 43,
+            "test_loss": 0.054409466683864594,
+            "test_f1_score_default_threshold": 0.6511628031730652,
+            "test_hss_default_threshold": 0.6440345048904419,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.4,
+            "f1_score_using_best_threshold": 0.5882353186607361,
+            "hss_using_best_threshold": 0.5790215730667114,
+            "included_in_average": true
+        },
+        {
+            "seed": 44,
+            "test_loss": 0.04969518259167671,
+            "test_f1_score_default_threshold": 0.5365853309631348,
+            "test_hss_default_threshold": 0.5275634527206421,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.55,
+            "f1_score_using_best_threshold": 0.6206895709037781,
+            "hss_using_best_threshold": 0.6133792996406555,
+            "included_in_average": true
+        },
+        {
+            "seed": 45,
+            "test_loss": 0.05073436722159386,
+            "test_f1_score_default_threshold": 0.5909090638160706,
+            "test_hss_default_threshold": 0.5823628306388855,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.1,
+            "f1_score_using_best_threshold": 0.3999999463558197,
+            "hss_using_best_threshold": 0.38240957260131836,
+            "included_in_average": true
+        },
+        {
+            "seed": 46,
+            "test_loss": 0.04207891970872879,
+            "test_f1_score_default_threshold": 0.5945945382118225,
+            "test_hss_default_threshold": 0.5876150131225586,
+            "best_weight_index": -1,
+            "best_class_weights": -1,
+            "best_decision_threshold": 0.45,
+            "f1_score_using_best_threshold": 0.6666666269302368,
+            "hss_using_best_threshold": 0.6607617735862732,
+            "included_in_average": true
+        }
+    ],
+    "average_f1_score_using_best_threshold_excluding_zero_f1_runs": 0.4801182895898819,
+    "std_f1_score_using_best_threshold_excluding_zero_f1_runs": 0.19938797274507483,
+    "average_hss_using_best_threshold_excluding_zero_f1_runs": 0.47168481051921846,
+    "std_hss_using_best_threshold_excluding_zero_f1_runs": 0.19849590455487306,
+    "median_model": {
+        "selection_metric": "f1_score_using_best_threshold",
+        "selection_method": "lower median of valid nonzero-F1 runs",
+        "median_seed": 43,
+        "best_weight_index": -1,
+        "best_class_weights": -1,
+        "best_decision_threshold": 0.4,
+        "f1_score_using_best_threshold": 0.5882353186607361,
+        "hss_using_best_threshold": 0.5790215730667114,
+        "median_model_test_loss": 0.054409466683864594
+    }
+}
