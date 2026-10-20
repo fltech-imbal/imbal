@@ -82,7 +82,8 @@ for seed in seeds:
     model.compile(loss="binary_crossentropy",
                   optimizer="adam",
                   metrics=[tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
-                           imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS")],
+                           imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
+                            imbal.metrics.TrueSkillStatistic(threshold=0.5, name="TSS")],
                   )
 
     model.cRT_fit(
@@ -117,17 +118,19 @@ for seed in seeds:
     # Evaluation
     # ----------------------------
     results = model.evaluate(x_test, y_test)
-    loss, f1_score, hss = results
+    loss, f1_score, hss, tss = results
 
     print(f"Test Loss: {loss:.4f}")
     print(f"Test F1Score: {f1_score:.4f}")
     print(f"Test HSS: {hss:.4f}")
+    print(f"Test TSS: {tss:.4f}")
 
     seed_result = {
         "seed": int(seed),
         "test_loss": float(loss),
         "test_f1_score_default_threshold": float(f1_score),
         "test_hss_default_threshold": float(hss),
+        "test_tss_default_threshold": float(tss),
         "best_weight_index": (
             int(model.best_weight_index)
             if model.best_weight_index is not None
@@ -145,6 +148,7 @@ for seed in seeds:
         ),
         "f1_score_using_best_threshold": None,
         "hss_using_best_threshold": None,
+        "tss_using_best_threshold": None,
         "included_in_average": False,
     }
 
@@ -156,14 +160,19 @@ for seed in seeds:
         hss_best_threshold = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
         hss_best_threshold.update_state(y_test, test_predictions)
 
+        tss_best_threshold = imbal.metrics.TrueSkillStatistic(threshold=best_threshold)
+        tss_best_threshold.update_state(y_test, test_predictions)
+
         f1_best_threshold = keras.metrics.F1Score(threshold=best_threshold)
         f1_best_threshold.update_state(y_test, test_predictions)
 
         best_threshold_f1_value = float(f1_best_threshold.result()[0])
         best_threshold_hss_value = float(hss_best_threshold.result()[0])
+        best_threshold_tss_value = float(tss_best_threshold.result())
 
         seed_result["f1_score_using_best_threshold"] = best_threshold_f1_value
         seed_result["hss_using_best_threshold"] = best_threshold_hss_value
+        seed_result["tss_using_best_threshold"] = best_threshold_tss_value
 
         if model.best_class_weights is not None:
             print(f'Best class weights: {model.best_class_weights}')
@@ -172,6 +181,7 @@ for seed in seeds:
             f'Best found threshold: {model.best_decision_threshold}\n'
             f'F1Score using Best Threshold: {best_threshold_f1_value:.4f}\n'
             f'HSS using Best Threshold: {best_threshold_hss_value:.4f}\n'
+            f'TSS using Best Threshold: {best_threshold_tss_value:.4f}\n'
         )
 
         if best_threshold_f1_value > 0.0:
@@ -218,6 +228,7 @@ if valid_seed_results:
         "best_decision_threshold": median_result["best_decision_threshold"],
         "f1_score_using_best_threshold": median_result["f1_score_using_best_threshold"],
         "hss_using_best_threshold": median_result["hss_using_best_threshold"],
+        "tss_using_best_threshold": median_result["tss_using_best_threshold"],
         "median_model_test_loss": median_result["test_loss"],
     }
     with open(MEDIAN_PARAMS_SAVE_PATH, "w") as file:
@@ -231,6 +242,7 @@ if valid_seed_results:
     print(f"Median seed: {median_result['seed']}")
     print(f"Median F1Score using Best Threshold: {median_result['f1_score_using_best_threshold']:.4f}")
     print(f"Median HSS using Best Threshold: {median_result['hss_using_best_threshold']:.4f}")
+    print(f"Median TSS using Best Threshold: {median_result['tss_using_best_threshold']:.4f}")
 else:
     print("\nNo valid nonzero-F1 model was found. No model was saved.")
 
@@ -256,6 +268,14 @@ if len(valid_seed_results) > 0:
     average_f1 = float(np.mean(f1_scores))
     std_f1 = float(np.std(f1_scores))
 
+    tss_scores = [
+        seed_result["tss_using_best_threshold"]
+        for seed_result in valid_seed_results
+    ]
+
+    average_tss = float(np.mean(tss_scores))
+    std_tss = float(np.std(tss_scores))
+
     average_hss = float(np.mean(hss_scores))
     std_hss = float(np.std(hss_scores))
 else:
@@ -263,6 +283,8 @@ else:
     std_f1 = None
     average_hss = None
     std_hss = None
+    average_tss = None
+    std_tss = None
 
 print("\n" + "=" * 60)
 print("Multi-seed summary")
@@ -277,6 +299,8 @@ if average_f1 is not None:
     print(f"Std F1Score using Best Threshold, excluding zero-F1 runs: {std_f1:.4f}")
     print(f"Average HSS using Best Threshold, excluding zero-F1 runs: {average_hss:.4f}")
     print(f"Std HSS using Best Threshold, excluding zero-F1 runs: {std_hss:.4f}")
+    print(f"Average TSS using Best Threshold, excluding zero-F1 runs: {average_tss:.4f}")
+    print(f"Std TSS using Best Threshold, excluding zero-F1 runs: {std_tss:.4f}")
 else:
     print("Average F1Score could not be calculated because no valid nonzero-F1 runs were found.")
 
@@ -289,6 +313,8 @@ with open(MULTI_SEED_RESULTS_SAVE_PATH, "w") as f:
         "std_f1_score_using_best_threshold_excluding_zero_f1_runs": std_f1,
         "average_hss_using_best_threshold_excluding_zero_f1_runs": average_hss,
         "std_hss_using_best_threshold_excluding_zero_f1_runs": std_hss,
+        "average_tss_using_best_threshold_excluding_zero_f1_runs": average_tss,
+        "std_tss_using_best_threshold_excluding_zero_f1_runs": std_tss,
         "median_model": median_params,
     }, f, indent=4)
 

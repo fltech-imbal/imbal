@@ -10,5 +10,6 @@
     "best_decision_threshold": 0.48,
     "f1_score_using_best_threshold": 0.5405405163764954,
     "hss_using_best_threshold": 0.5295866131782532,
+    "tss_using_best_threshold": 0.6506879925727844,
     "median_model_test_loss": 0.05991288647055626
 }
