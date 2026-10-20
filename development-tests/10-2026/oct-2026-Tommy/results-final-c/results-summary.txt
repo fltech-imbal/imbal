@@ -1,3 +1,5 @@
+ROUND 1
+
 ====================
 CAUCHY-SCHWARTZ
 ====================
@@ -13,6 +15,12 @@ Cauchy-Schwartz w/ global anchor, learned ratio:
 
 Cauchy-Schwartz w/ learned ratio:
 [3717.4, 1609.0, 0.1977, 4.7983, 2.543, 0.0, 0.22, 2.6]
+
+Cauchy-Schwartz w/ global anchor:
+[3576.6, 172.0, 0.2316, 5.8315, 3.0864, 0.0, 0.1, 0.0]
+
+Cauchy-Schwartz:
+[3489.6, 186.8, 0.6848, 5.0129, 2.8912, 0.0, 0.22, 0.0]
 
 ====================
 ENTROPY
@@ -30,23 +38,35 @@ Entropy w/ global anchor, learned ratio:
 Entropy w/ learned ratio:
 [640.8, 11.2, 0.3772, 2.1551, 1.2835, 0.0, 0.26, 2.6]
 
+Entropy w/ global anchor:
+[507.8, 112.0, 0.5035, 3.578, 2.0708, 0.0, 0.3, 0.0]
+
+Entropy:
+[574.6, 13.2, 0.422, 2.2925, 1.3756, 0.0, 0.34, 0.0]
+
 ====================
 VARIANCE
 ====================
 
+************************************************************
 Variance w/ global anchor, fixed ratio=1:
 [452.0, 31.6, 0.4253, 1.8444, 1.1487, 0.0, 0.34, 0.0]
+************************************************************
 
 Variance, fixed ratio=1:
 [374.0, 118.0, 0.419, 2.3989, 1.4283, 0.0, 0.3, 0.0]
 
-************************************************************
 Variance w/ global anchor, learned ratio:
 [388.2, 23.4, 0.5543, 1.8955, 1.238, 0.0, 0.3, 2.6]
-************************************************************
 
 Variance w/ learned ratio:
 [434.0, 50.4, 0.3698, 1.929, 1.1646, 0.0, 0.3, 2.6]
+
+Variance w/ global anchor:
+[425.0, 22.0, 0.4301, 1.8543, 1.1561, 0.0, 0.3, 0.0]
+
+Variance:
+[526.8, 49.4, 0.3885, 2.4235, 1.4259, 0.0, 0.3, 0.0]
 
 ====================
 DISTANCE PCC
@@ -63,6 +83,14 @@ Distance PCC w/ global anchor, learned ratio:
 
 Distance PCC w/ learned ratio:
 [756.8, 85.0, 0.2714, 3.2768, 1.8035, 0.0, 0.26, 2.6]
+
+************************************************************
+Distance PCC w/ global anchor:
+[563.8, 38.2, 0.4003, 1.9053, 1.1675, 0.0, 0.3, 0.0]
+************************************************************
+
+Distance PCC:
+[628.8, 32.8, 0.4164, 2.1131, 1.2814, 0.0, 0.26, 0.0]
 
 ====================
 DISTANCE DIFFERENCE
@@ -90,13 +118,17 @@ Cosine Similarity of 1 w/ global anchor, fixed ratio=1:
 Cosine Similarity of 1, fixed ratio=1:
 [1072.4, 3.6, 0.1756, 2.6191, 1.4213, 0.0, 0.22, 0.0]
 
-************************************************************
 Cosine Similarity of 1 w/ global anchor, learned ratio:
 [589.0, 39.4, 0.3288, 2.1238, 1.2438, 0.0, 0.3, 2.6]
-************************************************************
 
 Cosine Similarity of 1 w/ learned ratio:
 [551.2, 694.2, 0.2624, 2.8066, 1.5594, 0.0, 0.26, 2.6]
+
+Cosine Similarity of 1 w/ global anchor:
+[572.6, 39.8, 0.402, 2.2017, 1.3195, 0.0, 0.26, 0.0]
+
+Cosine Similarity of 1:
+[521.0, 294.8, 0.2879, 2.5444, 1.4382, 0.0, 0.26, 0.0]
 
 ====================
 ENFORCED COSINE
@@ -115,3 +147,48 @@ Enforced Cosine w/ global anchor, learned ratio:
 
 Enforced Cosine w/ learned ratio:
 [655.0, 214.2, 0.4786, 2.6328, 1.5768, 0.0, 0.26, 2.6]
+
+Enforced Cosine:
+[687.2, 157.6, 0.3342, 2.7486, 1.565, 0.0, 0.3, 0.0]
+
+Enforced Cosine w/ global anchor:
+[1320.0, 450.2, 0.3286, 2.4289, 1.3993, 0.0, 0.38, 0.0]
+
+====================================================================================================
+
+ROUND 2 (Decorrelation)
+
+Distance PCC w/ global anchor, decorrelation:
+[1196.2, 713.2, 0.4264, 2.4019, 1.4335, 0.0, 0.46, 0.0]
+
+Entropy w/ global anchor, fixed ratio=1, decorrelation:
+[945.4, 90.4, 0.3668, 3.185, 1.8035, 0.0, 0.34, 0.0]
+
+Distance Difference, implied ratio=1, decorrelation:
+[3171.6, 123.8, 0.2173, 3.5158, 1.8989, 0.0, 0.22, 0.0]
+
+====================================================================================================
+
+ROUND 3 (Hypersphere)
+
+Distance PCC w/ global anchor, hypersphere:
+[601.0, 504.6, 0.6398, 2.9432, 1.814, 0.0, 0.5, 0.0]
+
+Entropy w/ global anchor, fixed ratio=1, hypersphere:
+[395.0, 680.2, 0.5212, 3.2293, 1.9018, 0.0, 0.46, 0.0]
+
+Distance Difference, implied ratio=1, hypersphere:
+[462.8, 1222.6, 0.4578, 2.9788, 1.743, 0.0, 0.42, 0.0]
+
+====================================================================================================
+
+ROUND 4 (NON-LINEAR REGRESSOR)
+
+Distance PCC w/ global anchor, nonlinear regressor:
+[656.0, 149.2, 0.3733, 4.2064, 2.3274, 0.0, 0.3, 0.0]
+
+Entropy w/ global anchor, fixed ratio=1, nonlinear regressor:
+[354.6, 249.6, 0.4155, 3.7358, 2.1081, 0.0, 0.34, 0.0]
+
+Distance Difference, implied ratio=1, nonlinear regressor:
+[385.4, 332.8, 0.3042, 4.7595, 2.5754, 0.0, 0.14, 0.0]

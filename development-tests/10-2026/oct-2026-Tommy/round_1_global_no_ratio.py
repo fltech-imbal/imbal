@@ -17,53 +17,53 @@ results = []
 Round 1
 """
 
-# results.append("Cauchy-Schwartz w/ global anchor:")
-# for i in range(5):
-#     print(f"Beginning run {i+1}...")
-#     results.append(run_model(
-#         OUTPUT_POSTFIX=f'_cauchy_schwartz_global_no_ratio{i+1}',
-#         PROVIDED_REP_LOSS=cauchy_schwartz,
-#         UNIT_REPRESENTATIONS=False,
-#         INCLUDE_GLOBAL_ANCHOR=True
-#     ))
-#     formatted_print(results)
-#     gc.collect()
-#
-# results.append("Entropy w/ global anchor:")
-# for i in range(5):
-#     print(f"Beginning run {i+1}...")
-#     results.append(run_model(
-#         OUTPUT_POSTFIX=f'_entropy_global_no_ratio{i+1}',
-#         PROVIDED_REP_LOSS=maximize_entropy,
-#         UNIT_REPRESENTATIONS=False,
-#         INCLUDE_GLOBAL_ANCHOR=True
-#     ))
-#     formatted_print(results)
-#     gc.collect()
-#
-# results.append("Variance w/ global anchor:")
-# for i in range(5):
-#     print(f"Beginning run {i+1}...")
-#     results.append(run_model(
-#         OUTPUT_POSTFIX=f'_variance_global_no_ratio{i+1}',
-#         PROVIDED_REP_LOSS=minimize_variance,
-#         UNIT_REPRESENTATIONS=False,
-#         INCLUDE_GLOBAL_ANCHOR=True
-#     ))
-#     formatted_print(results)
-#     gc.collect()
-#
-# results.append("Distance PCC w/ global anchor:")
-# for i in range(5):
-#     print(f"Beginning run {i+1}...")
-#     results.append(run_model(
-#         OUTPUT_POSTFIX=f'_distance_pcc_global_no_ratio{i+1}',
-#         PROVIDED_REP_LOSS=distance_pcc,
-#         UNIT_REPRESENTATIONS=False,
-#         INCLUDE_GLOBAL_ANCHOR=True
-#     ))
-#     formatted_print(results)
-#     gc.collect()
+results.append("Cauchy-Schwartz w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        OUTPUT_POSTFIX=f'_cauchy_schwartz_global_no_ratio{i+1}',
+        PROVIDED_REP_LOSS=cauchy_schwartz,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
+results.append("Entropy w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        OUTPUT_POSTFIX=f'_entropy_global_no_ratio{i+1}',
+        PROVIDED_REP_LOSS=maximize_entropy,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
+results.append("Variance w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        OUTPUT_POSTFIX=f'_variance_global_no_ratio{i+1}',
+        PROVIDED_REP_LOSS=minimize_variance,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
+results.append("Distance PCC w/ global anchor:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        OUTPUT_POSTFIX=f'_distance_pcc_global_no_ratio{i+1}',
+        PROVIDED_REP_LOSS=distance_pcc,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True
+    ))
+    formatted_print(results)
+    gc.collect()
 
 results.append("Cosine Similarity of 1 w/ global anchor:")
 for i in range(5):
