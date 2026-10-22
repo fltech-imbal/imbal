@@ -32,7 +32,7 @@ PCC_EPSILON = 1e-7
 
 # Saved-model reuse. Give each experiment/script its own folder so models from
 # different trust approaches cannot overwrite one another.
-LOAD_SAVED_MODEL = True
+LOAD_SAVED_MODEL = False
 MODEL_RUN_NAME = "density_trust_sep_e_both_experts_pcc"
 MODEL_ROOT_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "saved_models")
 MODEL_DIRECTORY = os.path.join(MODEL_ROOT_DIRECTORY, MODEL_RUN_NAME)
