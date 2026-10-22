@@ -6,8 +6,8 @@ import shutil
 # ============================================================
 
 # Change these for each assignment: HW1, HW2, HW3, etc.
-ASSIGNMENT_NAME = "HW3"
-SUBMISSIONS_FOLDER = "HW3submissions"
+ASSIGNMENT_NAME = "HW4"
+SUBMISSIONS_FOLDER = "HW4submissions"
 
 # Student -> section mapping.
 # Keep this for future homeworks unless enrollment changes.
@@ -34,6 +34,7 @@ STUDENT_SECTIONS = {
     "delatesean": "Section03",
     "masuecosmavis": "Section03",
     "mcnallyjack": "Section03",
+    "mrklasethan": "Section04",
     "petraccoeddie": "Section03",
     "robertszane": "Section03",
     "rochacarson": "Section03",
