@@ -1,4 +1,4 @@
-FILE_PATH = 'results-final-c/results.txt'
+FILE_PATH = 'results-final/results-oct.txt'
 
 NUM_VALUES_PER_ROW = 8
 

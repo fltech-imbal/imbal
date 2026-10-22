@@ -17,6 +17,48 @@ results = []
 Round 2 (decorrelation)
 """
 
+results.append("Distance PCC w/ global anchor, decorrelation:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        OUTPUT_POSTFIX=f'_distance_pcc_global_no_ratio_decorrelation_{i+1}',
+        PROVIDED_REP_LOSS=distance_pcc,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True,
+        DECORRELATION=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
+results.append("Entropy w/ global anchor, fixed ratio=1, decorrelation:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_entropy_global_decorrelation_{i+1}',
+        PROVIDED_REP_LOSS=maximize_entropy,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=True,
+        DECORRELATION=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
+results.append("Distance Difference, implied ratio=1, decorrelation:")
+for i in range(5):
+    print(f"Beginning run {i+1}...")
+    results.append(run_model(
+        FIXED_RATIO=1,
+        OUTPUT_POSTFIX=f'_distance_difference_decorrelation_{i+1}',
+        PROVIDED_REP_LOSS=distance_difference,
+        UNIT_REPRESENTATIONS=False,
+        INCLUDE_GLOBAL_ANCHOR=False,
+        INCLUDE_RATIO=True,
+        DECORRELATION=True
+    ))
+    formatted_print(results)
+    gc.collect()
+
 # results.append("Distance Difference w/ implied learned ratio, decorrelation:")
 # for i in range(5):
 #     print(f"Beginning run {i+1}...")
@@ -50,26 +92,26 @@ Round 2 (decorrelation)
 #         else:
 #             print(result)
 #     gc.collect()
-
-results.append("Enforced Cosine w/ global anchor, fixed ratio=1, decorrelation:")
-for i in range(5):
-    print(f"Beginning run {i + 1}...")
-    results.append(run_model(
-        LEARNABLE_RATIO=False,
-        OUTPUT_POSTFIX=f'_enforced_cosine_global_decorrelation_{i + 1}',
-        PROVIDED_REP_LOSS=enforced_cosine,
-        UNIT_REPRESENTATIONS=False,
-        USE_RAW_LABELS_AND_REPRESENTATIONS=True,
-        INCLUDE_GLOBAL_ANCHOR=True,
-        FIXED_RATIO=1,
-        DECORRELATION=True
-    ))
-    for result in results:
-        if isinstance(result, tuple):
-            print('-', *result)
-        else:
-            print(result)
-    gc.collect()
+#
+# results.append("Enforced Cosine w/ global anchor, fixed ratio=1, decorrelation:")
+# for i in range(5):
+#     print(f"Beginning run {i + 1}...")
+#     results.append(run_model(
+#         LEARNABLE_RATIO=False,
+#         OUTPUT_POSTFIX=f'_enforced_cosine_global_decorrelation_{i + 1}',
+#         PROVIDED_REP_LOSS=enforced_cosine,
+#         UNIT_REPRESENTATIONS=False,
+#         USE_RAW_LABELS_AND_REPRESENTATIONS=True,
+#         INCLUDE_GLOBAL_ANCHOR=True,
+#         FIXED_RATIO=1,
+#         DECORRELATION=True
+#     ))
+#     for result in results:
+#         if isinstance(result, tuple):
+#             print('-', *result)
+#         else:
+#             print(result)
+#     gc.collect()
 
 print()
 formatted_print(results)
