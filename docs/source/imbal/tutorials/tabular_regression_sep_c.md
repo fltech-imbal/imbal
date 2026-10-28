@@ -16,7 +16,8 @@ This page provides an overview of all regression tutorials. The tutorials are or
 | **With Autoencoder (AE)** | [Regular + AE](SEP-C/regression/imbal_tutorial_regular_fit_ae_regression_clear_sep.md)                     | [Balanced + AE](SEP-C/regression/imbal_tutorial_balanced_fit_ae_regression_clear_sep.md)                     | [rRT + AE](SEP-C/regression/imbal_tutorial_decoupled_fit_ae_regression_clear_sep.md)   |
 | **With Validation Set**   | [Regular + Validation](SEP-C/regression/imbal_tutorial_regular_fit_val_regression_clear_sep.md) | [Balanced + Validation](SEP-C/regression/imbal_tutorial_balanced_fit_val_regression_clear_sep.md) | [rRT + Validation](SEP-C/regression/imbal_tutorial_decoupled_fit_val_regression_clear_sep.md) |
 
-- [Using `imbal.metrics` in model classification](SEP-C/regression/imbal_tutorial_metrics_regression.md)
+- [Using `imbal.metrics` in model regression](SEP-C/regression/imbal_tutorial_metrics_regression.md)
 - [Model representation visualization using t-SNE](SEP-C/regression/imbal_tutorial_tsne_visualization_regression.md)
 - [Prediction explanation using LIME](SEP-C/regression/imbal_tutorial_lime_explanation_regression.md)
 - [Prediction explanation using SHAP](SEP-C/regression/imbal_tutorial_shap_explanation_regression.md)
+- [Using `representation_loss` with `imbal`](SEP-C/regression/imbal_tutorial_representation_loss.md)

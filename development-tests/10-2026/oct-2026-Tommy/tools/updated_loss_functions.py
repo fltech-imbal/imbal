@@ -66,7 +66,7 @@ def maximize_entropy(label_distances, representation_distances):
     return tf.reduce_sum(ratios * tf.math.log(ratios)) - tf.cast(tf.math.log(1 / tf.size(ratios)), dtype=tf.float32)
 
 def distance_difference(label_distances, representation_distances, alpha):
-    return tf.reduce_mean(tf.abs(representation_distances - alpha * label_distances))
+    return tf.reduce_mean(tf.square(representation_distances - alpha * label_distances))
 
 def cosine_similarity(label_distances, representation_distances):
     first_vectors_normalized = tf.linalg.l2_normalize(representation_distances[:-1], axis=1, epsilon=1e-8)

@@ -47,10 +47,11 @@ model = build_model(x_train.shape[1])
 # ----------------------------
 # Training
 # ----------------------------
-model.compile(loss="mean_squared_error",
-              optimizer="adam",
-              weighted_metrics=["mae"],
-              )
+model.compile(
+    loss="mean_squared_error",
+    optimizer="adam",
+    weighted_metrics=["mae"]
+)
 
 model.fit(
     x_train,

@@ -351,8 +351,6 @@ class Model(keras.Model):
         self.best_decision_threshold = None
         self.best_weight_index = None
 
-
-
         # validation_split controls imbal's repeated holdout / k-fold validation only when
         # explicit validation_data has not been supplied. Explicit validation_data takes precedence.
         repeated_validation_split = validation_split is not None and validation_data is None
@@ -491,7 +489,7 @@ class Model(keras.Model):
             final_epochs = np.argmin(history.history['val_loss']) + 1
             x_val, y_val, w_val = validation_data
             x_final = np.concatenate((x, x_val), axis=0)
-            if self._use_decoder_branch or self._use_representation_loss:
+            if self._using_multi_data():
                 y_final = [np.concatenate((y[i], y_val[i]), axis=0) for i in range(len(y))]
             else:
                 y_final = np.concatenate((y, y_val), axis=0)
@@ -500,7 +498,7 @@ class Model(keras.Model):
                 w_final = np.concatenate((self.best_sample_weights, w_val if self.best_weight_index is None else w_val[self.best_weight_index]), axis=0)
             else:
                 w_final = imbal.classification.generate_sample_weights(
-                    y_final[0] if self._use_decoder_branch else y_final,
+                    y_final[0] if self._using_multi_data() else y_final,
                     class_weight=self.best_class_weights
                 )
 
@@ -593,6 +591,9 @@ class Model(keras.Model):
             'or an integer >= 2 for k-fold validation'
         )
 
+    def _using_multi_data(self):
+        return self._use_decoder_branch or self._use_representation_loss
+
     def _repeated_validation_split_fit(
         self,
         model,
@@ -612,7 +613,7 @@ class Model(keras.Model):
         initial_weights,
         **kwargs
     ):
-        primary_y = y[0] if self._use_decoder_branch else y
+        primary_y = y[0] if self._using_multi_data() else y
         sample_weight = np.asarray(sample_weight)
 
         validation_splits, validation_mode = self._generate_validation_splits(
@@ -640,14 +641,16 @@ class Model(keras.Model):
                 reconstruction_x_val = x[reconstruction_val_indices]
                 reconstruction_y_primary = primary_y[reconstruction_train_indices]
                 reconstruction_y_val_primary = primary_y[reconstruction_val_indices]
-                reconstruction_y = (
-                    [reconstruction_y_primary, reconstruction_x]
-                    if self._use_decoder_branch else reconstruction_y_primary
-                )
-                reconstruction_y_val = (
-                    [reconstruction_y_val_primary, reconstruction_x_val]
-                    if self._use_decoder_branch else reconstruction_y_val_primary
-                )
+                if self._use_decoder_branch:
+                    reconstruction_y = [reconstruction_y_primary, reconstruction_x]
+                else:
+                    reconstruction_y = reconstruction_y_primary
+
+                if self._use_decoder_branch:
+                    reconstruction_y_val = [reconstruction_y_val_primary, reconstruction_x_val]
+                else:
+                    reconstruction_y_val = reconstruction_y_val_primary
+
                 reconstruction_validation_data = (reconstruction_x_val, reconstruction_y_val)
                 reconstruction_validation_split = None
 
@@ -681,8 +684,19 @@ class Model(keras.Model):
                 x_val = x[val_indices]
                 y_train_primary = primary_y[train_indices]
                 y_val_primary = primary_y[val_indices]
-                y_train = [y_train_primary, x_train] if self._use_decoder_branch else y_train_primary
-                y_val = [y_val_primary, x_val] if self._use_decoder_branch else y_val_primary
+                if self._use_decoder_branch:
+                    y_train = [y_train_primary, x_train]
+                elif self._use_representation_loss:
+                    y_train = [y_train_primary, y_train_primary]
+                else:
+                    y_train = y_train_primary
+
+                if self._use_decoder_branch:
+                    y_val = [y_val_primary, x_val]
+                elif self._use_representation_loss:
+                    y_val = [y_val_primary, y_val_primary]
+                else:
+                    y_val = y_val_primary
                 w_train = weights[train_indices]
                 w_val = weights[val_indices]
 
@@ -771,8 +785,8 @@ class Model(keras.Model):
                     x_val = x[val_indices]
                     y_train_primary = primary_y[train_indices]
                     y_val_primary = primary_y[val_indices]
-                    y_train = [y_train_primary, x_train] if self._use_decoder_branch else y_train_primary
-                    y_val = [y_val_primary, x_val] if self._use_decoder_branch else y_val_primary
+                    y_train = [y_train_primary, x_train] if self._using_multi_data() else y_train_primary
+                    y_val = [y_val_primary, x_val] if self._using_multi_data() else y_val_primary
                     w_train = weights[train_indices]
                     w_val = weights[val_indices]
 
@@ -985,7 +999,7 @@ class Model(keras.Model):
 
         predictions = model.predict(x_metric)
 
-        if self._use_decoder_branch or self._use_representation_loss:
+        if self._using_multi_data():
             y_metric = y_metric[0]
 
         if self._mode_enum == ModelType.REGRESSION:
@@ -1052,10 +1066,10 @@ class Model(keras.Model):
     def compile(
         self,
         generate_decoder_branch=False,
+        decoder_loss_weight=None,
         representation_layer_index=-2,
         representation_loss=None,
-        representation_lambda=1,
-        reconstruction_lambda=None,
+        representation_loss_weight=1,
         **kwargs
     ):
         """
@@ -1068,17 +1082,29 @@ class Model(keras.Model):
         on imbalanced data. This feature can be enabled by setting :code:`generate_decoder_branch` to :code:`True`.
         (see :doc:`imbal.util.generate_decoder </imbal/util/generate_decoder>` for more details).
 
-        Note: :code:`generate_decoder_branch` is off by
-        default due to its experimental nature, but it may be worth using if your model fits the
-        anticipated structure.
+        Notes:
+
+        * :code:`generate_decoder_branch` is off by default due to its experimental nature, but it may be worth using if your model fits the anticipated structure.
+        * :code:`generate_decoder_branch` and :code:`representation_loss` cannot both be set simultaneously. Doing so will result in a fatal error being thrown.
 
         Args:
             generate_decoder_branch: Optional, default :code:`False`. Whether to generate a decoder
                 branch for the purpose of training the model.
+            decoder_loss_weight: Optional, default :code:`None`, if :code:`generate_decoder_branch` is True,
+                this parameter sets the weight used when calculating the decoder branch loss. Similar to
+                :code:`loss_weights` in `TensorFlow's model.compile function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
+                If set to :code:`None`, the loss weight is automatically calculated such that the
+                decoder loss is balanced with the prediction loss.
             representation_layer_index: Optional, default :code:`-2`. The layer from which the weights of all layers
                 prior are frozen during the second stage of the decoupled training. Also, when
                 :code:`generated_decoder_branch` is :code:`True`, the index of the layer from which the decoder branch
                 in generated.
+            representation_loss: Optional, default :code:`None`. A function with the signature
+                :code:`fn(y_true, representations)` that returns a float tensor. If set, the result of the
+                representation loss will be added to the total model loss.
+            representation_loss_weight: Optional, default :code:`1`. If :code:`representation_loss` is not :code:`None`,
+                this parameter sets the weight used when calculating the representation loss. Similar to
+                :code:`loss_weights` in `TensorFlow's model.compile function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
             **kwargs: Any keyword arguments accepted by `TensorFlow's model.compile function <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_
 
         Returns:
@@ -1112,7 +1138,7 @@ class Model(keras.Model):
         self._representation_loss = representation_loss
         self._decoder_branch = None
         self._extended_model = None
-        self._reconstruction_lambda = reconstruction_lambda
+        self._reconstruction_lambda = decoder_loss_weight
 
         self._use_decoder_branch = self._generate_decoder_branch
         self._use_representation_loss = self._representation_loss is not None
@@ -1135,7 +1161,7 @@ class Model(keras.Model):
             self._compile_for_decoder_branch(**kwargs)
         elif self._representation_loss is not None:
             _generate_representation_model(self)
-            self._compile_for_representation(representation_lambda, **kwargs)
+            self._compile_for_representation(representation_loss_weight, **kwargs)
 
         super().compile(**kwargs)
 
@@ -1276,7 +1302,7 @@ class Model(keras.Model):
         else:
             if self._mode_enum == ModelType.CLASSIFICATION:
                 candidate_evaluation_weights = imbal.classification.generate_sample_weights(
-                    y[0] if self._use_decoder_branch else y,
+                    y[0] if self._using_multi_data() else y,
                     class_weight=candidate_evaluation_class_weight
                 )
             else:

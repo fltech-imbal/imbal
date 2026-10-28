@@ -17,3 +17,4 @@ from .model import Model
 from .plot_true_vs_predictions import plot_true_vs_predictions
 from .balanced_weights import balanced_weights
 from .gradcam import gradcam_explain_image_sample
+from .plot_similarity_matrix import plot_similarity_matrix

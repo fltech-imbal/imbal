@@ -50,6 +50,7 @@ def plot_true_vs_predictions(
             save_figure="true_vs_predictions.png"
         )
 
+
     """
     labels = labels.reshape(-1)
     predictions = predictions.reshape(-1)

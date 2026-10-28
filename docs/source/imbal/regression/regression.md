@@ -17,6 +17,7 @@ Located until the `imbal.regression` subpackage.
 - [shap_explain_tabular_dataset](shap_explain_tabular_dataset.md)
 - [reciprocal_importance](reciprocal_importance.md)
 - [plot_true_vs_predictions](plot_true_vs_predictions.md)
+- [plot_similarity_matrix](plot_similarity_matrix.md)
 
 ```{eval-rst}
 .. toctree::
