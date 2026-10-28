@@ -1,4 +1,4 @@
-"""Visualize the saved median-F1 SEP-C decoupled-fit classifier (no training)."""
+"""Visualize the saved median-F1 SEP-C classifier, including worst FP/FN SHAP."""
 import json
 import os
 
@@ -19,6 +19,113 @@ OUTPUT_DIR = 'saved_results/median_model_visualizations'
 TARGET = 'ln_peak_intensity'
 RANDOM_STATE = 42
 SHAP_BACKGROUND_SIZE = 100
+
+# Original continuous targets are required for the Elevated distinction.
+# This CSV must contain the same test samples in the same order as TEST_PATH.
+CONTINUOUS_TEST_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_testing.csv'
+# Plot categories from the original continuous ln peak intensity.
+# Background: y <= 0; Elevated: 0 < y < ln(10); SEP/Rare: y >= ln(10).
+RARE_BOUNDARY = float(np.log(10.0))
+
+# Feature names in the CSV; alternatives accommodate common naming conventions.
+FEATURE_PLOT_GROUPS = [
+    ('Linear Speed', ['CME_DONKI_speed_norm']),
+    ('Longitude', ['CME_DONKI_longitude_norm']),
+    ('Latitude', ['CME_DONKI_latitude_norm']),
+    ('Half Width', ['DONKI_half_width_norm']),
+    ('Acceleration', ['Accelaration_norm']),
+]
+
+
+def plot_feature_analysis(test, y_test, probabilities, predictions, threshold):
+    """Create Griessler-style five-feature plots with a distinct Elevated band."""
+    if not os.path.isfile(CONTINUOUS_TEST_PATH):
+        raise FileNotFoundError(
+            f'Continuous target CSV not found: {CONTINUOUS_TEST_PATH}. '
+            'Set CONTINUOUS_TEST_PATH to the original regression test CSV; '
+            'binary classification targets cannot identify Elevated samples.')
+    continuous = pd.read_csv(CONTINUOUS_TEST_PATH)
+    if TARGET not in continuous.columns:
+        raise ValueError(f'{CONTINUOUS_TEST_PATH} does not contain {TARGET}.')
+    if len(continuous) != len(test):
+        raise ValueError('Continuous and classification test sets have different row counts.')
+    # Prevent silent category misassignment due to different test-set ordering.
+    feature_names = [c for c in test.columns if c != TARGET]
+    missing = [c for c in feature_names if c not in continuous.columns]
+    if missing:
+        raise ValueError(f'Continuous CSV lacks classification features: {missing}')
+    for name in feature_names:
+        a = pd.to_numeric(test[name], errors='coerce').to_numpy(dtype=float)
+        b = pd.to_numeric(continuous[name], errors='coerce').to_numpy(dtype=float)
+        if not np.allclose(a, b, rtol=1e-5, atol=1e-6, equal_nan=True):
+            raise ValueError(f'Test-set rows or feature values differ for {name}; '
+                             'align the original continuous targets before plotting.')
+    actual = pd.to_numeric(continuous[TARGET], errors='raise').to_numpy(dtype=float)
+    if not np.isfinite(actual).all():
+        raise ValueError('Continuous targets must be finite.')
+    rare = actual >= RARE_BOUNDARY
+    elevated = (actual > 0.0) & (actual < RARE_BOUNDARY)
+    background = actual <= 0.0
+    if not np.array_equal(rare.astype(np.int32), y_test):
+        raise ValueError('Continuous targets and classification labels disagree with '
+                         'RARE_BOUNDARY/RARE_SIDE. Verify the class definition.')
+    background = ~rare & ~elevated
+    fp = (y_test == 0) & (predictions == 1)
+    fn = (y_test == 1) & (predictions == 0)
+    print(f'Plot categories: Background={background.sum()}, Elevated={elevated.sum()}, '
+          f'Rare={rare.sum()}, FP={fp.sum()}, FN={fn.sum()}')
+
+    resolved = []
+    for title, candidates in FEATURE_PLOT_GROUPS:
+        col = next((name for name in candidates if name in test.columns), None)
+        if col is None:
+            raise ValueError(f'Cannot find feature {title}. Available columns: {list(test.columns)}. '
+                             'Update FEATURE_PLOT_GROUPS with your actual feature names.')
+        resolved.append((title, col))
+
+    # Fixed legend locations chosen from the reference figure (no automatic positioning).
+    legend_locations = {
+        'Linear Speed': 'upper left',
+        'Longitude': 'upper left',
+        'Latitude': 'upper left',
+        'Half Width': 'upper left',
+        'Acceleration': 'upper right',
+    }
+    output_names = {
+        'Linear Speed': 'feature_linear_speed.png',
+        'Longitude': 'feature_longitude.png',
+        'Latitude': 'feature_latitude.png',
+        'Half Width': 'feature_half_width.png',
+        'Acceleration': 'feature_acceleration.png',
+    }
+    for title, column in resolved:
+        x = pd.to_numeric(test[column], errors='raise').to_numpy(dtype=float)
+        if not np.isfinite(x).all():
+            raise ValueError(f'Nonfinite values in {column}.')
+        fig, ax = plt.subplots(figsize=(6.5, 4.5))
+        # Correct predictions use colored circles; errors use black triangles only.
+        for mask, label, color in [
+            (background & ~fp, 'Background', 'blue'),
+            (elevated & ~fp, 'Elevated', 'green'),
+            (rare & ~fn, 'SEP', 'red'),
+        ]:
+            ax.scatter(x[mask], probabilities[mask], s=15, alpha=1.0,
+                       c=color, marker='o', label=label, edgecolors='none', zorder=2)
+        ax.scatter(x[fp], probabilities[fp], s=28, c='black', marker='^',
+                   label='FP', edgecolors='none', zorder=4)
+        ax.scatter(x[fn], probabilities[fn], s=28, c='black', marker='v',
+                   label='FN', edgecolors='none', zorder=4)
+        ax.axhline(threshold, color='gray', linestyle='--', linewidth=1.1)
+        ax.set_title(title)
+        ax.set_xlabel(title)
+        ax.set_ylabel('Predicted Rare probability')
+        ax.set_ylim(-0.04, 1.04)
+        ax.legend(loc=legend_locations[title], frameon=True, fontsize=9)
+        fig.tight_layout()
+        output = os.path.join(OUTPUT_DIR, output_names[title])
+        fig.savefig(output, dpi=200, bbox_inches='tight')
+        plt.close(fig)
+        print(f'Saved {output}')
 
 
 def main():
@@ -43,8 +150,10 @@ def main():
                                     custom_objects={'Model': imbal.classification.Model})
     probabilities = np.asarray(model.predict(x_test, verbose=0)).ravel()
     predictions = (probabilities >= threshold).astype(np.int32)
-    correct = np.flatnonzero(predictions == y_test)
-    incorrect = np.flatnonzero(predictions != y_test)
+    false_positives = np.flatnonzero((y_test == 0) & (predictions == 1))
+    false_negatives = np.flatnonzero((y_test == 1) & (predictions == 0))
+
+    plot_feature_analysis(test, y_test, probabilities, predictions, threshold)
 
     # Compute confusion-matrix counts using imbal's own metric backend.
     from imbal.metrics.confusion_matrix import ConfusionMatrix
@@ -82,7 +191,7 @@ def main():
             data=x_test,
             labels=y_test,
             representation_layer_index=-2,
-            perplexity=min(30, len(x_test) - 1),
+            perplexity=40,
             save_figure=os.path.join(OUTPUT_DIR, 'tsne_model.png'),
         )
         plt.close('all')
@@ -95,13 +204,18 @@ def main():
                                     size=min(SHAP_BACKGROUND_SIZE, len(x_train)),
                                     replace=False)
     background = x_train[background_indices]
-    for name, indices in [('correct', correct), ('incorrect', incorrect)]:
+    # Select the most confidently wrong FP and FN (furthest past the decision threshold).
+    for name, indices in [('fp', false_positives), ('fn', false_negatives)]:
         if not len(indices):
+            print(f'No false {"positives" if name == "fp" else "negatives"} to explain.')
             continue
-        rare_indices = indices[y_test[indices] == 1]
-        selected = int(rare_indices[0] if len(rare_indices) else indices[0])
-        print(f'{name.title()} example: test row={selected}, true={y_test[selected]}, '
-              f'predicted={predictions[selected]}, probability={probabilities[selected]:.4f}')
+        if name == 'fp':
+            selected = int(indices[np.argmax(probabilities[indices] - threshold)])
+        else:
+            selected = int(indices[np.argmax(threshold - probabilities[indices])])
+        print(f'Worst {name.upper()}: test row={selected}, true={y_test[selected]}, '
+              f'predicted={predictions[selected]}, probability={probabilities[selected]:.4f}, '
+              f'distance from threshold={abs(probabilities[selected] - threshold):.4f}')
         # Call imbal's backend directly. The classification wrapper in this
         # version passes figure_save_path, which the backend does not accept.
         # The backend instead uses save_figure and accepts a single 1-D sample.
