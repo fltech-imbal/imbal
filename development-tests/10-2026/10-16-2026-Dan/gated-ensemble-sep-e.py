@@ -25,7 +25,7 @@ MAX_EPOCHS = 500
 PATIENCE = 100
 BATCH_SIZE = 32
 
-LOAD_SAVED_MODEL = True
+LOAD_SAVED_MODEL = False
 MODEL_RUN_NAME = "gated_ensemble_sep_e"
 MODEL_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "saved_models", MODEL_RUN_NAME)
 COMMON_MODEL_PATH = os.path.join(MODEL_DIRECTORY, "common_expert.keras")

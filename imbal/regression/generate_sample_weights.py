@@ -243,7 +243,7 @@ def _local_kde_approximation(
     elif labels.dtype == np.uint32 or labels.dtype == np.uintc:
         labels = labels.astype(np.int32)
         unsigned_conversion = True
-    elif labels.dtype == np.uint64 or labels.dtype == np.ulong:
+    elif labels.dtype == np.uint64:
         labels = labels.astype(np.int64)
         unsigned_conversion = True
     elif labels.dtype == tf.uint8:
