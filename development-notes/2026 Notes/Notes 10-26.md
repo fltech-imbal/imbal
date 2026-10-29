@@ -310,10 +310,10 @@ Finish the above table for Thursday. Also, answer...
 - $k$-means clustering to group samples without needing to consider class (also works for regression)
 ### By October 29th
 Have some implementation for both grouping/clustering and gradient conflict reduction
-- See images. Draw examples for what might work/not work for possible dimensions
+- See images. Draw examples for what might work/not work for possible dimensions $\checkmark$
 - Could do some experiments to see if label-based or gradient-direction-based grouping is better
 	- Does grouping by label already produce high-similarity gradients? Compare cosine similarity with the mean within the group
-- Analysis of 3 factors in image (prioritizing factors (1) and (2))
+- Analysis of 3 factors in image (prioritizing factors (1) and (2)) $\checkmark$
 
 - November and December papers will focus on gradient conflict methods (!!!)
 	- Also, an idea for contrastive loss
