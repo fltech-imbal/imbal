@@ -32,5 +32,6 @@ Each row corresponds to some additional modification to the approach:
 
 - [Using `imbal.metrics` in model regression](SDO/regression/metrics.md)
 - [Model representation visualization using t-SNE](SDO/regression/visualization.md)
+- [Model representation visualization using similarity matrix](SDO/regression/similarity_matrix.md)
 - [Prediction Explanation using GradCAM](SDO/regression/grad-cam-regression-tutorial.md)
 - [Using `representation_loss` with `imbal`](SDO/regression/representation_loss.md)

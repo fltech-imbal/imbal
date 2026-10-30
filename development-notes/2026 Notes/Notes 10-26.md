@@ -374,7 +374,7 @@ Finish the above table for Thursday. Also, answer...
 **Are there other ways we can do group-level gradients "quickly"?**
 - *Long-Tailed Learning as Multi-Objective Optimization* group gradients, then uses a weighted sum to reduce conflicts. It may be worth investigating grouping gradients, followed by projection to reduce conflicts.
 - $k$-means clustering to group samples without needing to consider class (also works for regression)
-### By October November 3rd
+### By November 3rd
 - Redo test 2, considering all vectors are the same length (desirable result is a slight movement towards both B and C)
 	- With all 3 options from notes during Test 2
 - Add way to measure similarity of class-level and the original, non-conflict reduced gradient
@@ -401,6 +401,8 @@ Finish the above table for Thursday. Also, answer...
 | 0 < value < 1               | %age of training set to be set aside as validation |
 | value == 0 or value is None | No validation data                                 |
 | default value = 5           |                                                    
+**It seems like I was mistaken on the behavior 0 < value < 1 performs 5 validation runs, each run using a random stratified test split of the specified percentage. Is this the behavior we want? (5 seems arbitrary, as well as being not overridable by the user.)**
+
 
 - Yet to do classification tutorials for representation loss. Simple classification representation loss?
 	- Per class distance to centroids, plus increase distance to centroid

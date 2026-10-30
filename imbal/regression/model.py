@@ -62,13 +62,17 @@ class Model(backend.Model):
                 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
                 the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-                The data used to validate the model during training.
+                The data used to validate the model during training. If set, `validation_split` is ignored.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
             validation_densities: : Optional, default :code:`None`. A list of sample probability densities for
                 the provided :code:`validation_data`. Only required if :code:`validation_data` is provided
                 without sample weights.
-            validation_split: Optional, default :code:`None`. A float value representing the proportion of the
-                    provided training data to split off into a separate dataset used for model validation.
+            validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
+                    provided training data used for each of 5 repeated stratified validation splits. If an integer
+                    greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
+                    uses every training sample exactly once for validation. For classification, the number of folds
+                    cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+                    uses of this parameter, see the section below titled "validation_split Usage".
             epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -184,13 +188,17 @@ class Model(backend.Model):
                 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
                 the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-                The data used to validate the model during training.
+                The data used to validate the model during training. If set, `validation_split` is ignored.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_.
             validation_densities: : Optional, default :code:`None`. A list of sample probability densities for
                 the provided :code:`validation_data`. Only required if :code:`validation_data` is provided
                 without sample weights.
-            validation_split: Optional, default :code:`None`. A float value representing the proportion of the
-                provided training data to split off into a separate dataset used for model validation.
+            validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
+                    provided training data used for each of 5 repeated stratified validation splits. If an integer
+                    greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
+                    uses every training sample exactly once for validation. For classification, the number of folds
+                    cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+                    uses of this parameter, see the section below titled "validation_split Usage".
             epochs: Optional, default :code:`1` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The number of epochs to train for. If an :code:`int`,
                 the provided number of epochs will be used during the first stage, and halved for the second stage.

@@ -40,6 +40,14 @@ of epochs that produces the best results when the validation data was held out. 
 using multiple weight candidates, where the candidate that produced the best results on the validation data
 will be used for the final model fit.
 
+## `validation_split` Usage
+
+| `validation_split` value (default 5) | Behavior                                   |
+|--------------------------------------|--------------------------------------------|
+| `validation_split` >= 2              | k-fold cross validation                    |
+| 0 < `validation_split` < 1           | % of training data set aside as validation |
+| `validation_split` == 0 or `None`    | No validation data                         |
+
 ## Comparison of Fit Methods on Tabular Data
 - A comparison of the performance of the different fit options in this class on tabular data can be found [here](comparison_of_fit_methods_tabular.md).
 - A comparison of the performance of the different fit options in this class on tabular data with autoencoder generation enabled can be found [here](comparison_of_ae_methods_tabular.md).

@@ -13,7 +13,7 @@ All the source code in the tutorial can be found at `imbal/tutorials/SDO/regress
 
 First, we will use the code provided in the [Balanced Fit with Validation](balanced_fit_val.md) tutorial
 to train a model on the SDOBenchmark dataset. Then, we can use
-[imbal.classification.tsne_visualization](../../../regression/tsne_visualization.md)
+[imbal.regression.tsne_visualization](../../../regression/tsne_visualization.md)
 function built into `imbal` to easily generate a t-SNE plot for our model.
 
 By default, `imbal` will use the second to last layer of a neural network as

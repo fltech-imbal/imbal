@@ -404,14 +404,18 @@ If unspecified, <code class="code docutils literal notranslate"><span class="pre
 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
 the metric to compare weight candidate performance (See “Using Multiple Weight Candidates below for more details).</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The data used to validate the model during training.
+The data used to validate the model during training. If set, <cite>validation_split</cite> is ignored.
 See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
 </p></li>
 <li><p><strong>validation_densities</strong> – : Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample probability densities for
 the provided <code class="code docutils literal notranslate"><span class="pre">validation_data</span></code>. Only required if <code class="code docutils literal notranslate"><span class="pre">validation_data</span></code> is provided
 without sample weights.</p></li>
-<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A float value representing the proportion of the
-provided training data to split off into a separate dataset used for model validation.</p></li>
+<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">5</span></code>. If between 0 and 1, the proportion of the
+provided training data used for each of 5 repeated stratified validation splits. If an integer
+greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
+uses every training sample exactly once for validation. For classification, the number of folds
+cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+uses of this parameter, see the section below titled “validation_split Usage”.</p></li>
 <li><p><strong>epochs</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">1</span></code>. (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 The number of epochs to train the model for.</p>
 </p></li>
@@ -499,14 +503,18 @@ If unspecified, <code class="code docutils literal notranslate"><span class="pre
 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
 the metric to compare weight candidate performance (See “Using Multiple Weight Candidates below for more details).</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The data used to validate the model during training.
+The data used to validate the model during training. If set, <cite>validation_split</cite> is ignored.
 See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">Tensorflow’s model.fit documentation</a>.</p>
 </p></li>
 <li><p><strong>validation_densities</strong> – : Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A list of sample probability densities for
 the provided <code class="code docutils literal notranslate"><span class="pre">validation_data</span></code>. Only required if <code class="code docutils literal notranslate"><span class="pre">validation_data</span></code> is provided
 without sample weights.</p></li>
-<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code>. A float value representing the proportion of the
-provided training data to split off into a separate dataset used for model validation.</p></li>
+<li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">5</span></code>. If between 0 and 1, the proportion of the
+provided training data used for each of 5 repeated stratified validation splits. If an integer
+greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
+uses every training sample exactly once for validation. For classification, the number of folds
+cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+uses of this parameter, see the section below titled “validation_split Usage”.</p></li>
 <li><p><strong>epochs</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">1</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 The number of epochs to train for. If an <code class="code docutils literal notranslate"><span class="pre">int</span></code>,
 the provided number of epochs will be used during the first stage, and halved for the second stage.
@@ -661,14 +669,15 @@ See “Using Multiple Weight Candidates” below for more details.</p></li>
 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
 the metric to compare weight candidate performance (See “Using Multiple Weight Candidates below for more details).</p></li>
 <li><p><strong>validation_data</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">None</span></code> (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
-The data used to validate the model during training.
+The data used to validate the model during training. If set, <cite>validation_split</cite> is ignored.
 See <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile">Tensorflow’s model.fit documentation</a>.</p>
 </p></li>
 <li><p><strong>validation_split</strong> – Optional, default <code class="code docutils literal notranslate"><span class="pre">5</span></code>. If between 0 and 1, the proportion of the
 provided training data used for each of 5 repeated stratified validation splits. If an integer
 greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
 uses every training sample exactly once for validation. For classification, the number of folds
-cannot exceed the number of samples in the rarest class.</p></li>
+cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+uses of this parameter, see the section below titled “validation_split Usage”.</p></li>
 <li><p><strong>epochs</strong> – <p>Optional, default <code class="code docutils literal notranslate"><span class="pre">1</span></code>. (Same as <a class="reference external" href="https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit">model.fit</a>).
 The number of epochs to train the model for.</p>
 </p></li>
@@ -705,32 +714,6 @@ at successive epochs, as well as validation loss values and validation metrics v
 <span class="p">)</span>
 </pre></div>
 </div>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="imbal.regression.Model.get_quantization_layer_structure">
-<span class="sig-name descname"><span class="pre">get_quantization_layer_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#imbal.regression.Model.get_quantization_layer_structure" title="Link to this definition">#</a></dt>
-<dd><p>Returns the quantization structure for the model.</p>
-<p>This method is intended to be overridden by model authors to provide
-topology information required for structure-aware quantization modes
-like ‘gptq’.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>mode</strong> – The quantization mode.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><cite>{‘pre_block_layers’: [list], ‘sequential_blocks’: [list]}</cite>
-or <cite>None</cite> if the mode does not require structure or is not
-supported. <cite>‘pre_block_layers’</cite> is a list of layers that
-the inputs should be passed through, before being passed to
-the sequential blocks. For example, inputs to an LLM must
-first be passed through an embedding layer, followed by
-the transformer.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A dictionary describing the topology, e.g.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -788,6 +771,28 @@ end of the training process, combining the validation data with the training dat
 of epochs that produces the best results when the validation data was held out. This is also compatible with
 using multiple weight candidates, where the candidate that produced the best results on the validation data
 will be used for the final model fit.</p>
+</section>
+<section id="validation-split-usage">
+<h2><code class="docutils literal notranslate"><span class="pre">validation_split</span></code> Usage<a class="headerlink" href="#validation-split-usage" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">validation_split</span></code> value (default 5)</p></th>
+<th class="head"><p>Behavior</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validation_split</span></code> &gt;= 2</p></td>
+<td><p>k-fold cross validation</p></td>
+</tr>
+<tr class="row-odd"><td><p>0 &lt; <code class="docutils literal notranslate"><span class="pre">validation_split</span></code> &lt; 1</p></td>
+<td><p>% of training data set aside as validation</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validation_split</span></code> == 0 or <code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+<td><p>No validation data</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="comparison-of-fit-methods-on-tabular-data">
 <h2>Comparison of Fit Methods on Tabular Data<a class="headerlink" href="#comparison-of-fit-methods-on-tabular-data" title="Link to this heading">#</a></h2>
@@ -856,12 +861,12 @@ will be used for the final model fit.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.rRT_fit"><code class="docutils literal notranslate"><span class="pre">Model.rRT_fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.compile"><code class="docutils literal notranslate"><span class="pre">Model.compile()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.fit"><code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.get_quantization_layer_structure"><code class="docutils literal notranslate"><span class="pre">Model.get_quantization_layer_structure()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imbal.regression.Model.override_second_stage_fit_parameters"><code class="docutils literal notranslate"><span class="pre">Model.override_second_stage_fit_parameters()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-weight-candidates">Using Multiple Weight Candidates</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-validation-data">A Note on Validation Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-split-usage"><code class="docutils literal notranslate"><span class="pre">validation_split</span></code> Usage</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-tabular-data">Comparison of Fit Methods on Tabular Data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-of-fit-methods-on-image-data">Comparison of Fit Methods on Image Data</a></li>
 </ul>

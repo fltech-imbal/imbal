@@ -18,6 +18,7 @@ This page provides an overview of all regression tutorials. The tutorials are or
 
 - [Using `imbal.metrics` in model regression](SEP-C/regression/imbal_tutorial_metrics_regression.md)
 - [Model representation visualization using t-SNE](SEP-C/regression/imbal_tutorial_tsne_visualization_regression.md)
+- [Model representation visualization using similarity matrix](SEP-C/regression/imbal_tutorial_similarity_matrix.md)
 - [Prediction explanation using LIME](SEP-C/regression/imbal_tutorial_lime_explanation_regression.md)
 - [Prediction explanation using SHAP](SEP-C/regression/imbal_tutorial_shap_explanation_regression.md)
 - [Using `representation_loss` with `imbal`](SEP-C/regression/imbal_tutorial_representation_loss.md)

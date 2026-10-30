@@ -90,13 +90,14 @@ class Model(keras.Model):
                 When performing a fit with multiple weights candidates, determines what sample weighting should be used when computing
                 the metric to compare weight candidate performance (See "Using Multiple Weight Candidates below for more details).
             validation_data: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
-                The data used to validate the model during training.
+                The data used to validate the model during training. If set, `validation_split` is ignored.
                 See `Tensorflow's model.fit documentation <https://www.tensorflow.org/api_docs/python/tf/keras/Model#compile>`_.
             validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
                     provided training data used for each of 5 repeated stratified validation splits. If an integer
                     greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
                     uses every training sample exactly once for validation. For classification, the number of folds
-                    cannot exceed the number of samples in the rarest class.
+                    cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
+                    uses of this parameter, see the section below titled "validation_split Usage".
             epochs: Optional, default :code:`1`. (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
                 The number of epochs to train the model for.
             batch_size: Optional, default :code:`None` (Same as `model.fit <https://www.tensorflow.org/api_docs/python/tf/keras/Model#fit>`_).
@@ -353,7 +354,7 @@ class Model(keras.Model):
 
         # validation_split controls imbal's repeated holdout / k-fold validation only when
         # explicit validation_data has not been supplied. Explicit validation_data takes precedence.
-        repeated_validation_split = validation_split is not None and validation_data is None
+        repeated_validation_split = validation_split is not None and validation_split != 0 and validation_data is None
         effective_validation_split = validation_split if validation_data is None else None
 
         (x, y, sample_weight), validation_data = self._prepare_training_data(
