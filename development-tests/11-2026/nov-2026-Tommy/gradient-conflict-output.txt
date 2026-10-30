@@ -1,0 +1,201 @@
+Epoch 1/100, Loss: 0.683114
+Similarity of negative-positive sample centroids before projection: -0.71154
+Similarity of negative-positive sample centroids after projection: 0.71154
+Epoch 2/100, Loss: 0.593709
+Similarity of negative-positive sample centroids before projection: -0.72685
+Similarity of negative-positive sample centroids after projection: 0.72685
+Epoch 3/100, Loss: 0.439215
+Similarity of negative-positive sample centroids before projection: -0.76204
+Similarity of negative-positive sample centroids after projection: 0.76204
+Epoch 4/100, Loss: 0.278704
+Similarity of negative-positive sample centroids before projection: -0.88531
+Similarity of negative-positive sample centroids after projection: 0.88531
+Epoch 5/100, Loss: 0.160914
+Similarity of negative-positive sample centroids before projection: -0.97019
+Similarity of negative-positive sample centroids after projection: 0.97019
+Epoch 6/100, Loss: 0.113210
+Similarity of negative-positive sample centroids before projection: -0.99211
+Similarity of negative-positive sample centroids after projection: 0.99211
+Epoch 7/100, Loss: 0.083469
+Similarity of negative-positive sample centroids before projection: -0.99796
+Similarity of negative-positive sample centroids after projection: 0.99796
+Epoch 8/100, Loss: 0.062260
+Similarity of negative-positive sample centroids before projection: -0.9927
+Similarity of negative-positive sample centroids after projection: 0.9927
+Epoch 9/100, Loss: 0.041671
+Similarity of negative-positive sample centroids before projection: -0.99829
+Similarity of negative-positive sample centroids after projection: 0.99829
+Epoch 10/100, Loss: 0.029562
+Similarity of negative-positive sample centroids before projection: -0.99864
+Similarity of negative-positive sample centroids after projection: 0.99864
+Epoch 11/100, Loss: 0.023427
+Similarity of negative-positive sample centroids before projection: -0.99868
+Similarity of negative-positive sample centroids after projection: 0.99868
+Epoch 12/100, Loss: 0.020648
+Similarity of negative-positive sample centroids before projection: -0.99894
+Similarity of negative-positive sample centroids after projection: 0.99894
+Epoch 13/100, Loss: 0.019313
+Similarity of negative-positive sample centroids before projection: -0.9989
+Similarity of negative-positive sample centroids after projection: 0.9989
+Epoch 14/100, Loss: 0.018479
+Similarity of negative-positive sample centroids before projection: -0.99917
+Similarity of negative-positive sample centroids after projection: 0.99917
+Epoch 15/100, Loss: 0.018023
+Similarity of negative-positive sample centroids before projection: -0.99924
+Similarity of negative-positive sample centroids after projection: 0.99924
+Epoch 16/100, Loss: 0.017730
+Similarity of negative-positive sample centroids before projection: -0.99809
+Similarity of negative-positive sample centroids after projection: 0.99809
+Epoch 17/100, Loss: 0.017479
+Similarity of negative-positive sample centroids before projection: -0.9987
+Similarity of negative-positive sample centroids after projection: 0.9987
+Epoch 18/100, Loss: 0.017310
+Similarity of negative-positive sample centroids before projection: -0.99825
+Similarity of negative-positive sample centroids after projection: 0.99825
+Epoch 19/100, Loss: 0.017180
+Similarity of negative-positive sample centroids before projection: -0.99874
+Similarity of negative-positive sample centroids after projection: 0.99874
+Epoch 20/100, Loss: 0.017084
+Similarity of negative-positive sample centroids before projection: -0.99907
+Similarity of negative-positive sample centroids after projection: 0.99907
+Epoch 21/100, Loss: 0.016995
+Similarity of negative-positive sample centroids before projection: -0.99865
+Similarity of negative-positive sample centroids after projection: 0.99865
+Epoch 22/100, Loss: 0.016926
+Similarity of negative-positive sample centroids before projection: -0.99789
+Similarity of negative-positive sample centroids after projection: 0.99789
+Epoch 23/100, Loss: 0.016875
+Similarity of negative-positive sample centroids before projection: -0.99851
+Similarity of negative-positive sample centroids after projection: 0.99851
+Epoch 24/100, Loss: 0.016790
+Similarity of negative-positive sample centroids before projection: -0.99829
+Similarity of negative-positive sample centroids after projection: 0.99829
+Epoch 25/100, Loss: 0.016740
+Similarity of negative-positive sample centroids before projection: -0.99841
+Similarity of negative-positive sample centroids after projection: 0.99841
+Epoch 26/100, Loss: 0.016665
+Similarity of negative-positive sample centroids before projection: -0.9985
+Similarity of negative-positive sample centroids after projection: 0.9985
+Epoch 27/100, Loss: 0.016585
+Similarity of negative-positive sample centroids before projection: -0.9987
+Similarity of negative-positive sample centroids after projection: 0.9987
+Epoch 28/100, Loss: 0.016480
+Similarity of negative-positive sample centroids before projection: -0.99873
+Similarity of negative-positive sample centroids after projection: 0.99873
+Epoch 29/100, Loss: 0.016392
+Similarity of negative-positive sample centroids before projection: -0.99818
+Similarity of negative-positive sample centroids after projection: 0.99818
+Epoch 30/100, Loss: 0.016311
+Similarity of negative-positive sample centroids before projection: -0.99851
+Similarity of negative-positive sample centroids after projection: 0.99851
+Epoch 31/100, Loss: 0.016046
+Similarity of negative-positive sample centroids before projection: -0.99752
+Similarity of negative-positive sample centroids after projection: 0.99752
+Epoch 32/100, Loss: 0.015809
+Similarity of negative-positive sample centroids before projection: -0.99745
+Similarity of negative-positive sample centroids after projection: 0.99745
+Epoch 33/100, Loss: 0.015575
+Similarity of negative-positive sample centroids before projection: -0.99787
+Similarity of negative-positive sample centroids after projection: 0.99787
+Epoch 34/100, Loss: 0.015341
+Similarity of negative-positive sample centroids before projection: -0.99865
+Similarity of negative-positive sample centroids after projection: 0.99865
+Epoch 35/100, Loss: 0.015006
+Similarity of negative-positive sample centroids before projection: -0.99799
+Similarity of negative-positive sample centroids after projection: 0.99799
+Epoch 36/100, Loss: 0.014659
+Similarity of negative-positive sample centroids before projection: -0.99763
+Similarity of negative-positive sample centroids after projection: 0.99763
+Epoch 37/100, Loss: 0.014470
+Similarity of negative-positive sample centroids before projection: -0.99801
+Similarity of negative-positive sample centroids after projection: 0.99801
+Epoch 38/100, Loss: 0.014297
+Similarity of negative-positive sample centroids before projection: -0.99917
+Similarity of negative-positive sample centroids after projection: 0.99917
+Epoch 39/100, Loss: 0.014147
+Similarity of negative-positive sample centroids before projection: -0.99551
+Similarity of negative-positive sample centroids after projection: 0.99551
+Epoch 40/100, Loss: 0.013824
+Similarity of negative-positive sample centroids before projection: -0.9982
+Similarity of negative-positive sample centroids after projection: 0.9982
+Epoch 41/100, Loss: 0.013417
+Similarity of negative-positive sample centroids before projection: -0.99692
+Similarity of negative-positive sample centroids after projection: 0.99692
+Epoch 42/100, Loss: 0.013078
+Similarity of negative-positive sample centroids before projection: -0.99519
+Similarity of negative-positive sample centroids after projection: 0.99519
+Epoch 43/100, Loss: 0.012872
+Similarity of negative-positive sample centroids before projection: -0.99759
+Similarity of negative-positive sample centroids after projection: 0.99759
+Epoch 44/100, Loss: 0.012573
+Similarity of negative-positive sample centroids before projection: -0.9976
+Similarity of negative-positive sample centroids after projection: 0.9976
+Epoch 45/100, Loss: 0.012528
+Similarity of negative-positive sample centroids before projection: -0.99677
+Similarity of negative-positive sample centroids after projection: 0.99677
+Epoch 46/100, Loss: 0.012307
+Similarity of negative-positive sample centroids before projection: -0.99704
+Similarity of negative-positive sample centroids after projection: 0.99704
+Epoch 47/100, Loss: 0.011997
+Similarity of negative-positive sample centroids before projection: -0.99164
+Similarity of negative-positive sample centroids after projection: 0.99164
+Epoch 48/100, Loss: 0.011889
+Similarity of negative-positive sample centroids before projection: -0.99533
+Similarity of negative-positive sample centroids after projection: 0.99533
+Epoch 49/100, Loss: 0.011586
+Similarity of negative-positive sample centroids before projection: -0.99701
+Similarity of negative-positive sample centroids after projection: 0.99701
+Epoch 50/100, Loss: 0.011341
+Similarity of negative-positive sample centroids before projection: -0.9975
+Similarity of negative-positive sample centroids after projection: 0.9975
+Epoch 51/100, Loss: 0.011220
+Similarity of negative-positive sample centroids before projection: -0.99835
+Similarity of negative-positive sample centroids after projection: 0.99835
+Epoch 52/100, Loss: 0.011065
+Similarity of negative-positive sample centroids before projection: -0.99586
+Similarity of negative-positive sample centroids after projection: 0.99586
+
+
+
+
+
+
+
+
+
+
+Epoch 1/100, Loss: 0.706363
+Similarity of negative-positive sample centroids before projection: -0.79951
+Similarity of negative-positive sample centroids after projection: 0.79951
+Similarity of negative sample centroid with resulting gradient: 0.31662
+Similarity of positive sample centroid with resulting gradient: 0.31662
+Epoch 2/100, Loss: 0.622985
+Similarity of negative-positive sample centroids before projection: -0.7856
+Similarity of negative-positive sample centroids after projection: 0.7856
+Similarity of negative sample centroid with resulting gradient: 0.32741
+Similarity of positive sample centroid with resulting gradient: 0.32742
+Epoch 3/100, Loss: 0.484336
+Similarity of negative-positive sample centroids before projection: -0.83486
+Similarity of negative-positive sample centroids after projection: 0.83486
+Similarity of negative sample centroid with resulting gradient: 0.28735
+Similarity of positive sample centroid with resulting gradient: 0.28735
+Epoch 4/100, Loss: 0.308704
+Similarity of negative-positive sample centroids before projection: -0.91164
+Similarity of negative-positive sample centroids after projection: 0.91164
+Similarity of negative sample centroid with resulting gradient: 0.21018
+Similarity of positive sample centroid with resulting gradient: 0.21018
+Epoch 5/100, Loss: 0.168217
+Similarity of negative-positive sample centroids before projection: -0.97322
+Similarity of negative-positive sample centroids after projection: 0.97322
+Similarity of negative sample centroid with resulting gradient: 0.11571
+Similarity of positive sample centroid with resulting gradient: 0.11571
+Epoch 6/100, Loss: 0.114792
+Similarity of negative-positive sample centroids before projection: -0.99338
+Similarity of negative-positive sample centroids after projection: 0.99338
+Similarity of negative sample centroid with resulting gradient: 0.05755
+Similarity of positive sample centroid with resulting gradient: 0.05755
+Epoch 7/100, Loss: 0.097705
+Similarity of negative-positive sample centroids before projection: -0.99497
+Similarity of negative-positive sample centroids after projection: 0.99497
+Similarity of negative sample centroid with resulting gradient: 0.05013
+Similarity of positive sample centroid with resulting gradient: 0.05013
