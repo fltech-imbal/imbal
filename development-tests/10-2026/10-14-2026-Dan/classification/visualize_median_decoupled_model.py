@@ -134,6 +134,12 @@ def plot_feature_analysis(test, y_test, probabilities, predictions, threshold):
         ax.axhline(threshold, color='gray', linestyle='--', linewidth=1.1)
         ax.set_title(title)
         ax.set_xlabel(title)
+
+        # Acceleration includes negative values, so use a signed log scale.
+        # Keep -1 to 1 linear so values near zero remain visible and well-defined.
+        if title == 'Acceleration':
+            ax.set_xscale('symlog', linthresh=1.0)
+
         ax.set_ylabel('Predicted Rare probability')
         ax.set_ylim(-0.04, 1.04)
         ax.legend(loc=legend_locations[title], frameon=True, fontsize=9)

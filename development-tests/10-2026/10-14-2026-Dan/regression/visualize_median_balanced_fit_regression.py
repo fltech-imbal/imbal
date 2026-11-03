@@ -49,22 +49,25 @@ def plot_feature_analysis(test, y_true, y_pred):
     background = y_true <= 0.0
     elevated = (y_true > 0.0) & (y_true < RARE_THRESHOLD)
 
-    # Identify the same two speed-extreme errors for all five feature charts.
-    speeds = pd.to_numeric(test['CME_DONKI_speed'], errors='raise').to_numpy(dtype=float)
-    if not np.isfinite(speeds).all():
-        raise ValueError('Raw CME_DONKI_speed values must be finite.')
+    # Rank distance from the y=x diagonal by absolute prediction error.
+    # Select one FP and one FN, matching the worst-error SHAP examples below.
+    absolute_errors = np.abs(y_pred - y_true)
     fp_indices = np.flatnonzero(fp)
     fn_indices = np.flatnonzero(fn)
-    highlighted_fp = (int(fp_indices[np.argmax(speeds[fp_indices])])
+
+    highlighted_fp = (int(fp_indices[np.argmax(absolute_errors[fp_indices])])
                       if len(fp_indices) else None)
-    highlighted_fn = (int(fn_indices[np.argmin(speeds[fn_indices])])
+    highlighted_fn = (int(fn_indices[np.argmax(absolute_errors[fn_indices])])
                       if len(fn_indices) else None)
-    for label, index in [('Highlighted FP (highest speed)', highlighted_fp),
-                         ('Highlighted FN (lowest speed)', highlighted_fn)]:
+
+    # Reuse these same two highlighted rows across all five feature charts.
+    for label, index in [('Highlighted FP (largest absolute error)', highlighted_fp),
+                         ('Highlighted FN (largest absolute error)', highlighted_fn)]:
         if index is None:
             print(f'{label}: none available')
         else:
-            print(f'{label}: test row={index}, raw speed={speeds[index]:.6g}')
+            print(f'{label}: test row={index}, actual={y_true[index]:.6g}, '
+                  f'predicted={y_pred[index]:.6g}, absolute error={absolute_errors[index]:.6g}')
 
     print(f'Plot categories: Background={background.sum()}, Elevated={elevated.sum()}, '
           f'Rare={actual_rare.sum()}, FP={fp.sum()}, FN={fn.sum()}')
@@ -99,6 +102,12 @@ def plot_feature_analysis(test, y_true, y_pred):
         ax.axhline(RARE_THRESHOLD, color='gray', linestyle='--', linewidth=1.1)
         ax.set_title(title)
         ax.set_xlabel(title)
+
+        # Acceleration includes negative values, so use a signed log scale.
+        # Keep -1 to 1 linear so values near zero remain visible and well-defined.
+        if title == 'Acceleration':
+            ax.set_xscale('symlog', linthresh=1.0)
+
         ax.set_ylabel('Predicted ln peak intensity')
         ax.legend(loc=legend_location, frameon=True, fontsize=9)
         fig.tight_layout()
