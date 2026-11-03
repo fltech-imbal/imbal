@@ -207,115 +207,242 @@ Similarity of positive sample centroid with resulting gradient: 0.05013
 
 
 
-Epoch 1/100, Loss: 0.608049
-Similarity of original gradient to class 0: -0.38654
-Similarity of original gradient to class 1: 0.93468
-Similarity of original gradient to class 2: 0.90317
-Similarity of final gradient to class 0: 0.31368
-Similarity of final gradient to class 1: 0.48682
-Similarity of final gradient to class 2: 0.71161
-Epoch 2/100, Loss: 0.451698
-Similarity of original gradient to class 0: -0.36121
-Similarity of original gradient to class 1: 0.91454
-Similarity of original gradient to class 2: 0.91571
-Similarity of final gradient to class 0: 0.31104
-Similarity of final gradient to class 1: 0.46479
-Similarity of final gradient to class 2: 0.7449
-Epoch 3/100, Loss: 0.274271
-Similarity of original gradient to class 0: -0.50551
-Similarity of original gradient to class 1: 0.90778
-Similarity of original gradient to class 2: 0.89837
-Similarity of final gradient to class 0: 0.28137
-Similarity of final gradient to class 1: 0.34736
-Similarity of final gradient to class 2: 0.7466
-Epoch 4/100, Loss: 0.086311
-Similarity of original gradient to class 0: -0.68979
-Similarity of original gradient to class 1: 0.90008
-Similarity of original gradient to class 2: 0.86441
-Similarity of final gradient to class 0: 0.23796
-Similarity of final gradient to class 1: 0.1708
-Similarity of final gradient to class 2: 0.74824
-Epoch 5/100, Loss: -0.087139
-Similarity of original gradient to class 0: -0.879
-Similarity of original gradient to class 1: 0.92554
-Similarity of original gradient to class 2: 0.76298
-Similarity of final gradient to class 0: 0.17521
-Similarity of final gradient to class 1: -0.00225
-Similarity of final gradient to class 2: 0.70432
-Epoch 6/100, Loss: -0.264685
-Similarity of original gradient to class 0: -0.87821
-Similarity of original gradient to class 1: 0.94244
-Similarity of original gradient to class 2: 0.74693
-Similarity of final gradient to class 0: 0.17792
-Similarity of final gradient to class 1: 0.0283
-Similarity of final gradient to class 2: 0.75706
-Epoch 7/100, Loss: -0.533190
-Similarity of original gradient to class 0: -0.91726
-Similarity of original gradient to class 1: 0.9416
-Similarity of original gradient to class 2: 0.68853
-Similarity of final gradient to class 0: 0.15162
-Similarity of final gradient to class 1: -0.05528
-Similarity of final gradient to class 2: 0.78623
-Epoch 8/100, Loss: -0.794839
-Similarity of original gradient to class 0: -0.94147
-Similarity of original gradient to class 1: 0.95318
-Similarity of original gradient to class 2: 0.66836
-Similarity of final gradient to class 0: 0.13601
-Similarity of final gradient to class 1: -0.06083
-Similarity of final gradient to class 2: 0.73726
-Epoch 9/100, Loss: -1.074697
-Similarity of original gradient to class 0: -0.82825
-Similarity of original gradient to class 1: 0.95529
-Similarity of original gradient to class 2: 0.67921
-Similarity of final gradient to class 0: 0.21077
-Similarity of final gradient to class 1: 0.13988
-Similarity of final gradient to class 2: 0.79123
-Epoch 10/100, Loss: -1.785746
-Similarity of original gradient to class 0: -0.00307
-Similarity of original gradient to class 1: 0.95216
-Similarity of original gradient to class 2: 0.67908
-Similarity of final gradient to class 0: 0.0007
-Similarity of final gradient to class 1: 0.09741
-Similarity of final gradient to class 2: 0.77471
-Epoch 11/100, Loss: -3.039928
-Similarity of original gradient to class 0: -0.0
-Similarity of original gradient to class 1: 0.93314
-Similarity of original gradient to class 2: 0.68917
-Similarity of final gradient to class 0: 0.0
-Similarity of final gradient to class 1: 0.59797
-Similarity of final gradient to class 2: 0.86472
-Epoch 12/100, Loss: -5.772430
-Similarity of original gradient to class 0: -0.0
-Similarity of original gradient to class 1: 0.91164
-Similarity of original gradient to class 2: 0.73486
-Similarity of final gradient to class 0: 0.0
-Similarity of final gradient to class 1: 0.28168
-Similarity of final gradient to class 2: 0.84047
-Epoch 13/100, Loss: -9.263903
-Similarity of original gradient to class 0: -0.0
-Similarity of original gradient to class 1: 0.89255
-Similarity of original gradient to class 2: 0.7732
-Similarity of final gradient to class 0: 0.0
-Similarity of final gradient to class 1: 0.06654
-Similarity of final gradient to class 2: 0.59208
-Epoch 14/100, Loss: -12.836524
-Similarity of original gradient to class 0: -0.0
-Similarity of original gradient to class 1: 0.8642
-Similarity of original gradient to class 2: 0.80851
-Similarity of final gradient to class 0: 0.0
-Similarity of final gradient to class 1: 0.23351
-Similarity of final gradient to class 2: 0.74924
-Epoch 15/100, Loss: nan
-Similarity of original gradient to class 0: nan
-Similarity of original gradient to class 1: nan
-Similarity of original gradient to class 2: nan
-Similarity of final gradient to class 0: nan
-Similarity of final gradient to class 1: nan
-Similarity of final gradient to class 2: nan
-Epoch 16/100, Loss: nan
-Similarity of original gradient to class 0: nan
-Similarity of original gradient to class 1: nan
-Similarity of original gradient to class 2: nan
-Similarity of final gradient to class 0: nan
-Similarity of final gradient to class 1: nan
-Similarity of final gradient to class 2: nan
+Epoch 1/100, Loss: 1.032002
+Similarity of original gradient to class 0: -0.1159
+Similarity of original gradient to class 1: 0.94762
+Similarity of original gradient to class 2: -0.48516
+Similarity of final gradient to class 0: 0.40763
+Similarity of final gradient to class 1: 0.45714
+Similarity of final gradient to class 2: 0.01663
+Epoch 2/100, Loss: 0.876236
+Similarity of original gradient to class 0: -0.05793
+Similarity of original gradient to class 1: 0.92694
+Similarity of original gradient to class 2: -0.615
+Similarity of final gradient to class 0: 0.47798
+Similarity of final gradient to class 1: 0.39562
+Similarity of final gradient to class 2: -0.06178
+Epoch 3/100, Loss: 0.685250
+Similarity of original gradient to class 0: -0.09708
+Similarity of original gradient to class 1: 0.92737
+Similarity of original gradient to class 2: -0.62478
+Similarity of final gradient to class 0: 0.41251
+Similarity of final gradient to class 1: 0.40303
+Similarity of final gradient to class 2: -0.04088
+Epoch 4/100, Loss: 0.488705
+Similarity of original gradient to class 0: -0.25707
+Similarity of original gradient to class 1: 0.93875
+Similarity of original gradient to class 2: -0.68948
+Similarity of final gradient to class 0: 0.3592
+Similarity of final gradient to class 1: 0.33208
+Similarity of final gradient to class 2: -0.09948
+Epoch 5/100, Loss: 0.337326
+Similarity of original gradient to class 0: -0.70944
+Similarity of original gradient to class 1: 0.9845
+Similarity of original gradient to class 2: -0.5491
+Similarity of final gradient to class 0: 0.14208
+Similarity of final gradient to class 1: 0.19389
+Similarity of final gradient to class 2: -0.01879
+Epoch 6/100, Loss: 0.247695
+Similarity of original gradient to class 0: -0.79328
+Similarity of original gradient to class 1: 0.99284
+Similarity of original gradient to class 2: -0.51489
+Similarity of final gradient to class 0: 0.08678
+Similarity of final gradient to class 1: 0.1595
+Similarity of final gradient to class 2: 0.01211
+Epoch 7/100, Loss: 0.175345
+Similarity of original gradient to class 0: -0.70718
+Similarity of original gradient to class 1: 0.9786
+Similarity of original gradient to class 2: -0.66199
+Similarity of final gradient to class 0: -0.02716
+Similarity of final gradient to class 1: 0.4762
+Similarity of final gradient to class 2: -0.65774
+Epoch 8/100, Loss: 0.128983
+Similarity of original gradient to class 0: -0.35779
+Similarity of original gradient to class 1: 0.07142
+Similarity of original gradient to class 2: 0.64908
+Similarity of final gradient to class 0: -0.25735
+Similarity of final gradient to class 1: 0.04684
+Similarity of final gradient to class 2: 0.54109
+Epoch 9/100, Loss: 0.115363
+Similarity of original gradient to class 0: 0.00726
+Similarity of original gradient to class 1: 0.45574
+Similarity of original gradient to class 2: -0.73378
+Similarity of final gradient to class 0: 0.17795
+Similarity of final gradient to class 1: 0.16797
+Similarity of final gradient to class 2: -0.43648
+Epoch 10/100, Loss: 0.107627
+Similarity of original gradient to class 0: -0.13821
+Similarity of original gradient to class 1: 0.29585
+Similarity of original gradient to class 2: -0.17496
+Similarity of final gradient to class 0: 0.00312
+Similarity of final gradient to class 1: 0.10118
+Similarity of final gradient to class 2: -0.0227
+Epoch 11/100, Loss: 0.102895
+Similarity of original gradient to class 0: -0.90798
+Similarity of original gradient to class 1: 0.79837
+Similarity of original gradient to class 2: 0.12887
+Similarity of final gradient to class 0: -0.44739
+Similarity of final gradient to class 1: 0.23279
+Similarity of final gradient to class 2: 0.53868
+Epoch 12/100, Loss: 0.098005
+Similarity of original gradient to class 0: -0.79748
+Similarity of original gradient to class 1: 0.56469
+Similarity of original gradient to class 2: 0.47537
+Similarity of final gradient to class 0: -0.44801
+Similarity of final gradient to class 1: 0.15706
+Similarity of final gradient to class 2: 0.72327
+Epoch 13/100, Loss: 0.093931
+Similarity of original gradient to class 0: -0.85134
+Similarity of original gradient to class 1: 0.61804
+Similarity of original gradient to class 2: 0.50663
+Similarity of final gradient to class 0: -0.4665
+Similarity of final gradient to class 1: 0.13635
+Similarity of final gradient to class 2: 0.8473
+Epoch 14/100, Loss: 0.090372
+Similarity of original gradient to class 0: 0.33755
+Similarity of original gradient to class 1: -0.60849
+Similarity of original gradient to class 2: 0.86521
+Similarity of final gradient to class 0: 0.19
+Similarity of final gradient to class 1: -0.41146
+Similarity of final gradient to class 2: 0.76959
+Epoch 15/100, Loss: 0.087002
+Similarity of original gradient to class 0: -0.95881
+Similarity of original gradient to class 1: 0.91877
+Similarity of original gradient to class 2: -0.04506
+Similarity of final gradient to class 0: -0.50536
+Similarity of final gradient to class 1: 0.34234
+Similarity of final gradient to class 2: 0.42173
+Epoch 16/100, Loss: 0.083738
+Similarity of original gradient to class 0: 0.76448
+Similarity of original gradient to class 1: -0.24861
+Similarity of original gradient to class 2: -0.61972
+Similarity of final gradient to class 0: 0.6474
+Similarity of final gradient to class 1: -0.12149
+Similarity of final gradient to class 2: -0.65118
+Epoch 17/100, Loss: 0.080795
+Similarity of original gradient to class 0: 0.02103
+Similarity of original gradient to class 1: 0.51465
+Similarity of original gradient to class 2: -0.8415
+Similarity of final gradient to class 0: 0.2233
+Similarity of final gradient to class 1: 0.20611
+Similarity of final gradient to class 2: -0.54183
+Epoch 18/100, Loss: 0.078520
+Similarity of original gradient to class 0: -0.87835
+Similarity of original gradient to class 1: 0.71595
+Similarity of original gradient to class 2: 0.47343
+Similarity of final gradient to class 0: -0.40328
+Similarity of final gradient to class 1: 0.13913
+Similarity of final gradient to class 2: 0.88658
+Epoch 19/100, Loss: 0.075888
+Similarity of original gradient to class 0: 0.70148
+Similarity of original gradient to class 1: -0.17622
+Similarity of original gradient to class 2: -0.59927
+Similarity of final gradient to class 0: 0.57162
+Similarity of final gradient to class 1: -0.08443
+Similarity of final gradient to class 2: -0.52579
+Epoch 20/100, Loss: 0.073666
+Similarity of original gradient to class 0: -0.62228
+Similarity of original gradient to class 1: 0.90143
+Similarity of original gradient to class 2: -0.62837
+Similarity of final gradient to class 0: -0.18312
+Similarity of final gradient to class 1: 0.47498
+Similarity of final gradient to class 2: -0.49116
+Epoch 21/100, Loss: 0.072058
+Similarity of original gradient to class 0: -0.96688
+Similarity of original gradient to class 1: 0.9608
+Similarity of original gradient to class 2: -0.06842
+Similarity of final gradient to class 0: -0.48873
+Similarity of final gradient to class 1: 0.34028
+Similarity of final gradient to class 2: 0.51594
+Epoch 22/100, Loss: 0.069731
+Similarity of original gradient to class 0: 0.17561
+Similarity of original gradient to class 1: -0.36731
+Similarity of original gradient to class 2: 0.71404
+Similarity of final gradient to class 0: 0.04525
+Similarity of final gradient to class 1: -0.17384
+Similarity of final gradient to class 2: 0.55054
+Epoch 23/100, Loss: 0.068455
+Similarity of original gradient to class 0: -0.56085
+Similarity of original gradient to class 1: 0.78896
+Similarity of original gradient to class 2: -0.4552
+Similarity of final gradient to class 0: -0.14988
+Similarity of final gradient to class 1: 0.33366
+Similarity of final gradient to class 2: -0.21064
+Epoch 24/100, Loss: 0.066954
+Similarity of original gradient to class 0: -0.4047
+Similarity of original gradient to class 1: 0.10119
+Similarity of original gradient to class 2: 0.89248
+Similarity of final gradient to class 0: -0.41032
+Similarity of final gradient to class 1: 0.15158
+Similarity of final gradient to class 2: 0.80192
+Epoch 25/100, Loss: 0.066933
+Similarity of original gradient to class 0: 0.13978
+Similarity of original gradient to class 1: 0.5375
+Similarity of original gradient to class 2: -0.92731
+Similarity of final gradient to class 0: 0.38682
+Similarity of final gradient to class 1: 0.18853
+Similarity of final gradient to class 2: -0.64121
+Epoch 26/100, Loss: 0.065491
+Similarity of original gradient to class 0: -0.42262
+Similarity of original gradient to class 1: 0.10044
+Similarity of original gradient to class 2: 0.78889
+Similarity of final gradient to class 0: -0.34103
+Similarity of final gradient to class 1: 0.08773
+Similarity of final gradient to class 2: 0.67428
+Epoch 27/100, Loss: 0.063963
+Similarity of original gradient to class 0: -0.62762
+Similarity of original gradient to class 1: 0.42837
+Similarity of original gradient to class 2: 0.72125
+Similarity of final gradient to class 0: -0.39783
+Similarity of final gradient to class 1: 0.19646
+Similarity of final gradient to class 2: 0.77719
+Epoch 28/100, Loss: 0.063413
+Similarity of original gradient to class 0: 0.54748
+Similarity of original gradient to class 1: -0.80022
+Similarity of original gradient to class 2: 0.76652
+Similarity of final gradient to class 0: 0.24741
+Similarity of final gradient to class 1: -0.54165
+Similarity of final gradient to class 2: 0.86656
+Epoch 29/100, Loss: 0.062949
+Similarity of original gradient to class 0: 0.95618
+Similarity of original gradient to class 1: -0.89389
+Similarity of original gradient to class 2: 0.03899
+Similarity of final gradient to class 0: 0.47906
+Similarity of final gradient to class 1: -0.43624
+Similarity of final gradient to class 2: 0.12871
+Epoch 30/100, Loss: 0.063422
+Similarity of original gradient to class 0: 0.1026
+Similarity of original gradient to class 1: -0.27311
+Similarity of original gradient to class 2: 0.91359
+Similarity of final gradient to class 0: 0.08039
+Similarity of final gradient to class 1: -0.20217
+Similarity of final gradient to class 2: 0.79349
+Epoch 31/100, Loss: 0.061411
+Similarity of original gradient to class 0: 0.84985
+Similarity of original gradient to class 1: -0.92932
+Similarity of original gradient to class 2: 0.37333
+Similarity of final gradient to class 0: 0.40921
+Similarity of final gradient to class 1: -0.55434
+Similarity of final gradient to class 2: 0.5075
+Epoch 32/100, Loss: 0.059636
+Similarity of original gradient to class 0: 0.16252
+Similarity of original gradient to class 1: 0.20111
+Similarity of original gradient to class 2: -0.65158
+Similarity of final gradient to class 0: 0.17723
+Similarity of final gradient to class 1: 0.0913
+Similarity of final gradient to class 2: -0.38895
+Epoch 33/100, Loss: 0.059070
+Similarity of original gradient to class 0: 0.96665
+Similarity of original gradient to class 1: -0.70178
+Similarity of original gradient to class 2: -0.2538
+Similarity of final gradient to class 0: 0.60925
+Similarity of final gradient to class 1: -0.21417
+Similarity of final gradient to class 2: -0.49596
+Epoch 34/100, Loss: 0.058602
+Similarity of original gradient to class 0: -0.85667
+Similarity of original gradient to class 1: 0.97224
+Similarity of original gradient to class 2: -0.34066
+Similarity of final gradient to class 0: -0.42954
+Similarity of final gradient to class 1: 0.45499
+Similarity of final gradient to class 2: 0.04441
+

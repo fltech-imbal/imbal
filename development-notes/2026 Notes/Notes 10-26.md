@@ -341,7 +341,7 @@ Have some implementation for both grouping/clustering and gradient conflict redu
 
 ---
 
-# 10/27/26
+# 10/30/26
 
 ## Thesis
 
@@ -384,6 +384,7 @@ Finish the above table for Thursday. Also, answer...
 	- Calculate gradient after conflict reduction $g'_i$
 	- For each bin/class, print $\cos(g', g_i)$
 		- We hope that this will be at least less dissimilar, or positively similar, to all $g_i$
+- Run non-machine learning scenarios with a fixed vector $a$, vary $b$ and $c$, and use that to verify method works as intended (see images)
 - Thought: using weights of samples to determine magnitude of each conflict-reduced class gradient before summing to produce final conflict-reduced gradient?
 
 ---
@@ -394,6 +395,15 @@ Finish the above table for Thursday. Also, answer...
 ## NASA
 - For `plot_similarity_matrix`, focus on **regression** on tabular and image data tutorials
 - If possible, introduce table for documentation to indicate the different usages of `validation_split`
+- For SDO / SEP-C similarity matrix tutorials, explain why there is gaps/whitespace in the plots (due to lack of samples with those labels in the dataset)
+- For notes at bottom of documentation, parameter-related first, then additional notes/guides/tutorials
+- Modify source code to do one run when 0 < `validation_split` < 1
+	- Let Daniel know this change has been made
+- Document scenarios for validation
+	- `validation_split` == 0 or is None, no validation data
+	- 0 < `validation_split` < 1, we randomly select a validation set, and run once
+	- `validation_split` >= 2, k-fold cross validation
+	- In any scenario where `validation_data` is provided, `validation_split` is ignored
 
 | value                       | validation_split                                   |
 | --------------------------- | -------------------------------------------------- |
@@ -401,8 +411,6 @@ Finish the above table for Thursday. Also, answer...
 | 0 < value < 1               | %age of training set to be set aside as validation |
 | value == 0 or value is None | No validation data                                 |
 | default value = 5           |                                                    
-**It seems like I was mistaken on the behavior 0 < value < 1 performs 5 validation runs, each run using a random stratified test split of the specified percentage. Is this the behavior we want? (5 seems arbitrary, as well as being not overridable by the user.)**
-
 
 - Yet to do classification tutorials for representation loss. Simple classification representation loss?
 	- Per class distance to centroids, plus increase distance to centroid
@@ -411,3 +419,18 @@ Finish the above table for Thursday. Also, answer...
 	- Instead use SEP-C (above ln(10), background, and "elevated" (greater than background but below ln(10)))
 	- Multiple solar flare classes for SDOBenchmark
 - Daniel's k-fold validation has not been documented. Should I do that? I may re-write it while I am at it... lots of copy-pasting instead of modularization.
+- Order of operations
+	- distance matrix
+		- regression **(1)**
+			- tabular
+			- image
+		- classification **(2)**
+			- tabular
+			- image
+	- representation loss
+		- regression **(2)**
+			- tabular
+			- image
+		- classfication **(3)**
+			- tabular
+			- image

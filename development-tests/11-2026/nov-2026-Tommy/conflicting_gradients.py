@@ -11,6 +11,7 @@ DATA_PREFIX = 'sep_e_log_normalized'
 UNIT_REPRESENTATIONS = False
 NONLINEAR_REGRESSOR = False
 LEARNING_RATE = 2e-4
+NUM_CLASSES = 3
 
 def load_sep_ec(path_prefix):
     training_data = pd.read_csv(path_prefix + '_training.csv')
@@ -57,11 +58,11 @@ if NONLINEAR_REGRESSOR:
     for i in range(4):
         x = layers.Dense(32, activation='relu')(x)
 
-outputs = layers.Dense(1)(x)
+outputs = layers.Dense(NUM_CLASSES)(x)
 
 model = keras.Model(inputs=inputs, outputs=outputs)
 
-loss_fn = keras.losses.BinaryCrossentropy(from_logits=True)
+loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
 optimizer = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 
 epochs = 100
@@ -146,12 +147,10 @@ sizes = [tf.size(v) for v in variables]
 for epoch in range(epochs):
     total_loss = 0.0
     num_batches = 0
-    # last_pre_reduction_similarity = None
-    # last_post_reduction_similarity = None
-    # pos_final_similarity = None
-    # neg_final_similarity = None
+
     last_normalized_original_gradient = None
     last_normalized_class_centroids = None
+    last_class_centroids = None
     last_normalized_final_gradient = None
     last_conflict_reduced_gradients = None
 
@@ -168,50 +167,14 @@ for epoch in range(epochs):
         original_gradient = tf.reduce_sum(per_sample_gradients_flattened, axis=0)
         normalized_original_gradient = tf.math.l2_normalize(original_gradient, axis=0)
         last_normalized_original_gradient = normalized_original_gradient
-        class_centroids, normalized_class_centroids = get_class_centroids(per_sample_gradients_flattened, y_batch, 3)
+        class_centroids, normalized_class_centroids = get_class_centroids(per_sample_gradients_flattened, y_batch, NUM_CLASSES)
         last_normalized_class_centroids = normalized_class_centroids
 
-        conflict_reduced_class_gradients = get_conflict_reduced(class_centroids, normalized_class_centroids, 3)
+        conflict_reduced_class_gradients = get_conflict_reduced(class_centroids, normalized_class_centroids, NUM_CLASSES)
 
-        # negative_mask = tf.reshape(y_batch == 0, [-1])
-        # negative_per_sample_gradients = tf.boolean_mask(per_sample_gradients_flattened, negative_mask)
-        #
-        # positive_mask = tf.reshape(y_batch == 1, [-1])
-        # positive_per_sample_gradients = tf.boolean_mask(per_sample_gradients_flattened, positive_mask)
-        #
-        # negative_gradient_centroid = tf.reduce_sum(negative_per_sample_gradients, axis=0)
-        # positive_gradient_centroid = tf.reduce_sum(positive_per_sample_gradients, axis=0)
-        #
-        # normalized_negative_centroid = tf.math.l2_normalize(negative_gradient_centroid, axis=0)
-        # normalized_positive_centroid = tf.math.l2_normalize(positive_gradient_centroid, axis=0)
-        # original_normalized_negative_centroid = normalized_negative_centroid
-        # original_normalized_positive_centroid = normalized_positive_centroid
-        #
-        # centroid_similarity = tf.reduce_sum(normalized_positive_centroid * normalized_negative_centroid)
-        # last_pre_reduction_similarity = float(centroid_similarity)
-        #
-        # if (centroid_similarity < 0):
-        #     projected_negative_gradient_centroid = negative_gradient_centroid - projection(negative_gradient_centroid, positive_gradient_centroid)
-        #     projected_positive_gradient_centroid = positive_gradient_centroid - projection(positive_gradient_centroid, negative_gradient_centroid)
-        #
-        #     negative_gradient_centroid = projected_negative_gradient_centroid
-        #     positive_gradient_centroid = projected_positive_gradient_centroid
-        #
-        #     normalized_negative_centroid = tf.math.l2_normalize(negative_gradient_centroid, axis=0)
-        #     normalized_positive_centroid = tf.math.l2_normalize(positive_gradient_centroid, axis=0)
-        #
-        # centroid_similarity = tf.reduce_sum(normalized_positive_centroid * normalized_negative_centroid)
-        # last_post_reduction_similarity = float(centroid_similarity)
-
-        # flat_sum_gradients = tf.reduce_sum(conflict_reduced_class_gradients, axis=0)
         final_gradient = tf.reduce_mean(conflict_reduced_class_gradients, axis=0) * tf.linalg.norm(original_gradient, axis=0)
         last_normalized_final_gradient = tf.math.l2_normalize(final_gradient, axis=0)
         last_conflict_reduced_gradients = conflict_reduced_class_gradients
-        #
-        # final_gradient_normalized = tf.math.l2_normalize(final_gradient, axis=0)
-        #
-        # neg_final_similarity = float(tf.reduce_sum(final_gradient_normalized * original_normalized_negative_centroid))
-        # pos_final_similarity = float(tf.reduce_sum(final_gradient_normalized * original_normalized_positive_centroid))
 
         split_gradients = tf.split(
             final_gradient,
@@ -236,12 +199,8 @@ for epoch in range(epochs):
     avg_loss = total_loss / num_batches
 
     print(f"Epoch {epoch + 1}/{epochs}, Loss: {avg_loss:.6f}" + " "*50)
-    for i in range(3):
+    for i in range(NUM_CLASSES):
         print(f"Similarity of original gradient to class {i}: {round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[i])), 5)}")
-    for i in range(3):
+    for i in range(NUM_CLASSES):
         print( f"Similarity of final gradient to class {i}: {round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[i])), 5)}")
-    # print(f"Similarity of negative-positive sample centroids before projection: {round(last_pre_reduction_similarity, 5)}")
-    # print(f"Similarity of negative-positive sample centroids after projection: {round(last_post_reduction_similarity, 5)}")
-    # print(f"Similarity of negative sample centroid with resulting gradient: {round(neg_final_similarity, 5)}")
-    # print(f"Similarity of positive sample centroid with resulting gradient: {round(pos_final_similarity, 5)}")
 
