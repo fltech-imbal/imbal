@@ -16,24 +16,26 @@ PARAMS_PATH = 'saved_models/median_params_decoupled_fit-val.json'
 TRAIN_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_training_classification.csv'
 TEST_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_testing_classification.csv'
 OUTPUT_DIR = 'saved_results/median_model_visualizations'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+RAW_TRAIN_PATH = os.path.join(SCRIPT_DIR, 'sep_10mev_training_raw.csv')
+RAW_TEST_PATH = os.path.join(SCRIPT_DIR, 'sep_10mev_testing_raw.csv')
 TARGET = 'ln_peak_intensity'
 RANDOM_STATE = 42
 SHAP_BACKGROUND_SIZE = 100
 
-# Original continuous targets are required for the Elevated distinction.
-# This CSV must contain the same test samples in the same order as TEST_PATH.
-CONTINUOUS_TEST_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_testing.csv'
+# Raw continuous targets identify Elevated samples and generate rare labels.
+CONTINUOUS_TEST_PATH = RAW_TEST_PATH
 # Plot categories from the original continuous ln peak intensity.
 # Background: y <= 0; Elevated: 0 < y < ln(10); SEP/Rare: y >= ln(10).
 RARE_BOUNDARY = float(np.log(10.0))
 
 # Feature names in the CSV; alternatives accommodate common naming conventions.
 FEATURE_PLOT_GROUPS = [
-    ('Linear Speed', ['CME_DONKI_speed_norm']),
-    ('Longitude', ['CME_DONKI_longitude_norm']),
-    ('Latitude', ['CME_DONKI_latitude_norm']),
-    ('Half Width', ['DONKI_half_width_norm']),
-    ('Acceleration', ['Accelaration_norm']),
+    ('Linear Speed', ['CME_DONKI_speed']),
+    ('Longitude', ['CME_DONKI_longitude']),
+    ('Latitude', ['CME_DONKI_latitude']),
+    ('Half Width', ['DONKI_half_width']),
+    ('Acceleration', ['Accelaration']),
 ]
 
 
@@ -44,22 +46,13 @@ def plot_feature_analysis(test, y_test, probabilities, predictions, threshold):
             f'Continuous target CSV not found: {CONTINUOUS_TEST_PATH}. '
             'Set CONTINUOUS_TEST_PATH to the original regression test CSV; '
             'binary classification targets cannot identify Elevated samples.')
-    continuous = pd.read_csv(CONTINUOUS_TEST_PATH)
+    continuous = test
     if TARGET not in continuous.columns:
         raise ValueError(f'{CONTINUOUS_TEST_PATH} does not contain {TARGET}.')
     if len(continuous) != len(test):
         raise ValueError('Continuous and classification test sets have different row counts.')
-    # Prevent silent category misassignment due to different test-set ordering.
-    feature_names = [c for c in test.columns if c != TARGET]
-    missing = [c for c in feature_names if c not in continuous.columns]
-    if missing:
-        raise ValueError(f'Continuous CSV lacks classification features: {missing}')
-    for name in feature_names:
-        a = pd.to_numeric(test[name], errors='coerce').to_numpy(dtype=float)
-        b = pd.to_numeric(continuous[name], errors='coerce').to_numpy(dtype=float)
-        if not np.allclose(a, b, rtol=1e-5, atol=1e-6, equal_nan=True):
-            raise ValueError(f'Test-set rows or feature values differ for {name}; '
-                             'align the original continuous targets before plotting.')
+    # Classification labels are checked against raw continuous targets in main().
+    # Raw attributes are intentionally not compared to normalized attributes.
     actual = pd.to_numeric(continuous[TARGET], errors='raise').to_numpy(dtype=float)
     if not np.isfinite(actual).all():
         raise ValueError('Continuous targets must be finite.')
@@ -72,6 +65,23 @@ def plot_feature_analysis(test, y_test, probabilities, predictions, threshold):
     background = ~rare & ~elevated
     fp = (y_test == 0) & (predictions == 1)
     fn = (y_test == 1) & (predictions == 0)
+    # Identify the same two speed-extreme errors for all five feature charts.
+    speeds = pd.to_numeric(test['CME_DONKI_speed'], errors='raise').to_numpy(dtype=float)
+    if not np.isfinite(speeds).all():
+        raise ValueError('Raw CME_DONKI_speed values must be finite.')
+    fp_indices = np.flatnonzero(fp)
+    fn_indices = np.flatnonzero(fn)
+    highlighted_fp = (int(fp_indices[np.argmax(speeds[fp_indices])])
+                      if len(fp_indices) else None)
+    highlighted_fn = (int(fn_indices[np.argmin(speeds[fn_indices])])
+                      if len(fn_indices) else None)
+    for label, index in [('Highlighted FP (highest speed)', highlighted_fp),
+                         ('Highlighted FN (lowest speed)', highlighted_fn)]:
+        if index is None:
+            print(f'{label}: none available')
+        else:
+            print(f'{label}: test row={index}, raw speed={speeds[index]:.6g}')
+
     print(f'Plot categories: Background={background.sum()}, Elevated={elevated.sum()}, '
           f'Rare={rare.sum()}, FP={fp.sum()}, FN={fn.sum()}')
 
@@ -115,6 +125,12 @@ def plot_feature_analysis(test, y_test, probabilities, predictions, threshold):
                    label='FP', edgecolors='none', zorder=4)
         ax.scatter(x[fn], probabilities[fn], s=28, c='black', marker='v',
                    label='FN', edgecolors='none', zorder=4)
+        # Hollow yellow rings keep the original black FP/FN triangles visible.
+        for index in (highlighted_fp, highlighted_fn):
+            if index is not None:
+                ax.scatter([x[index]], [probabilities[index]], s=175, marker='o',
+                           facecolors='none', edgecolors='#E5B900', linewidths=2.0,
+                           label='Highlighted FP/FN' if index == (highlighted_fp if highlighted_fp is not None else highlighted_fn) else '_nolegend_', zorder=5)
         ax.axhline(threshold, color='gray', linestyle='--', linewidth=1.1)
         ax.set_title(title)
         ax.set_xlabel(title)
@@ -153,7 +169,17 @@ def main():
     false_positives = np.flatnonzero((y_test == 0) & (predictions == 1))
     false_negatives = np.flatnonzero((y_test == 1) & (predictions == 0))
 
-    plot_feature_analysis(test, y_test, probabilities, predictions, threshold)
+    raw_train = pd.read_csv(RAW_TRAIN_PATH)
+    raw_test = pd.read_csv(RAW_TEST_PATH)
+    if len(raw_train) != len(train) or len(raw_test) != len(test):
+        raise ValueError('Raw and normalized dataset row counts differ.')
+    raw_targets = pd.to_numeric(raw_test[TARGET], errors="raise").to_numpy(dtype=float)
+    if not np.isfinite(raw_targets).all():
+        raise ValueError("Raw test targets must be finite.")
+    expected_labels = (raw_targets >= RARE_BOUNDARY).astype(np.int32)
+    if not np.array_equal(expected_labels, y_test):
+        raise ValueError('Raw test targets and classification labels disagree.')
+    plot_feature_analysis(raw_test, y_test, probabilities, predictions, threshold)
 
     # Compute confusion-matrix counts using imbal's own metric backend.
     from imbal.metrics.confusion_matrix import ConfusionMatrix
@@ -191,7 +217,7 @@ def main():
             data=x_test,
             labels=y_test,
             representation_layer_index=-2,
-            perplexity=40,
+            perplexity=35,
             save_figure=os.path.join(OUTPUT_DIR, 'tsne_model.png'),
         )
         plt.close('all')
@@ -219,12 +245,25 @@ def main():
         # Call imbal's backend directly. The classification wrapper in this
         # version passes figure_save_path, which the backend does not accept.
         # The backend instead uses save_figure and accepts a single 1-D sample.
+        # SHAP evaluates normalized model inputs. Display labels show the raw
+        # values for this same test row, avoiding invalid raw model inputs.
+        raw_labels = []
+        for feature in feature_names:
+            raw_name = feature.removesuffix('_norm')
+            if raw_name.startswith('log_'):
+                raw_name = raw_name[4:]
+            if raw_name == 'richardson_value':
+                raw_name = 'half_richardson_value'
+            if raw_name not in raw_test.columns:
+                raise ValueError(f'No raw feature matching {feature}')
+            raw_value = raw_test.iloc[selected][raw_name]
+            raw_labels.append(f'{raw_name} = {raw_value:.4g}' if pd.notna(raw_value) else f'{raw_name} = NA')
         shap_explain_tabular_sample(
             sample=x_test[selected],
             model=model,
             training_data=background,
             class_names=['Common', 'Rare'],
-            feature_names=feature_names,
+            feature_names=raw_labels,
             actual_label=int(y_test[selected]),
             label_to_explain=int(predictions[selected]),
             plot_type='bar',

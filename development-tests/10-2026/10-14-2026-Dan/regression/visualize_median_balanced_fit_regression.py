@@ -16,6 +16,9 @@ RESULTS_PATH = 'saved_results/multi_seed_results_balanced_fit_regression-val.jso
 TRAIN_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_training.csv'
 TEST_PATH = '../../../../tutorials/data/SEP-C/sep_10mev_testing.csv'
 OUTPUT_DIR = 'saved_results/median_balanced_fit_regression_visualizations'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+RAW_TRAIN_PATH = os.path.join(SCRIPT_DIR, 'sep_10mev_training_raw.csv')
+RAW_TEST_PATH = os.path.join(SCRIPT_DIR, 'sep_10mev_testing_raw.csv')
 TARGET = 'ln_peak_intensity'
 RARE_THRESHOLD = np.log(10)
 RANDOM_STATE = 42
@@ -24,11 +27,11 @@ SHAP_BACKGROUND_SIZE = 100
 
 # Same feature plots and fixed legend locations as the SEP-C classification visualizer.
 FEATURE_PLOTS = [
-    ('Linear Speed', 'CME_DONKI_speed_norm', 'feature_linear_speed.png', 'upper left'),
-    ('Longitude', 'CME_DONKI_longitude_norm', 'feature_longitude.png', 'upper left'),
-    ('Latitude', 'CME_DONKI_latitude_norm', 'feature_latitude.png', 'upper left'),
-    ('Half Width', 'DONKI_half_width_norm', 'feature_half_width.png', 'upper left'),
-    ('Acceleration', 'Accelaration_norm', 'feature_acceleration.png', 'upper right'),
+    ('Linear Speed', 'CME_DONKI_speed', 'feature_linear_speed.png', 'upper left'),
+    ('Longitude', 'CME_DONKI_longitude', 'feature_longitude.png', 'upper left'),
+    ('Latitude', 'CME_DONKI_latitude', 'feature_latitude.png', 'upper left'),
+    ('Half Width', 'DONKI_half_width', 'feature_half_width.png', 'upper left'),
+    ('Acceleration', 'Accelaration', 'feature_acceleration.png', 'upper right'),
 ]
 
 
@@ -45,6 +48,23 @@ def plot_feature_analysis(test, y_true, y_pred):
     fn = actual_rare & ~predicted_rare
     background = y_true <= 0.0
     elevated = (y_true > 0.0) & (y_true < RARE_THRESHOLD)
+
+    # Identify the same two speed-extreme errors for all five feature charts.
+    speeds = pd.to_numeric(test['CME_DONKI_speed'], errors='raise').to_numpy(dtype=float)
+    if not np.isfinite(speeds).all():
+        raise ValueError('Raw CME_DONKI_speed values must be finite.')
+    fp_indices = np.flatnonzero(fp)
+    fn_indices = np.flatnonzero(fn)
+    highlighted_fp = (int(fp_indices[np.argmax(speeds[fp_indices])])
+                      if len(fp_indices) else None)
+    highlighted_fn = (int(fn_indices[np.argmin(speeds[fn_indices])])
+                      if len(fn_indices) else None)
+    for label, index in [('Highlighted FP (highest speed)', highlighted_fp),
+                         ('Highlighted FN (lowest speed)', highlighted_fn)]:
+        if index is None:
+            print(f'{label}: none available')
+        else:
+            print(f'{label}: test row={index}, raw speed={speeds[index]:.6g}')
 
     print(f'Plot categories: Background={background.sum()}, Elevated={elevated.sum()}, '
           f'Rare={actual_rare.sum()}, FP={fp.sum()}, FN={fn.sum()}')
@@ -70,6 +90,12 @@ def plot_feature_analysis(test, y_true, y_pred):
                    label='FP', edgecolors='none', zorder=4)
         ax.scatter(x[fn], y_pred[fn], s=28, c='black', marker='v',
                    label='FN', edgecolors='none', zorder=4)
+        # Hollow yellow rings keep the original black FP/FN triangles visible.
+        for index in (highlighted_fp, highlighted_fn):
+            if index is not None:
+                ax.scatter([x[index]], [y_pred[index]], s=175, marker='o',
+                           facecolors='none', edgecolors='#E5B900', linewidths=2.0,
+                           label='Highlighted FP/FN' if index == (highlighted_fp if highlighted_fp is not None else highlighted_fn) else '_nolegend_', zorder=5)
         ax.axhline(RARE_THRESHOLD, color='gray', linestyle='--', linewidth=1.1)
         ax.set_title(title)
         ax.set_xlabel(title)
@@ -114,7 +140,19 @@ def main():
     y_pred = np.asarray(model.predict(x_test, verbose=0)).ravel()
     errors = np.abs(y_pred - y_test)
 
-    plot_feature_analysis(test, y_test, y_pred)
+    # Raw CSVs are used only for visualization; the model uses normalized features.
+    raw_train = pd.read_csv(RAW_TRAIN_PATH)
+    raw_test = pd.read_csv(RAW_TEST_PATH)
+    for label, raw, normalized in [('training', raw_train, train), ('testing', raw_test, test)]:
+        if len(raw) != len(normalized):
+            raise ValueError(f'{label}: raw and normalized row counts differ.')
+        if TARGET not in raw.columns or not np.allclose(
+                pd.to_numeric(raw[TARGET], errors='raise').to_numpy(dtype=float),
+                pd.to_numeric(normalized[TARGET], errors='raise').to_numpy(dtype=float),
+                rtol=0, atol=1e-8, equal_nan=False):
+            raise ValueError(f'{label}: raw and normalized target values do not align.')
+
+    plot_feature_analysis(raw_test, y_test, y_pred)
 
     # Actual vs predicted using imbal's regression visualization.
     imbal.regression.plot_true_vs_predictions(
@@ -129,7 +167,7 @@ def main():
         imbal.regression.tsne_visualization(
             model, x_test, y_test,
             save_figure=os.path.join(OUTPUT_DIR, 'tsne_model.png'),
-            perplexity=250,
+            perplexity=240,
         )
         plt.close('all')
 
@@ -151,11 +189,25 @@ def main():
         selected = int(indices[np.argmax(errors[indices])])
         print(f'{name}: row={selected}, actual={y_test[selected]:.6f}, '
               f'predicted={y_pred[selected]:.6f}, absolute error={errors[selected]:.6f}')
+        # SHAP is calculated with normalized inputs, but the labels display
+        # the original attribute names and values for the selected sample.
+        raw_labels = []
+        for feature in feature_names:
+            raw_name = feature.removesuffix('_norm')
+            if raw_name.startswith('log_'):
+                raw_name = raw_name[4:]
+            if raw_name == 'richardson_value':
+                raw_name = 'half_richardson_value'
+            if raw_name not in raw_test.columns:
+                raise ValueError(f'No raw attribute corresponding to {feature}.')
+            raw_value = raw_test.iloc[selected][raw_name]
+            raw_labels.append(f'{raw_name} = {float(raw_value):.4g}'
+                              if pd.notna(raw_value) else f'{raw_name} = NA')
         shap_explain_tabular_sample(
             sample=x_test[selected],
             model=model,
             training_data=background,
-            feature_names=feature_names,
+            feature_names=raw_labels,
             actual_label=float(y_test[selected]),
             label_to_explain=None,
             class_names=None,
