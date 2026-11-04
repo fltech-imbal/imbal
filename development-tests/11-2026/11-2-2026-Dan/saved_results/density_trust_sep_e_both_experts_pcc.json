@@ -1,0 +1,15 @@
+{
+  "run_name": "density_trust_sep_e_both_experts_pcc",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-2-2026-Dan\\saved_models\\density_trust_sep_e_both_experts_pcc",
+  "training": {
+    "overall_mae": 0.2925087809562683,
+    "rare_mae": 0.22887691855430603,
+    "aore": 0.26069284975528717
+  },
+  "test": {
+    "overall_mae": 0.34144163131713867,
+    "rare_mae": 0.2840759754180908,
+    "aore": 0.31275880336761475
+  }
+}

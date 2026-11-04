@@ -1,0 +1,15 @@
+{
+  "run_name": "sep_e_regression_gate_both_experts_pcc_sigmoid_density_trust_training",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-2-2026-Dan\\saved_models\\sep_e_regression_gate_both_experts_pcc_sigmoid_density_trust_training",
+  "training": {
+    "overall_mae": 0.33507564663887024,
+    "rare_mae": 0.3620373606681824,
+    "aore": 0.3485565036535263
+  },
+  "test": {
+    "overall_mae": 0.4049200117588043,
+    "rare_mae": 0.6186966896057129,
+    "aore": 0.5118083506822586
+  }
+}
