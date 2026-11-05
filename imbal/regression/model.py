@@ -68,7 +68,7 @@ class Model(backend.Model):
                 the provided :code:`validation_data`. Only required if :code:`validation_data` is provided
                 without sample weights.
             validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
-                    provided training data used for each of 5 repeated stratified validation splits. If an integer
+                    provided training data to generate a stratified validation split. If an integer
                     greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
                     uses every training sample exactly once for validation. For classification, the number of folds
                     cannot exceed the number of samples in the rarest class. For a more detailed explanation of the
@@ -194,7 +194,7 @@ class Model(backend.Model):
                 the provided :code:`validation_data`. Only required if :code:`validation_data` is provided
                 without sample weights.
             validation_split: Optional, default :code:`5`. If between 0 and 1, the proportion of the
-                    provided training data used for each of 5 repeated stratified validation splits. If an integer
+                    provided training data to generate a stratified validation split. If an integer
                     greater than or equal to 2, the number of folds used for k-fold validation. K-fold validation
                     uses every training sample exactly once for validation. For classification, the number of folds
                     cannot exceed the number of samples in the rarest class. For a more detailed explanation of the

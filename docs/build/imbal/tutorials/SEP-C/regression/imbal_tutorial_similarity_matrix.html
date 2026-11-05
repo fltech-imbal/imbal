@@ -41,6 +41,8 @@
     <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/tutorials/SEP-C/regression/imbal_tutorial_similarity_matrix';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -443,6 +445,10 @@ low similarity (high distance).</p>
 <hr class="docutils" />
 <section id="results">
 <h2>3. Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
+<p>Note that the plots below contain some gaps. This is due to the fact that in the
+training and testing set, there are some label ranges for which there are no samples with said
+label. For example, neither the training nor test set contains samples with a label between
+<span class="math notranslate nohighlight">\(-1\)</span> and <span class="math notranslate nohighlight">\(-0.5\)</span>, therefore the corresponding regions in the plots contain a gap.</p>
 <section id="training-data">
 <h3>Training Data<a class="headerlink" href="#training-data" title="Link to this heading">#</a></h3>
 <p><img alt="Model Results" src="../../../../_images/similarity_matrix_regression_train.png" /></p>

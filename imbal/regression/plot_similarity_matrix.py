@@ -134,7 +134,7 @@ def plot_similarity_matrix(
             bin_similarities = tf.boolean_mask(bin_similarities, j_comparison, axis=1)
             matrix[i, j] = np.mean(bin_similarities)
 
-    plt.imshow(matrix, origin='lower', interpolation='nearest', cmap=cmap)
+    plt.imshow(matrix, origin='lower', interpolation='nearest', cmap=cmap, vmin=0, vmax=1 if unit_representation else None)
     ax = plt.gca()
 
     ax.set_xticks([i*bins/(ticks-1) for i in range(ticks)])

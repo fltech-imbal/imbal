@@ -106,6 +106,11 @@ low similarity (high distance).
 
 ## 3. Results
 
+Note that the plots below contain some gaps. This is due to the fact that in the
+training and testing set, there are some label ranges for which there are no samples with said
+label. For example, neither the training nor test set contains samples with a label between
+$-1$ and $-0.5$, therefore the corresponding regions in the plots contain a gap.
+
 ### Training Data
 
 ![Model Results](../../../../_static/tutorials/SEP-C/similarity_matrix_regression_train.png)
@@ -113,7 +118,5 @@ low similarity (high distance).
 ### Testing Data
 
 ![Model Results](../../../../_static/tutorials/SEP-C/similarity_matrix_regression_test.png)
-
-
 
 ---

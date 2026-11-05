@@ -41,6 +41,8 @@
     <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'imbal/tutorials/SDO/regression/similarity_matrix';</script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
@@ -368,6 +370,10 @@ similarity matrix plot.</p>
 <div style="display: flex; gap: 8px; max-width: 100%;">
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/similarity-matrix-visualization.png"/>
 </div>
+<p>Note that the plot contains some gaps. This is due to the fact that in the
+test set, there are some label ranges for which there are no samples with said
+label. For example, there are no samples with a label between <span class="math notranslate nohighlight">\(-8\)</span> and <span class="math notranslate nohighlight">\(-7\)</span>,
+therefore the corresponding regions in the plots contain a gap.</p>
 <p>This similarity matrix indicates that in general, the model is unable to achieve great results on the test
 data. There is only a small region of labels that have low distance with other nearby labels, indicating that
 in general, the model’s representations are not tight for samples with the same label.</p>

@@ -34,6 +34,11 @@ which results in the following plot:
 <img style="flex:1; max-width: 49%;" src="../../../../_static/tutorials/SDO/similarity-matrix-visualization.png"/>
 </div>
 
+Note that the plot contains some gaps. This is due to the fact that in the
+test set, there are some label ranges for which there are no samples with said
+label. For example, there are no samples with a label between $-8$ and $-7$,
+therefore the corresponding regions in the plots contain a gap.
+
 This similarity matrix indicates that in general, the model is unable to achieve great results on the test
 data. There is only a small region of labels that have low distance with other nearby labels, indicating that
 in general, the model's representations are not tight for samples with the same label.
