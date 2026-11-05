@@ -163,7 +163,7 @@ def shap_explain_tabular_sample(
 
     plt.gcf().subplots_adjust(left=0.35)
     if save_figure is not None:
-        plt.savefig(save_figure)
+        plt.savefig(save_figure, bbox_inches='tight', pad_inches=0.2)
     if show:
         plt.show()
 

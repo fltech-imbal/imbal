@@ -31,6 +31,7 @@ from sep_e_models import (
     build_ensemble,
     build_expert,
     build_gate,
+    combine_expert_outputs,
     gaussian_kde_density,
     predict_in_batches,
 )
@@ -93,6 +94,104 @@ class EnsembleOptimizationTests(unittest.TestCase):
         keras.backend.clear_session()
         keras.utils.set_random_seed(19)
         self.random_generator = np.random.default_rng(19)
+
+    def test_shared_mixing_matches_equations_and_gate_gradients(self):
+        expert_predictions = np.array([
+            [2.0, 8.0], [-1.0, 4.0], [10.0, -3.0], [0.0, 0.0]
+        ], dtype="float32")
+        gate_values = np.array([
+            [0.2, 0.4], [0.9, 0.1], [0.5, 0.5], [0.1, 0.9]
+        ], dtype="float32")
+        quality_values = np.array([
+            [0.3, 0.8], [1.0, 0.2], [0.001, 0.6], [0.7, 0.4]
+        ], dtype="float32")
+        loss_coefficients = np.arange(1, 5, dtype="float32")
+
+        for use_quality in (False, True):
+            for normalize_trust in (False, True):
+                # Compare against explicit equations independent of the layer
+                # helper, including negative expert outputs and unequal trusts.
+                qualities = quality_values if use_quality else np.ones_like(gate_values)
+                unnormalized_weights = gate_values * qualities
+                totals = unnormalized_weights.sum(axis=1, keepdims=True)
+                needs_normalization = use_quality or normalize_trust
+                expected_weights = (
+                    unnormalized_weights / totals
+                    if needs_normalization else unnormalized_weights
+                )
+                expected_predictions = np.sum(expert_predictions * expected_weights, axis=1)
+
+                gate_tensor = tf.Variable(gate_values)
+                with tf.GradientTape() as tape:
+                    predictions, weights = combine_expert_outputs(
+                        expert_predictions, gate_tensor,
+                        density_quality=quality_values if use_quality else None,
+                        normalize_trust=normalize_trust,
+                    )
+                    loss = tf.reduce_sum(predictions[:, 0] * loss_coefficients)
+
+                # With fixed experts and qualities, differentiation only needs
+                # to pass through the gate trusts, multiplication, and division.
+                expected_gradient = expert_predictions.copy()
+                if needs_normalization:
+                    expected_gradient = (
+                        qualities / totals
+                        * (expert_predictions - expected_predictions[:, None])
+                    )
+                expected_gradient *= loss_coefficients[:, None]
+
+                np.testing.assert_allclose(
+                    np.asarray(weights), expected_weights, rtol=2e-6
+                )
+                np.testing.assert_allclose(
+                    np.asarray(predictions)[:, 0], expected_predictions, atol=2e-6
+                )
+                np.testing.assert_allclose(
+                    tape.gradient(loss, gate_tensor).numpy(), expected_gradient,
+                    rtol=2e-5, atol=2e-6,
+                )
+
+                # Build the same helper into a symbolic graph. It must add no
+                # learned weights, and graph execution must agree with eager use.
+                symbolic_predictions = keras.Input(shape=(2,))
+                symbolic_gate = keras.Input(shape=(2,))
+                symbolic_quality = keras.Input(shape=(2,)) if use_quality else None
+                model_inputs = [symbolic_predictions, symbolic_gate]
+                numerical_inputs = [expert_predictions, gate_values]
+                if use_quality:
+                    model_inputs.append(symbolic_quality)
+                    numerical_inputs.append(quality_values)
+
+                symbolic_outputs = combine_expert_outputs(
+                    symbolic_predictions, symbolic_gate,
+                    density_quality=symbolic_quality,
+                    normalize_trust=normalize_trust,
+                )
+                mixture_model = keras.Model(model_inputs, symbolic_outputs)
+                self.assertEqual(len(mixture_model.weights), 0)
+                graph_predictions, graph_weights = mixture_model(numerical_inputs)
+                np.testing.assert_allclose(
+                    graph_predictions.numpy(), np.asarray(predictions), atol=1e-6
+                )
+                np.testing.assert_allclose(
+                    graph_weights.numpy(), expected_weights, rtol=2e-6
+                )
+
+        # Preserve the existing denominator floor rather than changing the
+        # scientific behavior when sigmoid trusts become extremely small.
+        tiny_trusts = np.array([[0.0, 0.0], [1e-20, 2e-20]], dtype="float32")
+        tiny_predictions, tiny_weights = combine_expert_outputs(
+            expert_predictions[:2], tiny_trusts, normalize_trust=True
+        )
+        expected_tiny_weights = tiny_trusts / 1e-7
+        np.testing.assert_allclose(
+            np.asarray(tiny_weights), expected_tiny_weights, atol=0.0
+        )
+        np.testing.assert_allclose(
+            np.asarray(tiny_predictions)[:, 0],
+            np.sum(expert_predictions[:2] * expected_tiny_weights, axis=1),
+            atol=0.0,
+        )
 
     def test_bounded_density_matches_original_in_eager_and_dynamic_graph(self):
         original = load_original_definitions(
@@ -416,6 +515,18 @@ class EnsembleOptimizationTests(unittest.TestCase):
 
             ensemble = build_ensemble(common_expert, rare_expert, gate, profiles, settings)
             direct_predictions = predict_in_batches(ensemble, features, 13)
+
+            if settings.regression_gate and (
+                settings.density_during_gate_training == settings.density_at_inference
+            ):
+                trainer = build_cached_gate_trainer(gate, features.shape[1], settings)
+                training_inputs = cache.training_inputs(features, slice(None), settings)
+                training_predictions = trainer(training_inputs, training=False).numpy()
+                np.testing.assert_allclose(
+                    training_predictions, direct_predictions, rtol=2e-5, atol=2e-6
+                )
+                gate.trainable = False
+
             trust = predict_in_batches(gate, features, 13)
             cached_predictions, _ = mix_cached_predictions(
                 trust, cache, settings.density_at_inference, settings.sigmoid_gate

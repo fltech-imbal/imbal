@@ -414,6 +414,47 @@ def build_gate(input_count, settings):
     return gate
 
 
+def combine_expert_outputs(
+    expert_predictions,
+    gate_trust,
+    density_quality=None,
+    normalize_trust=False,
+):
+    """Apply the same mixing layers during training, evaluation, and export.
+
+    Every input has columns [common, rare]. Inputs can be symbolic Keras
+    tensors when building a model, or numerical arrays for cached evaluation.
+    These layers have no learned parameters; only the gate learns how to mix.
+    """
+
+    # Quality is prepared by the caller: cached during training or calculated
+    # by bounded KDE layers for new inputs. None explicitly disables quality.
+    if density_quality is not None:
+        weighted_trust = layers.Multiply(name="density_weighted_gate")(
+            [gate_trust, density_quality]
+        )
+        mixture_weights = NormalizeExpertWeights(name="normalized_expert_weights")(
+            weighted_trust
+        )
+    elif normalize_trust:
+        # Independent sigmoid outputs need normalization even without quality.
+        # Keep the existing epsilon safeguard and saved layer names unchanged.
+        mixture_weights = NormalizeExpertWeights(name="normalized_gate_trust")(
+            gate_trust
+        )
+    else:
+        # Softmax outputs already sum to one. Preserve that original path.
+        mixture_weights = gate_trust
+
+    # Reduce only across the two experts within each sample. Return the weights
+    # as well so diagnostics can inspect the exact mixture used for prediction.
+    prediction = layers.Dot(axes=1, name="gated_prediction")(
+        [expert_predictions, mixture_weights]
+    )
+
+    return prediction, mixture_weights
+
+
 def build_ensemble(common_expert, rare_expert, gate, density_profiles, settings):
     """Build the exportable inference model, with protected KDE layers."""
 
@@ -429,6 +470,10 @@ def build_ensemble(common_expert, rare_expert, gate, density_profiles, settings)
     expert_predictions = layers.Concatenate(name="expert_predictions")(
         [common_prediction, rare_prediction]
     )
+
+    # Inference calculates qualities from the current expert predictions.
+    # Passing None makes the quality-free experiment explicit at this boundary.
+    quality = None
 
     if settings.density_at_inference:
         common_quality = NormalizedGaussianKDE(
@@ -449,21 +494,11 @@ def build_ensemble(common_expert, rare_expert, gate, density_profiles, settings)
             [common_quality, rare_quality]
         )
 
-        weighted_trust = layers.Multiply(name="density_weighted_gate")([gate_trust, quality])
-        mixture_weights = NormalizeExpertWeights(name="normalized_expert_weights")(
-            weighted_trust
-        )
-    elif settings.sigmoid_gate:
-        # Independent sigmoid outputs need not sum to one. Normalize them even
-        # without density, matching the gate trainer and cached metric calculation.
-        mixture_weights = NormalizeExpertWeights(name="normalized_gate_trust")(
-            gate_trust
-        )
-    else:
-        mixture_weights = gate_trust
-
-    prediction = layers.Dot(axes=1, name="gated_prediction")(
-        [expert_predictions, mixture_weights]
+    prediction, _ = combine_expert_outputs(
+        expert_predictions,
+        gate_trust,
+        density_quality=quality,
+        normalize_trust=settings.sigmoid_gate,
     )
 
     return keras.Model(inputs, prediction, name="two_expert_gated_ensemble")
@@ -481,17 +516,21 @@ def build_cached_gate_trainer(gate, input_count, settings):
     # features for the gate. The gate still sees exactly the original features.
     model_inputs = {"features": features, "cached_predictions": expert_predictions}
 
+    # Training reuses fixed qualities instead of recalculating their KDE.
+    # Inference-only-quality experiments deliberately pass None at this stage.
+    quality = None
+
     if settings.density_during_gate_training:
         quality = keras.Input(shape=(2,), name="cached_quality")
         model_inputs["cached_quality"] = quality
-        weighted_trust = layers.Multiply()([gate_trust, quality])
-        mixture_weights = NormalizeExpertWeights()(weighted_trust)
-    elif settings.sigmoid_gate:
-        mixture_weights = NormalizeExpertWeights()(gate_trust)
-    else:
-        mixture_weights = gate_trust
 
-    prediction = layers.Dot(axes=1)([expert_predictions, mixture_weights])
+    prediction, _ = combine_expert_outputs(
+        expert_predictions,
+        gate_trust,
+        density_quality=quality,
+        normalize_trust=settings.sigmoid_gate,
+    )
+
     trainer = keras.Model(model_inputs, prediction, name="cached_gate_trainer")
 
     trainer.compile(

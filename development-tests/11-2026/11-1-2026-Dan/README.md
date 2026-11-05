@@ -88,3 +88,30 @@ settings, sigmoid normalization, density reuse, and short training/save/load
 runs. The smoke runs use small synthetic data and reduced searches, with the
 importance-density estimator stubbed. They do not produce research table scores
 or establish a measured performance improvement on a full SEP-C run.
+
+## Shared training and prediction mixing
+
+`sep_c_models.py::combine_expert_outputs` is the single mixing definition
+used by the gate trainer, exported ensemble, and cached evaluation. It multiplies
+gate trust by optional quality, normalizes when needed, and takes the dot product
+with the two expert predictions. The layers add no learned parameters.
+
+The callers prepare inputs and choose the experiment's quality setting:
+
+| Caller | Expert predictions | Quality source |
+| --- | --- | --- |
+| `build_cached_gate_trainer` | Cached frozen-expert predictions | Cached quality when training quality is enabled |
+| `build_ensemble` | Expert forward passes on new features | Bounded KDE layers when inference quality is enabled |
+| `mix_cached_predictions` | Cached expert predictions | Cached quality selected by the evaluation policy |
+
+The regression rows in the professor's table use the same quality policy during
+training and testing, so their mixing graphs calculate the same function.
+Any older inference-only-quality variant deliberately supplies quality only at
+inference. Classification gates still train with cross-entropy; their ensemble
+validation and testing both use the shared mixing function.
+
+Cached evaluation runs the shared layers eagerly and converts their outputs to
+NumPy for metrics. The saved graph retains the existing layer names and custom
+normalization class. Existing archives can still be loaded. Checks compare the
+formula, gate-trust gradients, trainer predictions, cached predictions, and
+serialized predictions; KDE is still calculated in bounded chunks.

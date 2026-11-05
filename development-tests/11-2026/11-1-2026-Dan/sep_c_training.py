@@ -17,6 +17,7 @@ from sep_c_models import (
     build_cached_gate_trainer,
     build_expert,
     build_gate,
+    combine_expert_outputs,
     gaussian_kde_density,
     predict_in_batches,
 )
@@ -101,21 +102,21 @@ def create_prediction_cache(common_expert, rare_expert, features, profiles, sett
 
 
 def mix_cached_predictions(gate_trust, cache, use_density, normalize_trust=False):
-    """Return the final prediction and its two interpretable expert weights."""
+    """Evaluate the shared mixing layers using the already computed expert outputs."""
 
-    if use_density:
-        mixture_weights = gate_trust * cache.density_quality
-    else:
-        mixture_weights = np.array(gate_trust, copy=True)
+    # The caller chooses the experiment's quality policy. The common mixing
+    # function then performs exactly the operations used by both Keras models.
+    quality = cache.density_quality if use_density else None
+    predictions, mixture_weights = combine_expert_outputs(
+        cache.predictions,
+        gate_trust,
+        density_quality=quality,
+        normalize_trust=normalize_trust,
+    )
 
-    # Softmax-only mixtures already sum to one. Avoid adding an unnecessary
-    # normalization there, preserving the earlier quality-free gate calculation.
-    if use_density or normalize_trust:
-        weight_totals = np.sum(mixture_weights, axis=1, keepdims=True)
-        mixture_weights /= np.maximum(weight_totals, DENSITY_EPSILON)
-
-    predictions = np.sum(cache.predictions * mixture_weights, axis=1)
-    return predictions, mixture_weights
+    # Metrics consume NumPy arrays. Keep their existing one-value-per-row API
+    # while the Keras prediction tensor retains its [batch, 1] output shape.
+    return np.asarray(predictions).reshape(-1), np.asarray(mixture_weights)
 
 
 def aore_components(targets, predictions, rare_mask):
@@ -253,8 +254,9 @@ class GateAOREEarlyStopping(keras.callbacks.Callback):
             self.gate, self.features, self.settings.prediction_batch_size
         )
 
-        # The no-quality regression experiment also excludes quality from its
-        # early-stopping metric. Density is added only for final inference there.
+        # Regression validation follows the training mixture; classification
+        # validation follows the inference mixture. Only the explicitly named
+        # inference-only-quality variants intentionally differ between stages.
         use_density = (
             self.settings.density_during_gate_training
             if self.settings.regression_gate
