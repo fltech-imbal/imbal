@@ -1,0 +1,15 @@
+{
+  "run_name": "sep_e_classification_gate_both_experts_pcc_no_quality",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-2-2026-Dan\\saved_models\\sep_e_classification_gate_both_experts_pcc_no_quality",
+  "training": {
+    "overall_mae": 0.2897622585296631,
+    "rare_mae": 0.22426281869411469,
+    "aore": 0.2570125386118889
+  },
+  "test": {
+    "overall_mae": 0.34008926153182983,
+    "rare_mae": 0.2762530744075775,
+    "aore": 0.3081711679697037
+  }
+}

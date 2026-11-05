@@ -1,0 +1,15 @@
+{
+  "run_name": "sep_c_pseudolabeled_sigmoid_regression_pcc_quality",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-1-2026-Dan\\saved_models\\sep_c_pseudolabeled_sigmoid_regression_pcc_quality",
+  "training": {
+    "overall_mae": 0.4422449469566345,
+    "rare_mae": 1.0810848474502563,
+    "aore": 0.7616648972034454
+  },
+  "test": {
+    "overall_mae": 0.5001071691513062,
+    "rare_mae": 1.6450332403182983,
+    "aore": 1.0725702047348022
+  }
+}

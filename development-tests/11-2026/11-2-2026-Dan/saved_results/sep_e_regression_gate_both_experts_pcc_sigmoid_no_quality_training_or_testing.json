@@ -1,0 +1,15 @@
+{
+  "run_name": "sep_e_regression_gate_both_experts_pcc_sigmoid_no_quality_training_or_testing",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-2-2026-Dan\\saved_models\\sep_e_regression_gate_both_experts_pcc_sigmoid_no_quality_training_or_testing",
+  "training": {
+    "overall_mae": 0.3316056430339813,
+    "rare_mae": 0.32572653889656067,
+    "aore": 0.328666090965271
+  },
+  "test": {
+    "overall_mae": 0.4120299518108368,
+    "rare_mae": 0.5881828665733337,
+    "aore": 0.5001064091920853
+  }
+}

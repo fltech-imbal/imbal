@@ -1,0 +1,15 @@
+{
+  "run_name": "sep_c_pseudolabeled_classification_pcc_quality",
+  "loaded_saved_model": false,
+  "model_directory": "C:\\Users\\danie\\PycharmProjects\\imbal\\development-tests\\11-2026\\11-1-2026-Dan\\saved_models\\sep_c_pseudolabeled_classification_pcc_quality",
+  "training": {
+    "overall_mae": 0.2622721195220947,
+    "rare_mae": 1.2633368968963623,
+    "aore": 0.7628045082092285
+  },
+  "test": {
+    "overall_mae": 0.2971803545951843,
+    "rare_mae": 1.4206255674362183,
+    "aore": 0.8589029610157013
+  }
+}
