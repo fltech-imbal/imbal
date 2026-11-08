@@ -118,7 +118,7 @@ for vec_b in vec_b_options:
         corrected_vectors = []
         for i in range(len(vectors)):
             ##################################################
-            corrected_vectors.append(correction_5(vectors, i))
+            corrected_vectors.append(correction_1(vectors, i))
             ##################################################
         corrected_sum = np.sum(corrected_vectors, axis=0)
         print(corrected_sum)

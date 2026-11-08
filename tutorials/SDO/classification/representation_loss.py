@@ -1,0 +1,124 @@
+"""
+Import packages
+"""
+import imbal
+import os
+import numpy as np
+from PIL import Image
+from keras import layers, optimizers, callbacks, metrics
+
+"""
+Load data
+"""
+SDO_DATA_PATH = '../../data/SDOBenchmark' # Ensure data is located at this path
+
+def load_sdo_data(data_path):
+    # Load labels (log peak flux)
+    with open(os.path.join(data_path, 'log_peak_flux.txt'), 'r') as file:
+        contents = file.read().strip()
+        loaded_data_fluxes = np.array([float(x) for x in contents.split('\n')])
+
+    # Load images (10 images per sample, 256x256 per image)
+    loaded_images = np.zeros((len(loaded_data_fluxes), 128, 128, 1), dtype=np.float32)
+    for i in range(len(loaded_data_fluxes)):
+        print(f'Loading SDO samples [{i+1}/{len(loaded_data_fluxes)}]', end='\r')
+        image_list = Image.open(os.path.join(data_path, f'sdo_subset_sample_{i}.jpg')).convert('L')
+        stacked_images = np.array(image_list).reshape(128, 128, 1) # Images stacked along channels
+        loaded_images[i] = stacked_images / 255.0 # Normalize black and white pixel values from 0 to 1
+
+    print(f'\n{len(loaded_data_fluxes)} data samples loaded successfully')
+    return loaded_images, loaded_data_fluxes
+
+# Load train and test data via function defined above
+x_train, y_train = load_sdo_data(os.path.join(SDO_DATA_PATH, 'training'))
+x_test, y_test = load_sdo_data(os.path.join(SDO_DATA_PATH, 'test'))
+y_train = (y_train > -4).astype(np.int32)
+y_test = (y_test > -4).astype(np.int32)
+
+print(
+    f'Loaded data with the following shapes:\n'
+    f'\tx_train: {x_train.shape}\n'
+    f'\ty_train: {y_train.shape}\n'
+    f'\tx_test: {x_test.shape}\n'
+    f'\ty_test {y_test.shape}'
+)
+
+"""
+Build model
+"""
+def build_simple_cnn():
+    input_layer = layers.Input((128, 128, 1))
+    x = layers.Conv2D(8, 3, activation='relu', padding='same')(input_layer)
+    x = layers.Conv2D(8, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Conv2D(16, 3, activation='relu', padding='same')(x)
+    x = layers.Conv2D(16, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Conv2D(32, 3, activation='relu', padding='same')(x)
+    x = layers.Conv2D(32, 3, activation='relu', padding='same', strides=(2, 2))(x)
+    x = layers.Dense(32, activation='relu')(x)
+    x = layers.Flatten()(x)
+    output_layer = layers.Dense(1, activation='sigmoid')(x)
+
+    model = imbal.classification.Model(inputs=input_layer, outputs=output_layer)
+    model.summary()
+    return model
+
+model = build_simple_cnn()
+
+import tensorflow as tf
+def representation_loss_function(y_true, representations):
+    y_true = tf.reshape(y_true, [-1])
+
+    class_values, class_indices = tf.unique(y_true)
+    num_classes = tf.shape(class_values)[0]
+
+    centroids = tf.math.unsorted_segment_mean(
+        representations,
+        class_indices,
+        num_classes
+    )
+
+    centroid_per_sample = tf.gather(centroids, class_indices)
+
+    intra_class_loss = tf.reduce_sum(
+        tf.square(
+            tf.norm(representations - centroid_per_sample, axis=1)
+        )
+    )
+
+    differences = centroids[:, None, :] - centroids[None, :, :]
+    pairwise_distances = tf.norm(differences, axis=2)
+
+    pairwise_distances += tf.eye(num_classes) * 1e10
+    minimum_distance = tf.reduce_min(pairwise_distances)
+    return intra_class_loss - minimum_distance
+
+"""
+Compile and train model
+"""
+LEARNING_RATE = 5e-5
+EPOCHS = 20
+BATCH_SIZE = 256
+
+model.compile(
+    optimizer=optimizers.Adam(learning_rate=LEARNING_RATE),
+    loss='binary_crossentropy',
+    metrics=[metrics.F1Score(threshold=0.5), 'accuracy'],
+    representation_loss=representation_loss_function
+)
+
+model.balanced_fit(
+    x_train,
+    y_train.reshape(-1, 1),
+    epochs=EPOCHS,
+    batch_size=BATCH_SIZE,
+    stratify_batches=True
+)
+
+model.evaluate(x_test, y_test.reshape(-1, 1))
+
+predictions = model.predict(x_test)
+
+imbal.classification.plot_confusion_matrix(
+    y_test.reshape(-1),
+    predictions.reshape(-1)
+)

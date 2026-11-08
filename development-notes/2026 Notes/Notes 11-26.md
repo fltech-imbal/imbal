@@ -32,8 +32,21 @@ Finish the above table for Thursday. Also, answer...
 - *Long-Tailed Learning as Multi-Objective Optimization* group gradients, then uses a weighted sum to reduce conflicts. It may be worth investigating grouping gradients, followed by projection to reduce conflicts.
 - $k$-means clustering to group samples without needing to consider class (also works for regression)
 
+- Combine gradient conflict test for previous method and new method (with/without cosine)
+	- Include magnitude print-out per conflict-reduction method (a, b, c, original, and final gradient)
+		- a, b, and c are all 1 now, but that could change in the future
+
+- For paper
+	- Existing methods (Two Heart, TSMOF)
+	- 2 methods tested (sum on "inside", w/ and w/o cosine)
+	- Ways of binning
+		- Number of bins based on labels
+		- Could look into grouping by $k$-means cluster of per-sample gradients as well
+	- Can include comparison of synthetic/hand-picked scenarios (based on toy script)
+
 - Move to subset of SEP-C. Compare before/after.
 	- Print magnitude of different classes. We expect that common class should be larger than smaller class.
+	- **Spent time working on writing script to do runs faster, like before. What should be the goal for the paper?**
 - Thought: using weights of samples to determine magnitude of each conflict-reduced class gradient before summing to produce final conflict-reduced gradient?
 
 ---
@@ -43,6 +56,7 @@ Finish the above table for Thursday. Also, answer...
 ---
 ## NASA
 - https://cs.fit.edu/~pkc/papers/sdm20.pdf for classification representation loss
+	- Reference? (link?) on tutorial?
 - `plot_similarity_matrix` compatibility with classification, then document + tutorials
 	- Instead use SEP-C (above ln(10), background, and "elevated" (greater than background but below ln(10)))
 	- Multiple solar flare classes for SDOBenchmark
@@ -52,12 +66,12 @@ Finish the above table for Thursday. Also, answer...
 			- tabular$\checkmark$
 			- image $\checkmark$
 		- classification **(2)** $\checkmark$
-			- tabular
-			- image
+			- tabular (script made, tutorial next)
+			- image (script made, tutorial next)
 	- representation loss $\checkmark$
 		- regression **(2)** $\checkmark$
 			- tabular $\checkmark$
 			- image $\checkmark$
 		- classfication **(3)**
-			- tabular
-			- image
+			- tabular (script made, tutorial next)
+			- image (script made, tutorial next)
