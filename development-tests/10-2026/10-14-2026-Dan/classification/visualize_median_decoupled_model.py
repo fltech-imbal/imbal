@@ -263,7 +263,7 @@ def main():
             if raw_name not in raw_test.columns:
                 raise ValueError(f'No raw feature matching {feature}')
             raw_value = raw_test.iloc[selected][raw_name]
-            raw_labels.append(f'{raw_name} = {raw_value:.4g}' if pd.notna(raw_value) else f'{raw_name} = NA')
+            raw_labels.append(f'{raw_name} : {raw_value:.4g}' if pd.notna(raw_value) else f'{raw_name} = NA')
         shap_explain_tabular_sample(
             sample=x_test[selected],
             model=model,
