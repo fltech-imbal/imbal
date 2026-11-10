@@ -24,11 +24,8 @@ def run_model(
     REPRESENTATION_LAYER_INDEX = -2,
     EARLY_STOPPING_PATIENCE = 100,
     EPOCHS = 10000,
-
-    STRATIFY = True,
     BATCH_SIZE = 2048,
     KDE_BIN_COUNT=64,
-
     CONFLICT_REDUCTION_METHOD=middle_sum
 ):
     @tf.function(reduce_retracing=True)
@@ -82,6 +79,18 @@ def run_model(
     y_test = tf.constant(y_test)
     y_val = tf.constant(y_val)
 
+    x_train = tf.constant(x_train)
+    y_train = tf.constant(y_train)
+    x_val = tf.constant(x_val)
+    y_val = tf.constant(y_val)
+    x_test = tf.constant(x_test)
+    y_test = tf.constant(y_test)
+
+    f1 = tf.keras.metrics.F1Score(
+        average='macro',
+        threshold=None
+    )
+
     """
     Build model
     """
@@ -111,14 +120,6 @@ def run_model(
 
     loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
     optimizer = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
-
-    # """
-    # Generate sample weights
-    # """
-    #
-    # sample_weights = imbal.classification.generate_sample_weights(
-    #
-    # )
 
     dataset = imbal.util.backend.DatasetWithBatching(
         x_train,
@@ -194,18 +195,20 @@ def run_model(
             output_file.write(
                 f"{epoch+1},"
                 f"{i+1},"
-                f"{round(float(tf.norm(last_class_centroids[0])))},"
-                f"{round(float(tf.norm(last_class_centroids[1])))},"
-                f"{round(float(tf.norm(last_class_centroids[2])))},"
+                f"{round(float(tf.norm(last_class_centroids[0])), 5)},"
+                f"{round(float(tf.norm(last_class_centroids[1])), 5)},"
+                f"{round(float(tf.norm(last_class_centroids[2])), 5)},"
                 f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[0])), 5)},"
                 f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[1])), 5)},"
                 f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[2])), 5)},"
                 f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[0])), 5)},"
                 f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[1])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[2])), 5)}\n"
+                f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[2])), 5)},"
             )
             output_file.flush()
 
+            if i < len(dataset) - 1:
+                output_file.write("-1\n")
 
             total_loss += loss.numpy()
             num_batches += 1
@@ -224,9 +227,11 @@ def run_model(
             best_loss_epoch = epoch + 1
             patience = 0
 
+        f1.update_state(tf.one_hot(y_val, NUM_CLASSES), test_prediction)
+        output_file.write(f"{round(float(f1.result().numpy()), 5)}\n")
+        f1.reset_state()
 
-
-        print(f"Epoch {epoch + 1}/{EPOCHS}, Training Loss: {avg_loss:.6f}, Test Loss: {val_loss:.6f}" + " "*50)
+        print(f"Epoch {epoch + 1}/{EPOCHS}, Training Loss: {avg_loss:.6f}, Validation Loss: {val_loss:.6f}" + " "*50)
         for i in range(NUM_CLASSES):
             print(f"Magnitude of gradient for class {i}: {round(float(tf.norm(last_class_centroids[i])), 5)}")
         for i in range(NUM_CLASSES):
@@ -237,16 +242,10 @@ def run_model(
 
         if patience > EARLY_STOPPING_PATIENCE:
             break
-
+    output_file.close()
     print(f"Restoring weights from epoch {best_loss_epoch}...")
     model.set_weights(best_model_weights)
     print(f"Saving model...")
     model.save(f"{MODEL_OUTPUT_PATH}/{DATA_PREFIX}_{OUTPUT_POSTFIX}.keras")
-    output_file.close()
 
-run_model(
-    EPOCHS=200,
-    EARLY_STOPPING_PATIENCE=10,
-    OUTPUT_POSTFIX='test_1',
-    CONFLICT_REDUCTION_METHOD=None
-)
+

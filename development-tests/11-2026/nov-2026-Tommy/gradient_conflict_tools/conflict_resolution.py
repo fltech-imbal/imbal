@@ -195,12 +195,21 @@ def middle_sum(class_gradients, normalized_class_gradients, num_classes):
     )
 
 @tf.function(reduce_retracing=True)
-def two_hearts(class_gradients, normalized_class_gradients, num_classes):
+def conflict_only_middle_sum(class_gradients, normalized_class_gradients, num_classes):
+    return tf.vectorized_map(
+        lambda i: conflict_only_gi_minus_sum_proj_gj(
+            normalized_class_gradients, i, num_classes
+        ),
+        tf.range(num_classes)
+    )
+
+@tf.function(reduce_retracing=True)
+def two_fists_one_heart(class_gradients, normalized_class_gradients, num_classes):
     return middle_sum(class_gradients, normalized_class_gradients, num_classes)
 
 @tf.function(reduce_retracing=True)
 def ts_mof(class_gradients, normalized_class_gradients, num_classes):
-    middle_sums = middle_sum(class_gradients, normalized_class_gradients, num_classes)
+    middle_sums = conflict_only_middle_sum(class_gradients, normalized_class_gradients, num_classes)
 
     existence = tf.cast(class_gradients != 0, class_gradients.dtype)
 
@@ -217,5 +226,32 @@ def gi_minus_sum_proj_gj(vectors, index, num_classes):
     )
 
     sum_projections = tf.reduce_sum(projections, axis=0) - current
+
+    return current - sum_projections
+
+@tf.function(reduce_retracing=True)
+def conflict_only_gi_minus_sum_proj_gj(vectors, index, num_classes):
+    current = vectors[index]
+
+    projections = tf.vectorized_map(
+        lambda i: project(current, vectors[i]),
+        tf.range(num_classes)
+    )
+
+    # Compute cosine similarities against every vector
+    similarities = tf.linalg.matvec(vectors, current) / (
+        tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
+    )
+
+    # Exclude the current vector
+    similarities = tf.tensor_scatter_nd_update(
+        similarities,
+        [[index]],
+        [0.0]
+    )
+
+    conflict_mask = tf.cast(similarities < 0, vectors.dtype)
+
+    sum_projections = tf.reduce_sum(projections * conflict_mask[:, None], axis=0) - current
 
     return current - sum_projections
