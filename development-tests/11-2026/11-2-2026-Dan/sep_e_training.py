@@ -470,6 +470,10 @@ def train_experts(features, targets, region_labels, settings):
         if settings.regression_gate else train_classification_experiment_expert
     )
 
+    return fit_and_freeze_experts(features, targets, region_labels, settings, train_one_expert)
+
+
+def fit_and_freeze_experts(features, targets, region_labels, settings, train_one_expert):
     # Experts still specialize on disjoint target regions. No new samples or
     # test labels enter either the common or rare expert's training set.
     common_mask = np.asarray(region_labels).reshape(-1) == 0

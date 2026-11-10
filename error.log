@@ -1,0 +1,14 @@
+[2026-11-10T02:33:19.190848700+00:00] startup: base_url=https://chatgpt.com/backend-api path_style=wham
+[2026-11-10T02:33:19.191259600+00:00] auth: mode=ChatGPT account_id=033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:33:19.191477900+00:00] auth: set ChatGPT-Account-Id header: 033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:33:31.107172900+00:00] startup: base_url=https://chatgpt.com/backend-api path_style=wham
+[2026-11-10T02:33:31.107381500+00:00] auth: mode=ChatGPT account_id=033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:33:31.107611400+00:00] auth: set ChatGPT-Account-Id header: 033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:33:31.476842700+00:00] http.list_tasks: env=<all> limit=1 cursor_in=<none> cursor_out=+RID:~G4U-AJOIzhk48mwDAGhjDQ==#RT:1#TRC:1#RTD:FFMNeBmc06hP2994zep3KwV2dGZzLlh6WWlpRG06d0c6SjNrTk9GW0Z7RlA1MgAFdnRmcy5YellpaURtOndHOkoza05PRltGe0ZQNTIABUJkZHB2b3VWdGZzVXBEdnNzZm91RHBlZlVidGxGeXVmc29ibQAD+szOzMjRzc7Rzs2qzcXEzcjEzMbQzsfJzcXN087OxM7O//qKnYuTn5mfyJ2cmZzNxpvNy83GxsvLzsbLypvKmpqYnMbKypuZx5n/#ISV:2#IEO:65599#QCF:8#CID:2 items=1
+[2026-11-10T02:45:49.935519600+00:00] startup: base_url=https://chatgpt.com/backend-api path_style=wham
+[2026-11-10T02:45:49.935713+00:00] auth: mode=ChatGPT account_id=033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:45:49.935853+00:00] auth: set ChatGPT-Account-Id header: 033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:45:50.258035500+00:00] http.list_tasks: env=<all> limit=1 cursor_in=<none> cursor_out=+RID:~G4U-AJOIzhk48mwDAGhjDQ==#RT:1#TRC:1#RTD:FFMNeBmc06hP2994zep3KwV2dGZzLlh6WWlpRG06d0c6SjNrTk9GW0Z7RlA1MgAFdnRmcy5YellpaURtOndHOkoza05PRltGe0ZQNTIABUJkZHB2b3VWdGZzVXBEdnNzZm91RHBlZlVidGxGeXVmc29ibQAD+szOzMjRzc7Rzs2qzcXEzcjEzMbQzsfJzcXN087OxM7O//qKnYuTn5mfyJ2cmZzNxpvNy83GxsvLzsbLypvKmpqYnMbKypuZx5n/#ISV:2#IEO:65599#QCF:8#CID:2 items=1
+[2026-11-10T02:46:02.845962100+00:00] startup: base_url=https://chatgpt.com/backend-api path_style=wham
+[2026-11-10T02:46:02.846155300+00:00] auth: mode=ChatGPT account_id=033b2d4d-b05d-4d1e-882f-22fa226d23ba
+[2026-11-10T02:46:02.846336800+00:00] auth: set ChatGPT-Account-Id header: 033b2d4d-b05d-4d1e-882f-22fa226d23ba

@@ -19,7 +19,7 @@ DATA_DIRECTORY = OCTOBER_DIRECTORY
 
 # Train this new variant first. Later, True reloads its own November archive.
 # An explicit directory can override that location for a matching SEP-C model.
-LOAD_SAVED_MODEL = False
+LOAD_SAVED_MODEL = True
 SAVED_MODEL_DIRECTORY = None
 MODEL_RUN_NAME = "sep_c_pseudolabeled_sigmoid_regression_pcc_quality"
 
@@ -50,6 +50,7 @@ DENSITY_REFERENCE_CHUNK_SIZE = 4096
 SHOW_VISUALIZATIONS = False
 VISUALIZATION_SAMPLE_LIMIT = 5000
 PRINT_INSTANCE_TABLES = False
+TOP_ERROR_SAMPLES = 5  # Rare test rows ranked by absolute ensemble error. Zero disables it.
 
 
 def create_settings(seed=42):
@@ -80,6 +81,7 @@ def create_settings(seed=42):
         show_visualizations=SHOW_VISUALIZATIONS,
         visualization_sample_limit=VISUALIZATION_SAMPLE_LIMIT,
         print_instance_tables=PRINT_INSTANCE_TABLES,
+        top_error_samples=TOP_ERROR_SAMPLES,
     )
 
 

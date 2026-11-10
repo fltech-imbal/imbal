@@ -1,11 +1,16 @@
 """Load data, run one SEP-E method, and report results without repeated KDE work."""
 
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from tensorflow import keras
+
+# Support running the dated entry scripts directly from any working directory.
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from sep_density_table import print_top_density_table
 
 from sep_e_models import (
     ExpertMSEPCCLoss,
@@ -253,6 +258,13 @@ def report_split(split_name, gate, features, targets, cache, settings):
                 f"  Quality favors that expert: {100 * quality_favors_region.mean():.2f}%; "
                 f"both favor it: {100 * (gate_favors_region & quality_favors_region).mean():.2f}%"
             )
+
+    if split_name == "Test" and settings.top_error_samples:
+        print_top_density_table(
+            split_name, target_values, cache.predictions, trust, cache.density_quality,
+            mixture_weights, predictions, top_n=settings.top_error_samples,
+            rare_threshold=RARE_THRESHOLD,
+        )
 
     if settings.print_instance_tables and split_name == "Test":
         elevated_mask = (target_values >= 0) & ~rare_mask
