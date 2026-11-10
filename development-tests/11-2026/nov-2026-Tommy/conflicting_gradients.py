@@ -6,6 +6,7 @@ import numpy as np
 import sys
 import imbal
 from gradient_conflict_tools import *
+from tools import load_sep_ec_data
 
 def run_model(
     LEARNING_RATE = 5e-5,
@@ -48,22 +49,6 @@ def run_model(
         return gradients, flattened_gradients, sample_loss
 
     NUM_CLASSES = 3
-
-    def load_sep_ec(path_prefix):
-        training_data = pd.read_csv(path_prefix + '_training.csv')
-        test_data = pd.read_csv(path_prefix + '_test.csv')
-        val_data = pd.read_csv(path_prefix + '_validation.csv')
-        training_labels = training_data.pop("p16.4_tplus6")
-        val_labels = val_data.pop("p16.4_tplus6")
-        test_labels = test_data.pop("p16.4_tplus6")
-        training_data = training_data.to_numpy()
-        val_data = val_data.to_numpy()
-        test_data = test_data.to_numpy()
-        training_labels = training_labels.to_numpy()
-        val_labels = val_labels.to_numpy()
-        test_labels = test_labels.to_numpy()
-        return (training_data, training_labels), (val_data, val_labels), (test_data, test_labels)
-
 
     (x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_ec(
         f"{DATA_PATH}/{DATA_PREFIX}",
