@@ -37,16 +37,15 @@ Finish the above table for Thursday. Also, answer...
 		- a, b, and c are all 1 now, but that could change in the future
 
 - For paper
-	- Existing methods (Two Heart, TSMOF)
-	- 2 methods tested (sum on "inside", w/ and w/o cosine)
-	- Ways of binning
-		- Number of bins based on labels
-		- Could look into grouping by $k$-means cluster of per-sample gradients as well
+	- Existing methods (Two Heart, TSMOF) $\checkmark$
+	- 2 methods tested (sum on "inside", w/ and w/o cosine) $\checkmark$
+	- Ways of binning $\checkmark$
+		- Number of bins based on labels $\checkmark$
+		- Could look into grouping by $k$-means cluster of per-sample gradients as well $\checkmark$
 	- Can include comparison of synthetic/hand-picked scenarios (based on toy script)
 
 - Move to subset of SEP-C. Compare before/after.
 	- Print magnitude of different classes. We expect that common class should be larger than smaller class.
-	- **Spent time working on writing script to do runs faster, like before. What should be the goal for the paper?**
 - Thought: using weights of samples to determine magnitude of each conflict-reduced class gradient before summing to produce final conflict-reduced gradient?
 
 ---

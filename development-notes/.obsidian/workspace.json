@@ -22,13 +22,17 @@
             }
           },
           {
-            "id": "c6a7c4ab14e7d3f3",
+            "id": "d37b5325879ea2d4",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "2026 Notes/Notes 11-26.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "Notes 11-26"
             }
           }
         ],
@@ -182,7 +186,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "c6a7c4ab14e7d3f3",
+  "active": "d37b5325879ea2d4",
   "lastOpenFiles": [
     "Proposal PDF.pdf",
     "2026 Notes/Notes 11-26.md",
