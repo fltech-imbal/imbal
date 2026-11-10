@@ -56,9 +56,9 @@ def run_model(
 
     print(x_train[0].shape)
 
-    y_train = np.digitize(y_train, bins=[-1.6095, np.log(10)])
-    y_test = np.digitize(y_test, bins=[-1.6095, np.log(10)])
-    y_val = np.digitize(y_val, bins=[-1.6095, np.log(10)])
+    y_train = np.digitize(y_train, bins=[-1.609, np.log(10)])
+    y_test = np.digitize(y_test, bins=[-1.609, np.log(10)])
+    y_val = np.digitize(y_val, bins=[-1.609, np.log(10)])
 
     y_train = tf.constant(y_train)
     y_test = tf.constant(y_test)
