@@ -55,8 +55,12 @@ class ExperimentSettings:
     show_visualizations: bool = False
     visualization_sample_limit: int | None = 5000
     print_instance_tables: bool = False
+    top_error_samples: int = 0
 
     def __post_init__(self):
+        if self.top_error_samples < 0:
+            raise ValueError("top_error_samples must be nonnegative.")
+
         positive_settings = (
             self.fold_count,
             self.maximum_epochs,

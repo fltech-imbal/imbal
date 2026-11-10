@@ -1,5 +1,7 @@
 import os
 import random
+import sys
+from pathlib import Path
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
@@ -12,6 +14,9 @@ from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import KFold, StratifiedKFold
 
 import imbal
+
+sys.path.append(str(Path(__file__).resolve().parents[2]))
+from sep_density_table import print_top_density_table
 
 
 TARGET_COLUMN = "p16.4_tplus6"
@@ -688,33 +693,11 @@ def print_top_rare_density_table(common_expert, rare_expert, gate, features,
         normalized_weights[:, 0] * common_predictions
         + normalized_weights[:, 1] * rare_predictions
     )
-    deltas = final_predictions - true_targets
-
-    rare_indices = np.flatnonzero(true_targets >= RARE_THRESHOLD)
-    rare_indices = rare_indices[np.argsort(true_targets[rare_indices])[::-1]][:top_n]
-
-    print(f"\n{split_name} TOP {len(rare_indices)} RARE SAMPLES "
-          "(highest actual y >= ln(10))")
-    if len(rare_indices) == 0:
-        print("No rare samples found.")
-        return
-
-    header = (
-        f"{'Idx':>5} {'True y':>10} {'CommonPred':>12} {'RarePred':>12} "
-        f"{'g(C)':>9} {'g(R)':>9} {'q(C)':>9} {'q(R)':>9} "
-        f"{'w(C)':>9} {'w(R)':>9} {'FinalPred':>12} {'Delta':>10}"
+    print_top_density_table(
+        split_name, true_targets, np.column_stack([common_predictions, rare_predictions]),
+        gate_probabilities, quality_values, normalized_weights, final_predictions,
+        top_n=top_n, rare_threshold=RARE_THRESHOLD, rank_by="target",
     )
-    print(header)
-    print("-" * len(header))
-    for index in rare_indices:
-        print(
-            f"{index:5d} {true_targets[index]:10.4f} "
-            f"{common_predictions[index]:12.4f} {rare_predictions[index]:12.4f} "
-            f"{gate_probabilities[index, 0]:9.4f} {gate_probabilities[index, 1]:9.4f} "
-            f"{common_quality[index]:9.4f} {rare_quality[index]:9.4f} "
-            f"{normalized_weights[index, 0]:9.4f} {normalized_weights[index, 1]:9.4f} "
-            f"{final_predictions[index]:12.4f} {deltas[index]:10.4f}"
-        )
 
 def run_two_expert_gated_ensemble(seed=42):
     set_global_determinism(seed)
