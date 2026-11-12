@@ -27,53 +27,37 @@ def get_class_centroids(gradients, labels, num_classes):
         num_segments=num_classes
     )
 
-    normalized_centroids = tf.math.l2_normalize(
-        centroids,
-        axis=1
-    )
+    return centroids
 
-    return centroids, normalized_centroids
-
-def spherical_kmeans(vectors, labels, num_classes, max_iterations=100, tolerance=1e-5):
+def spherical_kmeans(vectors, num_classes, max_iterations=100, tolerance=1e-5):
     vectors = tf.convert_to_tensor(vectors, dtype=tf.float32)
 
-    # Normalize all input vectors
     normalized_vectors = tf.math.l2_normalize(vectors, axis=1)
-
     n = tf.shape(vectors)[0]
 
-    # Randomly initialize centroids from input vectors
     indices = tf.random.shuffle(tf.range(n))[:num_classes]
     centroids = tf.gather(normalized_vectors, indices)
 
     previous_labels = tf.fill([n], -1)
 
     for _ in tf.range(max_iterations):
-        # Cosine similarity between every vector and every centroid
         similarities = tf.matmul(
             normalized_vectors,
             centroids,
             transpose_b=True
         )
 
-        # Assign each vector to its most similar centroid
         labels = tf.argmax(
             similarities,
             axis=1,
             output_type=tf.int32
         )
 
-        # Calculate new centroids
-        new_centroids = tf.math.unsorted_segment_mean(
+        # Sum vectors within each cluster
+        new_centroids = tf.math.unsorted_segment_sum(
             normalized_vectors,
             labels,
             num_classes
-        )
-
-        # Normalize centroid directions
-        new_centroids = tf.math.l2_normalize(
-            new_centroids,
-            axis=1
         )
 
         # Preserve old centroids for empty clusters
@@ -97,161 +81,163 @@ def spherical_kmeans(vectors, labels, num_classes, max_iterations=100, tolerance
         if converged:
             break
 
-    normalized_centroids = tf.math.l2_normalize(
-        centroids,
-        axis=1
-    )
-
-    return centroids, normalized_centroids
+    return centroids
 
 @tf.function(reduce_retracing=True)
-def conflict_only_end_sum_with_cosine(class_gradients, normalized_class_gradients, num_classes):
-    return tf.vectorized_map(
-        lambda i: gi_minus_proj_sum_cos_times_gj(
-            normalized_class_gradients, i
-        ),
-        tf.range(num_classes)
-    )
-
-@tf.function(reduce_retracing=True)
-def conflict_only_end_sum(class_gradients, normalized_class_gradients, num_classes):
-    return tf.vectorized_map(
-        lambda i: gi_minus_proj_sum_gj(
-            normalized_class_gradients, i
-        ),
-        tf.range(num_classes)
-    )
-
-@tf.function(reduce_retracing=True)
-def gi_minus_proj_sum_cos_times_gj(vectors, index):
-    current = vectors[index]
-
-    # Compute cosine similarities against every vector
-    similarities = tf.linalg.matvec(vectors, current) / (
-        tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
-    )
-
-    # Exclude the current vector
-    similarities = tf.tensor_scatter_nd_update(
-        similarities,
-        [[index]],
-        [0.0]
-    )
-
-    # Keep only negative similarities
-    similarities = tf.minimum(similarities, 0.0)
-
-    # Weighted sum of conflicting vectors
-    sum_conflicting = tf.reduce_sum(
-        vectors * similarities[:, None],
-        axis=0
-    )
-
-    # Project sum_conflicting onto current
-    projected_vector = (
-        tf.reduce_sum(current * sum_conflicting)
-        / (tf.reduce_sum(current * current) + 1e-12)
-    ) * current
-
-    return current - projected_vector
-
-@tf.function(reduce_retracing=True)
-def gi_minus_proj_sum_gj(vectors, index):
-    current = vectors[index]
-
-    # Compute cosine similarities against every vector
-    similarities = tf.linalg.matvec(vectors, current) / (
-        tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
-    )
-
-    # Exclude the current vector
-    similarities = tf.tensor_scatter_nd_update(
-        similarities,
-        [[index]],
-        [0.0]
-    )
-
-    conflict_mask = tf.cast(similarities < 0, vectors.dtype)
-    sum_conflicting = tf.reduce_sum(
-        vectors * conflict_mask[:, None],
-        axis=0
-    )
-
-    # Project sum_conflicting onto current
-    projected_vector = (
-        tf.reduce_sum(current * sum_conflicting)
-        / (tf.reduce_sum(current * current) + 1e-12)
-    ) * current
-
-    return current - projected_vector
-
-@tf.function(reduce_retracing=True)
-def middle_sum(class_gradients, normalized_class_gradients, num_classes):
+def middle_sum(class_gradients, num_classes, conflict_only=False):
     return tf.vectorized_map(
         lambda i: gi_minus_sum_proj_gj(
-            normalized_class_gradients, i, num_classes
+            class_gradients, i, num_classes, conflict_only=conflict_only
         ),
         tf.range(num_classes)
     )
 
 @tf.function(reduce_retracing=True)
-def conflict_only_middle_sum(class_gradients, normalized_class_gradients, num_classes):
-    return tf.vectorized_map(
-        lambda i: conflict_only_gi_minus_sum_proj_gj(
-            normalized_class_gradients, i, num_classes
-        ),
+def gi_minus_sum_proj_gj(vectors, index, num_classes, conflict_only=False):
+    current = vectors[index]
+
+    projections = tf.vectorized_map(
+        lambda i: project(current, vectors[i]),
         tf.range(num_classes)
     )
 
-@tf.function(reduce_retracing=True)
-def two_fists_one_heart(class_gradients, normalized_class_gradients, num_classes):
-    return middle_sum(class_gradients, normalized_class_gradients, num_classes)
+    if conflict_only:
+        similarities = tf.linalg.matvec(vectors, current) / (
+                tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
+        )
+
+        conflict_mask = tf.cast(similarities < 0, vectors.dtype)
+
+        sum_projections = tf.reduce_sum(
+            projections * conflict_mask[:, None],
+            axis=0
+        )
+    else:
+        sum_projections = tf.reduce_sum(projections, axis=0) - current
+
+    return current - sum_projections
 
 @tf.function(reduce_retracing=True)
-def ts_mof(class_gradients, normalized_class_gradients, num_classes):
-    middle_sums = conflict_only_middle_sum(class_gradients, normalized_class_gradients, num_classes)
+def two_fists_one_heart(class_gradients, num_classes):
+    return tf.reduce_sum(middle_sum(class_gradients, num_classes), axis=0)
 
+@tf.function(reduce_retracing=True)
+def ts_mof(class_gradients, num_classes):
+    middle_sums = middle_sum(class_gradients, num_classes, conflict_only=True)
     existence = tf.cast(class_gradients != 0, class_gradients.dtype)
 
     return tf.reduce_sum(middle_sums * existence, axis=0) / (tf.reduce_sum(existence, axis=0) + 1e-8)
 
-
-@tf.function(reduce_retracing=True)
-def gi_minus_sum_proj_gj(vectors, index, num_classes):
-    current = vectors[index]
-
-    projections = tf.vectorized_map(
-        lambda i: project(current, vectors[i]),
+def end_sum(class_gradients, num_classes):
+    end_sums = tf.vectorized_map(
+        lambda i: gi_minus_proj_sum_gj(
+            class_gradients, i, conflict_only=True, cosine_weighted=False
+        ),
         tf.range(num_classes)
     )
+    return tf.reduce_sum(end_sums, axis=0)
 
-    sum_projections = tf.reduce_sum(projections, axis=0) - current
-
-    return current - sum_projections
-
-@tf.function(reduce_retracing=True)
-def conflict_only_gi_minus_sum_proj_gj(vectors, index, num_classes):
-    current = vectors[index]
-
-    projections = tf.vectorized_map(
-        lambda i: project(current, vectors[i]),
+def end_sum_w_cosine(class_gradients, num_classes):
+    end_sums = tf.vectorized_map(
+        lambda i: gi_minus_proj_sum_gj(
+            class_gradients, i, conflict_only=True, cosine_weighted=True
+        ),
         tf.range(num_classes)
     )
+    return tf.reduce_sum(end_sums, axis=0)
 
-    # Compute cosine similarities against every vector
-    similarities = tf.linalg.matvec(vectors, current) / (
-        tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
-    )
 
-    # Exclude the current vector
-    similarities = tf.tensor_scatter_nd_update(
-        similarities,
-        [[index]],
-        [0.0]
-    )
+@tf.function(reduce_retracing=True)
+def gi_minus_proj_sum_gj(vectors, index, conflict_only=False, cosine_weighted=False):
+    current = vectors[index]
 
-    conflict_mask = tf.cast(similarities < 0, vectors.dtype)
+    if conflict_only:
+        similarities = tf.linalg.matvec(vectors, current) / (
+                tf.norm(vectors, axis=1) * tf.norm(current) + 1e-12
+        )
 
-    sum_projections = tf.reduce_sum(projections * conflict_mask[:, None], axis=0) - current
+        conflict_mask = tf.cast(similarities < 0, vectors.dtype)
 
-    return current - sum_projections
+        if cosine_weighted:
+            sum_others = tf.reduce_sum(
+                vectors * conflict_mask[:, None] * similarities[:, None] * -1,
+                axis=0
+            )
+        else:
+            sum_others = tf.reduce_sum(
+                vectors * conflict_mask[:, None],
+                axis=0
+            )
+
+        projection = project(current, sum_others)
+    else:
+        sum_others = tf.reduce_sum(vectors, axis=0) - current
+        projection = project(current, sum_others)
+
+    return current - projection
+
+
+def conflict_reduction_builder(
+    binning_method='label',
+    conflict_reduction_method=None,
+    num_classes=3,
+    normalize_before_conflict_reduction=False
+):
+    def function(
+        x_batch,
+        y_reg_batch,
+        y_pseudo_class_batch,
+        model,
+        loss_fn
+    ):
+        @tf.function(reduce_retracing=True)
+        def get_sample_gradient(inputs):
+            x, y = inputs
+            with tf.GradientTape() as tape:
+                prediction = model(x[None, :], training=False)
+                sample_loss = loss_fn(tf.reshape(y, [1, -1]), prediction)
+
+            gradient = tape.gradient(sample_loss, model.trainable_variables)
+            flattened_gradient = tf.concat(
+                [
+                    tf.reshape(g, [-1])
+                    for g in gradient
+                    if g is not None
+                ],
+                axis=0
+            )
+
+            return flattened_gradient, sample_loss
+
+        per_sample_gradients, per_sample_loss = tf.vectorized_map(
+            get_sample_gradient,
+            (x_batch, y_reg_batch),
+        )
+
+        batch_loss = tf.reduce_mean(per_sample_loss)
+
+        original_gradient = tf.reduce_mean(per_sample_gradients, axis=0)
+        if binning_method == 'label':
+            binned_centroids = get_class_centroids(per_sample_gradients, y_pseudo_class_batch, num_classes)
+        elif binning_method == 'clustering':
+            binned_centroids = spherical_kmeans(per_sample_gradients, num_classes)
+        else:
+            raise NotImplementedError
+
+        if normalize_before_conflict_reduction:
+            binned_centroids = tf.linalg.l2_normalize(binned_centroids, axis=1)
+
+        if conflict_reduction_method is None:
+            final_gradient = original_gradient
+        else:
+            final_gradient = conflict_reduction_method(binned_centroids, num_classes)
+            final_gradient = tf.linalg.l2_normalize(final_gradient) * tf.norm(original_gradient)
+
+        return (
+            batch_loss,
+            original_gradient,
+            final_gradient,
+            binned_centroids
+        )
+
+    return function

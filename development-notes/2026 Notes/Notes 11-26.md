@@ -79,7 +79,7 @@ Finish the above table for Thursday. Also, answer...
 
 # 11/10/26
 
-	## Thesis 
+## Thesis 
 
 In order to determine if gradient conflicts are reducing, we need a way to measure them. Also, most existing methods reduce conflicts either by performing projections or a weighted sum of the gradients.
 
@@ -116,15 +116,10 @@ Finish the above table for Thursday. Also, answer...
 		- a, b, and c are all 1 now, but that could change in the future
 
 - For paper
-	- Existing methods (Two Heart, TSMOF) $\checkmark$
-	- 2 methods tested (sum on "inside", w/ and w/o cosine) $\checkmark$
-	- Ways of binning $\checkmark$
-		- Number of bins based on labels $\checkmark$
-		- Could look into grouping by $k$-means cluster of per-sample gradients as well $\checkmark$
 	- Can include comparison of synthetic/hand-picked scenarios (based on toy script)
 
-- Move to subset of SEP-C. Compare before/after.
-	- Print magnitude of different classes. We expect that common class should be larger than smaller class.
+- Move to subset of SEP-C. Compare before/after. $\checkmark$
+	- Print magnitude of different classes. We expect that common class should be larger than smaller class. $\checkmark$
 
 * Should plot 1 plot per method (per the pareto deep learning paper): three lines that are the per-class similarity over time (include baseline as a point of comparison)
 	* Use gradient similarities from last batch in each epoch
@@ -132,9 +127,9 @@ Finish the above table for Thursday. Also, answer...
 * Need AORE values, rare and common MAE
 	* +true vs. predicted plots
 
-* Make sure normalization can be enabled/disabled. May need a loss function builder
+* Make sure normalization can be enabled/disabled. May need a loss function builder $\checkmark$
 
-- Normalization of vectors off. Vary label-based binning vs. gradient clustering
+- Normalization of vectors off. Vary label-based binning vs. gradient clustering $\checkmark$
 - With time, try normalization on/off
 * Stretch goal: Options for how to address the issue of magnitude (not "vanilla" distribution, and not "50/50"/normalized gradients per bin) 
 

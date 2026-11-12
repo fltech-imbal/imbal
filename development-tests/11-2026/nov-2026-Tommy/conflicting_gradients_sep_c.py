@@ -27,28 +27,13 @@ def run_model(
     EPOCHS = 10000,
     BATCH_SIZE = 2048,
     KDE_BIN_COUNT=64,
-    CONFLICT_REDUCTION_METHOD=middle_sum
+
+    CONFLICT_REDUCTION_METHOD=None,
+    GRADIENT_BINNING_METHOD='label',
+    NUM_CLASSES=3,
+    NORMALIZE_GRADIENTS_BEFORE_REDUCTION=False,
+    EARLY_STOPPING_DELTA=0
 ):
-    @tf.function(reduce_retracing=True)
-    def get_sample_gradient(inputs):
-        x, y = inputs
-        with tf.GradientTape() as tape:
-            prediction = model(x[None, :], training=False)
-            sample_loss = loss_fn(tf.reshape(y, [1, -1]), prediction)
-
-        gradients = tape.gradient(sample_loss, model.trainable_variables)
-        flattened_gradients = tf.concat(
-            [
-                tf.reshape(g, [-1])
-                for g in gradients
-                if g is not None
-            ],
-            axis=0
-        )
-
-        return gradients, flattened_gradients, sample_loss
-
-    NUM_CLASSES = 3
 
     (x_train, y_train), (x_val, y_val), (x_test, y_test) = load_sep_c_data(
         f"{DATA_PATH}/{DATA_PREFIX}",
@@ -56,25 +41,9 @@ def run_model(
 
     print(x_train[0].shape)
 
-    y_train = np.digitize(y_train, bins=[-1.609, np.log(10)])
-    y_test = np.digitize(y_test, bins=[-1.609, np.log(10)])
-    y_val = np.digitize(y_val, bins=[-1.609, np.log(10)])
-
-    y_train = tf.constant(y_train)
-    y_test = tf.constant(y_test)
-    y_val = tf.constant(y_val)
-
-    x_train = tf.constant(x_train)
-    y_train = tf.constant(y_train)
-    x_val = tf.constant(x_val)
-    y_val = tf.constant(y_val)
-    x_test = tf.constant(x_test)
-    y_test = tf.constant(y_test)
-
-    f1 = tf.keras.metrics.F1Score(
-        average='macro',
-        threshold=None
-    )
+    y_train_pseudo_class = np.digitize(y_train, bins=[-1.609, np.log(10)])
+    y_test_pseudo_class = np.digitize(y_test, bins=[-1.609, np.log(10)])
+    y_val_pseudo_class = np.digitize(y_val, bins=[-1.609, np.log(10)])
 
     """
     Build model
@@ -99,19 +68,27 @@ def run_model(
         for i in range(4):
             x = layers.Dense(32, activation='relu')(x)
 
-    outputs = layers.Dense(NUM_CLASSES)(x)
+    outputs = layers.Dense(1)(x)
 
     model = keras.Model(inputs=inputs, outputs=outputs, name='SEP_C')
 
-    loss_fn = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+    loss_fn = keras.losses.MeanSquaredError()
     optimizer = keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 
-    dataset = imbal.util.backend.DatasetWithBatching(
+    dataset = imbal.util.backend.MultiDatasetWithBatching(
         x_train,
-        y_train,
+        [y_train, y_train_pseudo_class],
         batch_size=BATCH_SIZE,
         shuffle=True,
-        mode=imbal.util.backend.constants.ModelType.CLASSIFICATION
+        multi_output=True,
+        mode=imbal.util.backend.constants.ModelType.REGRESSION
+    )
+
+    conflict_reduction_function = conflict_reduction_builder(
+        conflict_reduction_method=CONFLICT_REDUCTION_METHOD,
+        binning_method=GRADIENT_BINNING_METHOD,
+        num_classes=NUM_CLASSES,
+        normalize_before_conflict_reduction=NORMALIZE_GRADIENTS_BEFORE_REDUCTION
     )
 
     variables = model.trainable_variables
@@ -124,7 +101,7 @@ def run_model(
     best_model_weights = model.get_weights()
 
     output_file = open(f"{OUTPUT_PATH}/log_{DATA_PREFIX}_{OUTPUT_POSTFIX}.txt", 'w')
-    output_file.write("epoch,batch,class_0_magnitude,class_1_magnitude,class_2_magnitude,original_to_class_0_similarity,original_to_class_1_similarity,original_to_class_2_similarity,final_to_class_0_similarity,final_to_class_1_similarity,final_to_class_2_similarity\n")
+    output_file.write(f"epoch,batch{''.join([f',bin_{x}_magnitude' for x in range(NUM_CLASSES)])}{''.join([f',original_to_bin_{x}_similarity' for x in range(NUM_CLASSES)])}{''.join([f',final_to_bin_{x}_similarity' for x in range(NUM_CLASSES)])}\n")
 
     for epoch in range(EPOCHS):
         total_loss = 0.0
@@ -137,29 +114,15 @@ def run_model(
 
         for i in range(len(dataset)):
             (x_batch, y_batch, w_batch) = dataset[i]
+            (y_reg_batch, y_pseudo_class_batch) = y_batch
 
-            per_sample_gradients, per_sample_gradients_flattened, per_sample_loss = tf.vectorized_map(
-                get_sample_gradient,
-                (x_batch, y_batch),
+            loss, original_gradient, final_gradient, binned_centroids = conflict_reduction_function(
+                x_batch,
+                y_reg_batch,
+                y_pseudo_class_batch,
+                model,
+                loss_fn
             )
-
-            loss = tf.reduce_mean(per_sample_loss)
-
-            original_gradient = tf.reduce_sum(per_sample_gradients_flattened, axis=0)
-            normalized_original_gradient = tf.math.l2_normalize(original_gradient, axis=0)
-            last_normalized_original_gradient = normalized_original_gradient
-            class_centroids, normalized_class_centroids = get_class_centroids(per_sample_gradients_flattened, y_batch, NUM_CLASSES)
-            last_class_centroids = class_centroids
-            last_normalized_class_centroids = normalized_class_centroids
-
-            if CONFLICT_REDUCTION_METHOD is None:
-                final_gradient = original_gradient
-            else:
-                conflict_reduced_class_gradients = middle_sum(class_centroids, normalized_class_centroids, NUM_CLASSES)
-                sum_conflict_reduced = tf.reduce_sum(conflict_reduced_class_gradients, axis=0)
-                final_gradient = sum_conflict_reduced / tf.norm(sum_conflict_reduced) * tf.norm(original_gradient, axis=0)
-
-            last_normalized_final_gradient = tf.math.l2_normalize(final_gradient, axis=0)
 
             split_gradients = tf.split(
                 final_gradient,
@@ -179,16 +142,10 @@ def run_model(
 
             output_file.write(
                 f"{epoch+1},"
-                f"{i+1},"
-                f"{round(float(tf.norm(last_class_centroids[0])), 5)},"
-                f"{round(float(tf.norm(last_class_centroids[1])), 5)},"
-                f"{round(float(tf.norm(last_class_centroids[2])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[0])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[1])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[2])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[0])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[1])), 5)},"
-                f"{round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[2])), 5)},"
+                f"{i+1}"
+                f"{''.join([f',{round(float(tf.norm(binned_centroids[x])), 5)}' for x in range(NUM_CLASSES)])}"
+                f"{''.join([f',{round(float(cosine_similarity(original_gradient, binned_centroids[x])), 5)}' for x in range(NUM_CLASSES)])}"
+                f"{''.join([f',{round(float(cosine_similarity(final_gradient, binned_centroids[x])), 5)}' for x in range(NUM_CLASSES)])}"
             )
             output_file.flush()
 
@@ -201,29 +158,19 @@ def run_model(
 
         avg_loss = total_loss / num_batches
 
-        test_prediction = model(x_val, training=False)
-        val_loss = loss_fn(y_val, test_prediction)
+        val_prediction = model(x_val, training=False)
+        val_loss = loss_fn(y_val, val_prediction)
 
         patience += 1
-        if best_val_loss is None or val_loss < best_val_loss:
+        if best_val_loss is None or val_loss < best_val_loss - EARLY_STOPPING_DELTA:
             best_val_loss = val_loss
-            print(best_val_loss)
             best_model_weights = model.get_weights()
             best_loss_epoch = epoch + 1
             patience = 0
 
-        f1.update_state(tf.reshape(tf.one_hot(y_val, NUM_CLASSES), [-1, NUM_CLASSES]), test_prediction)
-        output_file.write(f"{round(float(f1.result().numpy()), 5)}\n")
-        f1.reset_state()
+        output_file.write(f",{round(float(tf.reduce_mean(tf.abs(tf.reshape(val_prediction, [-1]) - tf.cast(tf.reshape(y_val, [-1]), tf.float32)))), 5)}\n")
 
         print(f"Epoch {epoch + 1}/{EPOCHS}, Training Loss: {avg_loss:.6f}, Validation Loss: {val_loss:.6f}" + " "*50)
-        for i in range(NUM_CLASSES):
-            print(f"Magnitude of gradient for class {i}: {round(float(tf.norm(last_class_centroids[i])), 5)}")
-        for i in range(NUM_CLASSES):
-            print(f"Similarity of original gradient to class {i}: {round(float(tf.reduce_sum(last_normalized_original_gradient * last_normalized_class_centroids[i])), 5)}")
-        if CONFLICT_REDUCTION_METHOD is not None:
-            for i in range(NUM_CLASSES):
-                print( f"Similarity of final gradient to class {i}: {round(float(tf.reduce_sum(last_normalized_final_gradient * last_normalized_class_centroids[i])), 5)}")
 
         if patience > EARLY_STOPPING_PATIENCE:
             break
