@@ -3,6 +3,7 @@ import tools
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import gc
 
 MODE = 'C'
 
@@ -34,11 +35,14 @@ for index, filename in enumerate(os.listdir(PATH)):
     if not '.' in filename:
         continue
 
-    if 'clustered' not in filename:
+    # if 'normalized_normalized' not in filename and 'clustered_normalized' not in filename:
+    #     continue
+
+    if 'normalized' in filename or 'clustered' in filename:
         continue
     count += 1
-    # if count <= 15:
-    #     continue
+    if count <= 10:
+        continue
 
     file_prefix = filename.split('.')[0]
 
@@ -73,6 +77,4 @@ for index, filename in enumerate(os.listdir(PATH)):
     plt.savefig(f"{OUTPUT_PATH}/{file_prefix}-cosine-similarities.png")
     plt.show()
 
-
-
-
+    gc.collect()
