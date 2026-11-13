@@ -12,9 +12,48 @@ This tutorial walks through a complete machine learning workflow using a represe
 
 > **Before you begin:** Use the [Tutorial Setup](imbal_tutorial_setup_classification.md) guide as your starting point, then continue with this tutorial.
 
-## 1. Model Compilation and Training
+
+## 1. Representation Loss Definition
+
+First, we define a simple representation loss that tries to ensure that the representations of samples
+of the same class are close to the mean representation of that class, while also ensuring
+that the mean representations for different classes are far apart. To do this
+we can use the ii-loss from [Hassen and Chan, 2020](https://cs.fit.edu/~pkc/papers/sdm20.pdf).
+
+```python
+def representation_loss_function(y_true, representations):
+    y_true = tf.reshape(y_true, [-1])
+
+    class_values, class_indices = tf.unique(y_true)
+    num_classes = tf.shape(class_values)[0]
+
+    centroids = tf.math.unsorted_segment_mean(
+        representations,
+        class_indices,
+        num_classes
+    )
+
+    centroid_per_sample = tf.gather(centroids, class_indices)
+
+    intra_class_loss = tf.reduce_sum(
+        tf.square(
+            tf.norm(representations - centroid_per_sample, axis=1)
+        )
+    )
+
+    differences = centroids[:, None, :] - centroids[None, :, :]
+    pairwise_distances = tf.norm(differences, axis=2)
+
+    pairwise_distances += tf.eye(num_classes) * 1e10
+    minimum_distance = tf.reduce_min(pairwise_distances)
+    return intra_class_loss - minimum_distance
+```
+
+## 2. Model Compilation and Training
 
 ### Compilation
+
+We pass the defined representation loss to `imbal.classification.Model.compile`
 
 ```python
 model.compile(
@@ -23,6 +62,7 @@ model.compile(
     metrics=[
         tf.keras.metrics.F1Score(threshold=0.5, name="F1Score"),
         imbal.metrics.HeidkeSkillScore(threshold=0.5, name="HSS"),
+        representation_loss=representation_loss_function
     ],
 )
 ```
@@ -92,13 +132,13 @@ if model.best_decision_threshold is not None:
 ### Example Output
 
 ```text
-Best decision threshold based on metric "F1Score": 0.3
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.7586 - HSS: 0.7540 - loss: 0.0554       
-Test Loss: 0.0554
-Test F1Score: 0.7586
-Test HSS: 0.7540
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 956us/step
-Best found threshold: 0.3
-F1Score using Best Threshold: 0.7742
-HSS using Best Threshold: 0.7695
+Best decision threshold based on metric "F1Score": 0.1
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6379 - HSS: 0.6295 - loss: 0.1359  
+Test Loss: 0.1359
+Test F1Score: 0.6379
+Test HSS: 0.6295
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 929us/step
+Best found threshold: 0.1
+F1Score using Best Threshold: 0.4762
+HSS using Best Threshold: 0.4703
 ```

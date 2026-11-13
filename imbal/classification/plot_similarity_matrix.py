@@ -132,8 +132,8 @@ def plot_similarity_matrix(
     ax = plt.gca()
 
 
-    ax.set_xticks([i+.5 for i in range(num_classes)])
-    ax.set_yticks([i+.5 for i in range(num_classes)])
+    ax.set_xticks([i for i in range(num_classes)])
+    ax.set_yticks([i for i in range(num_classes)])
     ax.set_xticklabels([unique_classes[i] for i in range(num_classes)])
     ax.set_yticklabels([unique_classes[i] for i in range(num_classes)])
     plt.colorbar()
