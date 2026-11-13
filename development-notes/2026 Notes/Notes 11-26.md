@@ -220,52 +220,54 @@ Finish the above table for Thursday. Also, answer...
 * Stretch goal: Options for how to address the issue of magnitude (not "vanilla" distribution, and not "50/50"/normalized gradients per bin) 
 
 For each method, explore which binning/normalization method does best, and investigate plots
-* Do this for each dataset
+* Do this for each dataset (4 methods * 2 plots * 2 datasets)
 * Same "optimal" method across both datasets
 * Then, report best singular methods across all possible combinations, across both datasets
 
+**Use the phrasing "adjusted/modified gradient"**
+
 ## SEP-E
 
-| Method           | Binning | Normalization? | Epochs | $MAE$      | $MAE_R$    | $AORE$     |
-| ---------------- | ------- | -------------- | ------ | ---------- | ---------- | ---------- |
-| Baseline         | N/A     | N/A            | 162.0  | 0.2358     | 0.2466     | 0.2402     |
-| Two Fists        | Label   | $\times$       | 77.2   | 0.6488     | 0.6377     | 0.6443     |
-| TS-MOF           | Label   | $\times$       | 370.2  | 0.2377     | 0.2479     | 0.2418     |
-| Inner Sum        | Label   | $\times$       | 483.6  | 0.2349     | 0.2482     | 0.2403     |
-| Inner Sum w/ Cos | Label   | $\times$       | 396.6  | ==0.2378== | 0.2406     | 0.2389     |
-| Two Fists        | Cluster | $\times$       | 44.4   | 1.7017     | 1.0555     | 1.4411     |
-| TS-MOF           | Cluster | $\times$       | 254.0  | 0.2703     | 0.2598     | 0.2661     |
-| Inner Sum        | Cluster | $\times$       | 436.6  | 0.2384     | 0.2308     | 0.2354     |
-| Inner Sum w/ Cos | Cluster | $\times$       | 430.4  | 0.2354     | ==0.2256== | ==0.2314== |
-| Two Fists        | Label   | $\checkmark$   | 91.0   | 0.4196     | 0.3267     | 0.3821     |
-| TS-MOF           | Label   | $\checkmark$   | 332.2  | 0.2409     | 0.265      | 0.2506     |
-| Inner Sum        | Label   | $\checkmark$   | 336.0  | 0.2422     | 0.2535     | 0.2468     |
-| Inner Sum w/ Cos | Label   | $\checkmark$   | 338.0  | 0.2392     | 0.2537     | 0.245      |
-| Two Fists        | Cluster | $\checkmark$   | 49.4   | 1.1022     | 1.3737     | 1.2117     |
-| TS-MOF           | Cluster | $\checkmark$   | 369.2  | 0.2663     | 0.2753     | 0.2699     |
-| Inner Sum        | Cluster | $\checkmark$   | 116.0  | 0.4832     | 0.4621     | 0.4747     |
-| Inner Sum w/ Cos | Cluster | $\checkmark$   | 128.2  | 0.4241     | 0.4152     | 0.4205     |
+| Method           | Binning | Normalization? | Epochs | $MAE$      | $MAE_R$    | $AORE$       |
+| ---------------- | ------- | -------------- | ------ | ---------- | ---------- | ------------ |
+| Baseline         | N/A     | N/A            | 162.0  | 0.2358     | 0.2466     | 0.2402       |
+| Two Fists        | Label   | $\times$       | 77.2   | 0.6488     | 0.6377     | 0.6443       |
+| TS-MOF           | Label   | $\times$       | 370.2  | 0.2377     | 0.2479     | 0.2418       |
+| Inner Sum        | Label   | $\times$       | 483.6  | 0.2349     | 0.2482     | 0.2403       |
+| Inner Sum w/ Cos | Label   | $\times$       | 396.6  | ==0.2378== | 0.2406     | ==🟠0.2389== |
+| Two Fists        | Cluster | $\times$       | 44.4   | 1.7017     | 1.0555     | 1.4411       |
+| TS-MOF           | Cluster | $\times$       | 254.0  | 0.2703     | 0.2598     | 0.2661       |
+| Inner Sum        | Cluster | $\times$       | 436.6  | 0.2384     | 0.2308     | ==🟠0.2354== |
+| Inner Sum w/ Cos | Cluster | $\times$       | 430.4  | 0.2354     | ==0.2256== | ==0.2314==   |
+| Two Fists        | Label   | $\checkmark$   | 91.0   | 0.4196     | 0.3267     | 0.3821       |
+| TS-MOF           | Label   | $\checkmark$   | 332.2  | 0.2409     | 0.265      | 0.2506       |
+| Inner Sum        | Label   | $\checkmark$   | 336.0  | 0.2422     | 0.2535     | 0.2468       |
+| Inner Sum w/ Cos | Label   | $\checkmark$   | 338.0  | 0.2392     | 0.2537     | 0.245        |
+| Two Fists        | Cluster | $\checkmark$   | 49.4   | 1.1022     | 1.3737     | 1.2117       |
+| TS-MOF           | Cluster | $\checkmark$   | 369.2  | 0.2663     | 0.2753     | 0.2699       |
+| Inner Sum        | Cluster | $\checkmark$   | 116.0  | 0.4832     | 0.4621     | 0.4747       |
+| Inner Sum w/ Cos | Cluster | $\checkmark$   | 128.2  | 0.4241     | 0.4152     | 0.4205       |
 ## SEP-C
 
-| Method           | Binning | Normalization? | Epochs | $MAE$      | $MAE_R$    | $AORE$     |
-| ---------------- | ------- | -------------- | ------ | ---------- | ---------- | ---------- |
-| Baseline         | N/A     | N/A            | 312.6  | 0.2344     | 3.0403     | 1.6093     |
-| Two Fists        | Label   | $\times$       | 57.4   | 1.4007     | 3.2506     | 2.3072     |
-| TS-MOF           | Label   | $\times$       | 121.4  | 0.9938     | 3.4485     | 2.1966     |
-| Inner Sum        | Label   | $\times$       | 296.8  | ==0.2145== | 2.775      | ==1.4692== |
-| Inner Sum w/ Cos | Label   | $\times$       | 161.2  | 0.271      | 2.8229     | 1.5215     |
-| Two Fists        | Cluster | $\times$       | 27.0   | 1.6766     | 4.3717     | 2.9973     |
-| TS-MOF           | Cluster | $\times$       | 114.2  | 0.3122     | 2.9424     | 1.601      |
-| Inner Sum        | Cluster | $\times$       | 96.0   | 0.5829     | ==2.6099== | 1.5762     |
-| Inner Sum w/ Cos | Cluster | $\times$       | 189.4  | 0.2205     | 3.5962     | 1.8746     |
-| Two Fists        | Label   | $\checkmark$   | 63.0   | 0.3614     | 4.3551     | 2.3184     |
-| TS-MOF           | Label   | $\checkmark$   | 52.0   | 1.2166     | 3.949      | 2.5558     |
-| Inner Sum        | Label   | $\checkmark$   | 272.4  | 0.2857     | 3.2265     | 1.7267     |
-| Inner Sum w/ Cos | Label   | $\checkmark$   | 181.6  | 0.2964     | 3.1511     | 1.6952     |
-| Two Fists        | Cluster | $\checkmark$   | 61.0   | 1.217      | 4.0919     | 2.6257     |
-| TS-MOF           | Cluster | $\checkmark$   |        |            |            |            |
-| Inner Sum        | Cluster | $\checkmark$   |        |            |            |            |
-| Inner Sum w/ Cos | Cluster | $\checkmark$   |        |            |            |            |
+| Method           | Binning | Normalization? | Epochs | $MAE$      | $MAE_R$    | $AORE$       |
+| ---------------- | ------- | -------------- | ------ | ---------- | ---------- | ------------ |
+| Baseline         | N/A     | N/A            | 312.6  | 0.2344     | 3.0403     | 1.6093       |
+| Two Fists        | Label   | $\times$       | 57.4   | 1.4007     | 3.2506     | 2.3072       |
+| TS-MOF           | Label   | $\times$       | 121.4  | 0.9938     | 3.4485     | 2.1966       |
+| Inner Sum        | Label   | $\times$       | 296.8  | ==0.2145== | 2.775      | ==1.4692==   |
+| Inner Sum w/ Cos | Label   | $\times$       | 161.2  | 0.271      | 2.8229     | ==🟠1.5215== |
+| Two Fists        | Cluster | $\times$       | 27.0   | 1.6766     | 4.3717     | 2.9973       |
+| TS-MOF           | Cluster | $\times$       | 114.2  | 0.3122     | 2.9424     | 1.601        |
+| Inner Sum        | Cluster | $\times$       | 96.0   | 0.5829     | ==2.6099== | ==🟠1.5762== |
+| Inner Sum w/ Cos | Cluster | $\times$       | 189.4  | 0.2205     | 3.5962     | 1.8746       |
+| Two Fists        | Label   | $\checkmark$   | 63.0   | 0.3614     | 4.3551     | 2.3184       |
+| TS-MOF           | Label   | $\checkmark$   | 52.0   | 1.2166     | 3.949      | 2.5558       |
+| Inner Sum        | Label   | $\checkmark$   | 272.4  | 0.2857     | 3.2265     | 1.7267       |
+| Inner Sum w/ Cos | Label   | $\checkmark$   | 181.6  | 0.2964     | 3.1511     | 1.6952       |
+| Two Fists        | Cluster | $\checkmark$   | 61.0   | 1.217      | 4.0919     | 2.6257       |
+| TS-MOF           | Cluster | $\checkmark$   |        |            |            |              |
+| Inner Sum        | Cluster | $\checkmark$   |        |            |            |              |
+| Inner Sum w/ Cos | Cluster | $\checkmark$   |        |            |            |              |
 
 - Thought: using weights of samples to determine magnitude of each conflict-reduced class gradient before summing to produce final conflict-reduced gradient?
 
