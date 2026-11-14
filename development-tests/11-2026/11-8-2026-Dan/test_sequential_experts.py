@@ -87,6 +87,40 @@ class SequentialExpertTests(unittest.TestCase):
             expected = np.square(features[fold.training_indices].ravel())
             np.testing.assert_allclose(fit_weights[2 + index], expected / expected.mean())
 
+    def test_residual_selection_keeps_nonworsening_experts_and_stops_below_one_percent(self):
+        features = np.arange(200, dtype="float32").reshape(-1, 1)
+        targets = np.zeros_like(features)
+        even = np.arange(0, len(features), 2)
+        odd = even + 1
+
+        # Expert 1 misses by one on every row. Correcting one row reduces MSE
+        # by 0.5%, and correcting two reduces it by exactly 1%.
+        for corrected, delta, expected in [
+            (1, -1, [True, True]),
+            (0, 0, [True, True]),
+            (1, 1, [True, False]),
+            (2, -1, [True, True, False]),
+        ]:
+            def predict(number, inputs, batch_size):
+                if number == 2:
+                    return np.where(inputs < corrected, delta, 0).astype("float32")
+                return np.ones_like(inputs)
+
+            for mode in ("residual_ones", "residual_weighted"):
+                with self.subTest(mode=mode, corrected=corrected, delta=delta):
+                    settings = replace(create_settings(), expert_mode=mode)
+                    folds = [ValidationFold(train, val, np.empty((200, 0), dtype="float32"))
+                             for train, val in ((even, odd), (odd, even))]
+                    with patch("sep_c_training.build_expert", side_effect=lambda n, *args: n), \
+                         patch("sep_c_training.fit_for_validation", return_value=1), \
+                         patch("sep_c_training.predict_in_batches", side_effect=predict):
+                        epochs, history = select_experts(features, targets, folds, 42, settings)
+
+                    self.assertEqual([step["accepted"] for step in history], expected)
+                    self.assertEqual(len(epochs), sum(expected))
+                    for fold in folds:
+                        self.assertEqual(fold.predictions.shape[1], sum(expected))
+
     def test_only_continuing_rows_reach_later_experts(self):
         calls = []
 

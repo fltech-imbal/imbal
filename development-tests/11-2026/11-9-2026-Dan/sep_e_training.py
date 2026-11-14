@@ -8,7 +8,7 @@ from tensorflow import keras
 
 from sep_e_metrics import compare_second_expert, print_validation_comparison
 from sep_e_models import (
-    SequentialEnsemble, build_expert, build_router, predict_in_batches, router_inputs,
+    SequentialEnsemble, build_expert, build_router, predict_in_batches, prefix_prediction, router_inputs,
 )
 
 
@@ -23,21 +23,29 @@ def error_weights(targets, predictions):
     return (squared_errors / mean_error).astype("float32")
 
 
-def expert_weights(targets, previous_predictions):
+def expert_targets(targets, previous_predictions, settings):
+    if settings.residual and previous_predictions.shape[1]:
+        return targets.reshape(-1, 1) - prefix_prediction(previous_predictions, residual=True)
+    return targets
+
+
+def expert_weights(targets, previous_predictions, settings):
+    if settings.expert_mode == "residual_ones":
+        return np.ones(len(targets), dtype="float32")
     if previous_predictions.shape[1] == 0:
         return None
 
-    return error_weights(targets, previous_predictions.mean(axis=1))
+    return error_weights(targets, prefix_prediction(previous_predictions, settings.residual))
 
 
-def router_targets(targets, expert_predictions, prefix_size):
+def router_targets(targets, expert_predictions, prefix_size, residual=False):
     """Continue if any strictly longer prefix improves this row's squared error."""
 
-    prefix_means = np.column_stack([
-        expert_predictions[:, :size].mean(axis=1)
+    prefixes = np.column_stack([
+        prefix_prediction(expert_predictions[:, :size], residual)
         for size in range(1, expert_predictions.shape[1] + 1)
     ])
-    squared_errors = np.square(targets.reshape(-1, 1).astype("float64") - prefix_means)
+    squared_errors = np.square(targets.reshape(-1, 1).astype("float64") - prefixes)
     best_future_error = squared_errors[:, prefix_size:].min(axis=1)
     return (best_future_error < squared_errors[:, prefix_size - 1]).astype("float32")
 
@@ -92,35 +100,41 @@ def select_experts(features, targets, folds, seed, settings):
         for fold_number, fold in enumerate(folds, start=1):
             training = fold.training_indices
             validation = fold.validation_indices
-            weights = expert_weights(targets[training], fold.predictions[training])
+            labels = expert_targets(targets, fold.predictions, settings)
+            weights = expert_weights(targets[training], fold.predictions[training], settings)
 
             keras.utils.set_random_seed(seed + expert_number * (len(folds) + 1) + fold_number)
             expert = build_expert(expert_number, features.shape[1], settings)
             print(f"Expert {expert_number}: epoch-selection fold {fold_number}/{len(folds)}")
             epoch_count = fit_for_validation(
-                expert, features[training], targets[training], weights,
-                (features[validation], targets[validation]), settings,
+                expert, features[training], labels[training], weights,
+                (features[validation], labels[validation]), settings,
             )
             fold_epochs.append(epoch_count)
             predictions = predict_in_batches(expert, features, settings.prediction_batch_size)
             candidate = np.column_stack((fold.predictions, predictions))
             candidate_predictions.append(candidate)
-            validation_predictions[validation] = candidate[validation].mean(axis=1)
+            validation_predictions[validation] = prefix_prediction(candidate[validation], settings.residual).ravel()
 
         validation_mse = float(np.mean(np.square(targets.ravel() - validation_predictions)))
         if not np.isfinite(validation_mse):
             raise ValueError(f"Nonfinite validation MSE for expert {expert_number}.")
 
         # A perfect previous prefix has no possible relative improvement.
-        accepted = previous_mse is None or (
+        meets_growth_threshold = previous_mse is None or (
             previous_mse > 0
             and validation_mse <= previous_mse * (1 - settings.minimum_relative_improvement)
         )
+        accepted = meets_growth_threshold
+        if settings.residual and previous_mse is not None:
+            accepted = validation_mse <= previous_mse
         validation_history.append({"validation_mse": validation_mse, "accepted": accepted})
         if expert_number == 1:
             first_validation_predictions = validation_predictions
         elif expert_number == 2:
-            comparison = compare_second_expert(targets, first_validation_predictions, validation_predictions)
+            comparison = compare_second_expert(
+                targets, first_validation_predictions, validation_predictions, settings.residual
+            )
             validation_history[-1]["held_out_comparison"] = comparison
             print_validation_comparison(comparison)
 
@@ -133,6 +147,10 @@ def select_experts(features, targets, folds, seed, settings):
         previous_mse = validation_mse
         for fold, predictions in zip(folds, candidate_predictions):
             fold.predictions = predictions
+        if not meets_growth_threshold:
+            print(f"Keeping expert {expert_number} and stopping: validation MSE improvement "
+                  f"was below {settings.minimum_relative_improvement:.1%}.")
+            break
 
     return selected_epochs, validation_history
 
@@ -142,8 +160,8 @@ def select_router_epochs(features, targets, folds, router_number, seed, settings
     for fold_number, fold in enumerate(folds, start=1):
         training = fold.training_indices
         validation = fold.validation_indices
-        inputs = router_inputs(features, fold.predictions[:, :router_number])
-        labels = router_targets(targets, fold.predictions, router_number)
+        inputs = router_inputs(features, fold.predictions[:, :router_number], settings.residual)
+        labels = router_targets(targets, fold.predictions, router_number, settings.residual)
 
         keras.utils.set_random_seed(seed + router_number * (len(folds) + 1) + fold_number)
         router = build_router(router_number, inputs.shape[1], settings)
@@ -174,7 +192,8 @@ def train_ensemble(features, targets, seed, settings):
         expert = build_expert(expert_number, features.shape[1], settings)
         print(f"Expert {expert_number}: fitting all training rows for {epoch_count} epochs")
         expert.fit(
-            features, targets, sample_weight=expert_weights(targets, predictions),
+            features, expert_targets(targets, predictions, settings),
+            sample_weight=expert_weights(targets, predictions, settings),
             epochs=epoch_count, batch_size=settings.training_batch_size, shuffle=False, verbose=0,
         )
         expert.trainable = False
@@ -186,8 +205,8 @@ def train_ensemble(features, targets, seed, settings):
     router_epochs = []
     for router_number in range(1, len(experts)):
         epoch_count = select_router_epochs(features, targets, folds, router_number, seed, settings)
-        inputs = router_inputs(features, predictions[:, :router_number])
-        labels = router_targets(targets, predictions, router_number)
+        inputs = router_inputs(features, predictions[:, :router_number], settings.residual)
+        labels = router_targets(targets, predictions, router_number, settings.residual)
 
         keras.utils.set_random_seed(seed + 1000 * router_number)
         router = build_router(router_number, inputs.shape[1], settings)
@@ -200,7 +219,7 @@ def train_ensemble(features, targets, seed, settings):
         router_epochs.append(epoch_count)
 
     ensemble = SequentialEnsemble(
-        experts, routers, settings.router_threshold, settings.prediction_batch_size
+        experts, routers, settings.router_threshold, settings.prediction_batch_size, settings.residual
     )
     return ensemble, {
         "expert_epochs": expert_epochs, "router_epochs": router_epochs,

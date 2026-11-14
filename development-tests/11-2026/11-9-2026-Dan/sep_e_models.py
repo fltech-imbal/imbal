@@ -47,13 +47,19 @@ def build_router(router_number, input_count, settings):
     return router
 
 
-def router_inputs(features, expert_predictions):
-    """Columns are normalized features, active predictions, mean, variance, and trust."""
+def prefix_prediction(expert_predictions, residual):
+    if residual:
+        return expert_predictions.sum(axis=1, keepdims=True)
+    return expert_predictions.mean(axis=1, keepdims=True)
 
-    mean_prediction = expert_predictions.mean(axis=1, keepdims=True)
+
+def router_inputs(features, expert_predictions, residual=False):
+    """Append individual outputs, current prefix prediction, variance, and trust."""
+
+    prediction = prefix_prediction(expert_predictions, residual)
     variance = expert_predictions.var(axis=1, keepdims=True)
     return np.column_stack((
-        features, expert_predictions, mean_prediction, variance, np.zeros_like(mean_prediction)
+        features, expert_predictions, prediction, variance, np.zeros_like(prediction)
     ))
 
 
@@ -69,7 +75,7 @@ def predict_in_batches(model, features, batch_size):
 
 
 class SequentialEnsemble:
-    def __init__(self, experts, routers, router_threshold, prediction_batch_size):
+    def __init__(self, experts, routers, router_threshold, prediction_batch_size, residual=False):
         if not experts or len(routers) != len(experts) - 1:
             raise ValueError("A sequential ensemble requires one router between adjacent experts.")
 
@@ -77,6 +83,7 @@ class SequentialEnsemble:
         self.routers = routers
         self.router_threshold = router_threshold
         self.prediction_batch_size = prediction_batch_size
+        self.residual = residual
 
     def predict(self, features):
         """Keep original row order while sending only continuing rows to later experts."""
@@ -93,10 +100,10 @@ class SequentialEnsemble:
             active_features = features[active_rows]
             next_predictions = predict_in_batches(expert, active_features, self.prediction_batch_size)
             active_predictions = np.column_stack((active_predictions, next_predictions))
-            predictions[active_rows] = active_predictions.mean(axis=1, keepdims=True)
+            predictions[active_rows] = prefix_prediction(active_predictions, self.residual)
 
             if expert_index < len(self.routers):
-                inputs = router_inputs(active_features, active_predictions)
+                inputs = router_inputs(active_features, active_predictions, self.residual)
                 probability = predict_in_batches(
                     self.routers[expert_index], inputs, self.prediction_batch_size
                 )
@@ -111,7 +118,7 @@ class SequentialEnsemble:
             predict_in_batches(expert, features, self.prediction_batch_size)
             for expert in self.experts
         ]
-        return np.column_stack(predictions).mean(axis=1, keepdims=True)
+        return prefix_prediction(np.column_stack(predictions), self.residual)
 
     def save(self, archive_path, metadata):
         """Publish each seed as one complete bundle of ordinary Keras models."""
@@ -120,7 +127,7 @@ class SequentialEnsemble:
         archive_path.parent.mkdir(parents=True, exist_ok=True)
         metadata = dict(
             metadata, expert_count=len(self.experts), router_threshold=self.router_threshold,
-            prediction_batch_size=self.prediction_batch_size,
+            prediction_batch_size=self.prediction_batch_size, residual=self.residual,
         )
 
         with TemporaryDirectory(dir=archive_path.parent) as directory:
@@ -153,5 +160,6 @@ class SequentialEnsemble:
             ensemble = cls(
                 load_models("expert", expert_count), load_models("router", expert_count - 1),
                 metadata["router_threshold"], metadata["prediction_batch_size"],
+                residual=metadata.get("residual", False),
             )
         return ensemble, metadata

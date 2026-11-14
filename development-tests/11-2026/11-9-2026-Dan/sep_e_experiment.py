@@ -71,18 +71,20 @@ def report_split(ensemble, split):
         raise ValueError("AORE requires at least one rare evaluation sample.")
     return {
         "routed": regression_metrics(targets, ensemble.predict(features)),
-        "full_mean": regression_metrics(targets, ensemble.predict_full(features)),
+        ("full_sum" if ensemble.residual else "full_mean"): regression_metrics(targets, ensemble.predict_full(features)),
     }
 
 
 def print_metric_summary(title, metrics, prefix=""):
     print(f"\n{title}")
-    print(f"{'Metric':<20} {'Routed':>12} {'Full mean':>12}")
+    full_key = "full_sum" if "full_sum" in metrics else "full_mean"
+    full_label = full_key.replace("_", " ").capitalize()
+    print(f"{'Metric':<20} {'Routed':>12} {full_label:>12}")
     for key, label in (("aore", "AORE"), ("overall_mae", "overall MAE"), ("common_mae", "common MAE"),
                        ("rare_mae", "rare MAE"), ("overall_mse", "overall MSE")):
         routed = format_value(metrics["routed"][key])
-        full_mean = format_value(metrics["full_mean"][key])
-        print(f"{prefix + label:<20} {routed:>12} {full_mean:>12}")
+        full = format_value(metrics[full_key][key])
+        print(f"{prefix + label:<20} {routed:>12} {full:>12}")
 
 
 def show_median_predictions(ensemble, testing):
@@ -138,14 +140,14 @@ def run_experiment(settings, training, testing, preprocessing):
     median_seed = ranked_results[len(results) // 2]["seed"]
     average_test = {
         method: average_metrics([result["test"][method] for result in results])
-        for method in ("routed", "full_mean")
+        for method in results[0]["test"]
     }
     summary = {"median_seed": median_seed, "average_test": average_test, "runs": results}
     if settings.maximum_experts >= 2:
         comparisons = [result["validation_history"][1]["held_out_comparison"] for result in results]
         average_validation = {
             key: average_metrics([comparison[key] for comparison in comparisons])
-            for key in ("expert_1", "two_expert_mean", "oracle")
+            for key in ("expert_1", "two_expert_sum" if settings.residual else "two_expert_mean", "oracle")
         }
         summary["average_expert_2_validation"] = average_validation
         print_prefix_metrics(f"Held-out validation averages across {len(results)} seeds", average_validation)

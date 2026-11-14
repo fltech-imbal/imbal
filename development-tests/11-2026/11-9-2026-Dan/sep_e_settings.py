@@ -30,8 +30,16 @@ class ExperimentSettings:
     saved_model_directory: Path | None = None
     load_saved_model: bool = False
     show_visualizations: bool = False
+    expert_mode: str = "direct"
+
+    @property
+    def residual(self):
+        return self.expert_mode != "direct"
 
     def __post_init__(self):
+        if self.expert_mode not in ("direct", "residual_ones", "residual_weighted"):
+            raise ValueError(f"Unknown expert mode: {self.expert_mode}")
+
         if self.fold_count < 2 or not self.seeds or len(set(self.seeds)) != len(self.seeds):
             raise ValueError("Use at least two folds and distinct experiment seeds.")
 
