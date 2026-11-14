@@ -3,8 +3,9 @@ import tensorflow as tf
 import tools
 import numpy as np
 import imbal
+import gc
 
-MODE = 'C'
+MODE = 'E'
 
 if MODE == 'E':
     PATH = 'models-sep-e'
@@ -30,10 +31,10 @@ print(np.min(y_test), np.max(y_test))
 count = 0
 for index, filename in enumerate(os.listdir(PATH)):
 
-    # if 'clustered' not in filename:
-    #     continue
+    if 'normalized_normalized' not in filename and 'clustered_normalized' not in filename:
+        continue
     count += 1
-    if count <= 25:
+    if count > 25 or count <= 10:
         continue
 
     file_prefix = filename.split('.')[0]
@@ -61,5 +62,7 @@ for index, filename in enumerate(os.listdir(PATH)):
         title=f"Common MAE: {float(common_mae):.4}, Rare MAE: {float(rare_mae):.4}, AORE: {float(aore):.4}",
         save_figure=f'{OUTPUT_PATH}/{file_prefix}-true-vs-predicted-aore-{float(aore):.4}.png',
     )
+
+    gc.collect()
 
 

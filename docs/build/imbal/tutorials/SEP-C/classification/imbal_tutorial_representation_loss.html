@@ -344,23 +344,60 @@
 <p>This tutorial walks through a complete machine learning workflow using a representation loss in Imbal for a binary classification task.</p>
 <section id="files-needed">
 <h2>Files Needed<a class="headerlink" href="#files-needed" title="Link to this heading">#</a></h2>
-<p><strong>Full Code:</strong> <a class="reference internal" href="#../../../../../../tutorials/SEP-C/classification/imbal_tutorial_representation_loss.py"><span class="xref myst">view source code</span></a></p>
+<p><strong>Full Code:</strong> <a class="reference download internal" download="" href="../../../../_downloads/a713ae2339716d01fc4c67ede20222d9/imbal_tutorial_representation_loss.py"><span class="xref download myst">view source code</span></a></p>
 <p><strong>Train/Test Files</strong>: <a class="reference download internal" download="" href="../../../../_downloads/531b1801f8d86f09fea865f3b8c14f47/sep_model_training_classification.csv"><span class="xref download myst">training data</span></a>, <a class="reference download internal" download="" href="../../../../_downloads/97d763fba457d6e63524652d9de65247/sep_model_testing_classification.csv"><span class="xref download myst">testing data</span></a></p>
 <hr class="docutils" />
 <blockquote>
 <div><p><strong>Before you begin:</strong> Use the <a class="reference internal" href="imbal_tutorial_setup_classification.html"><span class="std std-doc">Tutorial Setup</span></a> guide as your starting point, then continue with this tutorial.</p>
 </div></blockquote>
 </section>
+<section id="representation-loss-definition">
+<h2>1. Representation Loss Definition<a class="headerlink" href="#representation-loss-definition" title="Link to this heading">#</a></h2>
+<p>First, we define a simple representation loss that tries to ensure that the representations of samples
+of the same class are close to the mean representation of that class, while also ensuring
+that the mean representations for different classes are far apart. To do this
+we can use the ii-loss from <a class="reference external" href="https://cs.fit.edu/~pkc/papers/sdm20.pdf">Hassen and Chan, 2020</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">representation_loss_function</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">representations</span><span class="p">):</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">class_values</span><span class="p">,</span> <span class="n">class_indices</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">num_classes</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">class_values</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">centroids</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">unsorted_segment_mean</span><span class="p">(</span>
+        <span class="n">representations</span><span class="p">,</span>
+        <span class="n">class_indices</span><span class="p">,</span>
+        <span class="n">num_classes</span>
+    <span class="p">)</span>
+
+    <span class="n">centroid_per_sample</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="n">centroids</span><span class="p">,</span> <span class="n">class_indices</span><span class="p">)</span>
+
+    <span class="n">intra_class_loss</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_sum</span><span class="p">(</span>
+        <span class="n">tf</span><span class="o">.</span><span class="n">square</span><span class="p">(</span>
+            <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">representations</span> <span class="o">-</span> <span class="n">centroid_per_sample</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">differences</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">centroids</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+    <span class="n">pairwise_distances</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">differences</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">pairwise_distances</span> <span class="o">+=</span> <span class="n">tf</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_classes</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e10</span>
+    <span class="n">minimum_distance</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">reduce_min</span><span class="p">(</span><span class="n">pairwise_distances</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">intra_class_loss</span> <span class="o">-</span> <span class="n">minimum_distance</span>
+</pre></div>
+</div>
+</section>
 <section id="model-compilation-and-training">
-<h2>1. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
+<h2>2. Model Compilation and Training<a class="headerlink" href="#model-compilation-and-training" title="Link to this heading">#</a></h2>
 <section id="compilation">
 <h3>Compilation<a class="headerlink" href="#compilation" title="Link to this heading">#</a></h3>
+<p>We pass the defined representation loss to <code class="docutils literal notranslate"><span class="pre">imbal.classification.Model.compile</span></code></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
     <span class="n">loss</span><span class="o">=</span><span class="s2">&quot;binary_crossentropy&quot;</span><span class="p">,</span>
     <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;adam&quot;</span><span class="p">,</span>
     <span class="n">metrics</span><span class="o">=</span><span class="p">[</span>
         <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">F1Score</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;F1Score&quot;</span><span class="p">),</span>
         <span class="n">imbal</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">HeidkeSkillScore</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;HSS&quot;</span><span class="p">),</span>
+        <span class="n">representation_loss</span><span class="o">=</span><span class="n">representation_loss_function</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -436,15 +473,15 @@
 </section>
 <section id="example-output">
 <h3>Example Output<a class="headerlink" href="#example-output" title="Link to this heading">#</a></h3>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;F1Score&quot;: 0.3
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 2ms/step - F1Score: 0.7586 - HSS: 0.7540 - loss: 0.0554       
-Test Loss: 0.0554
-Test F1Score: 0.7586
-Test HSS: 0.7540
-24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 956us/step
-Best found threshold: 0.3
-F1Score using Best Threshold: 0.7742
-HSS using Best Threshold: 0.7695
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Best decision threshold based on metric &quot;F1Score&quot;: 0.1
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 1ms/step - F1Score: 0.6379 - HSS: 0.6295 - loss: 0.1359  
+Test Loss: 0.1359
+Test F1Score: 0.6379
+Test HSS: 0.6295
+24/24 ━━━━━━━━━━━━━━━━━━━━ 0s 929us/step
+Best found threshold: 0.1
+F1Score using Best Threshold: 0.4762
+HSS using Best Threshold: 0.4703
 </pre></div>
 </div>
 </section>
@@ -481,7 +518,8 @@ HSS using Best Threshold: 0.7695
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#files-needed">Files Needed</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">1. Model Compilation and Training</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#representation-loss-definition">1. Representation Loss Definition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-compilation-and-training">2. Model Compilation and Training</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compilation">Compilation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation">Explanation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training">Training</a></li>

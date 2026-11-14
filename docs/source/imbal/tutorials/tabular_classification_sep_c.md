@@ -19,6 +19,7 @@ This page provides an overview of all classification tutorials. The tutorials ar
 
 - [Using `imbal.metrics` in model classification](SEP-C/classification/imbal_tutorial_metrics_classification.md)
 - [Model representation visualization using t-SNE](SEP-C/classification/imbal_tutorial_tsne_visualization_classification.md)
+- [Model representation visualization using similarity matrix](SEP-C/classification/imbal_tutorial_similarity_matrix.md)
 - [Prediction explanation using LIME](SEP-C/classification/imbal_tutorial_lime_explanation_classification.md)
 - [Prediction explanation using SHAP](SEP-C/classification/imbal_tutorial_shap_explanation_classification.md)
 - [Using `representation_loss` with `imbal`](SEP-C/classification/imbal_tutorial_representation_loss.md)

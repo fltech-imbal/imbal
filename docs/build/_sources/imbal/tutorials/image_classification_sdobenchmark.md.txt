@@ -37,3 +37,4 @@ Each row corresponds to some additional modification to the approach:
 - [Prediction explanation using LIME](SDO/classification/explanation_lime.md)
 - [Prediction explanation using GradCAM on Binary Classification](SDO/classification/grad-cam-binary-classification-tutorial.md)
 - [Prediction explanation using GradCam on Multiple Classification](SDO/classification/grad-cam-softmax-tutorial.md)
+- [Using `representation_loss` with `imbal`](SDO/classification/representation_loss.md)

@@ -114,11 +114,42 @@ model.balanced_fit(
     stratify_batches=True
 )
 
-model.evaluate(x_test, y_test.reshape(-1, 1))
+"""
+Data and results visualization
+"""
+KDE_BIN_COUNT=32
 
-predictions = model.predict(x_test)
+test_rare_mask = y_test == 1
+test_frequent_mask = ~test_rare_mask
+print('Number of test samples with log10 flux < -4:', np.sum(test_frequent_mask))
+print('Number of test samples with log10 flux >= -4:', np.sum(test_rare_mask))
 
-imbal.classification.plot_confusion_matrix(
-    y_test.reshape(-1),
-    predictions.reshape(-1)
+# Predict on test data
+test_predictions = model.predict(x_test)
+test_predictions = test_predictions.reshape(-1, 1)
+y_test = y_test.reshape(-1, 1)
+
+# Calculate metrics
+hss = imbal.metrics.HeidkeSkillScore(threshold=0.5)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=0.5)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Heikde Skill Score: {hss.result()[0]:.4f}\n'
+    f'F1 Score: {f1.result()[0]:.4f}\n'
+)
+
+best_threshold = model.best_decision_threshold
+hss = imbal.metrics.HeidkeSkillScore(threshold=best_threshold)
+hss.update_state(y_test, test_predictions)
+
+f1 = metrics.F1Score(threshold=best_threshold)
+f1.update_state(y_test, test_predictions)
+
+print(
+    f'Best threshold: {model.best_decision_threshold}\n'
+    f'Heikde Skill Score using Best Threshold: {hss.result()[0]:.4f}\n'
+    f'F1 Score using Best Threshold: {f1.result()[0]:.4f}\n'
 )
