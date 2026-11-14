@@ -5,6 +5,8 @@ archive, so the script can be run from any working directory.
 Each training run saves the shared experts first, then both gates, their assembled
 ensembles and held-out metrics under runs/<timestamp>/ beside this script.
 LOAD_SAVED_MODEL selects saved-model evaluation or fresh training.
+Set SHOW_VISUALIZATIONS to display and save a separate imbal test prediction
+plot for each gate in the selected or newly trained run folder.
 The console compares both gates on the five worst rare regression errors.
 """
 
@@ -28,6 +30,7 @@ from tensorflow.keras import layers
 
 HERE = Path(__file__).resolve().parent
 LOAD_SAVED_MODEL = True  # False trains a new pair and saves it in a new run folder.
+SHOW_VISUALIZATIONS = False
 # None loads the newest timestamped run containing both ensembles. To choose a
 # specific run, use e.g. HERE / "runs" / "20261111-214558-817660".
 SAVED_MODEL_DIRECTORY = None
@@ -1060,6 +1063,20 @@ def print_comparison(results, rows, target_column=TARGET):
     print_worst_rare_samples(rows, target_column)
 
 
+def plot_gate_predictions(rows, target_column, directory):
+    from imbal.regression import plot_true_vs_predictions
+
+    actual = rows[target_column].to_numpy()
+    for name in ("classification", "regression"):
+        path = directory / f"{name}_gate_predicted_vs_actual.png"
+        plot_true_vs_predictions(
+            actual, rows[f"{name}_prediction"].to_numpy(),
+            title=f"{name.capitalize()} gate ({target_column})",
+            save_figure=path,
+        )
+        print(f"Saved prediction plot to {path}", flush=True)
+
+
 def saved_model_directory(runs, selected_directory):
     if selected_directory is not None:
         return HERE / Path(selected_directory)
@@ -1074,7 +1091,7 @@ def saved_model_directory(runs, selected_directory):
     )
 
 
-def compare_saved_run(directory, features, targets, target_column=TARGET):
+def compare_saved_run(directory, features, targets, target_column=TARGET, *, show_visualizations=False):
     """Read both full ensembles, including their frozen experts and KDEs."""
     print(f"Evaluating saved models in {directory}", flush=True)
     results = {}
@@ -1101,15 +1118,18 @@ def compare_saved_run(directory, features, targets, target_column=TARGET):
                 np.testing.assert_array_equal(densities[:, column], rows[f"{expert}_density"])
         results[name] = record_gate_results(name, targets, trust, weights, final.ravel(), rows)
     print_comparison(results, rows, target_column)
+    if show_visualizations:
+        plot_gate_predictions(rows, target_column, directory)
 
 
 def run_gate_comparison(
     train_x, train_y, test_x, test_y, *, target_column, runs_directory,
-    load_saved_model, selected_directory,
+    load_saved_model, selected_directory, show_visualizations=False,
 ):
     if load_saved_model:
         directory = saved_model_directory(runs_directory, selected_directory)
-        compare_saved_run(directory, test_x, test_y.ravel(), target_column)
+        compare_saved_run(directory, test_x, test_y.ravel(), target_column,
+                          show_visualizations=show_visualizations)
         return
 
     classification = ExperimentSettings(run_name="classification")
@@ -1153,12 +1173,15 @@ def run_gate_comparison(
 
     (output / "test_metrics.json").write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")
     print_comparison(results, rows, target_column)
+    if show_visualizations:
+        plot_gate_predictions(rows, target_column, output)
 
 
 def main():
     run_gate_comparison(
         *load_sep_c_dataset(), target_column=TARGET, runs_directory=HERE / "runs",
         load_saved_model=LOAD_SAVED_MODEL, selected_directory=SAVED_MODEL_DIRECTORY,
+        show_visualizations=SHOW_VISUALIZATIONS,
     )
 
 

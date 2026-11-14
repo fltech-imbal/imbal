@@ -3,6 +3,8 @@
 Run this file to train one shared pair of experts and both gates. Each run saves
 the experts, gates, assembled ensembles, and test metrics in runs_sep_e/<timestamp>/.
 Set LOAD_SAVED_MODEL to True to evaluate the latest saved SEP-E pair.
+Set SHOW_VISUALIZATIONS to display and save a separate imbal test prediction
+plot for each gate in the run folder.
 """
 
 from pathlib import Path
@@ -17,6 +19,7 @@ HERE = Path(__file__).resolve().parent
 DATA_DIRECTORY = HERE.parents[1] / "10-2026" / "10-16-2026-Dan"
 RUNS_DIRECTORY = HERE / "runs_sep_e"
 LOAD_SAVED_MODEL = False
+SHOW_VISUALIZATIONS = False
 # Optionally choose a specific folder, e.g. RUNS_DIRECTORY / "<timestamp>".
 SAVED_MODEL_DIRECTORY = None
 TARGET = "p16.4_tplus6"
@@ -51,6 +54,7 @@ def main():
     run_gate_comparison(
         *load_sep_e_dataset(DATA_DIRECTORY), target_column=TARGET, runs_directory=RUNS_DIRECTORY,
         load_saved_model=LOAD_SAVED_MODEL, selected_directory=SAVED_MODEL_DIRECTORY,
+        show_visualizations=SHOW_VISUALIZATIONS,
     )
 
 
