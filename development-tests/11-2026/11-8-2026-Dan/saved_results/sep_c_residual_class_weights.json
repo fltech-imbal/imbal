@@ -1,0 +1,669 @@
+{
+  "median_seed": 45,
+  "average_test": {
+    "routed": {
+      "aore": 1.3827526571775413,
+      "overall_mae": 0.2322513418743878,
+      "common_mae": 0.18629256762792362,
+      "rare_mae": 2.533253972480695,
+      "overall_mse": 0.42375019229811395
+    },
+    "full_sum": {
+      "aore": 1.3822966386580773,
+      "overall_mae": 0.23227584162440063,
+      "common_mae": 0.18633626251519916,
+      "rare_mae": 2.532317435691754,
+      "overall_mse": 0.4238195041717218
+    }
+  },
+  "runs": [
+    {
+      "seed": 42,
+      "accepted_experts": 1,
+      "attempted_experts": 2,
+      "validation_history": [
+        {
+          "rarity_search": {
+            "rarity_method": "residual_class",
+            "selected_value": 1.0,
+            "candidates": [
+              {
+                "value": 1.0,
+                "validation_aore": 1.5110410621002455
+              },
+              {
+                "value": 2.0,
+                "validation_aore": 1.5134085841543425
+              },
+              {
+                "value": 3.0,
+                "validation_aore": 1.5477775035556198
+              },
+              {
+                "value": 4.0,
+                "validation_aore": 1.5167437050720296
+              },
+              {
+                "value": 5.0,
+                "validation_aore": 1.6917236294841118
+              },
+              {
+                "value": 6.0,
+                "validation_aore": 1.5739035228572076
+              },
+              {
+                "value": 7.0,
+                "validation_aore": 1.6525816545020584
+              },
+              {
+                "value": 8.0,
+                "validation_aore": 1.6646863614797636
+              },
+              {
+                "value": 9.0,
+                "validation_aore": 1.6574434476036817
+              },
+              {
+                "value": 10.0,
+                "validation_aore": 1.8000768268282992
+              }
+            ]
+          },
+          "validation_mse": 0.40107674861528186,
+          "validation_aore": 1.5110410621002455,
+          "accepted": true
+        },
+        {
+          "validation_mse": 0.3986620069186016,
+          "validation_aore": 1.516149994928113,
+          "accepted": false,
+          "held_out_comparison": {
+            "expert_1": {
+              "aore": 1.5110410621002455,
+              "overall_mae": 0.24651420419119605,
+              "common_mae": 0.1959668281255445,
+              "rare_mae": 2.775567920009295,
+              "overall_mse": 0.40107674861528186
+            },
+            "two_expert_sum": {
+              "aore": 1.516149994928113,
+              "overall_mae": 0.24255569715990857,
+              "common_mae": 0.19164586513719553,
+              "rare_mae": 2.789744292696317,
+              "overall_mse": 0.3986620069186016
+            },
+            "oracle": {
+              "aore": 1.4950124874360649,
+              "overall_mae": 0.2290053843751131,
+              "common_mae": 0.1783988379502916,
+              "rare_mae": 2.7610195904970167,
+              "overall_mse": 0.3911280357141865
+            },
+            "rare_rows": 30,
+            "rare_improved": 12,
+            "rare_worsened": 18,
+            "rare_tied": 0,
+            "median_rare_error_reduction": -0.004110932350158691,
+            "largest_share_of_rare_gains": 0.28340769860868287
+          }
+        }
+      ],
+      "training": {
+        "routed": {
+          "aore": 1.281860961298031,
+          "overall_mae": 0.19064786887145524,
+          "common_mae": 0.14702842480377068,
+          "rare_mae": 2.373074053724607,
+          "overall_mse": 0.32097803525362134
+        },
+        "full_sum": {
+          "aore": 1.281860961298031,
+          "overall_mae": 0.19064786887145524,
+          "common_mae": 0.14702842480377068,
+          "rare_mae": 2.373074053724607,
+          "overall_mse": 0.32097803525362134
+        }
+      },
+      "test": {
+        "routed": {
+          "aore": 1.3652698075588472,
+          "overall_mae": 0.20896224197068353,
+          "common_mae": 0.16277152696716166,
+          "rare_mae": 2.521577373147011,
+          "overall_mse": 0.3866428685552557
+        },
+        "full_sum": {
+          "aore": 1.3652698075588472,
+          "overall_mae": 0.20896224197068353,
+          "common_mae": 0.16277152696716166,
+          "rare_mae": 2.521577373147011,
+          "overall_mse": 0.3866428685552557
+        }
+      }
+    },
+    {
+      "seed": 43,
+      "accepted_experts": 1,
+      "attempted_experts": 2,
+      "validation_history": [
+        {
+          "rarity_search": {
+            "rarity_method": "residual_class",
+            "selected_value": 9.0,
+            "candidates": [
+              {
+                "value": 1.0,
+                "validation_aore": 1.4537204087114715
+              },
+              {
+                "value": 2.0,
+                "validation_aore": 1.4193340869616793
+              },
+              {
+                "value": 3.0,
+                "validation_aore": 1.3827170201705195
+              },
+              {
+                "value": 4.0,
+                "validation_aore": 1.4207546092227552
+              },
+              {
+                "value": 5.0,
+                "validation_aore": 1.4771025163353289
+              },
+              {
+                "value": 6.0,
+                "validation_aore": 1.427385691746148
+              },
+              {
+                "value": 7.0,
+                "validation_aore": 1.4557875855548654
+              },
+              {
+                "value": 8.0,
+                "validation_aore": 1.4552997770467189
+              },
+              {
+                "value": 9.0,
+                "validation_aore": 1.3519954414418158
+              },
+              {
+                "value": 10.0,
+                "validation_aore": 1.4103988886216927
+              }
+            ]
+          },
+          "validation_mse": 0.4768433518340149,
+          "validation_aore": 1.3519954414418158,
+          "accepted": true
+        },
+        {
+          "validation_mse": 0.47442332202614274,
+          "validation_aore": 1.3487475879597437,
+          "accepted": false,
+          "held_out_comparison": {
+            "expert_1": {
+              "aore": 1.3519954414418158,
+              "overall_mae": 0.28971306209779113,
+              "common_mae": 0.24725007558170753,
+              "rare_mae": 2.4142778207858404,
+              "overall_mse": 0.4768433518340149
+            },
+            "two_expert_sum": {
+              "aore": 1.3487475879597437,
+              "overall_mae": 0.2941273793792273,
+              "common_mae": 0.251970675505256,
+              "rare_mae": 2.4033677965402602,
+              "overall_mse": 0.47442332202614274
+            },
+            "oracle": {
+              "aore": 1.3200246013102386,
+              "overall_mae": 0.2705110653037732,
+              "common_mae": 0.2285584922455534,
+              "rare_mae": 2.3695381373167037,
+              "overall_mse": 0.4602983616415893
+            },
+            "rare_rows": 30,
+            "rare_improved": 16,
+            "rare_worsened": 14,
+            "rare_tied": 0,
+            "median_rare_error_reduction": 0.0044394731521606445,
+            "largest_share_of_rare_gains": 0.26038150439954844
+          }
+        }
+      ],
+      "training": {
+        "routed": {
+          "aore": 0.800935471527345,
+          "overall_mae": 0.2055025785616377,
+          "common_mae": 0.1817011304750671,
+          "rare_mae": 1.3963683644930522,
+          "overall_mse": 0.31396840458847375
+        },
+        "full_sum": {
+          "aore": 0.800935471527345,
+          "overall_mae": 0.2055025785616377,
+          "common_mae": 0.1817011304750671,
+          "rare_mae": 1.3963683644930522,
+          "overall_mse": 0.31396840458847375
+        }
+      },
+      "test": {
+        "routed": {
+          "aore": 1.1475204562791037,
+          "overall_mae": 0.24737612742142795,
+          "common_mae": 0.21141829803963,
+          "rare_mae": 2.0476647851367793,
+          "overall_mse": 0.42783774405001995
+        },
+        "full_sum": {
+          "aore": 1.1475204562791037,
+          "overall_mae": 0.24737612742142795,
+          "common_mae": 0.21141829803963,
+          "rare_mae": 2.0476647851367793,
+          "overall_mse": 0.42783774405001995
+        }
+      }
+    },
+    {
+      "seed": 44,
+      "accepted_experts": 2,
+      "attempted_experts": 3,
+      "validation_history": [
+        {
+          "rarity_search": {
+            "rarity_method": "residual_class",
+            "selected_value": 2.0,
+            "candidates": [
+              {
+                "value": 1.0,
+                "validation_aore": 1.4626721173327966
+              },
+              {
+                "value": 2.0,
+                "validation_aore": 1.454459642082933
+              },
+              {
+                "value": 3.0,
+                "validation_aore": 1.488735851776094
+              },
+              {
+                "value": 4.0,
+                "validation_aore": 1.7314993733827706
+              },
+              {
+                "value": 5.0,
+                "validation_aore": 1.7370337215312444
+              },
+              {
+                "value": 6.0,
+                "validation_aore": 1.7464753863851252
+              },
+              {
+                "value": 7.0,
+                "validation_aore": 1.707692873843226
+              },
+              {
+                "value": 8.0,
+                "validation_aore": 1.7024935364244262
+              },
+              {
+                "value": 9.0,
+                "validation_aore": 1.7243712963999103
+              },
+              {
+                "value": 10.0,
+                "validation_aore": 1.793402461721938
+              }
+            ]
+          },
+          "validation_mse": 0.37108230809974735,
+          "validation_aore": 1.454459642082933,
+          "accepted": true
+        },
+        {
+          "validation_mse": 0.36944349129736354,
+          "validation_aore": 1.4374195688719449,
+          "accepted": true,
+          "held_out_comparison": {
+            "expert_1": {
+              "aore": 1.454459642082933,
+              "overall_mae": 0.22750821801122695,
+              "common_mae": 0.1784628579550628,
+              "rare_mae": 2.681411066154639,
+              "overall_mse": 0.37108230809974735
+            },
+            "two_expert_sum": {
+              "aore": 1.4374195688719449,
+              "overall_mae": 0.2281355507681566,
+              "common_mae": 0.17979641613376132,
+              "rare_mae": 2.6467035869757334,
+              "overall_mse": 0.36944349129736354
+            },
+            "oracle": {
+              "aore": 1.4239538402531613,
+              "overall_mae": 0.2122177339939414,
+              "common_mae": 0.1637805811787827,
+              "rare_mae": 2.635689946512381,
+              "overall_mse": 0.3589678086141271
+            },
+            "rare_rows": 30,
+            "rare_improved": 21,
+            "rare_worsened": 9,
+            "rare_tied": 0,
+            "median_rare_error_reduction": 0.017544031143188477,
+            "largest_share_of_rare_gains": 0.13400287404160047
+          }
+        },
+        {
+          "validation_mse": 0.3772320897668384,
+          "validation_aore": 1.473170363479459,
+          "accepted": false
+        }
+      ],
+      "training": {
+        "routed": {
+          "aore": 0.8224137239261973,
+          "overall_mae": 0.15887518775552648,
+          "common_mae": 0.13235132888128248,
+          "rare_mae": 1.485952260096868,
+          "overall_mse": 0.2295931119511266
+        },
+        "full_sum": {
+          "aore": 0.8205515064010362,
+          "overall_mae": 0.15888444229152607,
+          "common_mae": 0.1324353924270553,
+          "rare_mae": 1.4822185705105464,
+          "overall_mse": 0.22977333467067468
+        }
+      },
+      "test": {
+        "routed": {
+          "aore": 1.2466260214849294,
+          "overall_mae": 0.19993791981617245,
+          "common_mae": 0.15812614478280002,
+          "rare_mae": 2.2933141231536864,
+          "overall_mse": 0.4087402656537708
+        },
+        "full_sum": {
+          "aore": 1.2443459288876104,
+          "overall_mae": 0.2000604185662366,
+          "common_mae": 0.15834461921917772,
+          "rare_mae": 2.2886314392089844,
+          "overall_mse": 0.40908682502181015
+        }
+      }
+    },
+    {
+      "seed": 45,
+      "accepted_experts": 1,
+      "attempted_experts": 2,
+      "validation_history": [
+        {
+          "rarity_search": {
+            "rarity_method": "residual_class",
+            "selected_value": 5.0,
+            "candidates": [
+              {
+                "value": 1.0,
+                "validation_aore": 1.3968970173857125
+              },
+              {
+                "value": 2.0,
+                "validation_aore": 1.4310695493990024
+              },
+              {
+                "value": 3.0,
+                "validation_aore": 1.3962096128913262
+              },
+              {
+                "value": 4.0,
+                "validation_aore": 1.4718162280375586
+              },
+              {
+                "value": 5.0,
+                "validation_aore": 1.3832217791811
+              },
+              {
+                "value": 6.0,
+                "validation_aore": 1.441458351087081
+              },
+              {
+                "value": 7.0,
+                "validation_aore": 1.435550989291308
+              },
+              {
+                "value": 8.0,
+                "validation_aore": 1.4783145482128945
+              },
+              {
+                "value": 9.0,
+                "validation_aore": 1.390306963796644
+              },
+              {
+                "value": 10.0,
+                "validation_aore": 1.5195919081893554
+              }
+            ]
+          },
+          "validation_mse": 0.4316121608115306,
+          "validation_aore": 1.3832217791811,
+          "accepted": true
+        },
+        {
+          "validation_mse": 0.4257121062769967,
+          "validation_aore": 1.388357119862742,
+          "accepted": false,
+          "held_out_comparison": {
+            "expert_1": {
+              "aore": 1.3832217791811,
+              "overall_mae": 0.2638899965356527,
+              "common_mae": 0.21914655419139764,
+              "rare_mae": 2.502553561826547,
+              "overall_mse": 0.4316121608115306
+            },
+            "two_expert_sum": {
+              "aore": 1.388357119862742,
+              "overall_mae": 0.26200788737238817,
+              "common_mae": 0.21698393404166116,
+              "rare_mae": 2.514706352353096,
+              "overall_mse": 0.4257121062769967
+            },
+            "oracle": {
+              "aore": 1.3590414264773671,
+              "overall_mae": 0.2423950456530537,
+              "common_mae": 0.19775894781863745,
+              "rare_mae": 2.4756878073016804,
+              "overall_mse": 0.41331463836119814
+            },
+            "rare_rows": 30,
+            "rare_improved": 13,
+            "rare_worsened": 17,
+            "rare_tied": 0,
+            "median_rare_error_reduction": -0.02288079261779785,
+            "largest_share_of_rare_gains": 0.21074965591200162
+          }
+        }
+      ],
+      "training": {
+        "routed": {
+          "aore": 0.6336881207314784,
+          "overall_mae": 0.17762280243389908,
+          "common_mae": 0.1593923433413909,
+          "rare_mae": 1.0897534390290577,
+          "overall_mse": 0.2081914757460135
+        },
+        "full_sum": {
+          "aore": 0.6336881207314784,
+          "overall_mae": 0.17762280243389908,
+          "common_mae": 0.1593923433413909,
+          "rare_mae": 1.0897534390290577,
+          "overall_mse": 0.2081914757460135
+        }
+      },
+      "test": {
+        "routed": {
+          "aore": 1.2567488387875498,
+          "overall_mae": 0.22900328549797166,
+          "common_mae": 0.1879482034757515,
+          "rare_mae": 2.284494392077128,
+          "overall_mse": 0.42606756535046963
+        },
+        "full_sum": {
+          "aore": 1.2567488387875498,
+          "overall_mae": 0.22900328549797166,
+          "common_mae": 0.1879482034757515,
+          "rare_mae": 2.284494392077128,
+          "overall_mse": 0.42606756535046963
+        }
+      }
+    },
+    {
+      "seed": 46,
+      "accepted_experts": 1,
+      "attempted_experts": 2,
+      "validation_history": [
+        {
+          "rarity_search": {
+            "rarity_method": "residual_class",
+            "selected_value": 3.0,
+            "candidates": [
+              {
+                "value": 1.0,
+                "validation_aore": 1.4651846991828
+              },
+              {
+                "value": 2.0,
+                "validation_aore": 1.4152855087922886
+              },
+              {
+                "value": 3.0,
+                "validation_aore": 1.3828634435297578
+              },
+              {
+                "value": 4.0,
+                "validation_aore": 1.5544618831981307
+              },
+              {
+                "value": 5.0,
+                "validation_aore": 1.59946330276677
+              },
+              {
+                "value": 6.0,
+                "validation_aore": 1.5467102590286501
+              },
+              {
+                "value": 7.0,
+                "validation_aore": 1.4775863760152388
+              },
+              {
+                "value": 8.0,
+                "validation_aore": 1.5522707347225841
+              },
+              {
+                "value": 9.0,
+                "validation_aore": 1.6657533223243768
+              },
+              {
+                "value": 10.0,
+                "validation_aore": 1.679261878088535
+              }
+            ]
+          },
+          "validation_mse": 0.4247998153510657,
+          "validation_aore": 1.3828634435297578,
+          "accepted": true
+        },
+        {
+          "validation_mse": 0.420663201118328,
+          "validation_aore": 1.3799785976985746,
+          "accepted": false,
+          "held_out_comparison": {
+            "expert_1": {
+              "aore": 1.3828634435297578,
+              "overall_mae": 0.2866696681800541,
+              "common_mae": 0.2428511295251692,
+              "rare_mae": 2.4790572188794613,
+              "overall_mse": 0.4247998153510657
+            },
+            "two_expert_sum": {
+              "aore": 1.3799785976985746,
+              "overall_mae": 0.2838761062184282,
+              "common_mae": 0.2400612164857108,
+              "rare_mae": 2.476081089178721,
+              "overall_mse": 0.420663201118328
+            },
+            "oracle": {
+              "aore": 1.3488767545951714,
+              "overall_mae": 0.2590418937868499,
+              "common_mae": 0.2154775422555379,
+              "rare_mae": 2.438711615403493,
+              "overall_mse": 0.4031016546849021
+            },
+            "rare_rows": 30,
+            "rare_improved": 20,
+            "rare_worsened": 10,
+            "rare_tied": 0,
+            "median_rare_error_reduction": 0.021625280380249023,
+            "largest_share_of_rare_gains": 0.2040817540069486
+          }
+        }
+      ],
+      "training": {
+        "routed": {
+          "aore": 1.8489340436223698,
+          "overall_mae": 0.2800168100523061,
+          "common_mae": 0.217301930629119,
+          "rare_mae": 3.4178512771924336,
+          "overall_mse": 0.44905396929719443
+        },
+        "full_sum": {
+          "aore": 1.8489340436223698,
+          "overall_mae": 0.2800168100523061,
+          "common_mae": 0.217301930629119,
+          "rare_mae": 3.4178512771924336,
+          "overall_mse": 0.44905396929719443
+        }
+      },
+      "test": {
+        "routed": {
+          "aore": 1.8975981617772755,
+          "overall_mae": 0.2759771346656834,
+          "common_mae": 0.21119866487427494,
+          "rare_mae": 3.5192191888888678,
+          "overall_mse": 0.4694625178810537
+        },
+        "full_sum": {
+          "aore": 1.8975981617772755,
+          "overall_mae": 0.2759771346656834,
+          "common_mae": 0.21119866487427494,
+          "rare_mae": 3.5192191888888678,
+          "overall_mse": 0.4694625178810537
+        }
+      }
+    }
+  ],
+  "average_expert_2_validation": {
+    "expert_1": {
+      "aore": 1.4167162736671706,
+      "overall_mae": 0.2628590298031842,
+      "common_mae": 0.21673548907577636,
+      "rare_mae": 2.5705735175311566,
+      "overall_mse": 0.4210828769423281
+    },
+    "two_expert_sum": {
+      "aore": 1.4141305738642236,
+      "overall_mae": 0.2621405241796218,
+      "common_mae": 0.21609162146071698,
+      "rare_mae": 2.5661206235488256,
+      "overall_mse": 0.4177808255274865
+    },
+    "oracle": {
+      "aore": 1.3893818220144005,
+      "overall_mae": 0.24263422462254627,
+      "common_mae": 0.1967948802897606,
+      "rare_mae": 2.536129419406255,
+      "overall_mse": 0.4053620998032006
+    }
+  }
+}

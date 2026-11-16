@@ -141,14 +141,15 @@ def run_experiment(settings, training, testing, preprocessing):
         for method in results[0]["test"]
     }
     summary = {"median_seed": median_seed, "average_test": average_test, "runs": results}
-    if settings.maximum_experts >= 2:
-        comparisons = [result["validation_history"][1]["held_out_comparison"] for result in results]
+    comparisons = [result["validation_history"][1]["held_out_comparison"]
+                   for result in results if len(result["validation_history"]) >= 2]
+    if comparisons:
         average_validation = {
             key: average_metrics([comparison[key] for comparison in comparisons])
             for key in ("expert_1", "two_expert_sum" if settings.residual else "two_expert_mean", "oracle")
         }
         summary["average_expert_2_validation"] = average_validation
-        print_prefix_metrics(f"Held-out validation averages across {len(results)} seeds", average_validation)
+        print_prefix_metrics(f"Held-out validation averages across {len(comparisons)} seeds", average_validation)
 
     settings.result_path.parent.mkdir(parents=True, exist_ok=True)
     settings.result_path.write_text(

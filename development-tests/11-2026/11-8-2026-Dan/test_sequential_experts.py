@@ -7,11 +7,13 @@ from unittest.mock import patch
 import numpy as np
 
 from sequential_ensemble_runner_sep_c import create_settings
-from sep_c_metrics import compare_second_expert
+from sep_c_metrics import RARE_THRESHOLD, compare_second_expert
 from sep_c_models import SequentialEnsemble, router_inputs
 from sep_c_training import (
-    ValidationFold, error_weights, router_targets, router_weights, select_experts,
+    ValidationFold, error_weights, expert_weights, router_fit_weights, router_targets,
+    router_weights, select_experts,
 )
+from sequential_rarity import rarity_grid
 
 
 class SequentialExpertTests(unittest.TestCase):
@@ -144,6 +146,47 @@ class SequentialExpertTests(unittest.TestCase):
         np.testing.assert_array_equal(ensemble.predict(features).ravel(), [1, 1, 4])
         self.assertEqual(calls, [[0, 1, 2], [0, 2], [2]])
         np.testing.assert_array_equal(ensemble.predict_full(features).ravel(), [2, 3, 4])
+
+    def test_expert_and_router_use_product_without_rescaling(self):
+        targets = np.array([[0.], [1.], [3.]])
+        settings = replace(create_settings(), expert_mode="residual_class", rarity_candidates=(4.,))
+        rarity = rarity_grid(targets, settings.expert_mode, [4.], RARE_THRESHOLD)[4.]
+        np.testing.assert_allclose(rarity, [0.5, 0.5, 2.0])
+        np.testing.assert_allclose(expert_weights(targets, np.empty((3, 0)), settings, rarity), rarity)
+        # The two experts sum to [0, 0, 1], so squared errors are [0, 1, 4].
+        prefix = np.array([[1., -1.], [2., -2.], [3., -2.]])
+        product = [0., 0.3, 4.8]
+        np.testing.assert_allclose(expert_weights(targets, prefix, settings, rarity), product)
+        np.testing.assert_allclose(router_fit_weights(np.array([0, 1, 0]), targets, prefix,
+                                                     settings, rarity), product)
+
+    def test_rarity_experts_stop_on_aore_and_keep_exactly_one_percent(self):
+        features = np.arange(200).reshape(-1, 1)
+        targets = (3 * (features % 2)).astype("float32")
+        settings = replace(create_settings(), expert_mode="residual_class",
+                           rarity_candidates=(1., 4.), maximum_experts=2)
+        for corrected_common_rows, accept in ((2, False), (4, True)):
+            # Two corrected common rows improve MSE by 1%, but AORE by only 0.5%.
+            folds = [ValidationFold(train, val, np.empty((200, 0))) for train, val in
+                     ((np.arange(100), np.arange(100, 200)), (np.arange(100, 200), np.arange(100)))]
+
+            def predict(number, inputs, batch_size):
+                if number == 1:
+                    return 3 * (inputs % 2) - 1
+                return ((inputs % 2 == 0) & (inputs < 2 * corrected_common_rows)).astype(float)
+
+            with self.subTest(corrected=corrected_common_rows), \
+                 patch("sep_c_training.build_expert", side_effect=lambda number, *args: number), \
+                 patch("sep_c_training.fit_for_validation", return_value=1), \
+                 patch("sep_c_training.predict_in_batches", side_effect=predict):
+                epochs, history = select_experts(features, targets, folds, 42, settings)
+                self.assertEqual(history[1]["accepted"], accept)
+                self.assertEqual(len(epochs), 1 + int(accept))
+                # Both Expert 1 trials tied. Restore the first trial's weights.
+                self.assertEqual(history[0]["rarity_search"]["selected_value"], 1.)
+                for fold in folds:
+                    np.testing.assert_array_equal(fold.rarity, np.ones(100))
+                    self.assertEqual(fold.predictions.shape[1], len(epochs))
 
 
 if __name__ == "__main__":

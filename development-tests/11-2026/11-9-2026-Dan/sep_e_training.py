@@ -1,15 +1,18 @@
 """Select the expert sequence on held-out folds, then fit the final models."""
 
 from dataclasses import dataclass
+from functools import partial
 
 import numpy as np
 from sklearn.model_selection import KFold
 from tensorflow import keras
 
-from sep_e_metrics import compare_second_expert, print_validation_comparison
+from sep_e_metrics import RARE_THRESHOLD, compare_second_expert, print_validation_comparison, regression_metrics
 from sep_e_models import (
     SequentialEnsemble, build_expert, build_router, predict_in_batches, prefix_prediction, router_inputs,
 )
+
+from sequential_rarity import CandidateFit, rarity_grid, tune_first_expert
 
 
 def error_weights(targets, predictions):
@@ -29,13 +32,14 @@ def expert_targets(targets, previous_predictions, settings):
     return targets
 
 
-def expert_weights(targets, previous_predictions, settings):
+def expert_weights(targets, previous_predictions, settings, rarity=None):
     if settings.expert_mode == "residual_ones":
         return np.ones(len(targets), dtype="float32")
     if previous_predictions.shape[1] == 0:
-        return None
+        return rarity
 
-    return error_weights(targets, prefix_prediction(previous_predictions, settings.residual))
+    errors = error_weights(targets, prefix_prediction(previous_predictions, settings.residual))
+    return errors if rarity is None else rarity * errors
 
 
 def router_targets(targets, expert_predictions, prefix_size, residual=False):
@@ -67,6 +71,7 @@ class ValidationFold:
     validation_indices: np.ndarray
     # Each column comes from an expert fitted only on this fold's training rows.
     predictions: np.ndarray
+    rarity: np.ndarray | None = None  # Aligned with training_indices.
 
 
 def fit_for_validation(model, features, targets, weights, validation_data, settings):
@@ -86,49 +91,66 @@ def fit_for_validation(model, features, targets, weights, validation_data, setti
     return int(np.argmin(losses) + 1)
 
 
+def fit_expert_candidate(features, targets, folds, seed, settings, expert_number):
+    fold_epochs = []
+    candidate_predictions = []
+    validation_predictions = np.empty(len(features), dtype="float64")
+    for fold_number, fold in enumerate(folds, start=1):
+        training = fold.training_indices
+        validation = fold.validation_indices
+        labels = expert_targets(targets, fold.predictions, settings)
+        weights = expert_weights(targets[training], fold.predictions[training], settings, fold.rarity)
+
+        keras.utils.set_random_seed(seed + expert_number * (len(folds) + 1) + fold_number)
+        expert = build_expert(expert_number, features.shape[1], settings)
+        print(f"Expert {expert_number}: epoch-selection fold {fold_number}/{len(folds)}")
+        epoch_count = fit_for_validation(
+            expert, features[training], labels[training], weights,
+            (features[validation], labels[validation]), settings,
+        )
+        fold_epochs.append(epoch_count)
+        predictions = predict_in_batches(expert, features, settings.prediction_batch_size)
+        candidate = np.column_stack((fold.predictions, predictions))
+        candidate_predictions.append(candidate)
+        validation_predictions[validation] = prefix_prediction(candidate[validation], settings.residual).ravel()
+    return CandidateFit(int(np.round(np.mean(fold_epochs))), candidate_predictions, validation_predictions)
+
+
 def select_experts(features, targets, folds, seed, settings):
     selected_epochs = []
     validation_history = []
-    previous_mse = None
+    previous_score = None
     first_validation_predictions = None
+    fit_candidate = partial(fit_expert_candidate, features, targets, folds, seed, settings)
 
     for expert_number in range(1, settings.maximum_experts + 1):
-        fold_epochs = []
-        candidate_predictions = []
-        validation_predictions = np.empty(len(features), dtype="float64")
-
-        for fold_number, fold in enumerate(folds, start=1):
-            training = fold.training_indices
-            validation = fold.validation_indices
-            labels = expert_targets(targets, fold.predictions, settings)
-            weights = expert_weights(targets[training], fold.predictions[training], settings)
-
-            keras.utils.set_random_seed(seed + expert_number * (len(folds) + 1) + fold_number)
-            expert = build_expert(expert_number, features.shape[1], settings)
-            print(f"Expert {expert_number}: epoch-selection fold {fold_number}/{len(folds)}")
-            epoch_count = fit_for_validation(
-                expert, features[training], labels[training], weights,
-                (features[validation], labels[validation]), settings,
+        step = {}
+        if expert_number == 1 and settings.rarity_weighted:
+            candidate, step["rarity_search"] = tune_first_expert(
+                targets, folds, settings, RARE_THRESHOLD, fit_candidate, regression_metrics,
             )
-            fold_epochs.append(epoch_count)
-            predictions = predict_in_batches(expert, features, settings.prediction_batch_size)
-            candidate = np.column_stack((fold.predictions, predictions))
-            candidate_predictions.append(candidate)
-            validation_predictions[validation] = prefix_prediction(candidate[validation], settings.residual).ravel()
-
-        validation_mse = float(np.mean(np.square(targets.ravel() - validation_predictions)))
-        if not np.isfinite(validation_mse):
-            raise ValueError(f"Nonfinite validation MSE for expert {expert_number}.")
+        else:
+            candidate = fit_candidate(expert_number)
+        validation_predictions = candidate.validation_predictions
+        metrics = regression_metrics(targets, validation_predictions)
+        score_name = "aore" if settings.rarity_weighted else "overall_mse"
+        score = metrics[score_name]
+        if score is None or not np.isfinite(score):
+            raise ValueError(f"Invalid validation {score_name} for expert {expert_number}.")
+        step["validation_mse"] = metrics["overall_mse"]
+        if settings.rarity_weighted:
+            step["validation_aore"] = score
 
         # A perfect previous prefix has no possible relative improvement.
-        meets_growth_threshold = previous_mse is None or (
-            previous_mse > 0
-            and validation_mse <= previous_mse * (1 - settings.minimum_relative_improvement)
+        meets_growth_threshold = previous_score is None or (
+            previous_score > 0
+            and score <= previous_score * (1 - settings.minimum_relative_improvement)
         )
         accepted = meets_growth_threshold
-        if settings.residual and previous_mse is not None:
-            accepted = validation_mse <= previous_mse
-        validation_history.append({"validation_mse": validation_mse, "accepted": accepted})
+        if settings.residual and not settings.rarity_weighted and previous_score is not None:
+            accepted = score <= previous_score
+        step["accepted"] = accepted
+        validation_history.append(step)
         if expert_number == 1:
             first_validation_predictions = validation_predictions
         elif expert_number == 2:
@@ -138,15 +160,17 @@ def select_experts(features, targets, folds, seed, settings):
             validation_history[-1]["held_out_comparison"] = comparison
             print_validation_comparison(comparison)
 
-        print(f"Expert {expert_number}: validation ensemble MSE {validation_mse:.6f}, "
+        print(f"Expert {expert_number}: validation ensemble {score_name} {score:.6f}, "
               f"accepted={accepted}")
         if not accepted:
             break
 
-        selected_epochs.append(int(np.round(np.mean(fold_epochs))))
-        previous_mse = validation_mse
-        for fold, predictions in zip(folds, candidate_predictions):
+        selected_epochs.append(candidate.epochs)
+        previous_score = score
+        for fold, predictions in zip(folds, candidate.fold_predictions):
             fold.predictions = predictions
+        if settings.rarity_weighted and score == 0:
+            break
         if not meets_growth_threshold:
             print(f"Keeping expert {expert_number} and stopping: validation MSE improvement "
                   f"was below {settings.minimum_relative_improvement:.1%}.")
@@ -155,19 +179,27 @@ def select_experts(features, targets, folds, seed, settings):
     return selected_epochs, validation_history
 
 
+def router_fit_weights(labels, targets, prefix, settings, rarity):
+    if rarity is None:
+        return router_weights(labels, settings)
+    return expert_weights(targets, prefix, settings, rarity)
+
+
 def select_router_epochs(features, targets, folds, router_number, seed, settings):
     fold_epochs = []
     for fold_number, fold in enumerate(folds, start=1):
         training = fold.training_indices
         validation = fold.validation_indices
-        inputs = router_inputs(features, fold.predictions[:, :router_number], settings.residual)
+        prefix = fold.predictions[:, :router_number]
+        inputs = router_inputs(features, prefix, settings.residual)
         labels = router_targets(targets, fold.predictions, router_number, settings.residual)
 
         keras.utils.set_random_seed(seed + router_number * (len(folds) + 1) + fold_number)
         router = build_router(router_number, inputs.shape[1], settings)
         print(f"Router {router_number}: epoch-selection fold {fold_number}/{len(folds)}")
         epoch_count = fit_for_validation(
-            router, inputs[training], labels[training], router_weights(labels[training], settings),
+            router, inputs[training], labels[training],
+            router_fit_weights(labels[training], targets[training], prefix[training], settings, fold.rarity),
             (inputs[validation], labels[validation]), settings,
         )
         fold_epochs.append(epoch_count)
@@ -182,6 +214,10 @@ def train_ensemble(features, targets, seed, settings):
         for training, validation in splitter.split(features)
     ]
     expert_epochs, validation_history = select_experts(features, targets, folds, seed, settings)
+    rarity = None
+    if settings.rarity_weighted:
+        selected = validation_history[0]["rarity_search"]["selected_value"]
+        rarity = rarity_grid(targets, settings.expert_mode, [selected], RARE_THRESHOLD)[selected]
 
     # Refit the accepted sequence on all rows, recalculating weights from these
     # full-data experts. The fold models served only to select depth and epochs.
@@ -193,7 +229,7 @@ def train_ensemble(features, targets, seed, settings):
         print(f"Expert {expert_number}: fitting all training rows for {epoch_count} epochs")
         expert.fit(
             features, expert_targets(targets, predictions, settings),
-            sample_weight=expert_weights(targets, predictions, settings),
+            sample_weight=expert_weights(targets, predictions, settings, rarity),
             epochs=epoch_count, batch_size=settings.training_batch_size, shuffle=False, verbose=0,
         )
         expert.trainable = False
@@ -212,7 +248,9 @@ def train_ensemble(features, targets, seed, settings):
         router = build_router(router_number, inputs.shape[1], settings)
         print(f"Router {router_number}: fitting all training rows for {epoch_count} epochs")
         router.fit(
-            inputs, labels, sample_weight=router_weights(labels, settings),
+            inputs, labels, sample_weight=router_fit_weights(
+                labels, targets, predictions[:, :router_number], settings, rarity
+            ),
             epochs=epoch_count, batch_size=settings.training_batch_size, shuffle=False, verbose=0,
         )
         routers.append(router)
