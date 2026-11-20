@@ -23,20 +23,20 @@ def regression_metrics(targets, predictions):
     }
 
 
-def compare_second_expert(targets, first_predictions, mean_predictions):
+def compare_second_expert(targets, first_predictions, prefix_predictions, residual=False):
     """Compare the same out-of-fold rows, including a target-informed routing bound."""
 
     targets = targets.ravel()
     first_predictions = first_predictions.ravel()
-    mean_predictions = mean_predictions.ravel()
-    gain = np.abs(targets - first_predictions) - np.abs(targets - mean_predictions)
-    oracle_predictions = np.where(gain > 0, mean_predictions, first_predictions)
+    prefix_predictions = prefix_predictions.ravel()
+    gain = np.abs(targets - first_predictions) - np.abs(targets - prefix_predictions)
+    oracle_predictions = np.where(gain > 0, prefix_predictions, first_predictions)
 
     rare_gain = gain[targets >= RARE_THRESHOLD]
     positive_gain = rare_gain[rare_gain > 0]
     return {
         "expert_1": regression_metrics(targets, first_predictions),
-        "two_expert_mean": regression_metrics(targets, mean_predictions),
+        ("two_expert_sum" if residual else "two_expert_mean"): regression_metrics(targets, prefix_predictions),
         "oracle": regression_metrics(targets, oracle_predictions),
         "rare_rows": int(rare_gain.size),
         "rare_improved": int(positive_gain.size),
@@ -65,7 +65,8 @@ def print_prefix_metrics(title, comparison):
     print(f"\n{title}")
     print(f"{'Predictor':<25} {'Overall MSE':>12} {'Common MAE':>12} {'Rare MAE':>12} {'AORE':>12}")
     metric_order = ("overall_mse", "common_mae", "rare_mae", "aore")
-    for name, key in (("Expert 1", "expert_1"), ("Experts 1-2 mean", "two_expert_mean"),
+    prefix = "sum" if "two_expert_sum" in comparison else "mean"
+    for name, key in (("Expert 1", "expert_1"), (f"Experts 1-2 {prefix}", f"two_expert_{prefix}"),
                       ("Best per row (oracle)", "oracle")):
         metrics = comparison[key]
         values = [format_value(metrics[metric]) for metric in metric_order]
