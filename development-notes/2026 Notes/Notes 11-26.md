@@ -297,3 +297,70 @@ For each method, explore which binning/normalization method does best, and inves
 		- classfication **(3)**
 			- tabular $\checkmark$
 			- image $\checkmark$
+
+---
+
+# 11/17/26
+
+## Thesis 
+
+* Should plot 1 plot per method (per the pareto deep learning paper): three lines that are the per-class similarity over time (include baseline as a point of comparison)
+	* Use gradient similarities from last batch in each epoch
+	* For clustering-based binning, plot average, min, and max per method
+* Need AORE values, rare and common MAE
+	* +true vs. predicted plots
+
+* Make sure normalization can be enabled/disabled. May need a loss function builder $\checkmark$
+
+**Use the phrasing "adjusted/modified gradient"**
+
+- Thought: using weights of samples to determine magnitude of each conflict-reduced class gradient before summing to produce final conflict-reduced gradient?
+- What are desirable "bin-level" weights 
+	- Loss-based weighting of bins
+		- Lowest loss gets fixed "1" weight, other bins get higher weight proportionally to lowest loss
+	- Can we "spread out the pain"?
+
+$$
+\begin{array}{l}
+\underset{g'}{\arg\max}\sum_i\cos(g',g_i), \\
+
+\text{s.t.} ~~ \forall i, cos(g', g_i)\ge0
+\end{array}
+$$
+
+| Method                     | Considerations                                          |
+| -------------------------- | ------------------------------------------------------- |
+| November paper             | direction (through orthogonal projection), no magnitude |
+| $w_i \cdot g_i$            | changing magnitude in order to change the direction     |
+| $\max \sum_i\cos(g', g_i)$ | only direction, no magnitude                            |
+## Things to try:
+- Inside sum implementations, weighted by density-based weight
+- Loss-based weighting
+- Zero-out conflicting gradient dimensions
+
+---
+## Paper
+- ...
+
+---
+## NASA
+- https://cs.fit.edu/~pkc/papers/sdm20.pdf for classification representation loss
+	- Reference? (link?) on tutorial?
+- `plot_similarity_matrix` compatibility with classification, then document + tutorials
+	- Instead use SEP-C (above ln(10), background, and "elevated" (greater than background but below ln(10)))
+	- Multiple solar flare classes for SDOBenchmark
+\- Order of operations
+	- distance matrix
+		- regression **(1)** $\checkmark$
+			- tabular$\checkmark$
+			- image $\checkmark$
+		- classification **(2)** $\checkmark$
+			- tabular (script made, tutorial next)
+			- image (script made, tutorial next)
+	- representation loss $\checkmark$
+		- regression **(2)** $\checkmark$
+			- tabular $\checkmark$
+			- image $\checkmark$
+		- classfication **(3)**
+			- tabular $\checkmark$
+			- image $\checkmark$
